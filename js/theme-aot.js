@@ -26,24 +26,56 @@ const AOT_Q=[
 ['ارن... ممنون که شال را دور گردنم پیچیدی.','Eren... thank you for wrapping this scarf around me.','Mikasa Ackerman'],
 ['حتی آدم‌های قوی هم قلبی مهربان دارند.','Strong people also have a gentle side.','Mikasa Ackerman','m'],
 ['هر جا بروی، من کنار تو خواهم بود.','No matter where you go, I\'ll be by your side.','Mikasa Ackerman','m'],
-['نه فقط برای یک رؤیا؛ برای کسانی که دوستشان دارم.','Not just for a dream, but for the people I care about.','Mikasa Ackerman','m']];
+['نه فقط برای یک رؤیا؛ برای کسانی که دوستشان دارم.','Not just for a dream, but for the people I care about.','Mikasa Ackerman','m'],
+['بجنگ! بجنگ!','Fight! Fight!','Eren Yeager'],
+['اگر ببری زنده می‌مانی، اگر ببازی می‌میری؛ و اگر نجنگی، نمی‌توانی ببری!','If you win, you live. If you lose, you die. If you don\'t fight, you can\'t win!','Eren Yeager'],
+['تا آخرین‌شان را از بین می‌برم.','I\'ll wipe out every last one of them.','Eren Yeager'],
+['پرنده‌ی قفس نمی‌مانم؛ بال‌هایم را خودم می‌سازم.','I won\'t stay a bird in a cage; I\'ll build my own wings.','Eren Yeager','i'],
+['دیوار فقط تا وقتی دیوار است که قبولش کنی.','A wall is only a wall for as long as you accept it.','Eren Yeager','i'],
+['ترس را بپذیر، ولی تسلیمش نشو.','Accept the fear, but don\'t surrender to it.','Eren Yeager','i'],
+['هر صبح که بیدار می‌شوی، یک انتخاب جلوی توست.','Every morning you wake up, there is a choice in front of you.','Eren Yeager','i'],
+['اگر ببرم زنده می‌مانم، اگر ببازم می‌میرم؛ و اگر نجنگم، نمی‌توانم ببرم.','If I win, I live. If I lose, I die. If I don\'t fight, I can\'t win.','Mikasa Ackerman'],
+['شال سرخ قولی است که هر روز تازه‌اش می‌کنم.','The red scarf is a promise I renew every day.','Mikasa Ackerman','i'],
+['قوی بودن یعنی کنار کسانی ایستادن که دوستشان داری.','Being strong means standing beside the people you love.','Mikasa Ackerman','i'],
+['نترس؛ تا وقتی من هستم، به تو نمی‌رسند.','Don\'t be afraid; as long as I\'m here, they won\'t reach you.','Mikasa Ackerman','i'],
+['سکوت هم یک جور جواب است.','Silence is also a kind of answer.','Mikasa Ackerman','i'],
+['نمی‌دانم کدام درست است؛ پس انتخابی کن که کمتر پشیمانش شوی.','I don\'t know which is right, so choose the one you\'ll regret less.','Levi Ackerman'],
+['اگر قرار است بمیری، بی‌دلیل نمیر.','If you\'re going to die, don\'t die for nothing.','Levi Ackerman','i'],
+['هر روز تمرین کن، حتی وقتی کسی نگاه نمی‌کند.','Train every day, even when no one is watching.','Levi Ackerman','i'],
+['شک را کنار بگذار؛ فقط قدم بعدی.','Drop the doubt; just take the next step.','Levi Ackerman','i'],
+['نظم، اولین سلاح است.','Order is the first weapon.','Levi Ackerman','i'],
+['تمیز کن، منظم باش، جلو برو.','Clean up, stay orderly, keep moving.','Levi Ackerman','i'],
+['رهبری یعنی مسئولیت قدم اول.','Leadership is taking responsibility for the first step.','Erwin Smith','i'],
+['امید تنها چیزی است که دشمن نمی‌تواند از ما بگیرد.','Hope is the one thing the enemy can\'t take from us.','Erwin Smith','i'],
+['به جلو! امروز هم به‌اندازه‌ی دیروز شجاع باش.','Forward! Be as brave today as you were yesterday.','Erwin Smith','i'],
+['برای حقیقت باید بهایش را پرداخت.','The truth has to be paid for.','Erwin Smith','i'],
+['ترسیدن شرم‌آور نیست؛ نایستادن شرم‌آور است.','Being afraid is not shameful; refusing to stand is.','Armin Arlert','i'],
+['فکر کردن سلاح من است.','Thinking is my weapon.','Armin Arlert','i'],
+['می‌خواهم اقیانوس را ببینم؛ همراه تو.','I want to see the ocean, together with you.','Armin Arlert','i'],
+['استراتژی خوب از شجاعت ساخته می‌شود، نه از قدرت.','A good strategy is built from courage, not from strength.','Armin Arlert','i'],
+['کنجکاوی من را زنده نگه می‌دارد.','Curiosity keeps me alive.','Hange Zoë','i'],
+['سؤال بپرس؛ دنیا جواب‌هایش را پنهان نمی‌کند، فقط منتظر می‌ماند.','Ask the question; the world isn\'t hiding its answers, it\'s just waiting.','Hange Zoë','i'],
+['برای خودم زندگی می‌کنم.','I\'m going to live for myself.','Historia Reiss','i'],
+['من قهرمان نیستم، ولی کنار شما می‌ایستم.','I\'m no hero, but I\'ll stand beside you.','Jean Kirstein','i']];
 (function(){try{
- const N1='ترجمه‌ی فارسی آزاد است؛ متن انگلیسی از حافظه آمده و ممکن است با دیالوگ رسمی کمی فرق کند.',N2='برگرفته از متن طرح‌هایی که فرستادی؛ دیالوگ رسمی نیست.';
- const v=qpVet({format:'dani-quotepack',version:1,id:'aot-quotes',name:'جملات هجوم به تایتان',character:'aot',author:'',quotes:AOT_Q.map(x=>({fa:x[0],en:x[1],a:x[2],src:x[3]?'الهام‌گرفته از طرح‌ها':'Attack on Titan',note:x[3]?N2:N1}))});
+ const N3='جمله‌ی الهام‌گرفته از روحیه‌ی شخصیت؛ دیالوگ رسمی نیست.',N1='ترجمه‌ی فارسی آزاد است؛ متن انگلیسی از حافظه آمده و ممکن است با دیالوگ رسمی کمی فرق کند.',N2='برگرفته از متن طرح‌هایی که فرستادی؛ دیالوگ رسمی نیست.';
+ const v=qpVet({format:'dani-quotepack',version:1,id:'aot-quotes',name:'جملات هجوم به تایتان',character:'aot',author:'',quotes:AOT_Q.map(x=>({fa:x[0],en:x[1],a:x[2],src:x[3]==='i'?'الهام‌گرفته از شخصیت':x[3]?'الهام‌گرفته از طرح‌ها':'Attack on Titan',note:x[3]==='i'?N3:x[3]?N2:N1}))});
  if(v.pack)qpRegister(v.pack);else console.error('aot quotes',v.err)}catch(e){console.error('aot quotes',e)}})();
 {const _hp=heroPool;heroPool=function(ch){const A=QPACKS['aot-quotes'];if(!AOT_CH.includes(ch)||!A)return _hp(ch);const nm={'aot-eren':'Eren','aot-erwin':'Erwin','aot-levi':'Levi','aot-mikasa':'Mikasa'}[ch],all=A.quotes.map((_,i)=>{const q=qpQ(A,i);return{id:q.id,fa:q.t,en:q.en,a:q.a}});const own=all.filter(x=>(x.a||'').startsWith(nm));return own.concat(own,own,all)}}
 const AOT_I={eb:['eren-beach','50% 25%'],ep:['eren-port','50% 22%'],ee:['eren-eyes','50% 40%'],ef:['eren-face','50% 30%'],eo:['eren-ocean','50% 50%'],et:['eren-titan','50% 35%'],wg:['wings','50% 40%'],
  ws:['erwin-sunset','50% 20%'],wp:['erwin-port','50% 22%'],wh:['erwin-horse','50% 40%'],wm:['erwin-manga','50% 30%'],
  lj:['levi-jump','50% 35%'],lr:['levi-rain','50% 28%'],lc:['levi-cape','50% 22%'],
- ma:['mikasa-odm','50% 28%'],ms:['mikasa-scarf','50% 24%'],mf:['mikasa-autumn','50% 30%']};
+ ma:['mikasa-odm','50% 28%'],ms:['mikasa-scarf','50% 24%'],mf:['mikasa-autumn','50% 30%'],
+ es1:['eren-scout-cloak','50% 35%'],es2:['eren-scout-blades','50% 25%'],es3:['eren-scout-collage','50% 30%'],es4:['eren-scout-jacket','50% 30%'],esk:['eren-sky','50% 55%'],
+ lo:['levi-roof','50% 30%'],mb:['mikasa-blade','50% 28%'],md:['mikasa-duo','50% 30%'],bw:['eren-mikasa-bw','50% 35%']};
 const aotImg=k=>'<img src="img/aot-'+AOT_I[k][0]+'.jpg" alt="" loading="lazy" decoding="async" style="object-position:'+AOT_I[k][1]+'">';
 const AOT={
- aoe1:{ch:'aot-eren',L:'A',s:['eb','eo','ep'],g:[['ee','決意 Resolve'],['ef','自由 Freedom'],['et','地鳴 Rumbling'],['wg','翼 Wings']],kj:'自由',en:'EREN YEAGER',sub:'Beyond the Walls',ic:'odm'},
- aoe2:{ch:'aot-eren',L:'C',s:['ee','ep','ef'],g:[['eo','海 The Sea'],['eb','道 The Path'],['et','壁 Walls'],['wg','翼 Wings']],kj:'壁',en:'EREN YEAGER',sub:'Scout Regiment',ic:'wall'},
+ aoe1:{ch:'aot-eren',L:'A',s:['eb','eo','ep'],g:[['ee','決意 Resolve'],['ef','自由 Freedom'],['et','地鳴 Rumbling'],['esk','空 The Sky']],kj:'自由',en:'EREN YEAGER',sub:'Beyond the Walls',ic:'odm'},
+ aoe2:{ch:'aot-eren',L:'C',s:['es1','es3','es2'],g:[['es4','決意 Resolve'],['es2','刃 Blades'],['es3','壁 Walls'],['es1','調査兵団 Survey Corps']],kj:'壁',en:'EREN YEAGER',sub:'Scout Regiment',ic:'wall'},
  aoe3:{ch:'aot-eren',L:'B',s:['et','ef','ee'],g:[['eo','海 The Sea'],['eb','自由 Freedom'],['ep','決意 Resolve'],['wg','翼 Wings']],kj:'地鳴',en:'EREN YEAGER',sub:'The Rumbling',ic:'wall'},
  aow1:{ch:'aot-erwin',L:'A',s:['ws','wp','wh'],g:[['wm','犠牲 Sacrifice'],['wg','翼 Wings'],['ws','夜明け Dawn'],['wh','突撃 The Charge']],kj:'団長',en:'ERWIN SMITH',sub:'Sunrise Charge',ic:'odm'},
- aol1:{ch:'aot-levi',L:'C',s:['lj','lr','lc'],g:[['lc','静寂 Silence'],['wg','翼 Wings'],['lr','雨 Rain'],['lj','空 The Sky']],kj:'兵長',en:'LEVI ACKERMAN',sub:'Steel & Silence',ic:'wall'},
- aom1:{ch:'aot-mikasa',L:'B',s:['ms','ma','mf'],g:[['mf','秋 Autumn'],['wg','翼 Wings'],['ma','刃 Blades'],['ms','赤 Scarf']],kj:'守',en:'MIKASA ACKERMAN',sub:'Crimson Scarf',ic:'odm'}};
+ aol1:{ch:'aot-levi',L:'C',s:['lj','lr','lc'],g:[['lc','静寂 Silence'],['lo','屋根 The Roof'],['lr','雨 Rain'],['lj','空 The Sky']],kj:'兵長',en:'LEVI ACKERMAN',sub:'Steel & Silence',ic:'wall'},
+ aom1:{ch:'aot-mikasa',L:'B',s:['ms','ma','mf'],g:[['mf','秋 Autumn'],['md','絆 Bond'],['mb','刃 Blade'],['bw','二人 Together']],kj:'守',en:'MIKASA ACKERMAN',sub:'Crimson Scarf',ic:'odm'}};
 {const mk=(id,name,desc,o)=>{if(!SKINS[id])SKINS[id]=Object.assign({},SK_DEF,{id,name,desc},o)};
 mk('aoe1','Eren · Beyond the Walls','اقیانوس و افق؛ منوی تیغه‌ای، بنر اسلایدی و داشبورد سه‌ستونه',{lay:'side',dark:true,card:'glass',rad:16,btn:'pill',ic:'duo',home:'desk',qchar:'aot-eren',tag:'Freedom is a choice.',vars:{bg:'#0b1a24',c:'#112a38',t:'#dbe8ee',m:'#8fa9b6',b:'#1f4558',sb:'#08141c',ac:'#62b8cf',ac2:'#e9b27a',pt:'#06151c'},bgGradient:['#0b1a24','#133a4c','#0b1a24']});
 mk('aoe2','Eren · Scout Regiment','سبز و برنج؛ نوار بالای کانجی، نوار جمله و خط زمانی',{lay:'top',dark:true,card:'outline',rad:6,btn:'sharp',ic:'bold',font:'serif',home:'desk',qchar:'aot-eren',tag:'Dedicate your heart.',vars:{bg:'#131a14',c:'#1b2519',t:'#e9e4d2',m:'#a2a58f',b:'#3a4934',sb:'#0d130e',ac:'#c2a35b',ac2:'#8aa874',pt:'#1a1405'}});
