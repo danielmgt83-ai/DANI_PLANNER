@@ -58,6 +58,11 @@ html[data-skin=aol1] body{background:repeating-linear-gradient(135deg,#0000 0 14
 html[data-skin=aol1][data-lay=bottom] nav{background:#121b22f2!important;border-top:3px solid #3f6b73!important;-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}html[data-skin=aol1] nav a{color:#9db0bd!important}html[data-skin=aol1] nav a.on{color:#fff!important;box-shadow:inset 0 3px 0 #7fb5bb}html[data-skin=aol1] .aot-brand{display:none}
 html[data-skin=aol1] .c{background:#f7f9fa;border:1px solid #17212a;border-radius:3px;box-shadow:4px 4px 0 #17212a14}html[data-skin=aol1] .c h3{letter-spacing:.05em;text-transform:uppercase;font-size:13px}
 html[data-skin=aol1] button.p,html[data-skin=aol1] .btn.p{background:#17212a;color:#fff;border:1px solid #17212a;box-shadow:3px 3px 0 #3f6b73}html[data-skin=aol1] .aot-tick{color:#17212a}
+/* aol1 fix: نام گوینده و تیتر بالای جمله روی سربرگ تیره دیده شود + قاب عکس بزرگ‌تر */
+html[data-skin=aol1] .aot-hero{--ac2:#9fd0d6}
+html[data-skin=aol1] .aot-txt em{color:#9fd0d6;font-weight:600}
+@media(min-width:701px){html[data-skin=aol1] .aot-hero{grid-template-columns:minmax(0,1fr) minmax(0,1fr);min-height:400px}html[data-skin=aol1] .aot-pic{min-height:400px}}
+@media(max-width:700px){html[data-skin=aol1] .aot-pic{min-height:380px}}
 /* aom1 · Crimson Scarf: warm dark rail */
 html[data-skin=aom1] body{background:radial-gradient(900px 420px at 85% -10%,#c9485b22,transparent 70%),radial-gradient(700px 360px at 0 110%,#5a2a1a30,transparent 70%),#120c0e}
 html[data-skin=aom1] nav{background:linear-gradient(180deg,#190e12,#0a0608)!important;border-inline-end:1px solid #4a2230!important}html[data-skin=aom1] .aot-brand b,html[data-skin=aom1] .aot-brand small{display:none}html[data-skin=aom1] .aot-brand{justify-content:center;padding-inline:0}
