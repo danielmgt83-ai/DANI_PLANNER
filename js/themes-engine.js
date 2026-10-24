@@ -50,7 +50,7 @@ function ituStrip(){return'<div class="itu-strip">'+NAV.map(n=>{const p=BI_NAV[n
 function ituHero(k){const q=ituQ();return'<section class="itu-hero"><div class="itu-hq"><span class="itu-kj">うちはイタチ</span>'+heroQB(q)+'</div>'+(k==='itu3'?'<div class="itu-col"><i class="a"></i><i class="b"></i><i class="c"></i></div><div class="itu-emb">'+ITU_SHA+'</div>':'<div class="itu-art"></div>')+'</section>'}
 function ituGal(){return'<div class="itu-gal"><i style="background-image:var(--g1)"></i><i style="background-image:var(--g2)"></i><i style="background-image:var(--g3)"></i><i style="background-image:var(--g4)"></i></div>'}
 function ituHome(k){const d=todayISO(),h0=homeTarget(),run=db.timer&&['running','paused'].includes(db.timer.state),hr=new Date().getHours(),gr=hr<5?'شب بخیر':hr<12?'صبح بخیر':hr<17?'ظهر بخیر':hr<20?'عصر بخیر':'شب بخیر';
- const head='<div class="deskhead"><div><div class="dkgr">'+gr+'، دانی</div><div class="m">'+fmtDL(d)+'</div></div>'+(run?'<span class="hct">⏱ '+esc(aN(db.timer.actId))+' · <b class="hcel">'+mm(Math.floor(el()/60000))+'</b></span>':'')+'</div>';
+ const head='<div class="deskhead"><div>'+danGreetHTML()+'<div class="m">'+fmtDL(d)+'</div></div>'+(run?'<span class="hct">⏱ '+esc(aN(db.timer.actId))+' · <b class="hcel">'+mm(Math.floor(el()/60000))+'</b></span>':'')+'</div>';
  let b;
  if(k==='itu1')b='<div class="itu-g g1"><div>'+hSchedule()+hCheck()+'</div><div>'+hSummary(h0)+hGoalsBars()+hFocusTimer()+'</div><div>'+hQuickLog()+hNoteDesk()+hActionsDesk()+'</div></div>'+ituGal()+'<div class="deskwide">'+hQuote()+'</div>';
  else if(k==='itu2')b='<div class="itu-g g2"><div>'+hSummary(h0)+hGoalsBars()+hActionsDesk()+'</div><div>'+hCheck()+hSchedule()+hQuickLog()+'</div><div><div class="c itu-eyes"><i></i></div>'+hQuote()+hFocusTimer()+hNoteDesk()+ituGal()+'</div></div>';
@@ -72,7 +72,7 @@ function ivBrand(nav){if(!nav)return;nav.querySelectorAll('.iv-brand').forEach(e
  if(k==='itv1')nav.querySelectorAll('a[data-p]').forEach(a=>{const j=IV_KJ[a.dataset.p];if(j&&!a.querySelector('.kj'))a.insertAdjacentHTML('afterbegin','<span class="kj" aria-hidden="true">'+j+'</span>')})}
 PKR.decor.itv1=PKR.decor.itv2=PKR.decor.itv3=ivBrand;
 function ivHead(){const d=todayISO(),hr=new Date().getHours(),run=db.timer&&['running','paused'].includes(db.timer.state),gr=hr<5?'شب بخیر':hr<12?'صبح بخیر':hr<17?'ظهر بخیر':hr<20?'عصر بخیر':'شب بخیر';
- return'<div class="deskhead"><div><div class="dkgr">'+gr+'، دانی</div><div class="m">'+fmtDL(d)+'</div></div>'+(run?'<span class="hct">⏱ '+esc(aN(db.timer.actId))+' · <b class="hcel">'+mm(Math.floor(el()/60000))+'</b></span>':'')+'</div>'}
+ return'<div class="deskhead"><div>'+danGreetHTML()+'<div class="m">'+fmtDL(d)+'</div></div>'+(run?'<span class="hct">⏱ '+esc(aN(db.timer.actId))+' · <b class="hcel">'+mm(Math.floor(el()/60000))+'</b></span>':'')+'</div>'}
 function ivChips(){return'<div class="iv-chips">'+NAV.map(n=>{const p=BI_NAV[n[0]];return'<button data-a="go" data-p="'+n[0]+'">'+icon(n[0])+'<span>'+esc(p?p[1]:n[1])+'</span></button>'}).join('')+'</div>'}
 function ivTicker(){let P=[];try{P=hqPool('itachi')}catch(e){}if(!P.length)return'';const s=P.slice(0,12).map(q=>'<span>'+esc(q.fa)+(q.en?' · <i>'+esc(q.en)+'</i>':'')+'</span>').join('');return'<div class="iv-tick" aria-hidden="true"><div>'+s+s+'</div></div>'}
 function ivHome(k){const h0=homeTarget(),q=ituQ(),pc=Math.max(0,Math.min(100,Math.round(h0&&h0.pr&&h0.pr.n?h0.pr.pc:0))),head=ivHead(),dl='<div class="deskwide">'+hDl()+'</div>',tail='<div class="deskwide">'+hOverdue()+'</div>'+hMgr();let b;
@@ -86,3 +86,8 @@ function ivHome(k){const h0=homeTarget(),q=ituQ(),pc=Math.max(0,Math.min(100,Mat
  return'<div class="home desk iv iv'+k.slice(3)+' '+k+'">'+b+'</div>'}
 ['itv1','itv2','itv3'].forEach(k=>{PKR.home[k]=()=>ivHome(k)});
 
+/* ===== DANI: greeting at the top of Home - English only, no name, with the Dani icon (used by every theme via ituHome, ivHead and deskHTML0) ===== */
+function danGreet(){const hr=new Date().getHours();return hr>=5&&hr<12?'Good morning':hr>=12&&hr<17?'Good afternoon':'Good evening'}
+function danGreetHTML(){return'<div class="dkgr" style="display:flex;align-items:center;gap:10px"><img src="icons/icon-192.png" alt="" aria-hidden="true" width="44" height="44" style="width:44px;height:44px;border-radius:50%;flex:none;object-fit:cover"><span dir="ltr">'+danGreet()+'</span></div>'}
+function danFixGreet(){document.querySelectorAll('.dkgr').forEach(g=>{if(!g.querySelector('img')&&/بخیر/.test(g.textContent))g.outerHTML=danGreetHTML()})}
+const _rDg=render;render=function(){const r=_rDg.apply(this,arguments);try{danFixGreet()}catch(e){console.error('greet',e)}return r};
