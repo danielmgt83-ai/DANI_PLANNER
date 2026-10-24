@@ -15,6 +15,7 @@ dani.css              استایل پایه
 skins.css             موتور تم‌ها (داده‌محور)
 themes-itachi.css     استایل تم‌های Itachi
 themes-eren.css       استایل تم Eren
+themes-aot.css        استایل تم‌های Attack on Titan (aoe1 aoe2 aoe3 aow1 aol1 aom1)
 manifest.webmanifest  اطلاعات PWA (نام، آیکون، رنگ)
 sw.js                 سرویس‌ورکر: کار آفلاین + نمایش اعلان‌ها
 icons/                آیکون برنامه (ماه کامل + نوشته‌ی Dani) در اندازه‌های مختلف
@@ -38,6 +39,7 @@ run-local.*           اجرای محلی با یک کلیک
 | `themes-engine.js` | موتور تم + تم‌های Itachi + بسته‌های تم |
 | `theme-eren.js` | تم Eren Yeager |
 | `quotes-data.js` | داده‌ی جمله‌ها (حجیم؛ بیشتر داده است) |
+| `theme-aot.js` | تم‌های Attack on Titan (Eren ×۳، Erwin، Levi، Mikasa) + بسته‌ی جمله‌ی `aot-quotes`؛ باید بعد از quotes-data.js بیاید |
 | `modules-habits-reminders-quotes.js` | عادت‌ها، یادآورها (اعلان داخل برنامه و سیستمی)، جمله‌ها |
 | **`academy.js`** | **آکادمی: زیرساخت، منابع، فلش‌کارت SM-2، لاگ آزمون تمرینی (`PG.acd`)** |
 | `modules-deadlines.js` | تنظیم ماژول‌ها، ددلاین‌ها |
