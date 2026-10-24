@@ -1,0 +1,60 @@
+/* فایل‌های CSS عمداً کنار index.html هستند، نه داخل پوشه‌ای جدا: آدرس عکس‌ها (img/…) داخل متغیرهای CSS نسبت به محل خود فایل CSS حل می‌شود. */
+/* ===== Itachi Uchiha themes ===== */
+html[data-skin^=itu] body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;background:radial-gradient(circle at 80% -8%,#c1121f66 0,#c1121f25 130px,transparent 360px),radial-gradient(ellipse at 8% 105%,#7f0d1466,transparent 55%)}
+html[data-skin^=itu] .c{background:linear-gradient(160deg,#170c13,#0b070d);border-color:#4a1520;box-shadow:0 0 0 1px #e0182d14,0 6px 22px #0009}
+html[data-skin^=itu] .c h3{color:#ffd9dc;letter-spacing:.02em}
+html[data-skin^=itu] button.p{background:linear-gradient(135deg,#e0182d,#8f0f1c);border-color:#ff5a5f55;box-shadow:0 0 14px #e0182d44}
+html[data-skin^=itu] nav{background:linear-gradient(180deg,#0a0509,#05030a);border-inline-end:1px solid #3a1019}
+@media(min-width:801px){html[data-skin^=itu] nav{display:flex;flex-direction:column;overflow-y:auto}}
+html[data-skin^=itu] nav h1{display:none}
+html[data-skin^=itu] nav>small{display:none}
+.itu-prof .brand{display:flex;align-items:center;gap:9px;padding:6px 10px 10px}.itu-prof .brand svg{width:34px;height:34px;flex:none;margin:0;filter:drop-shadow(0 0 8px #e0182d99)}
+.itu-prof .brand b{font-size:19px;color:#f6eef0}.itu-prof .brand b span{color:#ff4b55}
+.itu-prof .ban{display:block;height:64px;margin:0 10px 10px;border-radius:10px;border:1px solid #6b1a26;background:var(--ib) center/cover}
+.itu-foot{position:relative;margin:auto 10px 10px;padding-top:10px;min-height:150px}.itu-foot .art{display:block;height:130px;border-radius:12px;border:1px solid #6b1a26;background:var(--ic) center/cover;box-shadow:0 0 18px #e0182d44}
+.itu-foot .kj{position:absolute;inset-inline-start:8px;top:18px;writing-mode:vertical-rl;color:#ff4b55;font-size:13px;text-shadow:0 0 8px #000}
+.itu-foot p{margin:8px 2px 0;font-size:11px;line-height:1.5;color:#c9aab0}.itu-foot em{color:#ff5a5f;font-style:normal}
+@media(max-width:800px){.itu-foot{display:none}}
+/* hex / circle / row icons per theme */
+html[data-skin^=itu] nav a{border-radius:var(--radb);margin:2px 8px;color:#d9c3c8}
+html[data-skin^=itu] nav a.on{color:#fff}
+html[data-skin=itu1] nav a svg.ic{width:34px;height:34px;padding:7px;clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);background:#e0182d26;margin-inline-end:10px}
+html[data-skin=itu1] nav a.on{background:linear-gradient(90deg,#e0182d33,transparent);box-shadow:inset 3px 0 0 #e0182d,0 0 14px #e0182d44}html[data-skin=itu1] nav a.on svg.ic{background:#e0182d}
+html[data-skin=itu2] nav a{border-radius:99px}html[data-skin=itu2] nav a svg.ic{width:30px;height:30px;padding:6px;border-radius:50%;border:1px solid #6b1a26;margin-inline-end:10px}
+html[data-skin=itu2] nav a.on{background:#e0182d22;box-shadow:inset 0 0 0 1px #e0182d,0 0 16px #e0182d55}html[data-skin=itu2] nav a.on svg.ic{background:#e0182d;border-color:#ff5a5f}
+.itu-prof .me{display:flex;align-items:center;gap:10px;margin:0 10px 10px;padding:9px;border-radius:14px;background:#e0182d14;border:1px solid #5a1822}.itu-prof .me .av{width:46px;height:46px;border-radius:50%;border:2px solid #e0182d;background:var(--g3) center/cover;flex:none}
+.itu-prof .me small{display:block;color:#b19aa0;font-size:11px}.itu-prof .me b{color:#ff4b55;font-size:17px}.itu-prof .me em{display:block;font-style:normal;font-size:10px;color:#8f7a80}
+html[data-skin=itu3] nav a{border-radius:2px;margin:0 8px;padding:9px 6px;border-bottom:1px solid #2a0f15}
+html[data-skin=itu3] nav a svg.ic{width:32px;height:32px;padding:6px;border:1px solid #7a1c28;border-radius:3px;margin-inline-end:10px}
+html[data-skin=itu3] nav a.on{background:#e0182d1f;box-shadow:inset 0 0 0 1px #e0182d,0 0 12px #e0182d44}html[data-skin=itu3] nav a.on svg.ic{background:#e0182d}
+/* dashboards */
+.itu .itu-hero{position:relative;min-height:236px;margin:8px 0 12px;display:flex;align-items:center;overflow:hidden;border-radius:var(--rad);border:1px solid #7a1c28;box-shadow:0 0 30px #e0182d33,inset 0 0 70px #000b;background:#07040a}
+.itu .itu-art{position:absolute;inset:0;background:var(--ia) center/cover no-repeat}
+.itu .itu-hero::after{content:"";position:absolute;inset:0;background:linear-gradient(to left,#07040af2 0,#07040ac0 36%,#0000 72%)}
+html[dir=ltr] .itu .itu-hero::after{background:linear-gradient(to right,#07040af2 0,#07040ac0 36%,#0000 72%)}
+.itu-hq{position:relative;z-index:2;padding:22px 28px;max-width:min(560px,78%)}
+.itu-kj{position:absolute;inset-inline-end:8px;top:16px;writing-mode:vertical-rl;color:#ff4b55;font-size:15px;text-shadow:0 0 10px #e0182d}
+.itu-hq .fa{margin:0 0 8px;font-size:20px;line-height:1.7;font-weight:700;color:#fff;text-shadow:0 2px 12px #000}.itu-hq .en{margin:0 0 6px;font-size:13px;color:#d6bcc1}.itu-hq em{font-style:normal;color:#ff5a5f;font-size:12px}
+.itu3 .itu-col{position:absolute;inset:0;display:grid;grid-template-columns:1fr 1.1fr 1.2fr}.itu3 .itu-col i{background:center/cover;border-inline-start:1px solid #5a1822}
+.itu3 .itu-col .a{background-image:var(--ib)}.itu3 .itu-col .b{background-image:var(--id)}.itu3 .itu-col .c{background-image:var(--ia)}
+.itu3 .itu-hero{min-height:260px;align-items:flex-end}.itu3 .itu-hero::after{background:linear-gradient(0deg,#07040af5 0,#07040a99 45%,#0000 80%)}
+.itu3 .itu-hq{max-width:100%;width:100%;text-align:center;padding:14px 20px}.itu3 .itu-hq .fa{font-size:18px}.itu3 .itu-kj{display:none}
+.itu-emb{position:absolute;z-index:3;top:12px;left:50%;transform:translateX(-50%);width:46px;filter:drop-shadow(0 0 12px #e0182d)}.itu-emb svg{width:46px;height:46px}
+.itu2 .itu-hero::after{background:linear-gradient(to left,#07040aee 0,#07040a99 40%,#0000 75%)}.itu2 .itu-hq{background:#0a050bb0;margin:16px;border:1px solid #5a1822;border-radius:18px;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+.itu-strip{display:flex;gap:8px;overflow-x:auto;padding:6px 2px 10px;justify-content:space-around;scrollbar-width:none}.itu-strip::-webkit-scrollbar{display:none}
+.itu-strip button{flex:1 0 74px;display:flex;flex-direction:column;align-items:center;gap:2px;background:none;border:0;box-shadow:none;color:#f1dde0;padding:4px 2px;min-height:0}
+.itu-strip button i{display:grid;place-items:center;width:54px;height:54px;background:#e0182d1f;border:1px solid #7a1c28;color:#ff5a5f;margin-bottom:3px;transition:.2s}
+.itu-strip button i svg{width:24px;height:24px;margin:0}.itu-strip button b{font-size:12px}.itu-strip button small{font-size:10px;color:#a98c92}
+.itu-strip button:hover i{background:#e0182d;color:#fff;box-shadow:0 0 18px #e0182d99}
+.itu1 .itu-strip button i{clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);border:0;background:#e0182d33}
+.itu2 .itu-strip button i{border-radius:50%}.itu3 .itu-strip button i{border-radius:4px;transform:rotate(45deg)}.itu3 .itu-strip button i svg{transform:rotate(-45deg)}.itu3 .itu-strip{padding-top:12px}
+.itu-g{display:grid;gap:12px;align-items:start}.itu-g>div{display:flex;flex-direction:column;gap:12px;min-width:0}.itu-g .c{margin:0}
+.itu-g.g1{grid-template-columns:repeat(3,minmax(0,1fr))}.itu-g.g2{grid-template-columns:1fr 1.25fr .95fr}.itu-g.g3{grid-template-columns:1fr 1fr 1fr 1.1fr}
+@media(max-width:1100px){.itu-g.g3{grid-template-columns:1fr 1fr}}@media(max-width:900px){.itu-g.g1,.itu-g.g2{grid-template-columns:1fr 1fr}}@media(max-width:640px){.itu-g.g1,.itu-g.g2,.itu-g.g3{grid-template-columns:1fr}.itu-hq{max-width:100%}}
+.itu-eyes{padding:0;overflow:hidden;height:92px}.itu-eyes i{display:block;height:100%;background:var(--ib) center/cover}
+.itu-gal{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:12px 0}.itu-gal i{aspect-ratio:3/4;border-radius:10px;border:1px solid #6b1a26;background:center/cover;box-shadow:0 0 14px #e0182d33}
+.itu-g.g2 .itu-gal{grid-template-columns:repeat(2,1fr)}.itu-g.g2 .itu-gal i{aspect-ratio:1}
+.itu1 .c{clip-path:polygon(0 0,calc(100% - 14px) 0,100% 14px,100% 100%,14px 100%,0 calc(100% - 14px))}.itu2 .c{border-radius:20px}.itu3 .c{border-top:2px solid #e0182d}
+.itu-hq{padding-inline-end:56px}.itu3 .itu-hq{padding-inline-end:20px}
+.itu-foot .kj{position:absolute!important;top:20px!important;bottom:auto!important;inset-inline-start:10px!important;line-height:1;font-size:12px;z-index:2}
+.itu-foot .kj{display:none!important}.itu-qc{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}.itu-qc button{min-height:0;padding:3px 10px;background:#000a;border:1px solid #6b1a26;color:#f1dde0;font-size:12px;box-shadow:none}.itu-qc button:hover{background:#e0182d;color:#fff}.itu3 .itu-qc{justify-content:center}

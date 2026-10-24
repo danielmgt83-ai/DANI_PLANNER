@@ -1,0 +1,55 @@
+/* فایل‌های CSS عمداً کنار index.html هستند، نه داخل پوشه‌ای جدا: آدرس عکس‌ها (img/…) داخل متغیرهای CSS نسبت به محل خود فایل CSS حل می‌شود. */
+/* ===== Eren · Paths of Freedom (eren2) ===== */
+html[data-skin=eren2] body{background:#07111f}
+html[data-skin=eren2] body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;background:radial-gradient(700px 380px at 12% -6%,#2a8fd855,transparent 70%),radial-gradient(600px 300px at 100% 105%,#ff8a5c26,transparent 70%)}
+html[data-skin=eren2] nav{background:linear-gradient(#050c17,#071a2c)!important;border-inline-end:1px solid #1d4a66!important}
+html[data-skin=eren2] nav a{border-radius:0!important;border:1px solid transparent;clip-path:polygon(10px 0,100% 0,100% calc(100% - 10px),calc(100% - 10px) 100%,0 100%,0 10px)}
+html[data-skin=eren2] nav a:hover{background:#6fe3ff14!important}
+html[data-skin=eren2] nav a.on{background:#6fe3ff1f!important;border-color:#6fe3ff!important;color:#fff!important;box-shadow:inset 3px 0 0 #ff8a5c}
+html[data-skin=eren2] .c{background:#0d1d31;border:1px solid #1d4a66;border-radius:0;clip-path:polygon(0 0,calc(100% - 14px) 0,100% 14px,100% 100%,14px 100%,0 calc(100% - 14px))}
+html[data-skin=eren2] .c h3{letter-spacing:.02em}
+html[data-skin=eren2] .c h3:first-child::before{content:"";display:inline-block;width:7px;height:7px;margin-inline-end:8px;background:#ff8a5c;transform:rotate(45deg)}
+.ern .c{margin:0}.ern .deskgrid{display:block}
+.ern-hero{position:relative;min-height:300px;margin:8px 0 10px;display:flex;align-items:center;overflow:hidden;border:1px solid #2a6a88;background:#0a2d4d;clip-path:polygon(18px 0,100% 0,100% calc(100% - 18px),calc(100% - 18px) 100%,0 100%,0 18px)}
+.ern-bg{position:absolute;inset:-20px;background:var(--er2) center 30%/cover;filter:blur(14px) saturate(1.2);opacity:.65}
+.ern-hero::after{content:"";position:absolute;inset:0;background:linear-gradient(to left,#07111ff2 0,#07111fb0 42%,#0000 78%)}
+html[dir=ltr] .ern-hero::after{background:linear-gradient(to right,#07111ff2 0,#07111fb0 42%,#0000 78%)}
+.ern-faces{position:absolute;inset-block:0;inset-inline-end:0;display:flex;z-index:1}
+.ern-faces i{display:block;height:100%;width:200px;background:center/cover;clip-path:polygon(26px 0,100% 0,calc(100% - 26px) 100%,0 100%)}
+.ern-faces .a{background-image:var(--er1)}.ern-faces .b{background-image:var(--er2);margin-inline-start:-16px}
+.ern-hero::before{content:"";position:absolute;inset-block:0;inset-inline-end:196px;width:3px;background:#ff8a5c;z-index:3;transform:skewX(-6deg);opacity:.9}
+.ern-hq{position:relative;z-index:2;margin:22px 26px;max-width:min(520px,58%);padding:20px 20px 16px;background:#07111fd0;border:1px solid #6fe3ff;clip-path:polygon(14px 0,100% 0,100% calc(100% - 14px),calc(100% - 14px) 100%,0 100%,0 14px);backdrop-filter:blur(6px)}
+.ern-hq::before{content:"\201C";position:absolute;top:-4px;inset-inline-start:12px;font:700 54px/1 Georgia,serif;color:#ff8a5c}
+.ern-hq .fa{margin:16px 0 8px;font-size:19px;line-height:1.85;font-weight:700;color:#fff}
+.ern-hq .en{margin:0 0 6px;font-size:13px;color:#b9d6e4;direction:ltr;text-align:start}
+.ern-hq em{font-style:normal;font-size:12px;color:#ff8a5c}
+.ern-tag{position:absolute;top:8px;inset-inline-end:14px;font:600 10px Georgia,serif;letter-spacing:.3em;color:#6fe3ff}
+.ern-kj{position:absolute;z-index:2;left:440px;bottom:16px;writing-mode:vertical-rl;font:700 44px "Noto Serif JP",serif;letter-spacing:.25em;color:#6fe3ff40}@media(max-width:1180px){.ern-kj{display:none}}
+.ern .itu-qc{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
+.ern .itu-qc button{min-height:0;padding:4px 11px;font-size:12px;background:#0a1424;color:#6fe3ff;border:1px solid #2a6a88;border-radius:0;box-shadow:none}
+.ern .itu-qc button:hover{background:#ff8a5c;border-color:#ff8a5c;color:#1a0d06}
+.ern-tick{overflow:hidden;direction:ltr;border-block:1px solid #1d4a66;background:#050c17;margin:0 0 10px}
+.ern-tick>div{display:inline-flex;gap:34px;white-space:nowrap;padding:7px 0;animation:ern-mq 90s linear infinite;font-size:12px;color:#9bb4c4}
+.ern-tick b{color:#ff8a5c;margin-inline-end:8px;font-size:9px}.ern-tick i{color:#6fe3ff;font-style:normal;opacity:.85}
+@keyframes ern-mq{to{transform:translateX(-50%)}}
+@media(prefers-reduced-motion:reduce){.ern-tick>div{animation:none}}
+.ern-ch{display:grid;grid-template-columns:repeat(auto-fit,minmax(138px,1fr));gap:8px;margin:12px 0}
+.ern-ch button{display:grid;grid-template-columns:1fr auto;grid-template-areas:"n i" "b b" "s s";gap:2px 8px;text-align:start;padding:10px 12px;min-height:84px;background:#0d1d31;border:1px solid #1d4a66;color:#e8f3f8;border-radius:0;box-shadow:none;clip-path:polygon(12px 0,100% 0,100% calc(100% - 12px),calc(100% - 12px) 100%,0 100%,0 12px)}
+.ern-ch em{grid-area:n;font:700 22px Georgia,serif;color:#4f7f99;font-style:normal}
+.ern-ch svg.ic{grid-area:i;width:22px;height:22px;color:#6fe3ff}
+.ern-ch b{grid-area:b;font-size:15px}.ern-ch small{grid-area:s;color:#9bb4c4;font-size:11px}
+.ern-ch button:hover{background:#12283f;border-color:#ff8a5c}.ern-ch button:hover em{color:#ff8a5c}
+.ern-g{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;align-items:start;margin-top:10px}
+.ern-g>div{display:flex;flex-direction:column;gap:12px;min-width:0}
+.ern-gal{display:grid;grid-template-columns:1fr 1.6fr 1fr;gap:10px;margin:14px 0}
+.ern-gal figure{position:relative;margin:0;height:230px;background:var(--p) center 25%/cover;border:1px solid #2a6a88;clip-path:polygon(16px 0,100% 0,100% calc(100% - 16px),calc(100% - 16px) 100%,0 100%,0 16px);filter:saturate(1.1)}
+.ern-gal figure.w{background-position:center 58%}.ern-gal figure:last-child{background-position:center 22%}.ern-gal figcaption{position:absolute;top:8px;inset-inline-start:10px;writing-mode:vertical-rl;font:700 20px "Noto Serif JP",serif;color:#fff;text-shadow:0 0 10px #000;letter-spacing:.2em}
+@media(max-width:1000px){.ern-g{grid-template-columns:1fr 1fr}}
+@media(max-width:760px){.ern-g{grid-template-columns:1fr}.ern-gal{grid-template-columns:1fr 1fr}.ern-gal figure.w{grid-column:span 2;order:-1;height:170px}.ern-hq{max-width:none;margin:14px 12px}.ern-faces{opacity:.38}.ern-hero::before{display:none}}
+.ern-prof .brand{display:flex;align-items:center;gap:9px;padding:6px 10px 10px}.ern-prof .brand svg{width:30px;height:24px;flex:none;margin:0}
+.ern-prof .brand b{font-size:19px;color:#e8f3f8}.ern-prof .brand b span{color:#6fe3ff}
+.ern-prof .ban{display:block;height:64px;margin:0 10px 10px;border:1px solid #2a6a88;background:var(--er1) center 20%/cover;clip-path:polygon(10px 0,100% 0,100% calc(100% - 10px),calc(100% - 10px) 100%,0 100%,0 10px)}
+.ern-foot{position:relative;margin:auto 10px 10px;padding-top:10px}
+.ern-foot .art{display:block;height:130px;background:var(--er2) center 28%/cover;border:1px solid #2a6a88;clip-path:polygon(12px 0,100% 0,100% calc(100% - 12px),calc(100% - 12px) 100%,0 100%,0 12px)}
+.ern-foot .kj{position:absolute;inset-inline-start:8px;top:18px;writing-mode:vertical-rl;color:#6fe3ff;font-size:13px;text-shadow:0 0 8px #000}
+.ern-foot p{margin:8px 2px 0;font-size:11px;line-height:1.7;color:#9bb4c4}.ern-foot em{color:#ff8a5c;font-style:normal}
