@@ -1,0 +1,83 @@
+"use strict";
+/* DANI · modules-deadlines.js
+   کارت تنظیم ماژول‌ها، جمله‌ی داشبورد، ددلاین‌ها
+   فایل‌های js/ به ترتیب در index.html بارگذاری می‌شوند و متغیرها و تابع‌ها را مشترک دارند (مثل یک فایل واحد). */
+/* ===== module settings card + dashboard quote + import vetting ===== */
+function modCardHTML(){return'<div class="c" id="modcard"><h3>بخش‌ها (ماژول‌ها)</h3>'+MODULES.map(m=>'<label class="chip" style="margin:3px"><input type="checkbox" data-mc="mod:tog:'+m.id+'" '+(modOn(m.id)?'checked':'')+'>'+esc(m.name)+'</label>').join('')+'<p class="m">غیرفعال‌کردن یک بخش فقط آن را از منو پنهان می‌کند؛ داده‌هایش حذف نمی‌شود.</p></div>'}
+zMA.mod.tog=(id,el)=>{const off=Array.isArray(db.set.modOff)?db.set.modOff.slice():[],i=off.indexOf(id);if(el.checked&&i>=0)off.splice(i,1);if(!el.checked&&i<0)off.push(id);db.set.modOff=off;zcommit()};
+/* ===== DANI v1: Deadlines module (data in db.mods.dl; times are stored as local wall-clock ISO date + HH:MM, independent of the display calendar) ===== */
+function BL(e,f){return LANGEN()?e:f}
+function BH(e,f){return LANGEN()?e:(LANGBI()?'<span class="bi"><b>'+e+'</b><i>'+f+'</i></span>':f)}
+function BT(e,f){return '\u2063'+(LANGEN()?e:f)}
+function BD(e,f){return '\u2063'+(LANGEN()?e:f)}
+const DL_CATS=[['mba','MBA Exam','آزمون MBA','#60a5fa'],['mock','Mock Exam','آزمون آزمایشی','#38bdf8'],['mile','Study Milestone','نقطه عطف مطالعه','#a78bfa'],['asg','Assignment','تکلیف','#f59e0b'],['work','Work Deadline','موعد کاری','#34d399'],['intv','Job Interview','مصاحبه شغلی','#f472b6'],['pers','Personal Event','رویداد شخصی','#94a3b8'],['proj','Project Deadline','موعد پروژه','#fb7185'],['custom','Custom','سفارشی','#cbd5e1']];
+const DL_IMP=[['1','Low','کم'],['2','Medium','متوسط'],['3','High','بالا']];
+const DL_STY=[['big','Big digits','ارقام بزرگ'],['ring','Ring','حلقه‌ای'],['bar','Progress bar','نوار پیشرفت'],['mini','Minimal','مینیمال']];
+const zDL=()=>{const a=zmg('dl',()=>({v:1}));zarr(a,'items');zarr(a,'cats');if(typeof a.style!=='string'||!DL_STY.some(s=>s[0]===a.style))a.style='big';if(typeof a.main!=='string')a.main='';return a};
+zMS.dl={tab:'up',q:'',cat:'',edit:null};zMA.dl={};
+const dlCats=()=>DL_CATS.map(c=>({id:c[0],en:c[1],fa:c[2],col:c[3],std:1})).concat(zDL().cats.filter(c=>c&&typeof c.id==='string'&&typeof c.n==='string').map(c=>({id:c.id,en:S_(c.n,40),fa:S_(c.n,40),col:/^#[0-9a-f]{6}$/i.test(c.col)?c.col:'#94a3b8',std:0})));
+const dlCat=id=>dlCats().find(c=>c.id===id)||dlCats()[8];
+const dlCL=c=>c.std?BL(c.en,c.fa):esc(c.en);
+const dlOpt=c=>c.std?BT(c.en,c.fa):esc(c.en);
+const dlOk=x=>!!x&&typeof x==='object'&&typeof x.id==='string'&&!!x.id&&typeof x.title==='string'&&mDate(x.dt)&&mTime(x.tm);
+const dlTs=x=>{const[y,m,d]=x.dt.split('-').map(Number),[h,n]=x.tm.split(':').map(Number);return new Date(y,m-1,d,h,n).getTime()};
+const dlParts=ms=>{const s=Math.max(0,Math.floor(ms/1000));return{d:Math.floor(s/86400),h:Math.floor(s%86400/3600),m:Math.floor(s%3600/60),s:s%60}};
+const dl2=v=>fa(String(v).padStart(2,'0'));
+function dlCD(x,big){const now=Date.now(),t=dlTs(x),ms=t-now,st=zDL().style;
+ if(x.done)return'<div class="dlst ok">✓ '+BL('Completed','انجام شد')+'</div>';
+ if(ms<=0){const p=dlParts(-ms);return'<div class="dlst">'+BL('This moment has passed','این لحظه گذشته است')+' · '+fa(p.d)+' '+BL('d ago','روز پیش')+'</div>'}
+ const p=dlParts(ms),box=(v,e,f)=>'<div class="dlb"><b>'+dl2(v)+'</b><small>'+BL(e,f)+'</small></div>';
+ const span=Math.max(1,t-(x.cr||now)),pct=Math.min(100,Math.max(0,Math.round((1-ms/span)*100))),rem=100-pct,col=rem>50?'var(--ac)':rem>25?'#f59e0b':'#ef4444';
+ if(st==='ring'){const r=44,c=2*Math.PI*r,z=big?120:84;return'<div class="dlring"><svg viewBox="0 0 100 100" width="'+z+'" height="'+z+'"><circle cx="50" cy="50" r="'+r+'" fill="none" stroke="currentColor" opacity=".15" stroke-width="7"/><circle cx="50" cy="50" r="'+r+'" fill="none" stroke="'+col+'" stroke-width="7" stroke-linecap="round" stroke-dasharray="'+c.toFixed(1)+'" stroke-dashoffset="'+(c*(1-rem/100)).toFixed(1)+'" transform="rotate(-90 50 50)"/></svg><div class="dlrc"><b>'+fa(p.d)+'</b><small>'+BL('days','روز')+'</small></div></div>'}
+ if(st==='bar')return'<div class="dlst"><b>'+fa(p.d)+'</b> '+BL('d','روز')+' <b>'+dl2(p.h)+'</b> '+BL('h','ساعت')+' <b>'+dl2(p.m)+'</b> '+BL('min','دقیقه')+'</div><div class="dlbar"><i style="width:'+rem+'%;background:'+col+'"></i></div>';
+ if(st==='mini')return'<div class="dlst">'+fa(p.d)+' '+BL('d','روز')+' · '+dl2(p.h)+':'+dl2(p.m)+':'+dl2(p.s)+'</div>';
+ return'<div class="dlbig">'+box(p.d,'Days','روز')+box(p.h,'Hours','ساعت')+box(p.m,'Min','دقیقه')+box(p.s,'Sec','ثانیه')+'</div>'}
+function dlRow(x){const c=dlCat(x.cat),m=zDL().main===x.id;
+ return'<div class="c dlrow" style="border-inline-start:4px solid '+c.col+'"><div class="row" style="justify-content:space-between;align-items:flex-start"><div class="nm"><b>'+esc(S_(x.title,100))+'</b> '+(m?'<span class="badge">★ '+BL('On dashboard','در داشبورد')+'</span> ':'')+(x.arch?'<span class="badge">'+BL('Archived','بایگانی')+'</span>':'')+'<div class="m"><span class="badge" style="color:'+c.col+'">'+dlCL(c)+'</span> '+fmtD(x.dt)+' · '+fa(x.tm)+' · '+'★'.repeat(Math.min(3,Math.max(1,+x.imp||1)))+'</div>'+(x.note?'<div class="m">'+esc(S_(x.note,300))+'</div>':'')+(Array.isArray(x.al)&&x.al.length&&!x.done&&!x.arch?'<div class="m">🔔 '+x.al.map(o=>(RSTEPS.find(z=>z[0]===o)||[0,''])[1]).join('، ')+'</div>':'')+'</div><div class="dlcd" data-id="'+esc(x.id)+'">'+dlCD(x,false)+'</div></div><div class="row" style="margin-top:8px">'+mBtn('dl:main:'+x.id,m?BL('Unpin','برداشتن'):BL('Pin to dashboard','سنجاق به داشبورد'),'')+mBtn('dl:done:'+x.id,x.done?BL('Reopen','بازگشایی'):BL('Mark done','انجام شد'),'')+mBtn('dl:edit:'+x.id,BL('Edit','ویرایش'),'')+mBtn('dl:arch:'+x.id,x.arch?BL('Restore','بازیابی'):BL('Archive','بایگانی'),'')+mBtn('dl:del:'+x.id,BL('Delete','حذف'),'d')+'</div></div>'}
+PG.dl=()=>{const A=zDL(),S=zMS.dl,now=Date.now(),cats=dlCats(),e=S.edit,cur=e&&A.items.find(x=>x.id===e),q=S.q.trim().toLowerCase();
+ const tabs={up:x=>!x.arch&&!x.done&&dlTs(x)>now,past:x=>!x.arch&&(x.done||dlTs(x)<=now),arch:x=>!!x.arch,all:()=>true};
+ const L=A.items.filter(dlOk).filter(x=>(!S.cat||x.cat===S.cat)&&(!q||(x.title+' '+(x.note||'')).toLowerCase().includes(q))).filter(tabs[S.tab]||tabs.up).sort((a,b)=>S.tab==='past'?dlTs(b)-dlTs(a):dlTs(a)-dlTs(b));
+ const ex=db.set.cal==='g'?'2026/12/31':'1405/10/10';
+ let h='<div class="c"><h3>'+BH('Deadlines','موعدها')+'</h3><p class="m">'+BL('Every deadline is a date with your future. Set it, watch it, move toward it.','هر موعد قراری با آینده‌ی توست؛ آن را ثبت کن، ببین و به سویش حرکت کن.')+'</p><div class="mrow">'+DL_STY.map(s=>mBtn('dl:style:'+s[0],BL(s[1],s[2]),'chip '+(A.style===s[0]?'on':''))).join('')+'</div></div>';
+ h+='<div class="c"><h3>'+(cur?BH('Edit deadline','ویرایش موعد'):BH('Add deadline','افزودن موعد'))+'</h3><label>'+BL('Title','عنوان')+'</label><input id="df-t" maxlength="100" value="'+esc(cur?cur.title:'')+'" style="width:100%">'
+ +'<div class="mrow"><div class="grow"><label>'+BL('Category','دسته')+'</label><select id="df-c">'+cats.map(c=>'<option value="'+esc(c.id)+'" '+((cur?cur.cat:'mba')===c.id?'selected':'')+'>'+dlOpt(c)+'</option>').join('')+'</select></div><div class="grow"><label>'+BL('Importance','اهمیت')+'</label><select id="df-i">'+DL_IMP.map(i=>'<option value="'+i[0]+'" '+((cur?String(cur.imp):'2')===i[0]?'selected':'')+'>'+BT(i[1],i[2])+'</option>').join('')+'</select></div></div>'
+ +'<div class="mrow"><div class="grow"><label>'+BL('Date: type it','تاریخ: تایپ کنید')+'</label><input id="df-d" dir="ltr" value="'+esc(cur?fmtD(cur.dt):'')+'" placeholder="'+ex+'"></div><div class="grow"><label>'+BL('or pick','یا انتخاب')+'</label><input id="df-dp" type="date" data-mc="dl:pick" value="'+(cur?cur.dt:'')+'"></div><div class="grow"><label>'+BL('Time','ساعت')+'</label><input id="df-tm" type="time" value="'+(cur?cur.tm:'09:00')+'"></div></div>'
+ +'<div class="m" style="margin-top:8px">'+BL('Reminders before the deadline','یادآوری پیش از موعد')+'</div><div class="row" id="df-al">'+RSTEPS.map(z=>'<label class="chip"><input type="checkbox" value="'+z[0]+'" '+((cur?(cur.al||[]):[1440,60]).includes(z[0])?'checked':'')+'> '+z[1]+'</label>').join('')+'</div>'+'<label>'+BL('Note (optional)','یادداشت (اختیاری)')+'</label><input id="df-n" maxlength="300" value="'+esc(cur?cur.note||'':'')+'" style="width:100%"><div class="row" style="margin-top:10px">'+mBtn('dl:save',BL('Save','ذخیره'),'p')+(cur?mBtn('dl:cancel',BL('Cancel','انصراف'),''):'')+'</div></div>';
+ h+='<div class="c"><div class="mrow"><input id="dsearch" class="grow" data-mi="dl:q" value="'+esc(S.q)+'" placeholder="'+BT('Search deadlines','جست‌وجوی موعدها')+'"><select data-mc="dl:cat"><option value="">'+BT('All categories','همه‌ی دسته‌ها')+'</option>'+cats.map(c=>'<option value="'+esc(c.id)+'" '+(S.cat===c.id?'selected':'')+'>'+dlOpt(c)+'</option>').join('')+'</select></div><div class="mrow" style="margin-top:8px">'+[['up','Upcoming','پیش‌رو'],['past','Past','گذشته'],['arch','Archived','بایگانی'],['all','All','همه']].map(t=>mBtn('dl:tab:'+t[0],BL(t[1],t[2]),'chip '+(S.tab===t[0]?'on':''))).join('')+'</div></div>';
+ h+=dlAlertHint();h+=L.length?L.map(dlRow).join(''):'<div class="c"><div class="empty">'+BL('Nothing here yet. Name the next date that matters.','اینجا هنوز چیزی نیست. نخستین تاریخ مهم را ثبت کن.')+'</div></div>';
+ h+='<div class="c"><h3>'+BH('Custom categories','دسته‌های سفارشی')+'</h3><div class="mrow">'+(A.cats.length?A.cats.filter(c=>c&&typeof c.n==='string').map(c=>'<span class="badge" style="color:'+(/^#[0-9a-f]{6}$/i.test(c.col)?c.col:'#94a3b8')+'">'+esc(S_(c.n,40))+' '+mBtn('dl:catren:'+c.id,'✎','')+mBtn('dl:catdel:'+c.id,'✕','d')+'</span>').join(''):'<span class="m">'+BL('None yet','هنوز نیست')+'</span>')+'</div><div class="mrow" style="margin-top:8px"><input id="dc-n" class="grow" maxlength="40" placeholder="'+BT('New category name','نام دسته‌ی جدید')+'"><input id="dc-c" type="color" value="#94a3b8">'+mBtn('dl:catadd',BL('Add','افزودن'),'p')+'</div></div>';
+ return h};
+Object.assign(zMA.dl,{tab(a){zMS.dl.tab=a;render()},cat(_,el){zMS.dl.cat=el.value;render()},style(a){zDL().style=a;zcommit()},
+ pick(_,el){const t=$('#df-d');if(t&&el.value)t.value=fmtD(el.value)},
+ edit(id){zMS.dl.edit=id;render();window.scrollTo(0,0)},cancel(){zMS.dl.edit=null;render()},
+ save(){const A=zDL(),title=S_($('#df-t').value,100).trim(),cat=$('#df-c').value,imp=+$('#df-i').value||2,typed=$('#df-d').value.trim(),tm=$('#df-tm').value,note=S_($('#df-n').value,300).trim();
+  if(!title)return toast(BT('Give it a title','عنوان را وارد کنید'),1);
+  const dt=typed?readD(typed):($('#df-dp').value||null);
+  if(!dt||!mDate(dt))return toast(BT("That date isn't valid. Check the day and month.",'تاریخ معتبر نیست؛ روز و ماه را بررسی کنید.'),1);
+  if(!mTime(tm))return toast(BT('Enter a valid time','ساعت معتبر وارد کنید'),1);
+  if(!dlCats().some(c=>c.id===cat))return toast(BT('Invalid category','دسته نامعتبر است'),1);
+  const e=zMS.dl.edit,cur=e&&A.items.find(x=>x.id===e);
+  const al=[...document.querySelectorAll('#df-al input:checked')].map(i=>+i.value).filter(o=>RSTEPS.some(z=>z[0]===o));if(cur)Object.assign(cur,{title,cat,imp,dt,tm,note,al});else{if(A.items.length>=500)return toast(BT('Up to 500 deadlines','حداکثر ۵۰۰ موعد مجاز است'),1);A.items.push({id:'d'+uid(),title,cat,imp,dt,tm,note,cr:Date.now(),done:false,arch:false,al})}
+  zMS.dl.edit=null;zcommit()},
+ main(id){const A=zDL();A.main=A.main===id?'':id;zcommit()},
+ done(id){const x=zDL().items.find(i=>i.id===id);if(x){x.done=!x.done;zcommit()}},
+ arch(id){const A=zDL(),x=A.items.find(i=>i.id===id);if(x){x.arch=!x.arch;if(x.arch&&A.main===id)A.main='';zcommit()}},
+ del(id){const A=zDL(),x=A.items.find(i=>i.id===id);if(!x||!confirm(BD('Delete “'+x.title+'” for good? This cannot be undone.','«'+x.title+'» برای همیشه حذف شود؟ این کار برگشت‌پذیر نیست.')))return;A.items=A.items.filter(i=>i.id!==id);if(A.main===id)A.main='';zcommit()},
+ catadd(){const A=zDL(),n=S_($('#dc-n').value,40).trim(),col=$('#dc-c').value;if(!n)return toast(BT('Name the category','نام دسته را بنویسید'),1);if(dlCats().some(c=>c.en.toLowerCase()===n.toLowerCase()||c.fa===n))return toast(BT('That category already exists','این دسته از قبل وجود دارد'),1);if(A.cats.length>=30)return toast(BT('Up to 30 custom categories','حداکثر ۳۰ دسته‌ی سفارشی'),1);A.cats.push({id:'c'+uid(),n,col});zcommit()},
+ catren(id){const c=zDL().cats.find(x=>x.id===id);if(!c)return;const n=prompt(BD('Rename category','نام جدید دسته'),c.n);if(n&&n.trim()){c.n=S_(n,40).trim();zcommit()}},
+ catdel(id){const A=zDL(),c=A.cats.find(x=>x.id===id);if(!c||!confirm(BD('Delete the category “'+c.n+'”? Its deadlines move to “Custom”.','دسته‌ی «'+c.n+'» حذف شود؟ موعدهای آن به «سفارشی» منتقل می‌شوند.')))return;A.cats=A.cats.filter(x=>x.id!==id);A.items.forEach(i=>{if(i.cat===id)i.cat='custom'});zcommit()}});
+function dlDashHTML(){const A=zDL(),now=Date.now();let x=A.items.find(i=>i.id===A.main&&dlOk(i)&&!i.arch);const pin=!!x;if(!x)x=A.items.filter(i=>dlOk(i)&&!i.arch&&!i.done&&dlTs(i)>now).sort((a,b)=>dlTs(a)-dlTs(b))[0];
+ if(!x)return'<div class="c" id="dlcard"><h3>'+BH('Next deadline','موعد بعدی')+'</h3><p class="m">'+BL('Nothing on the horizon. Add a date in Deadlines.','افقی در پیش نیست. از بخش موعدها تاریخی اضافه کن.')+'</p><button data-a="go" data-p="dl">'+BL('Open Deadlines','باز کردن موعدها')+'</button></div>';
+ return'<div class="c" id="dlcard"><h3>'+(pin?BH('Featured deadline','موعد منتخب'):BH('Next deadline','موعد بعدی'))+'</h3><b>'+esc(S_(x.title,100))+'</b><div class="m">'+fmtD(x.dt)+' · '+fa(x.tm)+'</div><div class="dlcd" data-id="'+esc(x.id)+'" data-big="1">'+dlCD(x,true)+'</div><div class="row" style="margin-top:8px"><button data-a="go" data-p="dl">'+BL('Open Deadlines','باز کردن موعدها')+'</button></div></div>'}
+setInterval(()=>{try{document.querySelectorAll('.dlcd').forEach(el=>{const x=zDL().items.find(i=>i.id===el.dataset.id);if(x&&dlOk(x))el.innerHTML=dlCD(x,el.dataset.big==='1')});const hc=document.querySelectorAll('.hcel');if(hc.length&&db.timer)hc.forEach(n=>{n.textContent=mm(Math.floor(T().acc+(T().state==='running'?Math.max(0,Date.now()-T().t0):0))/60000|0)})}catch(e){}},1000);
+
+/* DANI v1: browse quotes one by one (previous / next); null = today's quote */
+Object.assign(zMA.qt,{prev(){qStep(-1)},next(){qStep(1)},todayq(){zMS.qt.bi=null;render()}});
+function qStep(k){const Q=zQT(),pl=qAll().filter(q=>!Q.hidden.includes(q.id));if(!pl.length)return;let c=zMS.qt.bi;if(c==null){const ids=qDay(todayISO());c=Math.max(0,pl.findIndex(q=>q.id===ids[0]))}zMS.qt.bi=c+k;render()}
+
+
+function qRotCard(){const R=QR(),kb=(k,l)=>mBtn('qt:rotk:'+k,(R.kinds.includes(k)?'✓ ':'')+l,'chip '+(R.kinds.includes(k)?'on':''));
+ return'<div class="c"><h3>'+BH('Rotation','چرخش جمله‌ها')+'</h3><label>هر چند دقیقه جمله عوض شود؟</label><select data-mc="qt:rotiv">'+[[0,'فقط با هر ورود'],[10,'هر ۱۰ دقیقه'],[20,'هر ۲۰ دقیقه'],[40,'هر ۴۰ دقیقه'],[60,'هر ساعت'],[120,'هر ۲ ساعت'],[240,'هر ۴ ساعت']].map(x=>'<option value="'+x[0]+'" '+(R.iv===x[0]?'selected':'')+'>'+x[1]+'</option>').join('')+'</select><div class="row" style="margin-top:8px">'+mBtn('qt:rotopen',(R.open?'✓ ':'')+'با هر ورود به برنامه جمله‌ی تازه','chip '+(R.open?'on':''))+mBtn('qt:rotbi',(R.bi?'✓ ':'')+'فقط جمله‌های دوزبانه','chip '+(R.bi?'on':''))+'</div><div class="m" style="margin-top:8px">از چه منبعی بیاید؟</div><div class="row">'+kb('ph','فیلسوفان و نویسندگان')+kb('po','شاعران')+kb('tv','شخصیت‌های داستانی')+kb('orig','جمله‌های فارسی قبلی')+'</div><label>موضوع</label><select data-mc="qt:rottopic"><option value="">همه‌ی موضوع‌ها</option>'+Object.entries(QTOP).filter(([k])=>k.indexOf('dk_')===0).map(([k,v])=>'<option value="'+k+'" '+(R.topic===k?'selected':'')+'>'+esc(v)+'</option>').join('')+'</select><p class="m">جمله‌های مطابق انتخاب تو: '+fa(qPool().length)+'. انتخاب هر جمله تصادفی است و تا چند جمله‌ی بعدی تکرار نمی‌شود.</p></div>'}
+Object.assign(zMA.qt,{rotiv(_,el){db.set.qrot=Object.assign({},db.set.qrot,{iv:+el.value});zcommit()},rotopen(){const R=QR();db.set.qrot=Object.assign({},db.set.qrot,{open:!R.open});zcommit()},rotbi(){const R=QR();db.set.qrot=Object.assign({},db.set.qrot,{bi:!R.bi});zcommit()},rotk(k){const R=QR(),a=R.kinds.includes(k)?R.kinds.filter(x=>x!==k):R.kinds.concat(k);db.set.qrot=Object.assign({},db.set.qrot,{kinds:a.length?a:R.kinds});zcommit()},rottopic(_,el){db.set.qrot=Object.assign({},db.set.qrot,{topic:el.value});zcommit()}});
+setInterval(()=>{try{if(page==='home'){const el=document.getElementById('hq');if(el&&qDue()){el.innerHTML=hqInner()}}}catch(e){}},20000);
+
