@@ -1,0 +1,66 @@
+/* ===== DANI · themes-aot.css · Attack on Titan themes (aoe1 aoe2 aoe3 aow1 aol1 aom1) ===== */
+html[data-skin=aoe1]{--hb:#0a1a24;--aw1:#62b8cf;--aw2:#e6eef1}html[data-skin=aoe2]{--hb:#101710;--aw1:#8aa874;--aw2:#e6dfc8}html[data-skin=aoe3]{--hb:#0a0e20;--aw1:#8c9be0;--aw2:#e2e6f6}html[data-skin=aow1]{--hb:#120e09;--aw1:#d4a24a;--aw2:#f4e8cc}html[data-skin=aol1]{--hb:#111a21;--aw1:#4f858e;--aw2:#dfe6ec}html[data-skin=aom1]{--hb:#10090c;--aw1:#c9485b;--aw2:#f1e4e6}
+.aot-brand{display:flex;align-items:center;gap:10px;padding:6px 10px 10px;white-space:nowrap}.aot-brand .aw{width:34px;height:34px;flex:none}.aot-brand b{display:block;font-size:16px}.aot-brand em{font-style:normal;color:var(--ac)}.aot-brand small{display:block;font-size:10px;letter-spacing:.14em;opacity:.7}
+.aot-foot{position:relative;margin:auto 10px 10px;padding-top:10px}.aot-foot i{display:block;height:130px;border-radius:12px;border:1px solid color-mix(in srgb,var(--ac) 40%,#000);background:var(--aotf) center 22%/cover}.aot-foot p{margin:8px 2px 0;font-size:11px;line-height:1.6;opacity:.85}.aot-foot em{color:var(--ac);font-style:normal}.aot-foot .kj{position:absolute;top:18px;inset-inline-start:10px;writing-mode:vertical-rl;font-size:13px;color:#fff;text-shadow:0 0 6px #000}
+@media(max-width:800px){.aot-foot,.aot-brand small{display:none}}
+/* Hero: text panel + framed slideshow (images never overlap) */
+.aot-hero{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,.7fr);min-height:270px;margin:8px 0 12px;overflow:hidden;border-radius:var(--rad);border:1px solid color-mix(in srgb,var(--ac) 38%,#000);background:linear-gradient(135deg,var(--hb),color-mix(in srgb,var(--hb) 82%,var(--ac)));color:#eceff1;box-shadow:0 8px 24px #0006}
+.aot-txt{position:relative;padding:22px 28px 22px 28px;display:flex;flex-direction:column;justify-content:center;min-width:0}
+.aot-txt .fa{margin:0 0 8px;font-size:20px;line-height:1.75;font-weight:700}.aot-txt .en{margin:0 0 6px;font-size:13px;opacity:.82}.aot-txt em{font-style:normal;color:var(--ac2);font-size:12px}
+.aot-txt .itu-qc{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}.aot-txt .itu-qc button{min-height:0;padding:3px 10px;background:#0006;border:1px solid color-mix(in srgb,var(--ac) 45%,#000);color:#eceff1;font-size:12px;box-shadow:none}.aot-txt .itu-qc button:hover{background:var(--ac);color:var(--pt)}
+.aot-kick{display:flex;align-items:center;gap:8px;font-size:11px;letter-spacing:.16em;color:var(--ac2);font-weight:700;margin-bottom:8px}.aot-kick .aw{width:22px;height:22px}
+.aot-kj{position:absolute;top:12px;inset-inline-end:14px;writing-mode:vertical-rl;font:700 26px/1 "Noto Serif JP",Georgia,serif;color:var(--ac);opacity:.55}
+.aot-ring{position:absolute;bottom:14px;inset-inline-end:16px;width:64px;height:64px;border-radius:50%;display:grid;place-content:center;text-align:center;background:radial-gradient(closest-side,var(--hb) 78%,transparent 80%),conic-gradient(var(--ac) calc(var(--p)*1%),#ffffff1f 0)}.aot-ring b{font-size:15px}.aot-ring small{font-size:9px;opacity:.7}
+.aot-pic{position:relative;overflow:hidden;border-inline-start:1px solid color-mix(in srgb,var(--ac) 38%,#000);min-height:230px;background:var(--hb)}
+.aot-pic img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;filter:saturate(.92) brightness(.94);animation:aotfade 21s infinite}.aot-pic img:nth-child(2){animation-delay:7s}.aot-pic img:nth-child(3){animation-delay:14s}
+.aot-pic::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(90deg,color-mix(in srgb,var(--hb) 55%,transparent),transparent 28%)}html[dir=rtl] .aot-pic::after{background:linear-gradient(270deg,color-mix(in srgb,var(--hb) 55%,transparent),transparent 28%)}
+@keyframes aotfade{0%{opacity:0}4%{opacity:1}30%{opacity:1}36%{opacity:0}100%{opacity:0}}
+.aot-dots{position:absolute;z-index:2;bottom:10px;inset-inline-start:12px;display:flex;gap:5px}.aot-dots i{width:18px;height:3px;border-radius:2px;background:#ffffff55}
+@media(prefers-reduced-motion:reduce){.aot-pic img{animation:none}.aot-pic img:first-child{opacity:1}.aot-tick>div{animation:none}}
+.aot-g3{display:grid;gap:12px;align-items:start;grid-template-columns:repeat(3,minmax(0,1fr))}.aot-g3>div{display:flex;flex-direction:column;gap:12px;min-width:0}.aot-g3 .c,.aot-tl .c{margin:0}
+.aot-gal{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:12px 0}.aot-gal figure{position:relative;margin:0;height:150px;overflow:hidden;border-radius:calc(var(--rad) - 2px);border:1px solid color-mix(in srgb,var(--ac) 35%,#000)}.aot-gal img{width:100%;height:100%;object-fit:cover;display:block;filter:saturate(.92)}.aot-gal figcaption{position:absolute;inset:auto 0 0 0;padding:14px 10px 6px;font-size:11px;color:#f1f3f4;background:linear-gradient(transparent,#000b)}
+.aot-mas{column-count:3;column-gap:12px}.aot-mas>.c{break-inside:avoid;margin:0 0 12px;display:block}
+.aot-tl{display:grid;grid-template-columns:1.15fr 1fr;gap:14px;align-items:start}.aot-spine,.aot-rest{display:flex;flex-direction:column;gap:12px;min-width:0}.aot-spine{position:relative;padding-inline-start:18px}.aot-spine::before{content:"";position:absolute;inset-block:6px;inset-inline-start:5px;width:2px;background:linear-gradient(var(--ac),transparent)}.aot-spine>.c::before{content:"";position:absolute;inset-inline-start:-18px;top:18px;width:12px;height:12px;border-radius:50%;background:var(--ac)}.aot-spine>.c{position:relative}
+.aot-tick{overflow:hidden;white-space:nowrap;margin:0 0 10px;border-block:1px solid color-mix(in srgb,var(--ac) 35%,transparent);padding:6px 0;font-size:12px;opacity:.9}.aot-tick>div{display:inline-block;animation:aotk 80s linear infinite}.aot-tick span{margin-inline:22px}.aot-tick i{opacity:.6}@keyframes aotk{to{transform:translateX(-50%)}}html[dir=rtl] .aot-tick>div{animation-name:aotkr}@keyframes aotkr{to{transform:translateX(50%)}}
+.aot-x{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;align-items:start;margin:12px 0;grid-auto-flow:dense}.aot-cell{min-width:0}.aot-cell .c{margin:0}
+@media(max-width:900px){.aot-g3,.aot-x{grid-template-columns:1fr 1fr}.aot-mas{column-count:2}.aot-gal{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:700px){.aot-hero{grid-template-columns:1fr}.aot-pic{order:-1;min-height:190px;border-inline-start:0;border-bottom:1px solid color-mix(in srgb,var(--ac) 38%,#000)}.aot-g3,.aot-x,.aot-tl{grid-template-columns:1fr}.aot-mas{column-count:1}.aot-txt{padding:18px}.aot-ring,.aot-kj{display:none}}
+/* aoe1 · Beyond the Walls: calm ocean glass, blade menu */
+html[data-skin=aoe1] body{background:radial-gradient(900px 420px at 85% -10%,#62b8cf26,transparent 70%),#0b1a24}
+html[data-skin=aoe1] nav{background:linear-gradient(180deg,#0a1d29,#08141c)!important;border-inline-end:1px solid #1f4558}
+html[data-skin=aoe1] nav a{border-radius:0 12px 12px 0;margin:3px 8px;color:#b4cbd5}html[data-skin=aoe1] nav a svg.ic{width:30px;height:30px;padding:6px;border-radius:50%;border:1px solid #2b6178;margin-inline-end:10px;color:#8fd0e0}
+html[data-skin=aoe1] nav a.on{color:#fff;background:linear-gradient(90deg,#62b8cf30,transparent);clip-path:polygon(0 0,100% 0,calc(100% - 14px) 100%,0 100%);box-shadow:inset 3px 0 0 #62b8cf}html[data-skin=aoe1] nav a.on svg.ic{background:#62b8cf;color:#06151c}
+html[data-skin=aoe1] .c{background:linear-gradient(160deg,#112a38,#0e2230);border:1px solid #1f4558;box-shadow:0 6px 18px #0005}html[data-skin=aoe1] .c h3{color:#bfe3ec}
+html[data-skin=aoe1] button.p,html[data-skin=aoe1] .btn.p{background:linear-gradient(90deg,#62b8cf,#4f9bc4);color:#06151c;border:0}
+/* aoe2 · Scout Regiment: green and brass top bar */
+html[data-skin=aoe2] body{background:repeating-linear-gradient(90deg,#0000 0 62px,#ffffff04 62px 63px),#131a14}
+html[data-skin=aoe2] nav{background:linear-gradient(180deg,#1b2519,#0f160f)!important;border-bottom:3px solid #c2a35b;justify-content:flex-start!important;gap:2px!important;color:#e9e4d2!important}
+html[data-skin=aoe2] nav a{color:#d6d0b8!important;border-radius:2px!important;padding:6px 14px!important}html[data-skin=aoe2] nav a svg.ic{display:none}html[data-skin=aoe2] nav a .kj{font:700 19px/1 "Noto Serif JP",Georgia,serif;margin-inline-end:8px;color:#c2a35b}
+html[data-skin=aoe2] nav a:hover{background:#ffffff12!important}html[data-skin=aoe2] nav a.on{background:#c2a35b!important;color:#1a1405!important}html[data-skin=aoe2] nav a.on .kj{color:#1a1405}html[data-skin=aoe2] .aot-brand{margin-inline-end:16px;padding-inline-end:16px;border-inline-end:1px solid #ffffff22}html[data-skin=aoe2] .aot-foot{display:none}
+html[data-skin=aoe2] .c{background:linear-gradient(180deg,#1b2519,#141c13);border:1px solid #3a4934;border-radius:4px;box-shadow:0 0 0 3px #0d130e,0 0 0 4px #c2a35b33}html[data-skin=aoe2] .c h3{color:#e3d6a6;letter-spacing:.04em}
+html[data-skin=aoe2] button.p,html[data-skin=aoe2] .btn.p{background:#c2a35b;color:#1a1405;border:1px solid #6b5420;font-weight:700}
+@media(max-width:860px){html[data-skin=aoe2] .aot-brand{display:none}}
+/* aoe3 · The Rumbling: indigo rail */
+html[data-skin=aoe3] body{background:radial-gradient(900px 500px at 50% -15%,#8c9be022,transparent 70%),linear-gradient(180deg,#0c1022,#070916)}
+html[data-skin=aoe3] nav{background:linear-gradient(180deg,#0f1432,#080b1a)!important;border-inline-end:1px solid #2c3573!important}html[data-skin=aoe3] .aot-brand b,html[data-skin=aoe3] .aot-brand small{display:none}html[data-skin=aoe3] .aot-brand{justify-content:center;padding-inline:0}
+html[data-skin=aoe3] nav a{color:#98a2d0}html[data-skin=aoe3] nav a.on{background:linear-gradient(90deg,#8c9be02a,#cfd6f20c)!important;color:#fff!important;border-inline-end-color:#cfd6f2!important}
+html[data-skin=aoe3] .c{background:linear-gradient(160deg,#141a38,#0d1229);border:1px solid #2c3573;border-radius:20px;box-shadow:0 8px 24px #0006}html[data-skin=aoe3] .c h3{color:#d6dcf4}
+html[data-skin=aoe3] button.p,html[data-skin=aoe3] .btn.p{background:linear-gradient(90deg,#8c9be0,#c3cdf0);color:#0b0f22;border:0}
+/* aow1 · Sunrise Charge: gold banner menu */
+html[data-skin=aow1] body{background:radial-gradient(900px 420px at 80% -12%,#d4a24a26,transparent 70%),#14100b}
+html[data-skin=aow1] nav{background:linear-gradient(180deg,#1a140c,#0d0a06)!important;border-inline-end:1px solid #4a3a1c}
+html[data-skin=aow1] nav a{margin:3px 8px;border-radius:2px;color:#d8c8a2;border-bottom:1px dashed #4a3a1c}html[data-skin=aow1] nav a svg.ic{width:30px;height:30px;padding:6px;border:1px solid #8a6a2a;border-radius:2px;margin-inline-end:10px;color:#f0cf8e}
+html[data-skin=aow1] nav a.on{background:linear-gradient(90deg,#d4a24a2a,transparent);box-shadow:inset 0 0 0 1px #d4a24a;color:#fff}html[data-skin=aow1] nav a.on svg.ic{background:#d4a24a;color:#1a0f00}
+html[data-skin=aow1] .c{background:linear-gradient(160deg,#1f1810,#14100a);border:1px solid #4a3a1c;border-top:2px solid #d4a24a;border-radius:10px;box-shadow:0 6px 18px #0007}html[data-skin=aow1] .c h3{color:#f0d9a2}
+html[data-skin=aow1] button.p,html[data-skin=aow1] .btn.p{background:linear-gradient(180deg,#e0b358,#c08a26);color:#1a0f00;border:0;font-weight:700}
+/* aol1 · Steel & Silence: light steel, bottom dock */
+html[data-skin=aol1] body{background:repeating-linear-gradient(135deg,#0000 0 14px,#17212a06 14px 15px),#e8ecef}
+html[data-skin=aol1][data-lay=bottom] nav{background:#121b22f2!important;border-top:3px solid #3f6b73!important;-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}html[data-skin=aol1] nav a{color:#9db0bd!important}html[data-skin=aol1] nav a.on{color:#fff!important;box-shadow:inset 0 3px 0 #7fb5bb}html[data-skin=aol1] .aot-brand{display:none}
+html[data-skin=aol1] .c{background:#f7f9fa;border:1px solid #17212a;border-radius:3px;box-shadow:4px 4px 0 #17212a14}html[data-skin=aol1] .c h3{letter-spacing:.05em;text-transform:uppercase;font-size:13px}
+html[data-skin=aol1] button.p,html[data-skin=aol1] .btn.p{background:#17212a;color:#fff;border:1px solid #17212a;box-shadow:3px 3px 0 #3f6b73}html[data-skin=aol1] .aot-tick{color:#17212a}
+/* aom1 · Crimson Scarf: warm dark rail */
+html[data-skin=aom1] body{background:radial-gradient(900px 420px at 85% -10%,#c9485b22,transparent 70%),radial-gradient(700px 360px at 0 110%,#5a2a1a30,transparent 70%),#120c0e}
+html[data-skin=aom1] nav{background:linear-gradient(180deg,#190e12,#0a0608)!important;border-inline-end:1px solid #4a2230!important}html[data-skin=aom1] .aot-brand b,html[data-skin=aom1] .aot-brand small{display:none}html[data-skin=aom1] .aot-brand{justify-content:center;padding-inline:0}
+html[data-skin=aom1] nav a{color:#c6a4ad}html[data-skin=aom1] nav a.on{background:linear-gradient(90deg,#c9485b2e,transparent)!important;color:#fff!important;border-inline-end-color:#f0a3ad!important}
+html[data-skin=aom1] .c{background:linear-gradient(160deg,#1d1317,#140c0f);border:1px solid #4a2230;border-radius:16px;box-shadow:0 6px 20px #0007}html[data-skin=aom1] .c h3{color:#f6cdd3}
+html[data-skin=aom1] button.p,html[data-skin=aom1] .btn.p{background:linear-gradient(90deg,#c9485b,#9a2c40);color:#fff;border:0}

@@ -1,0 +1,164 @@
+{
+ "format": "dani-quotepack",
+ "version": 1,
+ "id": "aot-quotes",
+ "name": "جملات هجوم به تایتان",
+ "character": "aot",
+ "author": "",
+ "quotes": [
+  {
+   "fa": "اگر نجنگی، نمی‌توانی ببری.",
+   "en": "If you don't fight, you can't win.",
+   "a": "Eren Yeager",
+   "src": "Attack on Titan",
+   "note": "ترجمه‌ی فارسی آزاد است؛ متن انگلیسی از حافظه آمده و ممکن است با دیالوگ رسمی کمی فرق کند."
+  },
+  {
+   "fa": "من به جلو رفتن ادامه می‌دهم.",
+   "en": "I'll keep moving forward.",
+   "a": "Eren Yeager",
+   "src": "Attack on Titan",
+   "note": "ترجمه‌ی فارسی آزاد است؛ متن انگلیسی از حافظه آمده و ممکن است با دیالوگ رسمی کمی فرق کند."
+  },
+  {
+   "fa": "می‌خواهم دنیای آن‌سوی دیوارها را ببینم.",
+   "en": "I want to see the world beyond the walls.",
+   "a": "Eren Yeager",
+   "src": "Attack on Titan",
+   "note": "ترجمه‌ی فارسی آزاد است؛ متن انگلیسی از حافظه آمده و ممکن است با دیالوگ رسمی کمی فرق کند."
+  },
+  {
+   "fa": "آزادی یک مکان نیست؛ یک انتخاب است.",
+   "en": "Freedom is not a place; it is a choice.",
+   "a": "Eren Yeager",
+   "src": "الهام‌گرفته از طرح‌ها",
+   "note": "برگرفته از متن طرح‌هایی که فرستادی؛ دیالوگ رسمی نیست."
+  },
+  {
+   "fa": "اقیانوس پایان نیست؛ آغاز است.",
+   "en": "The ocean isn't the end, it's the beginning.",
+   "a": "Eren Yeager",
+   "src": "الهام‌گرفته از طرح‌ها",
+   "note": "برگرفته از متن طرح‌هایی که فرستادی؛ دیالوگ رسمی نیست."
+  },
+  {
+   "fa": "آزادی رایگان نیست؛ هزینه دارد.",
+   "en": "Freedom isn't free. It costs something.",
+   "a": "Eren Yeager",
+   "src": "الهام‌گرفته از طرح‌ها",
+   "note": "برگرفته از متن طرح‌هایی که فرستادی؛ دیالوگ رسمی نیست."
+  },
+  {
+   "fa": "هر روز، یک قدم به آزادی نزدیک‌تر.",
+   "en": "Every day, one step closer to freedom.",
+   "a": "Eren Yeager",
+   "src": "الهام‌گرفته از طرح‌ها",
+   "note": "برگرفته از متن طرح‌هایی که فرستادی؛ دیالوگ رسمی نیست."
+  },
+  {
+   "fa": "قلب‌هایتان را تقدیم کنید!",
+   "en": "Dedicate your hearts!",
+   "a": "Erwin Smith",
+   "src": "Attack on Titan",
+   "note": "ترجمه‌ی فارسی آزاد است؛ متن انگلیسی از حافظه آمده و ممکن است با دیالوگ رسمی کمی فرق کند."
+  },
+  {
+   "fa": "سربازانم، خشمگین شوید! سربازانم، فریاد بزنید! سربازانم، بجنگید!",
+   "en": "My soldiers, rage! My soldiers, scream! My soldiers, fight!",
+   "a": "Erwin Smith",
+   "src": "Attack on Titan",
+   "note": "ترجمه‌ی فارسی آزاد است؛ متن انگلیسی از حافظه آمده و ممکن است با دیالوگ رسمی کمی فرق کند."
+  },
+  {
+   "fa": "رهبر کسی است که بهترین‌ها را در دیگران بیدار می‌کند.",
+   "en": "A leader is someone who brings out the best in others.",
+   "a": "Erwin Smith",
+   "src": "الهام‌گرفته از طرح‌ها",
+   "note": "برگرفته از متن طرح‌هایی که فرستادی؛ دیالوگ رسمی نیست."
+  },
+  {
+   "fa": "دنیا بی‌رحم است، اما زیبا هم هست و ارزش جنگیدن دارد.",
+   "en": "The world is cruel, but it is also beautiful, and worth fighting for.",
+   "a": "Erwin Smith",
+   "src": "الهام‌گرفته از طرح‌ها",
+   "note": "برگرفته از متن طرح‌هایی که فرستادی؛ دیالوگ رسمی نیست."
+  },
+  {
+   "fa": "حتی اگر بمیریم، نامی از خود برجا می‌گذاریم.",
+   "en": "Even if we die, we'll leave a name behind.",
+   "a": "Erwin Smith",
+   "src": "الهام‌گرفته از طرح‌ها",
+   "note": "برگرفته از متن طرح‌هایی که فرستادی؛ دیالوگ رسمی نیست."
+  },
+  {
+   "fa": "کسی که نتواند چیزی را فدا کند، هرگز چیزی را تغییر نمی‌دهد.",
+   "en": "Someone who can't sacrifice anything can never change anything.",
+   "a": "Armin Arlert",
+   "src": "Attack on Titan",
+   "note": "ترجمه‌ی فارسی آزاد است؛ متن انگلیسی از حافظه آمده و ممکن است با دیالوگ رسمی کمی فرق کند."
+  },
+  {
+   "fa": "تنها کاری که می‌توانیم بکنیم این است که باور کنیم از انتخابمان پشیمان نمی‌شویم.",
+   "en": "The only thing we're allowed to do is to believe that we won't regret the choice we made.",
+   "a": "Levi Ackerman",
+   "src": "Attack on Titan",
+   "note": "ترجمه‌ی فارسی آزاد است؛ متن انگلیسی از حافظه آمده و ممکن است با دیالوگ رسمی کمی فرق کند."
+  },
+  {
+   "fa": "انضباط یعنی آزادی.",
+   "en": "Discipline is freedom.",
+   "a": "Levi Ackerman",
+   "src": "الهام‌گرفته از طرح‌ها",
+   "note": "برگرفته از متن طرح‌هایی که فرستادی؛ دیالوگ رسمی نیست."
+  },
+  {
+   "fa": "قلبت را از نفرت پاک کن تا واضح ببینی.",
+   "en": "Clean your heart of hate, and you'll see clearly.",
+   "a": "Levi Ackerman",
+   "src": "الهام‌گرفته از طرح‌ها",
+   "note": "برگرفته از متن طرح‌هایی که فرستادی؛ دیالوگ رسمی نیست."
+  },
+  {
+   "fa": "برای بهترین بودن باید آماده‌ی کاری باشی که دیگران نمی‌کنند.",
+   "en": "To be the best, you have to be willing to do what others won't.",
+   "a": "Levi Ackerman",
+   "src": "الهام‌گرفته از طرح‌ها",
+   "note": "برگرفته از متن طرح‌هایی که فرستادی؛ دیالوگ رسمی نیست."
+  },
+  {
+   "fa": "این دنیا بی‌رحم است... و در عین حال بسیار زیباست.",
+   "en": "This world is cruel... and yet it is very beautiful.",
+   "a": "Mikasa Ackerman",
+   "src": "Attack on Titan",
+   "note": "ترجمه‌ی فارسی آزاد است؛ متن انگلیسی از حافظه آمده و ممکن است با دیالوگ رسمی کمی فرق کند."
+  },
+  {
+   "fa": "ارن... ممنون که شال را دور گردنم پیچیدی.",
+   "en": "Eren... thank you for wrapping this scarf around me.",
+   "a": "Mikasa Ackerman",
+   "src": "Attack on Titan",
+   "note": "ترجمه‌ی فارسی آزاد است؛ متن انگلیسی از حافظه آمده و ممکن است با دیالوگ رسمی کمی فرق کند."
+  },
+  {
+   "fa": "حتی آدم‌های قوی هم قلبی مهربان دارند.",
+   "en": "Strong people also have a gentle side.",
+   "a": "Mikasa Ackerman",
+   "src": "الهام‌گرفته از طرح‌ها",
+   "note": "برگرفته از متن طرح‌هایی که فرستادی؛ دیالوگ رسمی نیست."
+  },
+  {
+   "fa": "هر جا بروی، من کنار تو خواهم بود.",
+   "en": "No matter where you go, I'll be by your side.",
+   "a": "Mikasa Ackerman",
+   "src": "الهام‌گرفته از طرح‌ها",
+   "note": "برگرفته از متن طرح‌هایی که فرستادی؛ دیالوگ رسمی نیست."
+  },
+  {
+   "fa": "نه فقط برای یک رؤیا؛ برای کسانی که دوستشان دارم.",
+   "en": "Not just for a dream, but for the people I care about.",
+   "a": "Mikasa Ackerman",
+   "src": "الهام‌گرفته از طرح‌ها",
+   "note": "برگرفته از متن طرح‌هایی که فرستادی؛ دیالوگ رسمی نیست."
+  }
+ ]
+}
