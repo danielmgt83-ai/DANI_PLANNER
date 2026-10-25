@@ -1057,3 +1057,105 @@ function mount(){
 mount();
 })();
 
+/* ===== v3.1 · محیط راحت‌تر درس‌ها + دکمه‌ی «بپرس» روی هر بخش =====
+   فقط CSS و یک تکه‌ی مستقل است؛ هیچ قابلیتی حذف نشده. متن‌ها با LANGEN() دوزبانه‌اند. */
+(function(){
+  "use strict";
+  if(window.__daniAskInit)return;window.__daniAskInit=1;
+  var T=function(fa,en){try{return (typeof LANGEN==='function'&&LANGEN())?en:fa}catch(e){return fa}};
+  var st=document.createElement('style');st.id='crs-comfort';st.textContent=`
+/* ===== v3: محیط راحت‌تر برای خواندن درس‌ها ===== */
+.crs-lesson{font-size:calc(var(--fs,15px)*1.18);line-height:2.15;max-width:860px;margin-inline:auto;padding:22px clamp(14px,3vw,34px)!important}
+.crs-lesson p{margin:16px 0}
+.crs-lesson .crs-h{margin:42px 0 14px;padding-top:18px;border-top:1px dashed var(--b);font-size:1.25em}
+.crs-lesson .crs-h:first-of-type{border-top:0;margin-top:14px}
+.crs-lesson ul,.crs-lesson ol{margin:16px 0;padding-inline-start:30px}
+.crs-lesson li{margin:12px 0}
+.crs-lesson .crs-math{font-size:calc(1.45em*var(--crs-mz,1))!important;margin:26px 0!important;padding:18px 10px!important;background:color-mix(in srgb,var(--ac) 4%,transparent);border-radius:12px;line-height:1.6}
+.crs-lesson .crs-im math{font-size:calc(1.18em*var(--crs-mz,1))!important}
+.crs-lesson .crs-call{margin:28px 0!important;padding:18px 20px!important;border-radius:14px}
+.crs-lesson .crs-ct{font-size:1.05em;margin-bottom:10px}
+.crs-lesson .crs-steps{margin:18px 0}
+.crs-lesson .crs-step{margin:20px 0!important;padding:12px 0}
+.crs-lesson details{margin:16px 0}
+.crs-lesson table{font-size:.95em}
+.crs-lesson table th,.crs-lesson table td{padding:12px 14px!important}
+/* دکمهٔ «بپرس» روی هر بخش */
+.crs-bq{position:relative}
+.crs-ask{position:absolute;inset-inline-start:-6px;top:-6px;width:32px;height:32px;border-radius:50%;border:1px solid var(--b);background:var(--c);color:var(--ac);font-size:16px;line-height:1;cursor:pointer;opacity:.0;transition:opacity .15s,transform .15s;z-index:3;box-shadow:0 2px 8px rgba(0,0,0,.12)}
+.crs-bq:hover>.crs-ask,.crs-bq:focus-within>.crs-ask,.crs-ask:focus{opacity:1}
+@media (hover:none){.crs-ask{opacity:.85;width:36px;height:36px;inset-inline-start:-4px;top:-10px}}
+.crs-ask:hover{transform:scale(1.12)}
+#ask-sheet{position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,.45);display:none;align-items:flex-end;justify-content:center}
+#ask-sheet.on{display:flex}
+#ask-sheet .box{background:var(--c);color:var(--t);width:min(680px,100%);max-height:88vh;overflow:auto;border-radius:18px 18px 0 0;padding:18px 20px 24px;box-shadow:0 -8px 30px rgba(0,0,0,.3)}
+@media (min-width:760px){#ask-sheet{align-items:center}#ask-sheet .box{border-radius:18px}}
+#ask-sheet h4{margin:0 0 6px;font-size:1.1em}
+#ask-sheet .ctx{background:color-mix(in srgb,var(--ac) 7%,transparent);border-radius:10px;padding:10px 12px;font-size:.88em;max-height:130px;overflow:auto;white-space:pre-wrap;direction:rtl;margin:8px 0 12px;line-height:1.8}
+#ask-sheet textarea{width:100%;min-height:90px;border:1px solid var(--b);border-radius:12px;padding:10px 12px;background:var(--bg);color:var(--t);font:inherit;resize:vertical;box-sizing:border-box}
+#ask-sheet .chips{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+#ask-sheet .chips button{border:1px solid var(--b);background:var(--bg);color:var(--t);border-radius:20px;padding:6px 12px;cursor:pointer;font:inherit;font-size:.9em}
+#ask-sheet .chips button.sel{background:var(--ac);color:#fff;border-color:var(--ac)}
+#ask-sheet .acts{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+#ask-sheet .acts button{border:0;border-radius:12px;padding:11px 16px;cursor:pointer;font:inherit;font-weight:700}
+#ask-sheet .go{background:var(--ac);color:#fff}
+#ask-sheet .cp{background:var(--bg);color:var(--t);border:1px solid var(--b)!important}
+#ask-sheet .x{background:transparent;color:var(--m);border:0}
+.crs-lessonbar-ask{position:fixed;inset-inline-end:16px;bottom:18px;z-index:9000;border:0;border-radius:28px;padding:12px 18px;background:var(--ac);color:#fff;font:inherit;font-weight:700;box-shadow:0 6px 20px rgba(0,0,0,.28);cursor:pointer;display:none}
+body.in-crs .crs-lessonbar-ask{display:block}
+`;document.head.appendChild(st);
+  function el(t,c,h){var e=document.createElement(t);if(c)e.className=c;if(h!=null)e.innerHTML=h;return e}
+  var sheet=null,cur='';
+  function chips(){return [
+    [T('این را ساده‌تر و قدم‌به‌قدم توضیح بده','Explain this more simply, step by step'),'این را ساده‌تر و قدم‌به‌قدم توضیح بده'],
+    [T('چرا این درست است؟ دلیلش را بگو','Why is this true? Give the reason'),'چرا این درست است؟ دلیلش را بگو'],
+    [T('یک مثال دیگر با عدد متفاوت حل کن','Solve another example with different numbers'),'یک مثال دیگر با عدد متفاوت حل کن'],
+    [T('کجا ممکن است اشتباه کنم؟ دام‌ها را بگو','Where might I go wrong? List the traps'),'کجا ممکن است اشتباه کنم؟ دام‌ها را بگو'],
+    [T('سؤال تستی مشابه بده تا امتحان کنم','Give me a similar test question'),'سؤال تستی مشابه بده تا امتحان کنم']]}
+  function build(){
+    sheet=el('div');sheet.id='ask-sheet';
+    sheet.innerHTML='<div class="box" dir="'+T('rtl','ltr')+'"><h4>❓ '+T('از Claude بپرس','Ask Claude')+'</h4><div style="color:var(--m);font-size:.85em">'+T('این بخش همراه سؤالت آماده می‌شود؛ یک‌بار بزن و در Claude جواب بگیر.','This section is packed with your question. Tap once and get the answer in Claude.')+'</div><div class="ctx" id="ask-ctx"></div><div class="chips" id="ask-chips"></div><textarea id="ask-q" placeholder="'+T('سؤال خودت را بنویس (اختیاری)…','Write your question (optional)…')+'"></textarea><div class="acts"><button class="go" id="ask-go">'+T('باز کردن در Claude ↗','Open in Claude ↗')+'</button><button class="cp" id="ask-cp">'+T('فقط کپی','Copy only')+'</button><button class="x" id="ask-x">'+T('بستن','Close')+'</button></div><div id="ask-msg" style="margin-top:8px;font-size:.85em;color:var(--m)"></div></div>';
+    document.body.appendChild(sheet)}
+  function open(ctx){
+    if(sheet)sheet.remove();build();cur=ctx;
+    document.getElementById('ask-ctx').textContent=ctx.slice(0,700)+(ctx.length>700?'…':'');
+    var ch=document.getElementById('ask-chips');
+    chips().forEach(function(c){var b=el('button',null,c[0]);b.onclick=function(){var q=document.getElementById('ask-q');q.value=c[1];[].forEach.call(ch.children,function(x){x.classList.remove('sel')});b.classList.add('sel')};ch.appendChild(b)});
+    sheet.classList.add('on');setTimeout(function(){document.getElementById('ask-q').focus()},50)}
+  function promptText(){
+    var q=document.getElementById('ask-q').value.trim()||'این بخش را ساده‌تر توضیح بده.';
+    return 'من دارم دورهٔ ریاضی کنکور MBA (حد و پیوستگی) را می‌خوانم و این بخش را نفهمیدم. لطفاً کوتاه، شفاف و قدم‌به‌قدم پاسخ بده (فرمول‌ها را زیر هم و واضح بنویس).\n\n— بخش درس —\n'+cur+'\n\n— سؤال من —\n'+q}
+  function copy(t){
+    try{if(navigator.clipboard&&navigator.clipboard.writeText)return navigator.clipboard.writeText(t).catch(fb)}catch(e){}
+    return fb();function fb(){var a=document.createElement('textarea');a.value=t;document.body.appendChild(a);a.select();try{document.execCommand('copy')}catch(e){}a.remove()}}
+  function msg(t){var m=document.getElementById('ask-msg');if(m)m.textContent=t}
+  function title(){var h=document.querySelector('.crs-lesson h4,.crs-lesson h3,.crs-lesson h2,.crs-lesson b');return h?h.textContent.trim():''}
+  function describe(node,whole){
+    var parts=[],t=title();if(t)parts.push('درس: '+t);
+    var clone=node.cloneNode(true);
+    [].forEach.call(clone.querySelectorAll('.crs-ask,button,.np'),function(x){x.remove()});
+    [].forEach.call(clone.querySelectorAll('.crs-math'),function(m){var tex=m.getAttribute('aria-label')||m.getAttribute('title')||'';m.replaceWith(document.createTextNode('\n[فرمول] '+tex+'\n'))});
+    var txt=(clone.innerText||clone.textContent||'').replace(/\n{3,}/g,'\n\n').trim();
+    if(whole&&txt.length>2400)txt=txt.slice(0,2400)+' …';
+    parts.push(txt);return parts.join('\n')}
+  document.addEventListener('click',function(e){
+    var t=e.target;if(!t||!t.closest)return;
+    if(t.id==='ask-x'||t===sheet){if(sheet)sheet.classList.remove('on');return}
+    if(t.id==='ask-cp'){copy(promptText());msg(T('کپی شد ✓','Copied ✓'));return}
+    if(t.id==='ask-go'){var p=promptText();copy(p);window.open('https://claude.ai/new?q='+encodeURIComponent(p.slice(0,3500)),'_blank','noopener');msg(T('متن کپی هم شد؛ اگر صفحه‌ی Claude خالی بود، فقط Paste کن.','Text was copied too; if Claude opens empty, just paste.'));return}
+    var b=t.closest('.crs-ask');
+    if(b){e.preventDefault();e.stopPropagation();open(describe(b.parentElement));return}
+    if(t.closest('.crs-lessonbar-ask')){var L=document.querySelector('.crs-lesson');if(L)open(describe(L,true))}
+  },true);
+  var fab=el('button','crs-lessonbar-ask','❓ '+T('سؤال از این درس','Ask about this lesson'));fab.type='button';document.body.appendChild(fab);
+  function decorate(){
+    var root=document.querySelector('.crs-lesson');
+    document.body.classList.toggle('in-crs',!!root);
+    if(!root)return;
+    [].forEach.call(root.children,function(c){
+      if(c.classList.contains('np')||c.classList.contains('row')||c.classList.contains('crs-bq'))return;
+      if(!c.textContent.trim()&&!c.querySelector('math'))return;
+      c.classList.add('crs-bq');var b=el('button','crs-ask','❓');b.title=T('این بخش را نفهمیدم — بپرس','I did not get this part — ask');b.type='button';c.insertBefore(b,c.firstChild)})}
+  var tm=0;new MutationObserver(function(){clearTimeout(tm);tm=setTimeout(decorate,120)}).observe(document.body,{childList:true,subtree:true});
+  decorate();
+})();
