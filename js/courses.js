@@ -70,6 +70,26 @@ function zipWrite(files){ // store-only، سازگار با همه‌ی برنا
   const end=new Uint8Array([0x50,0x4b,5,6,0,0,0,0,...u16(files.length),...u16(files.length),...u32(cs),...u32(off),0,0]);
   return new Blob([...parts,...cd,end],{type:'application/zip'});
 }
+
+/* خروجی ZIP با فشرده‌سازی deflate برای ورودی‌های متنی (JSON/SVG…)؛ تصاویر و صدا همان‌طور ذخیره می‌شوند */
+async function deflateRaw(u8){const s=new Blob([u8]).stream().pipeThrough(new CompressionStream('deflate-raw'));return new Uint8Array(await new Response(s).arrayBuffer())}
+async function zipWriteZ(files){
+  const canZ=typeof CompressionStream!=='undefined',ents=[];
+  for(const f of files){let data=f.data,meth=0;
+    if(f.z&&canZ&&data.length>600){try{const c=await deflateRaw(data);if(c.length<data.length*0.92){data=c;meth=8}}catch(e){}}
+    ents.push({name:f.name,raw:f.data,data,meth})}
+  const parts=[],cd=[];let off=0;
+  const u16=v=>[v&255,(v>>8)&255],u32=v=>[v&255,(v>>8)&255,(v>>16)&255,(v>>>24)&255];
+  for(const f of ents){
+    const nm=enc.encode(f.name),crc=crc32b(f.raw),cs=f.data.length,us=f.raw.length;
+    const lh=new Uint8Array([0x50,0x4b,3,4,...u16(20),...u16(0x0800),...u16(f.meth),...u16(0),...u16(0x21),...u32(crc),...u32(cs),...u32(us),...u16(nm.length),...u16(0)]);
+    parts.push(lh,nm,f.data);
+    cd.push(new Uint8Array([0x50,0x4b,1,2,...u16(20),...u16(20),...u16(0x0800),...u16(f.meth),...u16(0),...u16(0x21),...u32(crc),...u32(cs),...u32(us),...u16(nm.length),...u16(0),...u16(0),...u16(0),...u16(0),...u32(0),...u32(off)]),nm);
+    off+=lh.length+nm.length+cs}
+  let cds=0;cd.forEach(x=>cds+=x.length);
+  const end=new Uint8Array([0x50,0x4b,5,6,0,0,0,0,...u16(ents.length),...u16(ents.length),...u32(cds),...u32(off),0,0]);
+  return new Blob([...parts,...cd,end],{type:'application/zip'})}
+
 const readFileBuf=f=>new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=()=>rej(new Error('خواندن فایل ممکن نشد'));r.readAsArrayBuffer(f)});
 function download(name,blob){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},4000)}
 
@@ -801,13 +821,13 @@ function userExport(){return{format:'dani-academy-user',schemaVersion:CRV.schema
 async function buildCourseZip(id){
   const c=CR.ix.courses.get(id);if(!c)throw new Error('دوره پیدا نشد');
   const strip=o=>{const x={...o};delete x.courseId;delete x.hash;delete x.v;return x};
-  const files=[],J=(n,o)=>files.push({name:n,data:enc.encode(JSON.stringify(o,null,1))});
+  const files=[],J=(n,o)=>files.push({name:n,z:1,data:enc.encode(JSON.stringify(o))});
   const L=lessonsOf(id),Q=questionsOf(id),S=CR.cache.sources.filter(s=>s.courseId===id);
   J('manifest.json',{format:'dani-course',templateVersion:CRV.template,id,title:c.title,contentVersion:c.contentVersion,exportedAt:nowISO(),generator:'DANI Planner '+CRV.app,files:{course:'course.json',lessons:L.map(l=>'lessons/'+l.id+'.json'),questions:['questions/bank.json'],sources:'sources.json'}});
   J('course.json',{id,title:c.title,description:c.description,language:c.language,goals:c.goals,prerequisites:c.prerequisites,topics:c.topics||[],chapters:c.chapters});
   L.forEach(l=>J('lessons/'+l.id+'.json',strip(l)));J('questions/bank.json',Q.map(strip));J('sources.json',S.map(strip));
-  for(const a of await IDB.byCourse('assets',id))files.push({name:a.path,data:new Uint8Array(await a.blob.arrayBuffer())});
-  return zipWrite(files);
+  for(const a of await IDB.byCourse('assets',id))files.push({name:a.path,z:/\.svg$/i.test(a.path),data:new Uint8Array(await a.blob.arrayBuffer())});
+  return zipWriteZ(files);
 }
 async function applyRestore(){
   const R=CR.restore;let log=[];
@@ -896,13 +916,14 @@ hh('cancel',()=>{CR.pv&&CR.pv.forEach(u=>URL.revokeObjectURL(u));CR.pv=null;CR.p
 hh('expc',el=>guard(async()=>{const c=CR.ix.courses.get(el.dataset.id);download(c.id+'-'+c.contentVersion+'.dani-course.zip',await buildCourseZip(c.id))},'فایل دوره دانلود شد'));
 hh('delc',el=>{const c=CR.ix.courses.get(el.dataset.id);if(!confirm('محتوای دوره «'+c.title+'» حذف شود؟\n(قبل از حذف، «خروجی ZIP» بگیر. پیشرفت و پاسخ‌ها در مرحله‌ی بعد جداگانه پرسیده می‌شود.)'))return;const wu=confirm('پیشرفت، پاسخ‌ها، نشانک‌ها و یادداشت‌های این دوره هم حذف شود؟\nتأیید = همه حذف شود · انصراف = اطلاعات من بماند');return guard(async()=>{if(CR.courseId===c.id){CR.courseId='';CR.lessonId=''}await deleteCourse(c.id,wu)},'دوره حذف شد')});
 hh('expu',()=>{download('dani-academy-user-'+new Date().toISOString().slice(0,10)+'.json',new Blob([JSON.stringify(userExport(),null,1)],{type:'application/json'}));toast('خروجی اطلاعات کاربر آماده شد')});
-hh('expb',()=>guard(async()=>{const files=[{name:'user.json',data:enc.encode(JSON.stringify(userExport(),null,1))}];for(const c of CR.cache.courses)files.push({name:'courses/'+c.id+'.dani-course.zip',data:new Uint8Array(await(await buildCourseZip(c.id)).arrayBuffer())});download('dani-academy-backup-'+new Date().toISOString().slice(0,10)+'.dani-backup.zip',zipWrite(files))},'پشتیبان کامل دانلود شد'));
+hh('expb',()=>guard(async()=>{const files=[{name:'user.json',z:1,data:enc.encode(JSON.stringify(userExport()))}];for(const c of CR.cache.courses)files.push({name:'courses/'+c.id+'.dani-course.zip',data:new Uint8Array(await(await buildCourseZip(c.id)).arrayBuffer())});download('dani-academy-backup-'+new Date().toISOString().slice(0,10)+'.dani-backup.zip',await zipWriteZ(files))},'پشتیبان کامل دانلود شد'));
 hh('rcancel',()=>{CR.restore=null;rerender()});
 hh('rapply',()=>{const R=CR.restore;if(R.mode==='replace'&&!confirm('اطلاعات کاربر فعلی کاملاً جایگزین می‌شود. ادامه؟'))return;return guard(async()=>{const log=await applyRestore();CR.restore=null;msg('ok','بازیابی انجام شد.'+(log.length?'<br>'+log.map(E_).join('<br>'):''))})});
 document.addEventListener('change',e=>{
   const t=e.target;if(!t||!t.matches)return;
   if(t.matches('[data-crs-file=all]')){const f=t.files&&t.files[0];t.value='';if(!f)return;guard(async()=>{CR.everything=await prepEverything(f);CR.restore=null;CR.pending=null});return}
   if(t.matches('[data-crs-file]')){const f=t.files&&t.files[0];t.value='';if(!f)return;guard(()=>importFile(f).then(()=>{}));return}
+  if(t.matches('[data-crs-bk]')){CR.bk[t.dataset.crsBk]=t.checked;return}
   if(t.matches('[data-crs-ev]')){const ev=CR.everything;if(t.dataset.crsEv==='host')ev.doHost=t.checked;else ev.doAcademy=t.checked;rerender();return}
   if(t.matches('[data-crs-evsafe]')){CR.everything.safety=t.checked;return}
   if(t.matches('[data-crs-set]')){const k=t.dataset.crsSet;if(k==='courseId'){CR.setup={...CR.setup,courseId:t.value,scope:'all'}}else if(k==='timed')CR.setup.timed=t.checked;else CR.setup[k]=t.value;rerender();return}
@@ -953,32 +974,58 @@ const hostKey=()=>typeof KEY!=='undefined'?KEY:'hamrah_v3';
 async function imgAll(){const o={};if(typeof IMG==='undefined')return o;const ks=await IMG.keys();for(const k of ks){if(typeof k!=='string')continue;const v=await IMG.get(k);if(typeof v==='string')o[k]=v}return o}
 async function imgPut(k,v){if(typeof IMG!=='undefined'&&typeof IMG.set==='function')return IMG.set(k,v);
   return new Promise((res,rej)=>{const r=indexedDB.open('hamrah_img',1);r.onupgradeneeded=()=>r.result.createObjectStore('img');r.onerror=()=>rej(r.error);r.onsuccess=()=>{const t=r.result.transaction('img','readwrite');t.objectStore('img').put(v,k);t.oncomplete=()=>res();t.onerror=()=>rej(t.error)}})}
-async function hostSnap(){
+async function hostSnap(opt){
   if(typeof db==='undefined')return null;
-  const o={format:'dani-fullbackup',version:2,at:nowISO(),db:JSON.stringify(db),img:await imgAll(),ls:{}};
+  const o={format:'dani-fullbackup',version:2,at:nowISO(),db:JSON.stringify(db),img:(opt&&opt.media===false)?{}:await imgAll(),ls:{}};
   for(let j=0;j<localStorage.length;j++){const k=localStorage.key(j);if(LS_OK(k))o.ls[k]=localStorage.getItem(k)}
   return o}
-async function buildEverything(){
-  const host=await hostSnap(),files=[],J=(n,o)=>files.push({name:n,data:enc.encode(typeof o==='string'?o:JSON.stringify(o))});
-  J('manifest.json',{format:'dani-everything-backup',version:1,createdAt:nowISO(),app:CRV.app,planner:!!host,academy:{courses:CR.cache.courses.map(c=>({id:c.id,title:c.title,contentVersion:c.contentVersion}))}});
-  if(host)J('host.json',host);
-  J('academy/user.json',userExport());
-  for(const c of CR.cache.courses)files.push({name:'academy/courses/'+c.id+'.dani-course.zip',data:new Uint8Array(await(await buildCourseZip(c.id)).arrayBuffer())});
-  return zipWrite(files)}
+/* --- حذف تکرار و باینری‌کردن تصاویر/صداهای base64 (data-URL): همان بایت‌ها، حجم کمتر؛ بازیابی دقیقاً همان رشته‌ی اصلی را می‌سازد --- */
+const DU_RE=/data:([A-Za-z0-9.+\-]+\/[A-Za-z0-9.+\-]+);base64,([A-Za-z0-9+\/]{4000,}={0,2})/g;
+function b64ToBytes(b){const bin=atob(b),n=bin.length,u=new Uint8Array(n);for(let i=0;i<n;i++)u[i]=bin.charCodeAt(i);return u}
+function bytesToB64(u){let s='';for(let i=0;i<u.length;i+=0x8000)s+=String.fromCharCode.apply(null,u.subarray(i,i+0x8000));return btoa(s)}
+function slimStr(str,blobs){
+  if(typeof str!=='string'||str.indexOf('base64,')<0||str.indexOf('{{dani-blob:')>=0)return null;
+  let ch=false;
+  const out=str.replace(DU_RE,(m,mime,b64)=>{try{const u=b64ToBytes(b64);if(bytesToB64(u)!==b64)return m;const h=u.length.toString(36)+'-'+crc32b(u).toString(36)+'-'+hashStr(b64);const ex=blobs.get(h);if(ex&&ex.mime!==mime)return m;if(!ex)blobs.set(h,{mime,data:u});ch=true;return'{{dani-blob:'+h+'}}'}catch(e){return m}});
+  return ch?out:null}
+function unslimStr(str,blobs){return str.replace(/\{\{dani-blob:([a-z0-9\-]+)\}\}/g,(m,h)=>{const b=blobs.get(h);if(!b)throw new Error('تصویر/صدای داخل پشتیبان گم شده است ('+h+')');return'data:'+b.mime+';base64,'+bytesToB64(b.data)})}
+async function buildEverything(opt){
+  opt=opt||{};const host=await hostSnap(opt),files=[],J=(n,o,z)=>{const d=enc.encode(typeof o==='string'?o:JSON.stringify(o));files.push({name:n,data:d,z:z!==false});return d.length};
+  let raw=0,blobs=new Map();
+  if(host){
+    const meta={format:'dani-fullbackup-slim',version:1,at:host.at,db:host.db,img:{},ls:{},slim:{db:false,img:[],ls:[]},blobs:{}};
+    raw+=host.db.length;const sd=slimStr(host.db,blobs);if(sd!==null){meta.db=sd;meta.slim.db=true}
+    for(const k of Object.keys(host.img)){raw+=host.img[k].length;const r=slimStr(host.img[k],blobs);if(r!==null){meta.img[k]=r;meta.slim.img.push(k)}else meta.img[k]=host.img[k]}
+    for(const k of Object.keys(host.ls)){raw+=host.ls[k].length;const r=slimStr(host.ls[k],blobs);if(r!==null){meta.ls[k]=r;meta.slim.ls.push(k)}else meta.ls[k]=host.ls[k]}
+    blobs.forEach((v,h)=>{meta.blobs[h]={mime:v.mime,bytes:v.data.length};files.push({name:'host/blobs/'+h+'.bin',data:v.data,z:false})});
+    J('host/meta.json',meta)}
+  const ue=userExport();raw+=JSON.stringify(ue).length;J('academy/user.json',ue);
+  let courseBytes=0;
+  if(opt.courses!==false)for(const c of CR.cache.courses){const zb=await buildCourseZip(c.id),u=new Uint8Array(await zb.arrayBuffer());courseBytes+=u.length;files.push({name:'academy/courses/'+c.id+'.dani-course.zip',data:u,z:false})}
+  J('manifest.json',{format:'dani-everything-backup',version:2,createdAt:nowISO(),app:CRV.app,planner:!!host,options:{media:opt.media!==false,courses:opt.courses!==false},academy:{courses:CR.cache.courses.map(c=>({id:c.id,title:c.title,contentVersion:c.contentVersion}))}});
+  const blob=await zipWriteZ(files);
+  return{blob,stats:{plannerRaw:raw,out:blob.size,blobs:blobs.size,saved:Math.max(0,raw-([...blobs.values()].reduce((s,v)=>s+v.data.length,0))),courses:courseBytes}}}
 async function prepEverything(file){
   const z=await zipRead(await readFileBuf(file));
   if(!z.ents.has('manifest.json'))throw new Error('manifest.json در فایل نیست — این «پشتیبان کامل DANI» نیست');
   const mf=JSON.parse(dec.decode(await z.read('manifest.json')));
   if(mf.format!=='dani-everything-backup')throw new Error('فایل پشتیبان کامل DANI نیست (format نامعتبر)');
-  if(mf.version>1)throw new Error('این پشتیبان با نسخه‌ی جدیدتری ساخته شده است');
+  if(mf.version>2)throw new Error('این پشتیبان با نسخه‌ی جدیدتری ساخته شده است؛ برنامه را به‌روز کن');
   const ev={name:file.name,mf,host:null,restore:null,doHost:true,doAcademy:true,safety:true};
-  if(z.ents.has('host.json')){
-    const o=JSON.parse(dec.decode(await z.read('host.json')));
-    if(!o||o.format!=='dani-fullbackup'||typeof o.db!=='string')throw new Error('بخش پلنر داخل فایل معتبر نیست');
+  let o=null,slim=null;
+  if(z.ents.has('host/meta.json')){
+    const m=JSON.parse(dec.decode(await z.read('host/meta.json')));
+    if(!m||m.format!=='dani-fullbackup-slim'||typeof m.db!=='string')throw new Error('بخش پلنر داخل فایل معتبر نیست');
+    o={format:'dani-fullbackup',version:2,at:m.at,db:m.db,img:m.img||{},ls:m.ls||{}};slim=m;
+    for(const h of Object.keys(m.blobs||{}))if(!z.ents.has('host/blobs/'+h+'.bin'))throw new Error('فایل ناقص است: تصویر/صدای '+h+' در پشتیبان نیست')}
+  else if(z.ents.has('host.json')){
+    o=JSON.parse(dec.decode(await z.read('host.json')));
+    if(!o||o.format!=='dani-fullbackup'||typeof o.db!=='string')throw new Error('بخش پلنر داخل فایل معتبر نیست')}
+  if(o){
     let d;try{d=JSON.parse(o.db)}catch(e){throw new Error('داده‌ی پلنر داخل فایل خراب است')}
     if(!d||!Array.isArray(d.acts)||!Array.isArray(d.entries))throw new Error('داده‌ی پلنر داخل فایل ناقص است');
-    const ls=Object.keys(o.ls||{}).filter(LS_OK),cnt=p=>ls.filter(k=>k.startsWith(p)).length,a=(d.mods&&d.mods.acd)||{};
-    ev.host={o,d,ls,info:{acts:d.acts.length,entries:d.entries.length,img:Object.keys(o.img||{}).length,packs:cnt('dani_pack_'),qpacks:cnt('dani_qpack_'),ext:cnt('dani_ext_'),other:ls.length-cnt('dani_pack_')-cnt('dani_qpack_')-cnt('dani_ext_'),skin:(d.set&&d.set.skin)||'',cards:(a.cards||[]).length,tests:Object.keys(a.tests||{}).length||(a.tests||[]).length,lp:Object.keys(a.lp||{}).length}}}
+    const ls=Object.keys(o.ls||{}).filter(LS_OK),cnt=p=>ls.filter(k=>k.startsWith(p)).length,ik=Object.keys(o.img||{}),ic=p=>ik.filter(k=>k.startsWith(p)).length,a=(d.mods&&d.mods.acd)||{};
+    ev.host={o,slim,z,info:{acts:d.acts.length,entries:d.entries.length,img:ik.length,themes:ic('theme_')+ic('pack_'),skins:ic('skin_'),qpacks:cnt('dani_qpack_')+ic('qpack_'),packs:cnt('dani_pack_'),ext:cnt('dani_ext_')-(ls.includes('dani_ext_index')?1:0),other:ls.length,skin:(d.set&&d.set.skin)||'',cards:(a.cards||[]).length,lp:Object.keys(a.lp||{}).length,slimmed:!!slim}}}
   if(z.ents.has('academy/user.json')){
     const j=JSON.parse(dec.decode(await z.read('academy/user.json')));
     if(!j||j.format!=='dani-academy-user'||!j.data)throw new Error('بخش آکادمی داخل فایل معتبر نیست');
@@ -987,13 +1034,23 @@ async function prepEverything(file){
     ev.restore={name:file.name,j,packs,policy:'keep',mode:'merge',safety:false}}
   if(!ev.host&&!ev.restore)throw new Error('فایل نه بخش پلنر دارد نه بخش آکادمی');
   return ev}
+CR.bk={media:true,courses:true};
 const RS=()=>(CR.everything&&CR.everything.restore)||CR.restore;
+async function rehydrateHost(hh_){ // بازسازی دقیق رشته‌های اصلی از تصاویر/صداهای باینری
+  const {o,slim,z}=hh_;if(!slim)return o;
+  const blobs=new Map();for(const h of Object.keys(slim.blobs||{}))blobs.set(h,{mime:slim.blobs[h].mime,data:await z.read('host/blobs/'+h+'.bin')});
+  if(slim.slim.db)o.db=unslimStr(o.db,blobs);
+  for(const k of slim.slim.img)o.img[k]=unslimStr(o.img[k],blobs);
+  for(const k of slim.slim.ls)o.ls[k]=unslimStr(o.ls[k],blobs);
+  hh_.slim=null;return o}
 async function applyEverything(){
   const ev=CR.everything,log=[];
-  if(ev.safety){download('DANI-safety-before-restore-'+new Date().toISOString().slice(0,10)+'.dani-all.zip',await buildEverything())}
+  if(ev.safety){download('DANI-safety-before-restore-'+new Date().toISOString().slice(0,10)+'.dani-all.zip',(await buildEverything(CR.bk)).blob)}
   if(ev.doAcademy&&ev.restore){CR.restore=ev.restore;ev.restore.safety=false;const l=await applyRestore();CR.restore=null;log.push('آکادمی بازیابی شد'+(l.length?' ('+l.join('؛ ')+')':''))}
   if(ev.doHost&&ev.host){
-    const {o,d}=ev.host;
+    const {o,slim,z}=ev.host;
+    await rehydrateHost(ev.host);
+    let d;try{d=JSON.parse(o.db)}catch(e){throw new Error('داده‌ی پلنر پس از بازسازی خراب است؛ چیزی تغییر نکرد')}
     try{localStorage.setItem(hostKey()+'_before_full_restore',JSON.stringify(db))}catch(e){}
     for(const k of Object.keys(o.img||{}))if(k.length<200&&typeof o.img[k]==='string')await imgPut(k,o.img[k]);
     Object.keys(o.ls||{}).forEach(k=>{if(LS_OK(k)&&typeof o.ls[k]==='string')try{localStorage.setItem(k,o.ls[k])}catch(e){}});
@@ -1006,7 +1063,7 @@ async function applyEverything(){
 function evPanel(){
   const ev=CR.everything;if(!ev)return'';const h=ev.host,r=ev.restore;
   let s='<div class="c crs-pv"><h3>پیش‌نمایش بازیابی کامل</h3><div class="m">فایل: <bdi dir="ltr">'+E_(ev.name)+'</bdi> · ساخته‌شده در '+E_(ev.mf.createdAt||'؟')+'</div>';
-  if(h){const i=h.info;s+='<label class="crs-ck"><input type="checkbox" data-crs-ev="host" '+(ev.doHost?'checked':'')+'> <b>پلنر</b> — جایگزین داده‌ی فعلی پلنر می‌شود</label><div class="m">'+faN(i.acts)+' فعالیت · '+faN(i.entries)+' ثبت · '+faN(i.img)+' تصویر · '+faN(i.packs)+' بسته‌ی تم · '+faN(i.qpacks)+' بسته‌ی جمله · '+faN(i.ext)+' افزونه · '+faN(i.other)+' تنظیم/داده‌ی دیگر'+(i.skin?' · اسکین: '+E_(i.skin):'')+' · آکادمی پلنر: '+faN(i.cards)+' فلش‌کارت، '+faN(i.lp)+' درس مسیر یادگیری</div>'}
+  if(h){const i=h.info;s+='<label class="crs-ck"><input type="checkbox" data-crs-ev="host" '+(ev.doHost?'checked':'')+'> <b>پلنر</b> — جایگزین داده‌ی فعلی پلنر می‌شود</label><div class="m">'+faN(i.acts)+' فعالیت · '+faN(i.entries)+' ثبت · '+faN(i.themes)+' بسته/فایل تم · '+faN(i.skins)+' تصویر اسکین · '+faN(i.qpacks)+' بسته‌ی جمله · '+faN(i.ext)+' افزونه · '+faN(i.other)+' کلید تنظیم/داده'+(i.skin?' · اسکین: '+E_(i.skin):'')+' · آکادمی پلنر: '+faN(i.cards)+' فلش‌کارت، '+faN(i.lp)+' درس مسیر یادگیری'+(i.slimmed?' · فایل بهینه‌شده (بدون تکرار)':'')+'</div>'}
   else s+='<p class="m">این فایل بخش پلنر ندارد.</p>';
   if(r){const rep=planUser(r.j.data,r.mode==='replace'?'keep':r.policy);
     s+='<label class="crs-ck"><input type="checkbox" data-crs-ev="acad" '+(ev.doAcademy?'checked':'')+'> <b>آکادمی دوره‌ها</b> — دوره‌ها، درس‌ها، سؤال‌ها، تصاویر، پیشرفت، آزمون‌ها، نشانک‌ها، یادداشت‌ها، خطاها</label>'+
@@ -1020,8 +1077,9 @@ function evPanel(){
   return s}
 function everythingCard(){
   let last='';try{const t=+localStorage.getItem('crs_lastall');if(t)last=new Date(t).toLocaleString('fa-IR')}catch(e){}
-  return evPanel()+'<div class="c" data-nobi id="crs-allcard"><h3>🛡 پشتیبان کامل همه‌چیز (پلنر + آکادمی)</h3><p class="m">یک فایل برای تمام اطلاعات: فعالیت‌ها و ثبت‌ها، تنظیمات، تم‌ها و اسکین‌ها، بسته‌های جمله و تم، افزونه‌ها، تصاویر، فلش‌کارت‌ها و درس‌های پلنر، <b>و</b> همه‌ی دوره‌ها، درس‌ها، سؤال‌ها، تصاویر دوره، پیشرفت، آزمون‌ها، نشانک‌ها، یادداشت‌ها و دفترچه‌ی خطا. اگر مرورگر عوض شد یا اطلاعات پاک شد، همین فایل را در همین برنامه «بازیابی» کن.</p><div class="row"><button class="p" data-a="crs_allexp">گرفتن پشتیبان کامل</button><label class="btn" style="margin:0">بازیابی از پشتیبان کامل<input type="file" accept=".zip" data-crs-file="all" hidden></label></div><div class="m">آخرین پشتیبان کامل از این مرورگر: '+(last?E_(last):'تا حالا گرفته نشده')+'</div></div>'}
-hh('allexp',()=>guard(async()=>{const blob=await buildEverything();download('DANI-everything-backup-'+new Date().toISOString().slice(0,10)+'.dani-all.zip',blob);try{localStorage.setItem('crs_lastall',String(Date.now()))}catch(e){}},'پشتیبان کامل دانلود شد؛ فایل را جای امن نگه دار.'));
+  return evPanel()+'<div class="c" data-nobi id="crs-allcard"><h3>🛡 پشتیبان کامل همه‌چیز (پلنر + آکادمی)</h3><p class="m">یک فایل برای تمام اطلاعات: فعالیت‌ها و ثبت‌ها، تنظیمات، تم‌ها و اسکین‌ها، بسته‌های جمله و تم، افزونه‌ها، تصاویر، فلش‌کارت‌ها و درس‌های پلنر، <b>و</b> همه‌ی دوره‌ها، درس‌ها، سؤال‌ها، تصاویر دوره، پیشرفت، آزمون‌ها، نشانک‌ها، یادداشت‌ها و دفترچه‌ی خطا. اگر مرورگر عوض شد یا اطلاعات پاک شد، همین فایل را در همین برنامه «بازیابی» کن.</p><details class="m" style="margin:6px 0"><summary>گزینه‌های حجم فایل</summary><label class="crs-ck"><input type="checkbox" data-crs-bk="media" '+(CR.bk.media?'checked':'')+'> تصاویر، تم‌ها و بسته‌های جمله (حجیم‌ترین بخش)</label><label class="crs-ck"><input type="checkbox" data-crs-bk="courses" '+(CR.bk.courses?'checked':'')+'> فایل کامل دوره‌ها (اگر خاموش باشد فقط پیشرفت و اطلاعات خودت می‌ماند و دوره‌ها را باید از فایل اصلی دوباره وارد کنی)</label><div class="m">پیش‌فرض هر دو روشن است = هیچ‌چیز کم نمی‌شود. تکرارها خودکار حذف و تصاویر بهینه ذخیره می‌شوند.</div></details>'+'<div class="row"><button class="p" data-a="crs_allexp">گرفتن پشتیبان کامل</button><label class="btn" style="margin:0">بازیابی از پشتیبان کامل<input type="file" accept=".zip" data-crs-file="all" hidden></label></div><div class="m">آخرین پشتیبان کامل از این مرورگر: '+(last?E_(last):'تا حالا گرفته نشده')+'</div></div>'}
+hh('allexp',()=>guard(async()=>{const r=await buildEverything(CR.bk),st=r.stats;download('DANI-everything-backup-'+new Date().toISOString().slice(0,10)+'.dani-all.zip',r.blob);try{localStorage.setItem('crs_lastall',String(Date.now()))}catch(e){}
+  const mb=n=>(n/1048576).toFixed(1);msg('ok','پشتیبان کامل دانلود شد — حجم فایل: <b>'+faN(mb(st.out))+' مگابایت</b>'+(st.blobs?' (داده‌های پلنر: '+faN(mb(st.plannerRaw))+' مگابایت خام ← تکرارها حذف و '+faN(st.blobs)+' تصویر/صدا بهینه ذخیره شد)':'')+'. فایل را جای امن نگه دار.')}));
 hh('allcancel',()=>{CR.everything=null;rerender()});
 hh('allapply',()=>{const ev=CR.everything;if(ev.doHost&&ev.host&&!confirm('داده‌ی فعلی پلنر با محتوای فایل جایگزین می‌شود. ادامه؟'))return;if(ev.doAcademy&&ev.restore&&ev.restore.mode==='replace'&&!confirm('اطلاعات کاربر آکادمی کاملاً جایگزین می‌شود. ادامه؟'))return;
   return guard(async()=>{const log=await applyEverything();msg('ok','بازیابی انجام شد.<br>'+log.map(E_).join('<br>'))})});
@@ -1052,7 +1110,7 @@ function mount(){
     return'<div class="c"><h3>'+BH('Academy','آکادمی')+'</h3>'+acdTabs()+'</div>'+crsView()};
   if(!zMS.acd.tab||zMS.acd.tab==='review')zMS.acd.tab='courses'; /* تب پیش‌فرضی که خود پلنر گذاشته (مثلاً learn) تغییر نمی‌کند */
   crLoad().then(()=>{if(inCrs())rerender()});
-  window.daniCourses={state:CR,validatePack,loadPackZip,zipRead,zipWrite,tex2mml,grade,inl,blocks,IDB,planPack,normalizePack,commitPack,importFile,buildCourseZip,startQuiz,submitQuiz,userExport,planUser,version:CRV};
+  window.daniCourses={buildEverything,prepEverything,rehydrateHost,hostSnap,state:CR,validatePack,loadPackZip,zipRead,zipWrite,tex2mml,grade,inl,blocks,IDB,planPack,normalizePack,commitPack,importFile,buildCourseZip,startQuiz,submitQuiz,userExport,planUser,version:CRV};
 }
 mount();
 })();
