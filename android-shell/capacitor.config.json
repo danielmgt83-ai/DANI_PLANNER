@@ -1,0 +1,17 @@
+{
+  "appId": "app.dani.planner",
+  "appName": "DANI Planner",
+  "webDir": "www",
+  "server": {
+    "url": "https://danielmgt83-ai.github.io/DANI_PLANNER/",
+    "androidScheme": "https",
+    "cleartext": false
+  },
+  "plugins": {
+    "LocalNotifications": {
+      "smallIcon": "ic_stat_dani",
+      "iconColor": "#2563eb",
+      "sound": "dani_alarm.wav"
+    }
+  }
+}
