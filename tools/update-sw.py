@@ -6,10 +6,10 @@ import os,re,json
 root=os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 files=['./']
 for d,dirs,fs in os.walk(root):
-    dirs[:]=[x for x in dirs if x not in ('tools','.git','docs','.github')]
+    dirs[:]=[x for x in dirs if x not in ('tools','.git','docs','.github','android-shell','dist')]
     for f in fs:
         rel=os.path.relpath(os.path.join(d,f),root).replace(os.sep,'/')
-        if rel in ('sw.js','.nojekyll') or rel.endswith(('.md','.bat','.command','.sh','.yml','.py')): continue
+        if rel in ('sw.js','.nojekyll') or rel.endswith(('.txt','.md','.bat','.command','.sh','.yml','.py')): continue
         files.append(rel)
 files=sorted(set(files),key=lambda x:(x!='./',x!='index.html',x))
 p=os.path.join(root,'sw.js'); s=open(p,encoding='utf-8').read()
