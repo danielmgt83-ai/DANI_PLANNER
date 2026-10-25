@@ -68,11 +68,6 @@
 - عمل‌ها (H.*): تعداد 1 ؛ نمونه: `pk`
 - نام‌های مهم سطح‌بالا (18 مورد): `ERN_IMG`، `ERN_Q`، `ERN_WING`، `ernQ()`، `ernTick()`، `ernTiles()`، `pkOn()`، `pkSig()`، `pkVet()`، `pkRegister()`، `pkSave()`، `pkLoadAll()`، `pkBoot()`، `pkRead()`، `pkCrypto`، `pkImport()`، `pkSign()`، `pkCardHTML()`
 
-## js/theme-aot.js  (19 KB)
-- بخش‌ها:
-  - Attack on Titan themes: quotes, images, icons, brand, home
-- نام‌های مهم سطح‌بالا (15 مورد): `AOT_CH`، `AOT_Q`، `AOT_I`، `aotImg`، `AOT`، `AOT_KJ`، `AOT_W`، `aotK`، `AOTQ()`، `_aotApply`، `_aotDecor`، `aotExtra()`، `aotTicker()`، `aotGal()`، `aotHome()`
-
 ## js/quotes-data.js  (124 KB)
 - بخش‌ها:
   - Quote packs (bilingual, data only) + theme banner quote
@@ -131,22 +126,32 @@
 ## js/boot.js  (0 KB)
 - نام‌های مهم سطح‌بالا (0 مورد): 
 
-## js/courses.js  (139 KB)
-- ماژول بسته (IIFE؛ دستی ویرایش نشود — PROJECT.md بخش ۸). شامل: ورود و به‌روزرسانی بسته‌ی دوره (`.dani-course.zip`)، مطالعه/تمرین/آزمون، دفترچه‌ی خطا، منابع، گزارش پیشرفت، و **پشتیبان کامل «همه‌چیز»** (`.dani-all.zip`: پلنر + آکادمی، بدون تکرار و فشرده).
-- نقاط اتصال به برنامه: `PG.acd` (تب «دوره‌ها»)، `acdTabs`، `PG.set` (کارت پشتیبان در تنظیمات › داده)، `i18Tree`.
-- ذخیره: IndexedDB `dani_academy` (جدا از پلنر) + کلید `crs_mz` / `crs_lastall` در localStorage.
-- عمل‌ها (H.*): پیشوند `crs_` (مثلاً `crs_open`, `crs_allexp`, `crs_allapply`)
-- **بلوک الحاقی «v3.1» انتهای همین فایل (ساخته‌ی هوش مصنوعی دیگر؛ حفظ شود):** CSS محیط راحت‌تر مطالعه‌ی درس (`.crs-lesson`) + دکمه‌ی «❓ بپرس از Claude» روی هر بخش درس (`#ask-sheet`، `.crs-ask`، `.crs-lessonbar-ask`، `window.__daniAskInit`). از DOM خروجی ماژول بالا (`.crs-lesson`, `.crs-math`, `.np`) استفاده می‌کند؛ جایگزینی ماژول باید این بلوک را عیناً نگه دارد.
-- نام‌های مهم سطح‌بالا: فقط `window.daniCourses` (برای آزمون)
+## js/courses.js  (121 KB)
+- بخش‌ها:
+  - DANI Courses (آکادمی دوره‌ها) v1 — ماژول افزوده؛ به داده‌های قبلی پلنر دست نمی‌زند
+- صفحه‌هایی که ثبت می‌کند (PG): `set`، `acd`
+- نام‌های مهم سطح‌بالا (0 مورد): 
 
-## js/quickaccess.js  (30 KB)
-- ماژول بسته (IIFE؛ دستی ویرایش نشود — PROJECT.md بخش ۸). آیتم ⚡ بعد از «خانه» در منو + پنل جست‌وجو/سنجاق/بیشتر استفاده‌شده/همه‌ی بخش‌ها. فهرست مقصدها: آرایه‌ی `C` ابتدای فایل (برای صفحه/تب جدید یک ردیف اضافه کن).
-- نقاط اتصال: `render` و `i18Tree` (پیچیده می‌شوند)، `H.qa_open`، آیتم کپی‌شده از لینک «خانه» (هر تم ظاهر خودش را می‌دهد).
-- ذخیره: localStorage `dani_qa_v1`.
-- نام‌های مهم سطح‌بالا: فقط `window.daniQuickAccess` (برای آزمون)
+## js/quickaccess.js  (28 KB)
+- بخش‌ها:
+  - DANI Quick Access (دسترسی سریع) v1 — ماژول افزوده؛ هیچ بخشی از پلنر را حذف یا بازنویسی نمی‌کند
+- عمل‌ها (H.*): تعداد 2 ؛ نمونه: `crs_allexp`، `qa_open`
+- نام‌های مهم سطح‌بالا (0 مورد): 
+
 
 ## فایل‌های غیر js
-- `dani.css` استایل پایه؛ `skins.css` موتور تم؛ `themes-itachi.css` / `themes-eren.css` / `themes-aot.css` استایل تم‌ها
+- `dani.css` استایل پایه؛ `skins.css` موتور تم؛ `themes-itachi.css` / `themes-eren.css` استایل تم‌ها
 - `js/data/baked.js` داده‌ی اولیه (تنظیمات، تم‌ها، بسته‌های جمله، افزونه‌ی acadlessons) ؛ `js/data/du.js` مسیر عکس‌های مشترک
 - `js/seed.js` انتقال یک‌باره‌ی baked به localStorage
 - `sw.js` آفلاین و اعلان؛ `manifest.webmanifest` اطلاعات PWA؛ `icons/` آیکون‌ها؛ `img/` `audio/` منابع (فهرست: `img/README.md`)
+
+## js/notifier.js  (جدید)
+- بخش‌ها: لایه‌ی یکپارچه‌ی اعلان و زنگ (اپ اندروید Capacitor + وب)
+- نام‌های مهم: `Notifier` (`init`، `sync`، `refresh`، `plan`، `isNative`، `cardHTML`)
+- عمل‌ها (H.*): `nt_perm`، `nt_exact`، `nt_t10`، `nt_t60`
+- توابع بازتعریف‌شده: `showN`، `notify`، `sysNotify`، متدهای `TM.*`، `setPage` (کارت در تنظیمات ← زمان)
+- در `index.html` بعد از `home-desk.js` و قبل از `i18n.js`
+
+## android-shell/ (پوسته‌ی اندروید)
+- `capacitor.config.json`، `package.json`، `apply.mjs` (prepare/android)، `res/` (صداهای `dani_alarm.wav` و `dani_ping.wav`، آیکون‌ها)
+- ساخت: `.github/workflows/build-android.yml` ؛ راهنما: `ANDROID-FA.md`
