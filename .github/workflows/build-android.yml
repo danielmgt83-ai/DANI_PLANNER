@@ -1,0 +1,60 @@
+name: Build Android app
+
+# دکمه‌ی دستی: تب Actions ← «Build Android app» ← Run workflow
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "live = سایت GitHub Pages را باز می‌کند و خودکار به‌روز می‌شود (پیشنهادی) | bundled = فایل‌ها داخل برنامه‌اند"
+        type: choice
+        default: live
+        options: [live, bundled]
+
+permissions:
+  contents: write
+
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    env:
+      DANI_MODE: ${{ inputs.mode }}
+    defaults:
+      run:
+        working-directory: android-shell
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - name: Install Capacitor
+        run: npm install
+      - name: Prepare web folder and config
+        run: node apply.mjs prepare
+      - name: Create Android project
+        run: npx cap add android
+      - name: Add permissions, sounds and icons
+        run: node apply.mjs android
+      - name: Sync
+        run: npx cap sync android
+      - name: Build debug APK
+        working-directory: android-shell/android
+        run: ./gradlew assembleDebug --no-daemon
+      - name: Rename APK
+        run: cp android/app/build/outputs/apk/debug/app-debug.apk DANI-Planner.apk
+      - uses: actions/upload-artifact@v4
+        with:
+          name: DANI-Planner-apk
+          path: android-shell/DANI-Planner.apk
+      - name: Publish release (latest APK)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        working-directory: .
+        run: |
+          gh release delete android-latest --yes --cleanup-tag || true
+          gh release create android-latest android-shell/DANI-Planner.apk \
+            --title "DANI Planner — Android" \
+            --notes "APK آماده‌ی نصب (حالت: ${{ inputs.mode }}). راهنما: ANDROID-FA.md"
