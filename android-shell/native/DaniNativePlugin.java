@@ -1,0 +1,416 @@
+package app.dani.planner;
+
+import android.Manifest;
+import android.app.Activity;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.content.ContentResolver;
+import android.content.ContentUris;
+import android.content.ContentValues;
+import android.content.Context;
+import android.content.Intent;
+import android.database.Cursor;
+import android.media.AudioAttributes;
+import android.media.MediaPlayer;
+import android.net.Uri;
+import android.os.Build;
+import android.os.Handler;
+import android.os.Looper;
+import android.print.DaniPdfPrint;
+import android.provider.CalendarContract;
+import android.provider.DocumentsContract;
+import android.provider.MediaStore;
+import android.provider.OpenableColumns;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
+
+import androidx.activity.result.ActivityResult;
+
+import com.getcapacitor.JSArray;
+import com.getcapacitor.JSObject;
+import com.getcapacitor.PermissionState;
+import com.getcapacitor.Plugin;
+import com.getcapacitor.PluginCall;
+import com.getcapacitor.PluginMethod;
+import com.getcapacitor.annotation.ActivityCallback;
+import com.getcapacitor.annotation.CapacitorPlugin;
+import com.getcapacitor.annotation.Permission;
+import com.getcapacitor.annotation.PermissionCallback;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.TimeZone;
+
+/*
+ * DANI · DaniNativePlugin
+ *  - saveFromCache : کپی فایل از حافظه‌ی موقت اپ به Downloads/DANI یا Documents/DANI (MediaStore؛ بدون نیاز به مجوز)
+ *  - prune         : نگه‌داشتن فقط N پشتیبان آخر
+ *  - openUri / shareUri : باز کردن یا اشتراک‌گذاری فایل ذخیره‌شده
+ *  - htmlToPdf     : ساخت PDF واقعی از HTML گزارش و ذخیره در Downloads/DANI
+ *  - calendarAdd   : افزودن مستقیم موعد/یادآور به تقویم گوشی (تقویم محلی «DANI»)
+ *  - pickAudio / playUri / stopPlay / soundChannel : انتخاب آهنگ از حافظه‌ی گوشی بدون کپی داخل اپ
+ */
+@CapacitorPlugin(
+        name = "DaniNative",
+        permissions = {
+                @Permission(alias = "calendar", strings = {Manifest.permission.READ_CALENDAR, Manifest.permission.WRITE_CALENDAR})
+        })
+public class DaniNativePlugin extends Plugin {
+    private static final String TAG_DESC = "[DANI]";
+    private MediaPlayer mp;
+    private WebView pdfView;
+
+    /* ---------------------------------------------------------- فایل */
+    private Uri collection(String folder) {
+        return "Download".equals(folder) ? MediaStore.Downloads.EXTERNAL_CONTENT_URI : MediaStore.Files.getContentUri("external");
+    }
+
+    private JSObject store(File src, String name, String folder, String sub, String mime, boolean replace) throws Exception {
+        if (Build.VERSION.SDK_INT < 29) throw new Exception("legacy");
+        ContentResolver cr = getContext().getContentResolver();
+        String rel = folder + "/" + sub;
+        Uri coll = collection(folder);
+        if (replace) {
+            try {
+                cr.delete(coll, MediaStore.MediaColumns.RELATIVE_PATH + "=? AND " + MediaStore.MediaColumns.DISPLAY_NAME + "=?",
+                        new String[]{rel + "/", name});
+            } catch (Exception ignored) {}
+        }
+        ContentValues v = new ContentValues();
+        v.put(MediaStore.MediaColumns.DISPLAY_NAME, name);
+        v.put(MediaStore.MediaColumns.MIME_TYPE, mime);
+        v.put(MediaStore.MediaColumns.RELATIVE_PATH, rel);
+        v.put(MediaStore.MediaColumns.IS_PENDING, 1);
+        Uri u = cr.insert(coll, v);
+        if (u == null) throw new Exception("insert failed");
+        try (InputStream is = new FileInputStream(src); OutputStream os = cr.openOutputStream(u)) {
+            if (os == null) throw new Exception("open failed");
+            byte[] buf = new byte[65536];
+            int n;
+            while ((n = is.read(buf)) > 0) os.write(buf, 0, n);
+        } catch (Exception e) {
+            try { cr.delete(u, null, null); } catch (Exception ignored) {}
+            throw e;
+        }
+        v.clear();
+        v.put(MediaStore.MediaColumns.IS_PENDING, 0);
+        cr.update(u, v, null, null);
+        JSObject r = new JSObject();
+        r.put("uri", u.toString());
+        r.put("path", rel + "/" + name);
+        return r;
+    }
+
+    @PluginMethod
+    public void saveFromCache(PluginCall call) {
+        try {
+            File src = new File(getContext().getCacheDir(), call.getString("path", ""));
+            JSObject r = store(src, call.getString("name", "dani-file"), call.getString("folder", "Download"),
+                    call.getString("sub", "DANI"), call.getString("mime", "application/octet-stream"),
+                    Boolean.TRUE.equals(call.getBoolean("replace", false)));
+            src.delete();
+            call.resolve(r);
+        } catch (Exception e) {
+            call.reject(String.valueOf(e.getMessage()), e);
+        }
+    }
+
+    @PluginMethod
+    public void prune(PluginCall call) {
+        try {
+            if (Build.VERSION.SDK_INT < 29) { call.resolve(); return; }
+            String folder = call.getString("folder", "Documents"), sub = call.getString("sub", "DANI/Backups");
+            String prefix = call.getString("prefix", "dani-auto-");
+            int keep = call.getInt("keep", 7);
+            ContentResolver cr = getContext().getContentResolver();
+            Uri coll = collection(folder);
+            int removed = 0;
+            try (Cursor c = cr.query(coll, new String[]{MediaStore.MediaColumns._ID},
+                    MediaStore.MediaColumns.RELATIVE_PATH + "=? AND " + MediaStore.MediaColumns.DISPLAY_NAME + " LIKE ?",
+                    new String[]{folder + "/" + sub + "/", prefix + "%"}, MediaStore.MediaColumns.DATE_MODIFIED + " DESC")) {
+                int i = 0;
+                while (c != null && c.moveToNext()) {
+                    if (i++ < keep) continue;
+                    try { cr.delete(ContentUris.withAppendedId(coll, c.getLong(0)), null, null); removed++; } catch (Exception ignored) {}
+                }
+            }
+            JSObject r = new JSObject();
+            r.put("removed", removed);
+            call.resolve(r);
+        } catch (Exception e) {
+            call.reject(String.valueOf(e.getMessage()), e);
+        }
+    }
+
+    @PluginMethod
+    public void openUri(PluginCall call) {
+        try {
+            Intent i = new Intent(Intent.ACTION_VIEW);
+            i.setDataAndType(Uri.parse(call.getString("uri", "")), call.getString("mime", "*/*"));
+            i.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            getActivity().startActivity(Intent.createChooser(i, null));
+            call.resolve();
+        } catch (Exception e) {
+            call.reject(String.valueOf(e.getMessage()), e);
+        }
+    }
+
+    @PluginMethod
+    public void shareUri(PluginCall call) {
+        try {
+            Intent i = new Intent(Intent.ACTION_SEND);
+            i.setType(call.getString("mime", "*/*"));
+            i.putExtra(Intent.EXTRA_STREAM, Uri.parse(call.getString("uri", "")));
+            i.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            getActivity().startActivity(Intent.createChooser(i, null));
+            call.resolve();
+        } catch (Exception e) {
+            call.reject(String.valueOf(e.getMessage()), e);
+        }
+    }
+
+    /* ---------------------------------------------------------- PDF */
+    @PluginMethod
+    public void htmlToPdf(final PluginCall call) {
+        final String html = call.getString("html", "");
+        final String name = call.getString("name", "DANI-report.pdf");
+        final String folder = call.getString("folder", "Download"), sub = call.getString("sub", "DANI");
+        getActivity().runOnUiThread(() -> {
+            try {
+                pdfView = new WebView(getActivity());
+                pdfView.getSettings().setJavaScriptEnabled(false);
+                pdfView.setWebViewClient(new WebViewClient() {
+                    boolean started = false;
+                    @Override
+                    public void onPageFinished(final WebView view, String url) {
+                        if (started) return;
+                        started = true;
+                        new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                            try {
+                                final File out = new File(getContext().getCacheDir(), "dani-report-" + System.currentTimeMillis() + ".pdf");
+                                DaniPdfPrint.write(view.createPrintDocumentAdapter("DANI"), out, new DaniPdfPrint.Done() {
+                                    @Override public void ok() {
+                                        try {
+                                            JSObject r = store(out, name, folder, sub, "application/pdf", true);
+                                            out.delete();
+                                            call.resolve(r);
+                                        } catch (Exception e) { call.reject(String.valueOf(e.getMessage()), e); }
+                                        cleanPdf();
+                                    }
+                                    @Override public void fail(String msg) { call.reject("pdf: " + msg); cleanPdf(); }
+                                });
+                            } catch (Throwable t) { call.reject("pdf: " + t); cleanPdf(); }
+                        }, 600);
+                    }
+                });
+                pdfView.loadDataWithBaseURL(null, html, "text/html", "utf-8", null);
+            } catch (Throwable t) {
+                call.reject("pdf: " + t);
+                cleanPdf();
+            }
+        });
+    }
+
+    private void cleanPdf() {
+        getActivity().runOnUiThread(() -> {
+            try { if (pdfView != null) pdfView.destroy(); } catch (Exception ignored) {}
+            pdfView = null;
+        });
+    }
+
+    /* ---------------------------------------------------------- تقویم */
+    @PluginMethod
+    public void calendarAdd(PluginCall call) {
+        if (getPermissionState("calendar") != PermissionState.GRANTED) {
+            if (Boolean.TRUE.equals(call.getBoolean("noAsk", false))) { call.reject("denied"); return; }
+            requestPermissionForAlias("calendar", call, "calPerm");
+            return;
+        }
+        doCalendar(call);
+    }
+
+    @PermissionCallback
+    private void calPerm(PluginCall call) {
+        if (getPermissionState("calendar") == PermissionState.GRANTED) doCalendar(call);
+        else call.reject("denied");
+    }
+
+    private long findCalendar(ContentResolver cr) {
+        try (Cursor c = cr.query(CalendarContract.Calendars.CONTENT_URI, new String[]{CalendarContract.Calendars._ID},
+                CalendarContract.Calendars.ACCOUNT_NAME + "=? AND " + CalendarContract.Calendars.ACCOUNT_TYPE + "=?",
+                new String[]{"DANI", CalendarContract.ACCOUNT_TYPE_LOCAL}, null)) {
+            if (c != null && c.moveToFirst()) return c.getLong(0);
+        } catch (Exception ignored) {}
+        try {
+            ContentValues v = new ContentValues();
+            v.put(CalendarContract.Calendars.ACCOUNT_NAME, "DANI");
+            v.put(CalendarContract.Calendars.ACCOUNT_TYPE, CalendarContract.ACCOUNT_TYPE_LOCAL);
+            v.put(CalendarContract.Calendars.NAME, "DANI");
+            v.put(CalendarContract.Calendars.CALENDAR_DISPLAY_NAME, "DANI Planner");
+            v.put(CalendarContract.Calendars.CALENDAR_COLOR, 0xFF2563EB);
+            v.put(CalendarContract.Calendars.CALENDAR_ACCESS_LEVEL, CalendarContract.Calendars.CAL_ACCESS_OWNER);
+            v.put(CalendarContract.Calendars.OWNER_ACCOUNT, "DANI");
+            v.put(CalendarContract.Calendars.VISIBLE, 1);
+            v.put(CalendarContract.Calendars.SYNC_EVENTS, 1);
+            v.put(CalendarContract.Calendars.CALENDAR_TIME_ZONE, TimeZone.getDefault().getID());
+            Uri u = CalendarContract.Calendars.CONTENT_URI.buildUpon()
+                    .appendQueryParameter(CalendarContract.CALLER_IS_SYNCADAPTER, "true")
+                    .appendQueryParameter(CalendarContract.Calendars.ACCOUNT_NAME, "DANI")
+                    .appendQueryParameter(CalendarContract.Calendars.ACCOUNT_TYPE, CalendarContract.ACCOUNT_TYPE_LOCAL).build();
+            Uri r = cr.insert(u, v);
+            if (r != null) return ContentUris.parseId(r);
+        } catch (Exception ignored) {}
+        /* اگر ساخت تقویم محلی ممکن نبود: اولین تقویم قابل‌نوشتن (ترجیحاً اصلی) */
+        try (Cursor c = cr.query(CalendarContract.Calendars.CONTENT_URI,
+                new String[]{CalendarContract.Calendars._ID, CalendarContract.Calendars.IS_PRIMARY},
+                CalendarContract.Calendars.CALENDAR_ACCESS_LEVEL + ">=?", new String[]{"500"},
+                CalendarContract.Calendars.IS_PRIMARY + " DESC")) {
+            if (c != null && c.moveToFirst()) return c.getLong(0);
+        } catch (Exception ignored) {}
+        return -1;
+    }
+
+    private void doCalendar(PluginCall call) {
+        try {
+            ContentResolver cr = getContext().getContentResolver();
+            long cal = findCalendar(cr);
+            if (cal < 0) { call.reject("nocalendar"); return; }
+            cr.delete(CalendarContract.Events.CONTENT_URI,
+                    CalendarContract.Events.CALENDAR_ID + "=? AND " + CalendarContract.Events.DESCRIPTION + " LIKE ?",
+                    new String[]{String.valueOf(cal), "%" + TAG_DESC + "%"});
+            JSArray arr = call.getArray("events", new JSArray());
+            String tz = call.getString("tz", TimeZone.getDefault().getID());
+            int added = 0;
+            for (int i = 0; i < arr.length(); i++) {
+                JSONObject e = arr.getJSONObject(i);
+                String rr = e.optString("rrule", "");
+                ContentValues v = new ContentValues();
+                v.put(CalendarContract.Events.CALENDAR_ID, cal);
+                v.put(CalendarContract.Events.TITLE, e.optString("title", "DANI"));
+                String d = e.optString("desc", "");
+                v.put(CalendarContract.Events.DESCRIPTION, (d.isEmpty() ? "" : d + "\n") + TAG_DESC);
+                v.put(CalendarContract.Events.DTSTART, e.getLong("start"));
+                v.put(CalendarContract.Events.EVENT_TIMEZONE, tz);
+                if (rr.isEmpty()) v.put(CalendarContract.Events.DTEND, e.optLong("end", e.getLong("start") + 1800000L));
+                else { v.put(CalendarContract.Events.RRULE, rr); v.put(CalendarContract.Events.DURATION, "PT30M"); }
+                JSONArray al = e.optJSONArray("alarms");
+                v.put(CalendarContract.Events.HAS_ALARM, al != null && al.length() > 0 ? 1 : 0);
+                Uri ev = cr.insert(CalendarContract.Events.CONTENT_URI, v);
+                if (ev == null) continue;
+                added++;
+                long id = ContentUris.parseId(ev);
+                for (int k = 0; al != null && k < al.length(); k++) {
+                    ContentValues rv = new ContentValues();
+                    rv.put(CalendarContract.Reminders.EVENT_ID, id);
+                    rv.put(CalendarContract.Reminders.MINUTES, Math.max(0, al.getInt(k)));
+                    rv.put(CalendarContract.Reminders.METHOD, CalendarContract.Reminders.METHOD_ALERT);
+                    try { cr.insert(CalendarContract.Reminders.CONTENT_URI, rv); } catch (Exception ignored) {}
+                }
+            }
+            JSObject r = new JSObject();
+            r.put("added", added);
+            call.resolve(r);
+        } catch (Exception e) {
+            call.reject(String.valueOf(e.getMessage()), e);
+        }
+    }
+
+    /* ---------------------------------------------------------- آهنگ از حافظه‌ی گوشی */
+    @PluginMethod
+    public void pickAudio(PluginCall call) {
+        Intent i = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+        i.addCategory(Intent.CATEGORY_OPENABLE);
+        i.setType("audio/*");
+        i.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION);
+        startActivityForResult(call, i, "pickDone");
+    }
+
+    @ActivityCallback
+    private void pickDone(PluginCall call, ActivityResult res) {
+        if (call == null) return;
+        JSObject o = new JSObject();
+        if (res.getResultCode() != Activity.RESULT_OK || res.getData() == null || res.getData().getData() == null) {
+            o.put("cancelled", true);
+            call.resolve(o);
+            return;
+        }
+        Uri u = res.getData().getData();
+        try { getContext().getContentResolver().takePersistableUriPermission(u, Intent.FLAG_GRANT_READ_URI_PERMISSION); } catch (Exception ignored) {}
+        String name = "audio";
+        try (Cursor c = getContext().getContentResolver().query(u, new String[]{OpenableColumns.DISPLAY_NAME}, null, null, null)) {
+            if (c != null && c.moveToFirst()) name = c.getString(0);
+        } catch (Exception ignored) {}
+        String sys = "";
+        try {
+            if ("com.android.providers.media.documents".equals(u.getAuthority())) {
+                String id = DocumentsContract.getDocumentId(u);
+                if (id.startsWith("audio:")) sys = "content://media/external/audio/media/" + id.substring(6);
+            }
+        } catch (Exception ignored) {}
+        o.put("uri", u.toString());
+        o.put("name", name);
+        o.put("sys", sys);
+        call.resolve(o);
+    }
+
+    private void stopMp() {
+        try { if (mp != null) { mp.stop(); } } catch (Exception ignored) {}
+        try { if (mp != null) { mp.release(); } } catch (Exception ignored) {}
+        mp = null;
+    }
+
+    @PluginMethod
+    public void playUri(PluginCall call) {
+        try {
+            stopMp();
+            float vol = (float) Math.max(0, Math.min(1, call.getDouble("volume", 0.8)));
+            mp = new MediaPlayer();
+            mp.setAudioAttributes(new AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_MEDIA)
+                    .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC).build());
+            mp.setDataSource(getContext(), Uri.parse(call.getString("uri", "")));
+            mp.setVolume(vol, vol);
+            mp.setLooping(Boolean.TRUE.equals(call.getBoolean("loop", false)));
+            mp.setOnCompletionListener(m -> { stopMp(); notifyListeners("playEnd", new JSObject()); });
+            mp.prepare();
+            mp.start();
+            JSObject r = new JSObject();
+            r.put("duration", mp.getDuration());
+            call.resolve(r);
+        } catch (Exception e) {
+            stopMp();
+            call.reject(String.valueOf(e.getMessage()), e);
+        }
+    }
+
+    @PluginMethod
+    public void stopPlay(PluginCall call) {
+        stopMp();
+        call.resolve();
+    }
+
+    /* کانال اعلان با آهنگ دلخواه (صدای کانال بعد از ساخت قابل‌تغییر نیست؛ پس شناسه به آدرس فایل وابسته است) */
+    @PluginMethod
+    public void soundChannel(PluginCall call) {
+        try {
+            if (Build.VERSION.SDK_INT >= 26) {
+                NotificationManager nm = (NotificationManager) getContext().getSystemService(Context.NOTIFICATION_SERVICE);
+                String id = call.getString("id", "dani-alarm-u");
+                for (NotificationChannel c : nm.getNotificationChannels())
+                    if (c.getId().startsWith("dani-alarm-u") && !c.getId().equals(id)) nm.deleteNotificationChannel(c.getId());
+                NotificationChannel ch = new NotificationChannel(id, call.getString("name", "DANI alarm"), NotificationManager.IMPORTANCE_HIGH);
+                ch.setSound(Uri.parse(call.getString("uri", "")), new AudioAttributes.Builder()
+                        .setUsage(AudioAttributes.USAGE_NOTIFICATION).setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION).build());
+                ch.enableVibration(true);
+                nm.createNotificationChannel(ch);
+            }
+            call.resolve();
+        } catch (Exception e) {
+            call.reject(String.valueOf(e.getMessage()), e);
+        }
+    }
+}
