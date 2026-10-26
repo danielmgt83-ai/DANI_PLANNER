@@ -12,7 +12,7 @@ const Notifier=(()=>{
   const cap=()=>window.Capacitor;
   const isNative=()=>{try{return !!(cap()&&cap().isNativePlatform&&cap().isNativePlatform())}catch(e){return false}};
   const LN=()=>{try{return cap().Plugins.LocalNotifications||null}catch(e){return null}};
-  const CH_ALARM='dani-alarm-v1',CH_REM='dani-remind-v1';
+  const CH_ALARM='dani-alarm-v2',CH_REM='dani-remind-v2';
   const ID_TIMER=1,ID_PRE=2,ID_TEST=3,DAYS=14,MAXN=60;
   const st={perm:'unknown',exact:'unknown',pending:0,sig:'',keys:{},tAts:[],err:'',busy:false,again:false,ready:false};
   const hash=s=>{let h=5381;for(let i=0;i<s.length;i++)h=((h<<5)+h+s.charCodeAt(i))|0;return 100+Math.abs(h)%2000000000};
@@ -34,14 +34,15 @@ const Notifier=(()=>{
 
   /* ---------- اپ اندروید ---------- */
   async function setupChannels(){const p=LN();if(!p||!p.createChannel)return;
-    try{await p.createChannel({id:CH_ALARM,name:L('زنگ و تایمر','Alarm & timer'),description:L('پایان تایمر و هشدارهای مهم','Timer end and important alerts'),importance:5,visibility:1,sound:'dani_alarm.wav',vibration:true,lights:true})}catch(e){}
-    try{await p.createChannel({id:CH_REM,name:L('یادآورها','Reminders'),description:L('یادآورها و موعدها','Reminders and deadlines'),importance:4,visibility:1,sound:'dani_ping.wav',vibration:true})}catch(e){}}
+    for(const o of['dani-alarm-v1','dani-remind-v1']){try{await p.deleteChannel({id:o})}catch(e){}}
+    try{await p.createChannel({id:CH_ALARM,name:L('زنگ و تایمر','Alarm & timer'),description:L('پایان تایمر و هشدارهای مهم','Timer end and important alerts'),importance:5,visibility:1,sound:'dani_alarm.ogg',vibration:true,lights:true})}catch(e){}
+    try{await p.createChannel({id:CH_REM,name:L('یادآورها','Reminders'),description:L('یادآورها و موعدها','Reminders and deadlines'),importance:4,visibility:1,sound:'dani_ping.ogg',vibration:true})}catch(e){}}
   async function refresh(){if(!isNative()){st.perm=('Notification' in window)?Notification.permission:'unsupported';return}
     const p=LN();if(!p){st.err='plugin';return}
     try{const r=await p.checkPermissions();st.perm=r.display}catch(e){}
     try{const r=await p.checkExactNotificationSetting();st.exact=r.exact_alarm}catch(e){st.exact='unknown'}
     try{const r=await p.getPending();st.pending=(r.notifications||[]).length}catch(e){}}
-  function toNote(x){return{id:x.id,title:x.title,body:x.body,channelId:x.ch,sound:x.ch===CH_ALARM?'dani_alarm.wav':'dani_ping.wav',smallIcon:'ic_stat_dani',iconColor:'#2563eb',autoCancel:true,schedule:{at:new Date(x.at),allowWhileIdle:true},extra:{k:x.key}}}
+  function toNote(x){return{id:x.id,title:x.title,body:x.body,channelId:x.ch,sound:x.ch===CH_ALARM?'dani_alarm.ogg':'dani_ping.ogg',smallIcon:'ic_stat_dani',iconColor:'#2563eb',autoCancel:true,schedule:{at:new Date(x.at),allowWhileIdle:true},extra:{k:x.key}}}
   async function sync(force){
     if(!isNative())return;const p=LN();if(!p)return;
     if(st.busy){st.again=true;return}
@@ -99,7 +100,7 @@ const Notifier=(()=>{
       h+='<p class="m">'+L('تایمر شمارش‌معکوس، هشدار پیش از پایان و یادآورهای ۱۴ روز آینده خودکار در سیستم‌عامل ثبت می‌شوند و با هر تغییر به‌روز می‌شوند. اگر زنگ دیر آمد: تنظیمات گوشی ← برنامه‌ها ← DANI ← باتری ← «بدون محدودیت»، و «آلارم و یادآور» را روشن کن.','The countdown timer, its pre-alert and the next 14 days of reminders are registered with the OS automatically and refreshed on every change. If alarms come late: phone Settings → Apps → DANI → Battery → "Unrestricted", and enable "Alarms & reminders".')+'</p>'}
     else{
       h+='<label class="chip"><input type="checkbox" data-ch="sfb" data-f="nwake" '+(db.set.nwake?'checked':'')+'> '+L('هنگام تایمر، صفحه روشن بماند (برای اینکه زنگ حتماً بخورد)','Keep the screen on while a timer runs (so the alarm is sure to ring)')+'</label>'
-        +'<p class="m">'+L('در نسخه‌ی وب، وقتی صفحه بسته یا گوشی قفل باشد مرورگر زمان‌بندی دقیق نمی‌دهد. برای زنگ مطمئن: «اپ اندروید DANI» را نصب کن (راهنما: ANDROID-FA.md) یا از خروجی تقویم زیر استفاده کن تا تقویم گوشی زنگ بزند.','On the web, the browser gives no exact timing when the page is closed or the phone is locked. For reliable alarms install the DANI Android app (see ANDROID-FA.md) or use the calendar export below so the phone calendar rings.')+'</p>'
+        +'<p class="m">'+L('در نسخه‌ی وب، وقتی صفحه بسته یا گوشی قفل باشد مرورگر زمان‌بندی دقیق نمی‌دهد. برای زنگ مطمئن: «اپ اندروید DANI» را نصب کن (راهنما: README.md) یا از خروجی تقویم زیر استفاده کن تا تقویم گوشی زنگ بزند.','On the web, the browser gives no exact timing when the page is closed or the phone is locked. For reliable alarms install the DANI Android app (see README.md) or use the calendar export below so the phone calendar rings.')+'</p>'
         +'<div class="row"><button data-a="ics">'+L('خروجی تقویم (.ics) برای زنگ گوشی','Calendar export (.ics) for phone alarms')+'</button></div>'}
     return h+'</div>'}
 
