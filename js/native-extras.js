@@ -76,10 +76,16 @@ async function applyChannel(){
   const D=DN(),s=db.set.soundUri;window.daniAlarmCh='';
   if(ok()&&D.soundChannel&&s&&(s.sys||s.uri)){const id='dani-alarm-u'+hsh(s.sys||s.uri);try{await D.soundChannel({id,name:T('زنگ و تایمر (آهنگ شما)','Alarm & timer (your sound)'),uri:s.sys||s.uri});window.daniAlarmCh=id}catch(e){console.error('soundChannel',e)}}
   try{await Notifier.sync(true)}catch(e){}}
+const sList=()=>{const l=Array.isArray(db.set.soundList)?db.set.soundList:[],c=db.set.soundUri;if(c&&c.uri&&!l.some(x=>x.uri===c.uri))l.unshift({uri:c.uri,name:c.name,sys:c.sys||''});db.set.soundList=l;return l};
 H.snd_pick=async()=>{const D=DN();try{const r=await D.pickAudio();if(!r||r.cancelled)return;
-  db.set.soundUri={uri:r.uri,name:r.name,sys:r.sys||''};db.set.sound=null;if(!save())return;await applyChannel();
-  say(r.sys?T('آهنگ انتخاب شد؛ آزمایش کن','Sound selected; try it'):T('آهنگ انتخاب شد. برای زنگ اعلان وقتی برنامه بسته است، فایل را از تب «صوتی/Audio» انتخاب کن؛ داخل برنامه همین کار می‌کند','Sound selected. For notification alarms while the app is closed, pick it from the Audio tab; in-app it works as is'));render()}
+  const it=(r.items&&r.items.length?r.items:[{uri:r.uri,name:r.name,sys:r.sys}]).filter(x=>x&&x.uri),l=sList();
+  it.forEach(x=>{if(!l.some(y=>y.uri===x.uri)&&l.length<80)l.push({uri:x.uri,name:x.name||'audio',sys:x.sys||''})});
+  const f=l.find(y=>y.uri===(it[0]||{}).uri);if(f)db.set.soundUri={uri:f.uri,name:f.name,sys:f.sys};db.set.sound=null;if(!save())return;await applyChannel();
+  say(T(fa(it.length)+' آهنگ اضافه شد؛ از فهرست زیر یکی را انتخاب کن','Added '+it.length+' song(s); choose one from the list below'));render()}
   catch(e){say(T('انتخاب آهنگ ناموفق بود: ','Could not pick sound: ')+(e&&e.message||e),1)}};
+H.snd_sel=async el=>{const x=sList()[+el.dataset.k];if(!x)return;db.set.soundUri={uri:x.uri,name:x.name,sys:x.sys};db.set.sound=null;if(!save())return;await applyChannel();render()};
+H.snd_prev=el=>{const x=sList()[+el.dataset.k],D=DN();if(!x||!D.playUri)return;try{stopSound()}catch(e){}SND.playing=true;D.playUri({uri:x.uri,volume:Math.max(0,Math.min(1,db.set.vol)),loop:false}).then(()=>{clearTimeout(SND.tm);SND.tm=setTimeout(stopSound,2e4)}).catch(()=>{SND.playing=false;say(T('پخش ممکن نشد؛ شاید فایل از گوشی پاک یا جابه‌جا شده','Could not play; the file may have been moved or deleted'),1)})};
+H.snd_del=async el=>{const l=sList(),i=+el.dataset.k,x=l[i];if(!x)return;l.splice(i,1);const c=db.set.soundUri;if(c&&c.uri===x.uri){if(l[0])db.set.soundUri={uri:l[0].uri,name:l[0].name,sys:l[0].sys};else delete db.set.soundUri}save();await applyChannel();render()};
 H.snd_unpick=async()=>{delete db.set.soundUri;save();await applyChannel();render()};
 document.addEventListener('click',e=>{const i=e.target;if(ok()&&DN().pickAudio&&i&&i.matches&&i.matches('input[data-ch="sndf"]')){e.preventDefault();e.stopPropagation();H.snd_pick()}},true);
 {const _ps=playSound,_ss=stopSound;
@@ -92,9 +98,10 @@ try{DN()&&DN().addListener&&DN().addListener('playEnd',()=>{try{SND.playing=fals
 
 /* ================= کارت‌های تنظیمات ================= */
 {const _sp=setPage;setPage=function(){let h=_sp.apply(this,arguments);if(!ok())return h;
-  if(h.indexOf('data-ch="sndf"')>-1){const s=db.set.soundUri;
-    h=h.replace(/(data-ch="sndf"[^>]*><\/label>)/,'$1'+(s?'<button data-a="snd_unpick">'+T('حذف آهنگ گوشی','Remove phone sound')+'</button>':''));
-    h+='<p class="m">'+(s?T('آهنگ از حافظه‌ی گوشی: <b>'+esc(s.name)+'</b> — داخل برنامه کپی نشده و به حجم پشتیبان اضافه نمی‌شود.','Phone sound: <b>'+esc(s.name)+'</b> — not copied into the app, not added to backups.'):T('«صدای دلخواه» حالا مستقیم از حافظه‌ی گوشی انتخاب می‌شود (بدون سقف ۱٫۵ مگابایت).','"Custom sound" is now picked straight from your phone (no 1.5 MB limit).'))+'</p>'}
+  if(h.indexOf('data-ch="sndf"')>-1){const s=db.set.soundUri,l=sList();
+    h=h.replace('صدای دلخواه',T('افزودن آهنگ از گوشی','Add songs from phone'));
+    h=h.replace(/(data-ch="sndf"[^>]*><\/label>)([\s\S]*?<\/div>)/,(m,x,y)=>x+(s?'<button data-a="snd_unpick">'+T('بازگشت به صدای پیش‌فرض','Use default sound')+'</button>':'')+y+(l.length?'<div class="snl">'+l.map((q,i)=>{const on=s&&s.uri===q.uri;return'<div class="row snr"><button class="chip '+(on?'on':'')+'" data-a="snd_sel" data-k="'+i+'" style="flex:1;text-align:start;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" dir="auto">'+(on?'✓ ':'')+esc(q.name)+'</button><button data-a="snd_prev" data-k="'+i+'" aria-label="'+T('پخش','Play')+'">▶</button><button class="d" data-a="snd_del" data-k="'+i+'" aria-label="'+T('حذف','Remove')+'">×</button></div>'}).join('')+'</div>':''));
+    h+='<p class="m">'+(l.length?T('فهرست آهنگ‌ها (فقط نام و آدرس آن‌ها ذخیره می‌شود): آهنگ انتخاب‌شده برای زنگ و تایمر استفاده می‌شود. خود فایل‌ها داخل برنامه کپی نشده‌اند و به حجم برنامه و پشتیبان اضافه نمی‌شوند.','Song list (only names and addresses are saved): the selected one is used for alarms and timers. The files are not copied into the app and add nothing to the app or backup size.'):T('«افزودن آهنگ» چند آهنگ را یکجا از حافظه‌ی گوشی می‌گیرد؛ نام‌ها نمایش داده می‌شود و می‌توانی بینشان انتخاب کنی. فایل‌ها کپی نمی‌شوند.','"Add songs" picks several songs at once from your phone; names are listed and you can choose between them. Files are not copied.'))+'</p>'}
   if(stt==='data'&&DN().saveFromCache){const l=LS(BK);
     h+='<div class="c"><h3>'+T('پشتیبان خودکار روی گوشی','Automatic backup on this phone')+'</h3><p class="m">'+T('بدون اشتراک‌گذاری و بدون دانلود، در پوشه‌ی <b dir="ltr">Documents/DANI/Backups</b> ذخیره می‌شود و با حذف برنامه هم می‌ماند (۷ پشتیبان آخر JSON و ۳ پشتیبان کامل نگه داشته می‌شود).','Saved without sharing or downloading in <b dir="ltr">Documents/DANI/Backups</b>, kept even if the app is removed (last 7 JSON and 3 full backups).')+'</p><div class="row"><button class="chip '+(abOn()?'on':'')+'" data-a="ab_tog">'+(abOn()?T('روشن','On'):T('خاموش','Off'))+'</button><button data-a="ab_days">'+T('هر ','Every ')+fa(+db.set.abkd||1)+T(' روز',' day(s)')+'</button><button class="p" data-a="ab_now">'+T('همین حالا پشتیبان بگیر','Back up now')+'</button></div><p class="m">'+T('آخرین JSON: ','Last JSON: ')+(l.j?new Date(l.j).toLocaleString(LANGEN()?'en-US':'fa-IR'):'—')+' · '+T('آخرین کامل: ','Last full: ')+(l.z?new Date(l.z).toLocaleString(LANGEN()?'en-US':'fa-IR'):'—')+'</p></div>'}
   if(stt==='time'&&DN().calendarAdd){
