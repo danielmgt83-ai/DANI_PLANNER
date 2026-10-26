@@ -88,6 +88,7 @@ H.pm_fin=()=>{const p=PM();if(db.timer&&db.timer.sid===p.sid)TM.finish();tickPm(
 H.pm_reset=()=>{const p=PM();p.cy=0;pmSave();render()};
 H.pm_foc1=()=>{setFoc(true)};H.pm_foc0=()=>{setFoc(false)};
 
+window.daniPomoStart=a=>{PM().a=a;startWork()};
 /* هنگام رندر مجدد، صفحه‌ی تمرکز را تازه نگه دار */
 const _rn=render;render=function(){const r=_rn.apply(this,arguments);if(FOC)foc();return r};
 
