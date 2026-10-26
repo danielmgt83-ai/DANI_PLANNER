@@ -42,7 +42,7 @@ DANI Planner: پلنر شخصی فارسی (RTL، با لایه‌ی ترجمه�
 4. نام عکس/صدا: فقط `img/نام.jpg|png|webp` با حروف انگلیسی، عدد، `-`، `_`، `.`؛ بدون فاصله و زیرپوشه. صدا در `audio/`.
 5. `js/data/baked.js` فقط یک‌بار روی هر مرورگر اعمال می‌شود (کلید `dani_baked_v1`)؛ تغییرش روی داده‌ی موجود اثر ندارد. افزونه‌ی `acadlessons` بعد از اولین اجرا در `localStorage` (`dani_ext_acadlessons`) می‌ماند و از همان‌جا اجرا می‌شود.
 6. **نام فایل‌ها و مسیر عکس‌ها را عوض نکن** (مسیرها داخل داده‌ی ذخیره‌شده‌ی کاربر و تم‌ها هستند)؛ حذف/تغییر نام فقط با درخواست صریح.
-7. **دانلود/ذخیره‌ی فایل (مهم برای اپ اندروید):** WebView اندروید دانلود `blob:` را ساکت نادیده می‌گیرد. `js/native-save.js` هر `<a download>` با آدرس blob/data را در اپ به پنجره‌ی اشتراک‌گذاری اندروید می‌فرستد؛ پس برای خروجی فایل فقط از `dl()` (core.js)، `download()` (courses.js) یا یک `<a download href=blob:>` استفاده کن، یا مستقیم `daniSaveFile(نام, blob)` را صدا بزن. هرگز با `window.open`، `location.href` یا `data:` در تب جدید دانلود نساز. تغییر افزونه‌های Capacitor (مثل filesystem/share) یعنی **باید APK دوباره ساخته شود**؛ این را به کاربر بگو.
+7. **دانلود/ذخیره‌ی فایل (مهم برای اپ اندروید):** WebView اندروید دانلود `blob:` را ساکت نادیده می‌گیرد. `js/native-save.js` هر `<a download>` با آدرس blob/data را در اپ مستقیم در `Download/DANI` ذخیره می‌کند (افزونه‌ی بومی `DaniNative`؛ اگر نبود، پنجره‌ی اشتراک‌گذاری)؛ پس برای خروجی فایل فقط از `dl()` (core.js)، `download()` (courses.js) یا یک `<a download href=blob:>` استفاده کن، یا مستقیم `daniSaveFile(نام, blob)` را صدا بزن. هرگز با `window.open`، `location.href` یا `data:` در تب جدید دانلود نساز. تغییر افزونه‌های Capacitor (مثل filesystem/share) یعنی **باید APK دوباره ساخته شود**؛ این را به کاربر بگو.
 8. اعلان و زنگ در اپ: `js/notifier.js` (کانال‌ها `dani-alarm-v2` و `dani-remind-v2`، صدا `res/raw/dani_alarm.ogg` و `dani_ping.ogg`). تغییر در `android-shell/`، صدا، آیکون یا مجوزها = ساخت دوباره‌ی APK. تغییر در سایت (js/css/img) = فقط آپلود در GitHub.
 9. هیچ تم یا قابلیت قبلی (`itu1..3`, `itv1..3`, `eren2`, `aoe1..3`, `aow1`, `aol1`, `aom1` و غیره) حذف نشود.
 
@@ -53,7 +53,9 @@ DANI Planner: پلنر شخصی فارسی (RTL، با لایه‌ی ترجمه�
 - حالت انگلیسی را آزمایش کن (اگر مرورگر داری): نباید متن فارسی بماند، جز داده‌ی خود کاربر. در گزارش: «ترجمه‌ی انگلیسی: انجام شد، N عبارت».
 
 ## ۷) تحویل (همیشه به همین شکل)
-1. فقط فایل‌های تغییرکرده، **کامل** (نه تکه‌کد)، با همان مسیر و نام؛ اگر می‌توانی در یک zip با همان پوشه‌بندی.
+1. **فقط فایل‌های تغییرکرده** را بفرست (نه کل پروژه و نه فایل دست‌نخورده)، هر کدام **کامل** (نه تکه‌کد)، با همان مسیر و نام؛ اگر می‌توانی در یک zip فقط با همان فایل‌ها و همان پوشه‌بندی. کاربر همان فایل‌ها را در GitHub جایگزین یا آپلود می‌کند.
+   - همراهش همیشه سه فهرست دقیق با مسیر کامل بنویس: **«جایگزین کن»** (فایل‌های موجود)، **«اضافه کن»** (فایل‌های تازه)، **«حذف کن»** (فقط اگر لازم؛ اگر چیزی حذف نمی‌شود صریح بنویس «هیچ فایلی حذف نشود»).
+   - کنار هر فایل بنویس سایت است یا اپ: تغییر `android-shell/`، `.github/` یا صدا/آیکون اندروید = ساخت دوباره‌ی APK؛ بقیه فقط آپلود در GitHub.
 2. فایل یا عکس تازه: نام انگلیسی بدون فاصله؛ و `index.html` و `sw.js` هم به‌روز.
 3. نسخه‌ی کش: اگر `index.html` متغیر `DANI_VER` دارد فقط آن را یکی بالا ببر و بگو «DANI_VER از X به X+1»؛ در غیر این صورت `?v=` فقط فایل‌های عوض‌شده را بالا ببر. در `sw.js` عدد `VERSION` یکی بالا برود و لیست `PRECACHE` با فایل‌های مجاز بازسازی شود (`tools/update-sw.py` را خودت اجرا کن؛ کاربر Python ندارد). اگر `index.html` را نفرستاده، بخواه؛ عدد را حدس نزن.
 4. یک خط در `CHANGELOG.md` (جدیدترین بالا): چه فایلی، چه کاری، چه چیزی دست نخورد، حجم قبل ← بعد.
@@ -62,7 +64,7 @@ DANI Planner: پلنر شخصی فارسی (RTL، با لایه‌ی ترجمه�
 7. **گزارش پایانی:** الف) چه چیزی عوض کردی (فایل و کار هر کدام)؛ ب) چه چیزی عوض نکردی و حفظ کردی (از جمله کار دیگران)؛ ج) چه تست کردی و چه چیزی را نتوانستی تست کنی؛ د) حجم قبل ← بعد؛ هـ) فهرست دقیق «جایگزین کن» (فایل‌های موجود، با مسیر کامل) و «اضافه کن» (فایل‌های تازه) و «حذف کن» (فقط اگر لازم، با دلیل)؛ و) اگر باید APK دوباره ساخته شود، صریح بنویس.
 
 ## ۸) ترتیب اسکریپت‌ها (همان index.html؛ جابه‌جایی‌اش خطرناک است)
-`js/data/du.js` ← `js/data/baked.js` ← `seed.js` ← `errorlog.js` ← `core.js` ← `dashboard-planner.js` ← `home-weekly.js` ← `sound-notify-backup.js` ← `themes-engine.js` ← `theme-eren.js` ← `quotes-data.js` ← `theme-aot.js` ← `modules-habits-reminders-quotes.js` ← `academy.js` ← `modules-deadlines.js` ← `theme-studio-export.js` ← `extensions.js` ← `home-desk.js` ← `notifier.js` ← `native-save.js` ← `i18n.js` ← `i18n-extra.js` ← `boot.js` ← `courses.js` ← `quickaccess.js` ← `i18n-late.js`
+`js/data/du.js` ← `js/data/baked.js` ← `seed.js` ← `errorlog.js` ← `core.js` ← `dashboard-planner.js` ← `home-weekly.js` ← `sound-notify-backup.js` ← `themes-engine.js` ← `theme-eren.js` ← `quotes-data.js` ← `theme-aot.js` ← `modules-habits-reminders-quotes.js` ← `academy.js` ← `modules-deadlines.js` ← `theme-studio-export.js` ← `extensions.js` ← `home-desk.js` ← `notifier.js` ← `native-save.js` ← `native-extras.js` ← `i18n.js` ← `i18n-extra.js` ← `boot.js` ← `courses.js` ← `quickaccess.js` ← `i18n-late.js`
 (`courses.js` صفحه‌ی `PG.acd` را بازنویسی می‌کند؛ آکادمی از `academy.js` + `courses.js` + افزونه‌ی `acadlessons` داخل `baked.js` ساخته می‌شود.)
 فایل‌های غیر js: `index.html` (فقط اسکلت)، `dani.css` (پایه)، `skins.css` (موتور تم)، `themes-itachi.css` / `themes-eren.css` / `themes-aot.css`، `manifest.webmanifest`، `sw.js`، `aot-quotes.json`، `icons/`، `img/`، `audio/`، `android-shell/`، `.github/workflows/build-android.yml`، `tools/` (`update-sw.py`، `make-single-file.py`، `zip-compare.html`)، `run-local.*` (اجرای محلی با Python).
 
@@ -276,3 +278,9 @@ DANI Planner: پلنر شخصی فارسی (RTL، با لایه‌ی ترجمه�
 6. دکمه‌ی «انتشار» داخل برنامه (ارسال فایل‌های تغییرکرده به GitHub با توکن محدود، رایگان).
 7. افزونه‌ی `acadlessons` به فایل واقعی در `js/` تبدیل شود و با نسخه‌اش به‌روز شود (الان فقط بار اول نصب می‌شود).
 8. ✔️ ذخیره‌ی فایل (دانلود/پشتیبان) در اپ اندروید با `native-save.js`؛ نیاز به ساخت دوباره‌ی APK و امتحان روی گوشی.
+
+
+## افزونه‌ی بومی DaniNative (اندروید)
+- کد جاوا: `android-shell/native/` (کپی خودکار توسط `apply.mjs`). متدها: `saveFromCache`، `prune`، `openUri`، `shareUri`، `htmlToPdf`، `calendarAdd`، `pickAudio`، `playUri`، `stopPlay`، `soundChannel`.
+- سمت وب: `js/native-save.js` (ذخیره) و `js/native-extras.js` (پشتیبان خودکار، PDF، تقویم، آهنگ از گوشی). هر تغییر در `android-shell/` = ساخت دوباره‌ی APK.
+- تنظیم‌های تازه در `db.set`: `abk` (پشتیبان خودکار)، `abkd` (هر چند روز)، `calAuto`، `soundUri` ({uri,name,sys}).
