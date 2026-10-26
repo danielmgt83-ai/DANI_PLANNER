@@ -26,6 +26,7 @@ const Notifier=(()=>{
         out.push({id:ID_TIMER,at:end,title:'DANI ⏰',body:L('زمان تمام شد: ','Time is up: ')+nm,ch:CH_ALARM,key:'timer-end'});
         const pre=+db.set.pre;if(pre>0&&db.timer.dur>pre*60000&&end-pre*60000>now+1500)
           out.push({id:ID_PRE,at:end-pre*60000,title:'DANI',body:L('تا پایان '+fa(pre)+' دقیقه مانده','Ends in '+pre+' min'),ch:CH_REM,key:'timer-pre'})}}catch(e){}
+    try{(window.daniExtraPlan||[]).forEach(f=>{(f(now)||[]).forEach(x=>out.push(x))})}catch(e){}
     try{if(modOn('rem')&&zRM().set.notif!==false){
       rFires(now,now+DAYS*864e5).forEach(f=>{if(f.ts>now+2000&&!inQuiet(f.ts))out.push({id:hash(f.k),at:f.ts,title:S_(f.r.title,80),body:f.o?L('یادآوری پیش از موعد','Heads-up before it is due'):L('اکنون','Now'),ch:CH_REM,key:f.k})});
       (zRM().snz||[]).forEach(s=>{if(s&&typeof s.at==='number'&&s.at>now+2000){const r=rItems().concat(dlRems()).find(x=>x.id===s.rid);if(r)out.push({id:hash(s.k+'|z'+Math.floor(s.at/1000)),at:s.at,title:S_(r.title,80),body:L('یادآوری مجدد','Snoozed reminder'),ch:CH_REM,key:s.k+'|z'+Math.floor(s.at/1000)})}})}}catch(e){console.error('notifier plan',e)}
@@ -54,7 +55,7 @@ const Notifier=(()=>{
       try{const pend=await p.getPending();if(pend.notifications&&pend.notifications.length)await p.cancel({notifications:pend.notifications.map(n=>({id:n.id}))})}catch(e){}
       if(list.length)await p.schedule({notifications:list.map(toNote)});
       st.sig=sig;st.keys={};list.forEach(x=>{st.keys[x.key]=x.at});
-      st.tAts=list.filter(x=>x.key==='timer-end'||x.key==='timer-pre').map(x=>x.at);st.pending=list.length;st.err=''}
+      st.tAts=list.filter(x=>x.key==='timer-end'||x.key==='timer-pre'||/^pomo/.test(x.key)).map(x=>x.at);st.pending=list.length;st.err=''}
     catch(e){st.err=String(e&&e.message||e);console.error('notifier sync',e)}
     finally{st.busy=false;if(st.again){st.again=false;setTimeout(()=>sync(),300)}}}
 
