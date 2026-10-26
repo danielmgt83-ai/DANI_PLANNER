@@ -326,20 +326,12 @@ public class DaniNativePlugin extends Plugin {
         Intent i = new Intent(Intent.ACTION_OPEN_DOCUMENT);
         i.addCategory(Intent.CATEGORY_OPENABLE);
         i.setType("audio/*");
+        i.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
         i.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION);
         startActivityForResult(call, i, "pickDone");
     }
 
-    @ActivityCallback
-    private void pickDone(PluginCall call, ActivityResult res) {
-        if (call == null) return;
-        JSObject o = new JSObject();
-        if (res.getResultCode() != Activity.RESULT_OK || res.getData() == null || res.getData().getData() == null) {
-            o.put("cancelled", true);
-            call.resolve(o);
-            return;
-        }
-        Uri u = res.getData().getData();
+    private JSObject audioInfo(Uri u) {
         try { getContext().getContentResolver().takePersistableUriPermission(u, Intent.FLAG_GRANT_READ_URI_PERMISSION); } catch (Exception ignored) {}
         String name = "audio";
         try (Cursor c = getContext().getContentResolver().query(u, new String[]{OpenableColumns.DISPLAY_NAME}, null, null, null)) {
@@ -352,9 +344,39 @@ public class DaniNativePlugin extends Plugin {
                 if (id.startsWith("audio:")) sys = "content://media/external/audio/media/" + id.substring(6);
             }
         } catch (Exception ignored) {}
+        JSObject o = new JSObject();
         o.put("uri", u.toString());
         o.put("name", name);
         o.put("sys", sys);
+        return o;
+    }
+
+    @ActivityCallback
+    private void pickDone(PluginCall call, ActivityResult res) {
+        if (call == null) return;
+        JSObject o = new JSObject();
+        Intent d = res.getData();
+        if (res.getResultCode() != Activity.RESULT_OK || d == null || (d.getData() == null && d.getClipData() == null)) {
+            o.put("cancelled", true);
+            call.resolve(o);
+            return;
+        }
+        JSArray items = new JSArray();
+        if (d.getClipData() != null) {
+            for (int k = 0; k < d.getClipData().getItemCount(); k++) {
+                Uri u = d.getClipData().getItemAt(k).getUri();
+                if (u != null) items.put(audioInfo(u));
+            }
+        } else {
+            items.put(audioInfo(d.getData()));
+        }
+        o.put("items", items);
+        try {
+            org.json.JSONObject f = items.getJSONObject(0);
+            o.put("uri", f.getString("uri"));
+            o.put("name", f.getString("name"));
+            o.put("sys", f.getString("sys"));
+        } catch (Exception ignored) {}
         call.resolve(o);
     }
 
