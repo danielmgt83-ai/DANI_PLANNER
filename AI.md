@@ -64,7 +64,7 @@ DANI Planner: پلنر شخصی فارسی (RTL، با لایه‌ی ترجمه�
 7. **گزارش پایانی:** الف) چه چیزی عوض کردی (فایل و کار هر کدام)؛ ب) چه چیزی عوض نکردی و حفظ کردی (از جمله کار دیگران)؛ ج) چه تست کردی و چه چیزی را نتوانستی تست کنی؛ د) حجم قبل ← بعد؛ هـ) فهرست دقیق «جایگزین کن» (فایل‌های موجود، با مسیر کامل) و «اضافه کن» (فایل‌های تازه) و «حذف کن» (فقط اگر لازم، با دلیل)؛ و) اگر باید APK دوباره ساخته شود، صریح بنویس.
 
 ## ۸) ترتیب اسکریپت‌ها (همان index.html؛ جابه‌جایی‌اش خطرناک است)
-`js/data/du.js` ← `js/data/baked.js` ← `seed.js` ← `errorlog.js` ← `core.js` ← `dashboard-planner.js` ← `home-weekly.js` ← `sound-notify-backup.js` ← `themes-engine.js` ← `theme-eren.js` ← `quotes-data.js` ← `theme-aot.js` ← `modules-habits-reminders-quotes.js` ← `academy.js` ← `modules-deadlines.js` ← `theme-studio-export.js` ← `extensions.js` ← `home-desk.js` ← `notifier.js` ← `native-save.js` ← `native-extras.js` ← `i18n.js` ← `i18n-extra.js` ← `boot.js` ← `courses.js` ← `quickaccess.js` ← `i18n-late.js`
+`js/data/du.js` ← `js/data/baked.js` ← `seed.js` ← `errorlog.js` ← `core.js` ← `dashboard-planner.js` ← `home-weekly.js` ← `sound-notify-backup.js` ← `themes-engine.js` ← `theme-eren.js` ← `quotes-data.js` ← `theme-aot.js` ← `modules-habits-reminders-quotes.js` ← `academy.js` ← `modules-deadlines.js` ← `theme-studio-export.js` ← `extensions.js` ← `home-desk.js` ← `notifier.js` ← `native-save.js` ← `native-extras.js` ← `pomodoro.js` ← `i18n.js` ← `i18n-extra.js` ← `boot.js` ← `courses.js` ← `quickaccess.js` ← `i18n-late.js`
 (`courses.js` صفحه‌ی `PG.acd` را بازنویسی می‌کند؛ آکادمی از `academy.js` + `courses.js` + افزونه‌ی `acadlessons` داخل `baked.js` ساخته می‌شود.)
 فایل‌های غیر js: `index.html` (فقط اسکلت)، `dani.css` (پایه)، `skins.css` (موتور تم)، `themes-itachi.css` / `themes-eren.css` / `themes-aot.css`، `manifest.webmanifest`، `sw.js`، `aot-quotes.json`، `icons/`، `img/`، `audio/`، `android-shell/`، `.github/workflows/build-android.yml`، `tools/` (`update-sw.py`، `make-single-file.py`، `zip-compare.html`)، `run-local.*` (اجرای محلی با Python).
 
@@ -205,6 +205,9 @@ DANI Planner: پلنر شخصی فارسی (RTL، با لایه‌ی ترجمه�
   - DANI Quick Access (دسترسی سریع) v1 — ماژول افزوده؛ هیچ بخشی از پلنر را حذف یا بازنویسی نمی‌کند
 - عمل‌ها (H.*): تعداد 2 ؛ نمونه: `crs_allexp`، `qa_open`
 - نام‌های مهم سطح‌بالا (0 مورد):
+
+## js/pomodoro.js  (جدید، ۱۰KB)
+- پومودورو و حالت تمرکز روی تایمر معکوس موجود (`TM.start('cd',…)`)؛ استراحت جدا و بدون ثبت در لاگ. کارت بالای «امروز و ثبت» (با بازتعریف `recCard`)؛ عمل‌ها `pm_go`، `pm_stop`، `pm_skip`، `pm_fin`، `pm_reset`، `pm_foc1/0`. داده: `db.set.pomo` ({w,b,l,n,auto,ph,until,sid,a,cy,dn,dd}). زنگ پایان استراحت در اپ از طریق `window.daniExtraPlan` (آرایه‌ی توابع `now→[{id,at,title,body,ch,key}]`؛ کلید باید با `pomo` شروع شود) که `notifier.js` در `plan()` می‌خواند. فقط آپلود در GitHub؛ APK لازم نیست.
 
 ## js/notifier.js
 - لایه‌ی یکپارچه‌ی اعلان و زنگ (اپ اندروید Capacitor + وب). نام: `Notifier` (`init`، `sync`، `refresh`، `plan`، `isNative`، `cardHTML`)
