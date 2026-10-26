@@ -56,8 +56,8 @@ const open=()=>{modal(editor())};
 const refresh=()=>{save();render();open()};
 H.h2_edit=()=>open();
 H.h2_close=()=>{closeM();render()};
-H.h2_pre=e=>{const k=e.dataset.k;if(!PRE[k])return;const h2=H2();h2.on=1;h2.preset=k;h2.list=PRE[k].l.filter(id=>CAT[id]);h2.hide=1;refresh()};
-H.h2_off=()=>{H2().on=0;H2().hide=1;refresh()};
+H.h2_pre=e=>{const k=e.dataset.k;if(!PRE[k])return;const h2=H2();if(e.dataset.keep&&h2.list.length){h2.on=1;h2.hide=1;save();render();return}h2.on=1;h2.preset=k;h2.list=PRE[k].l.filter(id=>CAT[id]);h2.hide=1;refresh()};
+H.h2_off=()=>{H2().on=0;H2().hide=1;save();render();if($('#ovl')&&$('#ovl').innerHTML)open()};
 H.h2_mv=e=>{const h2=H2(),k=e.dataset.k,m=e.dataset.m,i=h2.list.indexOf(k);
   if(m==='add'&&i<0)h2.list.push(k);if(m==='x'&&i>=0)h2.list.splice(i,1);
   if(m==='up'&&i>0)[h2.list[i-1],h2.list[i]]=[h2.list[i],h2.list[i-1]];if(m==='dn'&&i>=0&&i<h2.list.length-1)[h2.list[i+1],h2.list[i]]=[h2.list[i],h2.list[i+1]];
@@ -70,6 +70,15 @@ H.h2_no=()=>{H2().hide=1;save();render()};
   const r=_ph.apply(this,arguments);
   if(h2.hide||typeof r!=='string')return r;
   return '<div class="c h2b"><b>✨ '+T('خانه‌ی جدید','New home')+'</b><div class="m">'+T('ساده‌تر، یکپارچه برای همه‌ی تم‌ها و کاملاً شخصی؛ یک پیش‌تنظیم انتخاب کن. چیزی پاک نمی‌شود و هر وقت خواستی برمی‌گردی.','Simpler, one layout for every theme, fully yours. Pick a preset; nothing is deleted and you can switch back anytime.')+'</div><div class="row"><button class="p" data-a="h2_edit">'+T('امتحان کن','Try it')+'</button><button data-a="h2_no">'+T('نه، ممنون','No thanks')+'</button></div></div>'+r}}
+
+/* ---------- انتخاب سبک در تنظیمات ← ظاهر (بدون اضافه‌کردن آیتم به منو) ---------- */
+function styleCard(){const h2=H2();
+  return'<div class="c" id="h2style" style="margin-top:10px"><h3>'+T('سبک خانه','Home style')+'</h3><div class="row">'
+   +'<button class="chip '+(h2.on?'on':'')+'" data-a="h2_pre" data-k="'+esc(h2.preset&&PRE[h2.preset]?h2.preset:'full')+'" data-keep="1">'+T('جدید (یکپارچه)','New (unified)')+'</button>'
+   +'<button class="chip '+(!h2.on?'on':'')+'" data-a="h2_off">'+T('کلاسیک (چیدمان هر تم)','Classic (each theme\'s layout)')+'</button>'
+   +'<button class="chip" data-a="h2_edit">✏️ '+T('شخصی‌سازی','Customize')+'</button></div>'
+   +'<p class="m">'+T('هر دو سبک کنار هم می‌مانند و هر وقت خواستی عوض می‌کنی؛ چیزی پاک نمی‌شود.','Both styles stay available and you can switch anytime; nothing is deleted.')+'</p></div>'}
+{const _sp=setPage;setPage=function(){const h=_sp.apply(this,arguments);return typeof h==='string'&&typeof stt!=='undefined'&&stt==='look'?h+styleCard():h}}
 
 /* ---------- استایل ---------- */
 const st=document.createElement('style');st.textContent='.h2top{display:flex;align-items:center;gap:8px;margin:2px 0 10px}.h2g{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(min(100%,330px),1fr))}.h2f{grid-column:1/-1}.h2w>.c,.h2w>div>.c{margin:0}.h2w .g{margin:0}.h2b{margin-bottom:10px}';

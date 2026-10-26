@@ -39,7 +39,7 @@ function ranked(){const n=NX();return cands().filter(c=>!n.skip.ids.includes(c.i
 /* ---------- کارت ---------- */
 function card(force){const n0=NX();if(n0.off&&!force)return'';const run=db.timer&&['running','paused','ended'].includes(db.timer.state);if(run)return'';
   const n=NX(),l=ranked(),b=l[0];let h='<div class="c" id="nxcard"><div class="m">✨ '+T('بعدی چی؟','What next?')+'</div>';
-  if(!b){h+='<div style="font-size:1.15em;font-weight:700;margin:6px 0">'+T('همه‌چیز مرتب است 🎉','All clear 🎉')+'</div><p class="m">'+T('برنامه‌ای برای ادامه نیست. یک کار برای امروز بنویس یا یک فعالیت را شروع کن.','Nothing left to do. Add a task for today or start an activity.')+'</p>'
+  if(!b){const fresh=!(E(todayISO())||[]).length;h+='<div style="font-size:1.15em;font-weight:700;margin:6px 0">'+(fresh?T('امروز را شروع کنیم؟','Shall we start today?'):T('همه‌چیز مرتب است 🎉','All clear 🎉'))+'</div><p class="m">'+(fresh?T('هنوز برنامه یا ثبتی برای امروز نیست. یک کار برای امروز بنویس یا از «شروع سریع» یک فعالیت را شروع کن.','No plan or entry for today yet. Add a task or start an activity from Quick start.'):T('برنامه‌ای برای ادامه نیست. یک کار برای امروز بنویس یا یک فعالیت را شروع کن.','Nothing left to do. Add a task for today or start an activity.'))+'</p>'
     +'<div class="row"><button class="p" data-a="go" data-p="plan">'+T('برنامه‌ریزی امروز','Plan today')+'</button>'+(n.skip.ids.length?'<button data-a="nx_reset">'+T('نمایش دوباره‌ی ردشده‌ها','Show skipped again')+'</button>':'')+'</div></div>';return h}
   h+='<div style="font-size:1.3em;font-weight:700;margin:6px 0 2px">'+esc(b.t)+'</div><div class="m">'+esc(b.why)+'</div><div class="row" style="margin-top:10px">';
   h+=b.k==='act'?'<button class="p" data-a="nx_go" data-i="'+esc(b.id)+'">▶ '+T('شروع','Start')+'</button><button data-a="nx_sw" data-i="'+esc(b.id)+'">⏱ '+T('کرنومتر','Stopwatch')+'</button>'
@@ -63,7 +63,7 @@ H.nx_off=()=>{NX().off=1;save();say(T('پنهان شد؛ از «مدیریت ب�
 H.nx_reset=()=>{NX().skip.ids=[];save();render()};
 H.nx_save=()=>{const n=NX(),ok=v=>/^\d\d:\d\d$/.test(v);const a=val('nx-am'),b=val('nx-pm');
   if(ok(a))n.am=a;if(ok(b))n.pm=b;n.amOn=$('#nx-amo')&&$('#nx-amo').checked?1:0;n.pmOn=$('#nx-pmo')&&$('#nx-pmo').checked?1:0;save();
-  try{if(window.Notifier)Notifier.sync(true)}catch(e){}say(T('ذخیره شد ✓','Saved ✓'))};
+  try{if(typeof Notifier!=='undefined')Notifier.sync(true)}catch(e){}say(T('ذخیره شد ✓','Saved ✓'))};
 
 /* ---------- اتصال به خانه و «امروز» ---------- */
 HSEC.nx={n:T('بعدی چی؟ (پیشنهاد خودکار)','What next? (auto suggestion)'),r:()=>{const n=NX();if(n.off){n.off=0;save()}return card(true)}};

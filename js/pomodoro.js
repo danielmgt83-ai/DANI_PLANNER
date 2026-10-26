@@ -11,7 +11,7 @@ const PM=()=>{const s=db.set;if(!s.pomo||typeof s.pomo!=='object')s.pomo={};cons
   if(p.dd!==todayISO()){p.dd=todayISO();p.dn=0}return p};
 const say=(m,b)=>{try{toast(m,b)}catch(e){}};
 const num=(v,lo,hi,d)=>{v=Math.round(+v);return v>=lo&&v<=hi?v:d};
-const sync=()=>{try{if(window.Notifier)Notifier.sync()}catch(e){}};
+const sync=()=>{try{if(typeof Notifier!=='undefined')Notifier.sync()}catch(e){}};
 const pmSave=()=>{save();setTimeout(sync,0)};
 const mmss=ms=>{ms=Math.max(0,Math.ceil(ms/1000));return pad(Math.floor(ms/60))+':'+pad(ms%60)};
 let wl=null;
