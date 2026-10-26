@@ -45,7 +45,7 @@ function android() {
   // 1) مجوزها
   const mf = path.join(app, 'AndroidManifest.xml');
   let x = fs.readFileSync(mf, 'utf8');
-  const perms = ['POST_NOTIFICATIONS', 'SCHEDULE_EXACT_ALARM', 'USE_EXACT_ALARM', 'VIBRATE', 'WAKE_LOCK', 'RECEIVE_BOOT_COMPLETED'];
+  const perms = ['POST_NOTIFICATIONS', 'SCHEDULE_EXACT_ALARM', 'USE_EXACT_ALARM', 'VIBRATE', 'WAKE_LOCK', 'RECEIVE_BOOT_COMPLETED', 'READ_CALENDAR', 'WRITE_CALENDAR'];
   const add = perms.filter(p => !x.includes('android.permission.' + p))
     .map(p => '    <uses-permission android:name="android.permission.' + p + '" />').join('\n');
   if (add) {
@@ -55,7 +55,19 @@ function android() {
   }
   // 2) صداها، آیکون‌ها و رنگ‌ها (res/ ما روی res/ پروژه کپی می‌شود)
   fs.cpSync(path.join(here, 'res'), path.join(app, 'res'), { recursive: true });
-  console.log('مجوزها:', add ? 'اضافه شد' : 'از قبل بود', '| res کپی شد');
+  // 3) افزونه‌ی بومی DaniNative (ذخیره‌ی فایل در گوشی، PDF، تقویم، آهنگ از حافظه‌ی گوشی)
+  const cfg = JSON.parse(fs.readFileSync(path.join(here, 'capacitor.config.json'), 'utf8'));
+  const javaDir = path.join(app, 'java', ...String(cfg.appId).split('.'));
+  fs.mkdirSync(javaDir, { recursive: true });
+  for (const f of ['MainActivity.java', 'DaniNativePlugin.java']) {
+    let src = fs.readFileSync(path.join(here, 'native', f), 'utf8');
+    src = src.replace(/^package\s+[\w.]+;/m, 'package ' + cfg.appId + ';');
+    fs.writeFileSync(path.join(javaDir, f), src);
+  }
+  const printDir = path.join(app, 'java', 'android', 'print');
+  fs.mkdirSync(printDir, { recursive: true });
+  fs.copyFileSync(path.join(here, 'native', 'DaniPdfPrint.java'), path.join(printDir, 'DaniPdfPrint.java'));
+  console.log('مجوزها:', add ? 'اضافه شد' : 'از قبل بود', '| res کپی شد | افزونه‌ی DaniNative اضافه شد');
 }
 
 if (step === 'prepare') prepare();
