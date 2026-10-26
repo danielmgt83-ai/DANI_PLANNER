@@ -80,6 +80,7 @@ function dashToday(){const d=todayISO(),pr=prog(d),es=E(d),rec=sum(es),dd=db.day
  if(ALK==='cards')cards.logs='<div class="c"><h3>ثبت‌های امروز (قابل ویرایش)</h3>'+logCards(d)+'</div>';
  else if(ALK==='timeline')cards.logs='<div class="c"><h3>ثبت‌های امروز (قابل ویرایش)</h3>'+logTL(d)+'</div>';
  else if(ALK==='analytics')cards.logs=cards.logs+cards.abars;
+ if(window.daniWant){const w=window.daniWant;window.daniWant=null;return w.map(k=>cards[k]||'')}
  let ord=LK==='custom'?cwList():LO.order.slice();ord=['chk'].concat(ord.filter(k=>k!=='chk'));if(!ord.includes('rec'))ord.push('rec');if(!ord.includes('logs'))ord.push('logs');
  return dlSel(LK,ALK)+'<div class="g '+LO.cols+' al-'+ALK+'">'+ord.filter(k=>cards[k]&&(k==='rec'||k==='logs'||!hid(k))).map(k=>`<div ${(LO.full.includes(k)||k==='chk')?'style="grid-column:1/-1"':''}>${cards[k]}</div>`).join('')+'</div>'}
 PX.acts=function(){const l=db.acts.filter(a=>!acQ||a.name.includes(acQ)),w=weekStart(todayISO());

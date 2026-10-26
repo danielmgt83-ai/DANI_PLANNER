@@ -78,7 +78,8 @@ function card(){const p=PM(),idle=p.ph==='idle'||p.ph==='next',w=p.ph==='work',b
   return h+'</div>'}
 
 /* ---------- اتصال‌ها ---------- */
-const _rc=recCard;recCard=function(){return card()+_rc.apply(this,arguments)};
+window.daniPomoCard=card;
+const _rc=recCard;recCard=function(){return(window.daniNoExtra?'':card())+_rc.apply(this,arguments)};
 const rd=()=>{const p=PM();p.w=num(val('pm-w')||p.w,1,180,25);p.b=num(val('pm-b')||p.b,1,60,5);p.l=num(val('pm-l')||p.l,1,120,15);p.n=num(val('pm-n')||p.n,2,12,4);
   const a=val('pm-a');if(a)p.a=a;const c=$('#pm-auto');if(c)p.auto=c.checked?1:0};
 H.pm_go=()=>{if($('#pm-w'))rd();else if(!PM().a&&db.timer&&db.timer.actId)PM().a=db.timer.actId;startWork();if(FOC)foc()};

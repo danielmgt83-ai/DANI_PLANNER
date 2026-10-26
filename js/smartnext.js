@@ -72,7 +72,7 @@ HSEC.nx={n:T('بعدی چی؟ (پیشنهاد خودکار)','What next? (auto s
   let c='';try{c=card()}catch(e){}if(!c)return h;
   const i=h.indexOf('hcta');if(i>=0){const j=h.indexOf('</button>',i);if(j>=0)return h.slice(0,j+9)+c+h.slice(j+9)}
   return c+h}}
-const _rc=recCard;recCard=function(){return card()+_rc.apply(this,arguments)};
+const _rc=recCard;recCard=function(){return(window.daniNoExtra?'':card())+_rc.apply(this,arguments)};
 
 /* ---------- اعلان خلاصه‌ی صبح و شب (اپ اندروید) ---------- */
 const hs=s=>{let h=5381;for(let i=0;i<s.length;i++)h=((h<<5)+h+s.charCodeAt(i))|0;return 2e8+Math.abs(h)%1e8};
