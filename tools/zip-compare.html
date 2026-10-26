@@ -114,7 +114,7 @@ async function run(){
     if(A){B.map.forEach((x,p)=>{const o=A.map.get(p);if(!o)nw.push({p,size:x.us});else if(o.crc!==x.crc||o.us!==x.us)ch.push({p,size:x.us,old:o.us});else same.push({p,size:x.us})});A.map.forEach((x,p)=>{if(!B.map.has(p))del.push({p,size:x.us})})}
     lastChanged=[...nw,...ch].map(x=>x.p).sort();
     const w=[...audit(B),...await checkRefs(B)];
-    if(A){['PROJECT.md','CODE-MAP.md','GUIDE-FA.md','CHANGELOG.md'].forEach(d=>{if(B.map.has(d)&&!A.map.has(d))w.push(['wr',`فایل مستند <b>${d}</b> در zip قدیمی نبود و در جدید هست`]);if(!B.map.has(d)&&d!=='CHANGELOG.md')w.push(['wr',`فایل مستند <b>${d}</b> داخل zip جدید نیست؛ یک نسخه‌ی جدا از آن در جای دیگری نگه نداری که با این از هم فاصله بگیرد`])})}
+    if(A){['AI.md','README.md','CHANGELOG.md'].forEach(d=>{if(B.map.has(d)&&!A.map.has(d))w.push(['wr',`فایل مستند <b>${d}</b> در zip قدیمی نبود و در جدید هست`]);if(!B.map.has(d)&&d!=='CHANGELOG.md')w.push(['wr',`فایل مستند <b>${d}</b> داخل zip جدید نیست؛ یک نسخه‌ی جدا از آن در جای دیگری نگه نداری که با این از هم فاصله بگیرد`])})}
     let h='';
     if(A)h+=`<div class="c"><h2>خلاصه</h2><div class="g"><div class="s new"><b>${nw.length}</b>جدید</div><div class="s chg"><b>${ch.length}</b>تغییرکرده</div><div class="s del"><b>${del.length}</b>حذف‌شده</div><div class="s"><b>${same.length}</b>بدون تغییر</div></div>
       <p class="m">پوشه‌ی بالای zip قدیمی: «${E(A.pre||'—')}» · جدید: «${E(B.pre||'—')}» (در مقایسه نادیده گرفته می‌شود)</p></div>
