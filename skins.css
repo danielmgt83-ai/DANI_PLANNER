@@ -207,3 +207,12 @@ html[dir=rtl] .iv-tick>div{animation-name:ivtr}@keyframes ivt{to{transform:trans
 .iv-polar figure:hover{filter:none;transform:rotate(0) scale(1.06);z-index:2}
 @media(max-width:900px){.iv-tl{grid-template-columns:1fr}.iv3 .iv-hq{max-width:100%}.iv-ghost{font-size:80px}}
 @media(prefers-reduced-motion:reduce){.iv2 .iv-pic,.iv-ribs,.iv-flame,.iv-tick>div{animation:none}}
+
+/* ---- Barcelona: تصویر سربرگ بزرگ‌تر و واضح‌تر (جمله‌ی «Més que un club» دست‌نخورده) ---- */
+@media(max-width:800px){
+html[data-skin=barcelona][data-hero="1"] #hero{height:268px;background:linear-gradient(180deg,#0000 82%,var(--bg)),radial-gradient(ellipse 85% 70% at 50% 46%,#0000 40%,#04102688),linear-gradient(rgba(4,10,26,calc(var(--dim,.3)*.45)),rgba(4,10,26,calc(var(--dim,.3)*.45))),var(--hero) center 58%/cover no-repeat,var(--hbg,#071633);box-shadow:inset 0 -26px 28px -26px #000c}
+}
+html[data-skin=barcelona][data-hero="1"] #hero::after{content:"";position:absolute;inset:auto 0 0;height:56px;background:linear-gradient(0deg,#04102699,#0000);pointer-events:none}
+html[data-skin=barcelona][data-hero="1"] #hero .hz{z-index:1;padding:6px 10px;border-radius:10px;background:#04102673;backdrop-filter:blur(3px);inset-inline-start:12px;bottom:12px}
+html[data-skin=barcelona][data-hero="1"] #hero span{letter-spacing:.04em}
+html[data-skin=barcelona] .c{box-shadow:0 6px 18px -10px #000c,inset 0 1px 0 #ffffff0d}

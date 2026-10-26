@@ -281,6 +281,7 @@ DANI Planner: پلنر شخصی فارسی (RTL، با لایه‌ی ترجمه�
 
 
 ## افزونه‌ی بومی DaniNative (اندروید)
-- کد جاوا: `android-shell/native/` (کپی خودکار توسط `apply.mjs`). متدها: `saveFromCache`، `prune`، `openUri`، `shareUri`، `htmlToPdf`، `calendarAdd`، `pickAudio`، `playUri`، `stopPlay`، `soundChannel`.
+- کد جاوا: `android-shell/native/` (کپی خودکار توسط `apply.mjs`). متدها: `saveFromCache`، `prune`، `openUri`، `shareUri`، `htmlToPdf`، `calendarAdd`، `pickAudio` (انتخاب چندتایی؛ خروجی `items[]` و برای سازگاری `uri/name/sys` اولی)، `playUri`، `stopPlay`، `soundChannel`.
 - سمت وب: `js/native-save.js` (ذخیره) و `js/native-extras.js` (پشتیبان خودکار، PDF، تقویم، آهنگ از گوشی). هر تغییر در `android-shell/` = ساخت دوباره‌ی APK.
-- تنظیم‌های تازه در `db.set`: `abk` (پشتیبان خودکار)، `abkd` (هر چند روز)، `calAuto`، `soundUri` ({uri,name,sys}).
+- تنظیم‌های تازه در `db.set`: `abk` (پشتیبان خودکار)، `abkd` (هر چند روز)، `calAuto`، `soundUri` ({uri,name,sys}؛ آهنگ فعال) و `soundList` (فهرست آهنگ‌های گوشی؛ فقط نام و آدرس، بدون کپی فایل). توابع: `H.snd_pick/snd_sel/snd_prev/snd_del/snd_unpick` در native-extras.js.
+- تم Barcelona: تصویر سربرگ با CSS خالص در انتهای `skins.css` (`html[data-skin=barcelona]`) بزرگ و واضح شد؛ تیرگی ذخیره‌شده‌ی کاربر (`skinDim`) فقط برای این تم ×۰٫۴۵ اعمال می‌شود.

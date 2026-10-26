@@ -2,6 +2,9 @@
 
 > هر تحویل یک خط در اینجا. جدیدترین بالا. (هوش مصنوعی‌ها: هر بار که فایلی را عوض می‌کنید، این‌جا یک خط بنویسید.)
 
+## 2026-10-26 — چند آهنگ از حافظه‌ی گوشی (فهرست با نام، پخش و حذف) + تصویر سربرگ تم Barcelona بزرگ‌تر و واضح‌تر
+- `android-shell/native/DaniNativePlugin.java` (pickAudio چندتایی)، `js/native-extras.js` (فهرست آهنگ‌ها)، `skins.css` (سربرگ Barcelona)، `index.html` (?v=)، `sw.js` (dani-v10). جمله‌ها و تم‌های دیگر دست‌نخورده. حجم: skins.css ۲۵٫۱←۲۶٫۲KB، native-extras.js ۱۳٫۱←۱۵٫۳KB، Java ۲۰٫۳←۲۱٫۱KB؛ فایل آهنگ کپی نمی‌شود. APK باید دوباره ساخته شود.
+
 ## 2026-10-26 — ذخیره‌ی مستقیم در گوشی، PDF واقعی، تقویم مستقیم، آهنگ از حافظه‌ی گوشی (نیاز به ساخت دوباره‌ی APK)
 - `android-shell/native/` (جدید: `DaniNativePlugin.java`, `DaniPdfPrint.java`, `MainActivity.java`) + `android-shell/apply.mjs` (کپی افزونه و مجوزهای تقویم): افزونه‌ی بومی DaniNative.
 - `js/native-save.js` (بازنویسی): خروجی‌ها مستقیم در `Download/DANI` ذخیره می‌شوند و پنجره‌ی «باز کردن / اشتراک‌گذاری» می‌آید؛ اشتراک‌گذاری فقط راه جایگزین است.
