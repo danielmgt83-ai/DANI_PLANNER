@@ -42,7 +42,7 @@ const Notifier=(()=>{
     try{const r=await p.checkPermissions();st.perm=r.display}catch(e){}
     try{const r=await p.checkExactNotificationSetting();st.exact=r.exact_alarm}catch(e){st.exact='unknown'}
     try{const r=await p.getPending();st.pending=(r.notifications||[]).length}catch(e){}}
-  function toNote(x){return{id:x.id,title:x.title,body:x.body,channelId:x.ch,sound:x.ch===CH_ALARM?'dani_alarm.ogg':'dani_ping.ogg',smallIcon:'ic_stat_dani',iconColor:'#2563eb',autoCancel:true,schedule:{at:new Date(x.at),allowWhileIdle:true},extra:{k:x.key}}}
+  function toNote(x){return{id:x.id,title:x.title,body:x.body,channelId:(x.ch===CH_ALARM&&window.daniAlarmCh)||x.ch,sound:x.ch===CH_ALARM?'dani_alarm.ogg':'dani_ping.ogg',smallIcon:'ic_stat_dani',iconColor:'#2563eb',autoCancel:true,schedule:{at:new Date(x.at),allowWhileIdle:true},extra:{k:x.key}}}
   async function sync(force){
     if(!isNative())return;const p=LN();if(!p)return;
     if(st.busy){st.again=true;return}
