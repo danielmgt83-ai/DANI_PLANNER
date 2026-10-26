@@ -11,7 +11,7 @@
     "LocalNotifications": {
       "smallIcon": "ic_stat_dani",
       "iconColor": "#2563eb",
-      "sound": "dani_alarm.wav"
+      "sound": "dani_alarm.ogg"
     }
   }
 }
