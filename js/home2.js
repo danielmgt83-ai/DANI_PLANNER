@@ -37,7 +37,8 @@ function widget(id,dc){const c=CAT[id];if(!c)return'';let h='';
 const grT=hr=>hr>=5&&hr<12?T('صبح بخیر','Good morning'):hr>=12&&hr<17?T('ظهر بخیر','Good afternoon'):hr>=17&&hr<21?T('عصر بخیر','Good evening'):T('شب بخیر','Good night');
 const clk=()=>{try{return fa(nowHM())}catch(e){return''}};
 /* سربرگ ثابت: آیکون برنامه + سلام + تاریخ (طبق تقویم انتخابی) + ساعت گوشی — در همه‌ی شخصی‌سازی‌ها می‌ماند و قابل‌حذف نیست */
-function head(){return'<div class="h2top"><div style="min-width:0">'+danGreetHTML()+'<div class="m">'+fmtDL(todayISO())+' · <span id="h2clk">'+clk()+'</span></div></div><span class="sp"></span><button class="chip" data-a="h2_edit">✏️ '+T('شخصی‌سازی','Customize')+'</button></div>'}
+const custBtn=()=>'<div class="row h2cust" style="justify-content:center;margin:14px 0 4px"><button class="chip" data-a="h2_edit">✏️ '+T('شخصی‌سازی خانه','Customize home')+'</button></div>';
+function head(){return'<div class="h2top"><div style="min-width:0">'+danGreetHTML()+'<div class="m">'+fmtDL(todayISO())+' · <span id="h2clk">'+clk()+'</span></div></div></div>'}
 /* جمله‌ها همیشه می‌مانند؛ فقط از خود همین بخش می‌شود بستشان (جمع می‌شود) یا تنظیمشان کرد */
 function quote(bn){if(bn)return'';let q='';try{q=hQuote()}catch(e){}return q?'<div class="h2w h2f">'+q+'</div>':''}
 /* جمله‌ها در همه‌ی حالت‌ها (جدید و کلاسیک و همه‌ی تم‌ها) می‌مانند؛ فقط از خود همین بخش بسته/باز می‌شوند */
@@ -51,10 +52,25 @@ function html(){const h2=H2(),ids=h2.list.filter(id=>CAT[id]&&id!=='banner');
   let bn='';if(h2.list.includes('banner')){try{bn=banner()}catch(e){}}
   let body=ids.map(id=>{const w=widget(id,dc);return w?'<div class="h2w'+(CAT[id].full?' h2f':'')+'" data-w="'+esc(id)+'">'+w+'</div>':''}).join('');
   if(!body.trim())body='<div class="c"><p class="m">'+T('هنوز بخشی انتخاب نشده؛ «شخصی‌سازی» را بزن و یک پیش‌تنظیم انتخاب کن.','No sections yet — tap "Customize" and pick a preset.')+'</p></div>';
-  return'<div class="h2">'+head()+(bn?'<div class="h2g"><div class="h2w h2f" data-w="banner">'+bn+'</div></div>':'')+'<div class="h2g">'+quote(!!bn)+body+'</div></div>'}
+  return'<div class="h2">'+head()+(bn?'<div class="h2g"><div class="h2w h2f" data-w="banner">'+bn+'</div></div>':'')+'<div class="h2g">'+quote(!!bn)+body+'</div>'+custBtn()+'</div>'}
 setInterval(()=>{const e=document.getElementById('h2clk');if(e)e.textContent=clk();const g=document.querySelector('.dkgr span');if(g&&typeof danGreet==='function')g.textContent=danGreet()},1000);
 H.h2_qc=()=>{const h=H2();h.qc=h.qc?0:1;save();render()};
 
+/* چیدمان کلاسیک هر تم: کارت‌های همان صفحه را با عنوانشان می‌شناسیم؛ ترتیب و پنهان‌کردن (بدون حذف) روی همه‌ی تم‌ها */
+const CL=()=>{const h=H2();if(!h.cl||typeof h.cl!=='object')h.cl={o:[],x:[]};return h.cl};
+const ckey=c=>{const h=c.querySelector('h3,h2,b');return(h?h.textContent:c.textContent).replace(/\s+/g,' ').trim().slice(0,40)};
+function pgCards(){const pg=document.getElementById('pg');if(!pg)return[];return[...pg.querySelectorAll('.c')].filter(c=>!c.parentElement.closest('.c')&&!c.classList.contains('h2b')&&!c.closest('.h2'))}
+function applyCL(){if(page!=='home'||H2().on)return;const cl=CL();if(!cl.o.length&&!cl.x.length)return;const cs=pgCards();
+  cs.forEach(c=>{c.style.display=cl.x.includes(ckey(c))?'none':''});
+  const rk=k=>{const i=cl.o.indexOf(k);return i<0?1e6:i};const sorted=[...cs].sort((a,b)=>rk(ckey(a))-rk(ckey(b)));
+  if(sorted.every((c,i)=>c===cs[i]))return;const ph=cs.map(c=>{const m=document.createComment('');c.before(m);return m});sorted.forEach((c,i)=>ph[i].replaceWith(c))}
+{const _r=render;render=function(){const r=_r.apply(this,arguments);try{applyCL()}catch(e){console.error('cl',e)}return r}}
+H.h2_cl=e=>{const k=e.dataset.k,m=e.dataset.m,cl=CL(),keys=pgCards().map(ckey);
+  if(m==='eye'){const i=cl.x.indexOf(k);if(i>=0)cl.x.splice(i,1);else cl.x.push(k)}
+  else{const ord=cl.o.length?cl.o.filter(x=>keys.includes(x)):[];keys.forEach(x=>{if(!ord.includes(x))ord.push(x)});const i=ord.indexOf(k);
+    if(m==='up'&&i>0)[ord[i-1],ord[i]]=[ord[i],ord[i-1]];if(m==='dn'&&i>=0&&i<ord.length-1)[ord[i+1],ord[i]]=[ord[i],ord[i+1]];cl.o=ord}
+  save();render();open()};
+H.h2_clr=()=>{const h=H2();h.cl={o:[],x:[]};save();render();open()};
 H.h2_cx=e=>{const k=e.dataset.k,h2=H2();if(k==='nx'){const n=db.set.nx=db.set.nx||{};n.off=n.off?0:1}else{h2.cx=h2.cx||[];const i=h2.cx.indexOf(k);if(i>=0)h2.cx.splice(i,1);else h2.cx.push(k)}save();render();open()};
 /* ---------- ویرایشگر ---------- */
 function editor(){const h2=H2(),on=h2.list.filter(id=>CAT[id]),off=Object.keys(CAT).filter(id=>!on.includes(id));
@@ -69,6 +85,9 @@ function editor(){const h2=H2(),on=h2.list.filter(id=>CAT[id]),off=Object.keys(C
     h+='<div class="m" style="margin-top:8px">'+T('روی خانه‌ی کلاسیک هم می‌توانی این ابزارها را روشن/خاموش کنی:','On the classic home you can switch these tools on/off:')+'</div><div class="row">'
      +'<button class="chip '+(nxOn?'on':'')+'" data-a="h2_cx" data-k="nx">🎯 '+esc(nm('nx'))+'</button>'
      +['tk','ql','qk','rhythm','pm','in'].map(k=>'<button class="chip '+(cx.includes(k)?'on':'')+'" data-a="h2_cx" data-k="'+k+'">'+esc(nm(k))+'</button>').join('')+'</div>';
+    {const cl=CL(),cs=pgCards().map(ckey),ord=cl.o.filter(k=>cs.includes(k));cs.forEach(k=>{if(!ord.includes(k))ord.push(k)});
+     h+='<div class="m" style="margin-top:10px">'+T('بخش‌های همین تم (ترتیب و پنهان‌کردن):','This theme\'s sections (order & hide):')+'</div>'+ord.map(k=>'<div class="cwr"><span style="'+(cl.x.includes(k)?'opacity:.45':'')+'">'+esc(k)+'</span><button data-a="h2_cl" data-k="'+esc(k)+'" data-m="up" aria-label="up">▲</button><button data-a="h2_cl" data-k="'+esc(k)+'" data-m="dn" aria-label="down">▼</button><button data-a="h2_cl" data-k="'+esc(k)+'" data-m="eye" aria-label="hide/show">'+(cl.x.includes(k)?'🚫':'👁')+'</button></div>').join('')
+       +'<div class="row" style="margin-top:6px"><button class="chip" data-a="h2_clr">'+T('بازنشانی چیدمان','Reset layout')+'</button></div>'}
     h+='<p class="m">'+T('الان «کلاسیک» فعال است: هر تم چیدمان خودش را دارد. برای خانه‌ی یکپارچه یک پیش‌تنظیم انتخاب کن؛ هر وقت خواستی با «کلاسیک» برمی‌گردی و هیچ چیزی پاک نمی‌شود.','"Classic" is active: each theme keeps its own layout. Pick a preset for a unified home; "Classic" brings the old one back and nothing is deleted.')+'</p>';}
   return h+'<div class="row" style="margin-top:12px"><button class="p" data-a="h2_close">'+T('تمام','Done')+'</button></div>'}
 const open=()=>{modal(editor())};
@@ -90,6 +109,7 @@ H.h2_no=()=>{H2().hide=1;save();render()};
   let r=_ph.apply(this,arguments);
   if(typeof r==='string'&&(h2.cx||[]).length){let x='';(h2.cx||[]).forEach(k=>{try{x+=widget(k,{})}catch(e){}});
     if(x){const i=r.indexOf('hcta');if(i>=0){const j=r.indexOf('</button>',i);r=j>=0?r.slice(0,j+9)+x+r.slice(j+9):x+r}else r=x+r}}
+  if(typeof r==='string')r+=custBtn();
   if(h2.hide||typeof r!=='string')return r;
   return '<div class="c h2b"><b>✨ '+T('خانه‌ی جدید','New home')+'</b><div class="m">'+T('ساده‌تر، یکپارچه برای همه‌ی تم‌ها و کاملاً شخصی؛ یک پیش‌تنظیم انتخاب کن. چیزی پاک نمی‌شود و هر وقت خواستی برمی‌گردی.','Simpler, one layout for every theme, fully yours. Pick a preset; nothing is deleted and you can switch back anytime.')+'</div><div class="row"><button class="p" data-a="h2_edit">'+T('امتحان کن','Try it')+'</button><button data-a="h2_no">'+T('نه، ممنون','No thanks')+'</button></div></div>'+r}}
 
