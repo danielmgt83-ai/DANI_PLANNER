@@ -318,3 +318,6 @@ DANI Planner: پلنر شخصی فارسی (RTL، با لایه‌ی ترجمه�
 - کد جاوا: `android-shell/native/` (کپی خودکار توسط `apply.mjs`). متدها: `saveFromCache`، `prune`، `openUri`، `shareUri`، `htmlToPdf`، `calendarAdd`، `pickAudio`، `playUri`، `stopPlay`، `soundChannel`.
 - سمت وب: `js/native-save.js` (ذخیره) و `js/native-extras.js` (پشتیبان خودکار، PDF، تقویم، آهنگ از گوشی). هر تغییر در `android-shell/` = ساخت دوباره‌ی APK.
 - تنظیم‌های تازه در `db.set`: `abk` (پشتیبان خودکار)، `abkd` (هر چند روز)، `calAuto`، `soundUri` ({uri,name,sys}).
+
+### js/quicklog.js
+کارت «ثبت ۵ ثانیه‌ای» (`window.daniQuickLog`)؛ در home2 با کلید `ql`. بارگذاری قبل از home2.js. داده‌ی جدید ندارد.
