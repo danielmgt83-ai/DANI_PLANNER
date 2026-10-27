@@ -16,7 +16,7 @@ const HK={dlc:['موعد بعدی','Next deadline'],overdue:['کارهای عق�
 function banner(){const k=(typeof skId==='function')?skId():'';let h='';
   try{if(/^itu[123]$/.test(k)&&typeof ituHero==='function')h=ituHero(k)}catch(e){}
   try{if(!h&&/^(itv|ao|eren)/.test(k)&&typeof ivHead==='function')h=ivHead()}catch(e){}return h}
-const CAT={rhythm:{n:['چرخه‌ی امروز (برنامه ← اجرا ← بازبینی)','Today\'s rhythm (plan → do → review)'],t:'x',full:1,r:()=>window.daniRhythmCard?window.daniRhythmCard():''},tk:{n:['یک کار برای امروز','Add a task for today'],t:'x',full:1,r:()=>window.daniTaskCard?window.daniTaskCard():''},ql:{n:['ثبت ۵ ثانیه‌ای','5-second log'],t:'x',full:1,r:()=>window.daniQuickLog?window.daniQuickLog():''},qk:{n:['شروع سریع','Quick start'],t:'x',full:1,r:()=>window.daniQuickBar?window.daniQuickBar():''},banner:{n:['بنر تم','Theme banner'],t:'x',full:1,r:banner},pm:{n:['پومودورو و تمرکز','Pomodoro & focus'],t:'x',r:()=>window.daniPomoCard?window.daniPomoCard():''}};
+const CAT={rhythm:{n:['چرخه‌ی امروز (برنامه ← اجرا ← بازبینی)','Today\'s rhythm (plan → do → review)'],t:'x',full:1,r:()=>window.daniRhythmCard?window.daniRhythmCard():''},in:{n:['الگوی تو (بهترین ساعت‌ها)','Your pattern (best hours)'],t:'x',full:1,r:()=>window.daniInsightCard?window.daniInsightCard():''},tk:{n:['یک کار برای امروز','Add a task for today'],t:'x',full:1,r:()=>window.daniTaskCard?window.daniTaskCard():''},ql:{n:['ثبت ۵ ثانیه‌ای','5-second log'],t:'x',full:1,r:()=>window.daniQuickLog?window.daniQuickLog():''},qk:{n:['شروع سریع','Quick start'],t:'x',full:1,r:()=>window.daniQuickBar?window.daniQuickBar():''},banner:{n:['بنر تم','Theme banner'],t:'x',full:1,r:banner},pm:{n:['پومودورو و تمرکز','Pomodoro & focus'],t:'x',r:()=>window.daniPomoCard?window.daniPomoCard():''}};
 Object.keys(HK).filter(k=>k!=='quote').forEach(k=>{CAT[k]={n:HK[k],t:'h',full:/^(dlc|overdue|compare|week|review|links)$/.test(k)?1:0}});
 Object.keys(DK).forEach(k=>{CAT['d:'+k]={n:DK[k],t:'d',k,full:/^(rec|tl|top|logs|sum)$/.test(k)?1:0}});
 CAT['d:rec'].n=['ثبت فعالیت و تایمر','Log activity & timer'];
@@ -68,7 +68,7 @@ function editor(){const h2=H2(),on=h2.list.filter(id=>CAT[id]),off=Object.keys(C
   else{const cx=h2.cx||[],nxOn=!(db.set.nx&&db.set.nx.off);
     h+='<div class="m" style="margin-top:8px">'+T('روی خانه‌ی کلاسیک هم می‌توانی این ابزارها را روشن/خاموش کنی:','On the classic home you can switch these tools on/off:')+'</div><div class="row">'
      +'<button class="chip '+(nxOn?'on':'')+'" data-a="h2_cx" data-k="nx">🎯 '+esc(nm('nx'))+'</button>'
-     +['tk','ql','qk','rhythm','pm'].map(k=>'<button class="chip '+(cx.includes(k)?'on':'')+'" data-a="h2_cx" data-k="'+k+'">'+esc(nm(k))+'</button>').join('')+'</div>';
+     +['tk','ql','qk','rhythm','pm','in'].map(k=>'<button class="chip '+(cx.includes(k)?'on':'')+'" data-a="h2_cx" data-k="'+k+'">'+esc(nm(k))+'</button>').join('')+'</div>';
     h+='<p class="m">'+T('الان «کلاسیک» فعال است: هر تم چیدمان خودش را دارد. برای خانه‌ی یکپارچه یک پیش‌تنظیم انتخاب کن؛ هر وقت خواستی با «کلاسیک» برمی‌گردی و هیچ چیزی پاک نمی‌شود.','"Classic" is active: each theme keeps its own layout. Pick a preset for a unified home; "Classic" brings the old one back and nothing is deleted.')+'</p>';}
   return h+'<div class="row" style="margin-top:12px"><button class="p" data-a="h2_close">'+T('تمام','Done')+'</button></div>'}
 const open=()=>{modal(editor())};
