@@ -330,3 +330,7 @@ DANI Planner: پلنر شخصی فارسی (RTL، با لایه‌ی ترجمه�
 
 ### js/emptycta.js
 دکمه‌ی «قدم اول» کنار پیام‌های خالی خانه/میزکار (RULES = regex ← دکمه‌ها). بعد از setsearch.js بارگذاری شود.
+
+### js/insight.js + js/quicklog.js + home2.js (به‌روزرسانی)
+- `insight.js`: کارت «الگوی تو» (`daniInsightCard`, کلید `in`). `quicklog.js`: کارت‌های `ql` (ثبت ۵ ثانیه‌ای) و `tk` (یک کار برای امروز) + دکمه‌ی برگردان.
+- `home2.js`: دکمه‌ی «شخصی‌سازی خانه» پایین صفحه (`custBtn`)؛ حالت کلاسیک: `db.set.h2.cx` (ابزارهای اضافه) و `db.set.h2.cl={o,x}` (ترتیب/پنهان‌کردن کارت‌های هر تم، `applyCL()` بعد از render).
