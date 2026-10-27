@@ -16,7 +16,7 @@ const HK={dlc:['موعد بعدی','Next deadline'],overdue:['کارهای عق�
 function banner(){const k=(typeof skId==='function')?skId():'';let h='';
   try{if(/^itu[123]$/.test(k)&&typeof ituHero==='function')h=ituHero(k)}catch(e){}
   try{if(!h&&/^(itv|ao|eren)/.test(k)&&typeof ivHead==='function')h=ivHead()}catch(e){}return h}
-const CAT={rhythm:{n:['چرخه‌ی امروز (برنامه ← اجرا ← بازبینی)','Today\'s rhythm (plan → do → review)'],t:'x',full:1,r:()=>window.daniRhythmCard?window.daniRhythmCard():''},ql:{n:['ثبت ۵ ثانیه‌ای','5-second log'],t:'x',full:1,r:()=>window.daniQuickLog?window.daniQuickLog():''},banner:{n:['بنر تم','Theme banner'],t:'x',full:1,r:banner},pm:{n:['پومودورو و تمرکز','Pomodoro & focus'],t:'x',r:()=>window.daniPomoCard?window.daniPomoCard():''}};
+const CAT={rhythm:{n:['چرخه‌ی امروز (برنامه ← اجرا ← بازبینی)','Today\'s rhythm (plan → do → review)'],t:'x',full:1,r:()=>window.daniRhythmCard?window.daniRhythmCard():''},ql:{n:['ثبت ۵ ثانیه‌ای','5-second log'],t:'x',full:1,r:()=>window.daniQuickLog?window.daniQuickLog():''},qk:{n:['شروع سریع','Quick start'],t:'x',full:1,r:()=>window.daniQuickBar?window.daniQuickBar():''},banner:{n:['بنر تم','Theme banner'],t:'x',full:1,r:banner},pm:{n:['پومودورو و تمرکز','Pomodoro & focus'],t:'x',r:()=>window.daniPomoCard?window.daniPomoCard():''}};
 Object.keys(HK).filter(k=>k!=='quote').forEach(k=>{CAT[k]={n:HK[k],t:'h',full:/^(dlc|overdue|compare|week|review|links)$/.test(k)?1:0}});
 Object.keys(DK).forEach(k=>{CAT['d:'+k]={n:DK[k],t:'d',k,full:/^(rec|tl|top|logs|sum)$/.test(k)?1:0}});
 CAT['d:rec'].n=['ثبت فعالیت و تایمر','Log activity & timer'];
@@ -60,6 +60,7 @@ function editor(){const h2=H2(),on=h2.list.filter(id=>CAT[id]),off=Object.keys(C
   let h='<h3>✏️ '+T('شخصی‌سازی خانه','Customize home')+'</h3><div class="m">'+T('یک پیش‌تنظیم انتخاب کن؛ بعد اگر خواستی بخش‌ها را کم/زیاد یا جابه‌جا کن. تغییرها همان لحظه روی خانه اعمال می‌شود.','Pick a preset, then add, remove or reorder sections. Changes apply instantly.')+'</div>';
   h+='<div class="row" style="margin:8px 0">'+Object.keys(PRE).map(k=>'<button class="chip '+(h2.on&&h2.preset===k?'on':'')+'" data-a="h2_pre" data-k="'+k+'" title="'+esc(T(PRE[k].d[0],PRE[k].d[1]))+'">'+esc(T(PRE[k].n[0],PRE[k].n[1]))+'</button>').join('')
     +'<button class="chip '+(!h2.on?'on':'')+'" data-a="h2_off" title="'+esc(T('چیدمان قبلی هر تم','Each theme\'s own layout'))+'">'+T('کلاسیک (قبلی)','Classic (previous)')+'</button></div>';
+  {const dk=(db.set.dk&&db.set.dk.on)?1:0;h+='<div class="row" style="margin:6px 0"><span class="m">'+T('نوار ابزار شناور پایین صفحه','Floating bottom toolbar')+':</span><button class="chip '+(dk?'on':'')+'" data-a="h2_dk">'+(dk?T('روشن — خاموش کن','On — turn off'):T('خاموش — روشن کن','Off — turn on'))+'</button></div><div class="m">'+T('ابزارهای سریع (ثبت ۵ ثانیه‌ای، شروع سریع، چرخه، پومودورو، بعدی چی؟) را یا داخل خانه (پایین، با «افزودن بخش») بگذار یا نوار شناور را روشن کن.','Put the quick tools (5-sec log, quick start, rhythm, Pomodoro, next) inside Home (below, via "Add a section") or turn on the floating bar.')+'</div>'}
   if(h2.on){
     h+='<div class="m">'+T('بخش‌های نمایش‌داده‌شده','Shown sections')+'</div>'+on.map(id=>'<div class="cwr"><span>'+esc(nm(id))+'</span><button data-a="h2_mv" data-k="'+esc(id)+'" data-m="up" aria-label="up">▲</button><button data-a="h2_mv" data-k="'+esc(id)+'" data-m="dn" aria-label="down">▼</button><button class="d" data-a="h2_mv" data-k="'+esc(id)+'" data-m="x" aria-label="remove">✕</button></div>').join('')
       +(off.length?'<div class="m" style="margin-top:8px">'+T('افزودن بخش','Add a section')+'</div><div class="row">'+off.map(id=>'<button class="chip" data-a="h2_mv" data-k="'+esc(id)+'" data-m="add">+ '+esc(nm(id))+'</button>').join('')+'</div>':'')}
@@ -68,6 +69,7 @@ function editor(){const h2=H2(),on=h2.list.filter(id=>CAT[id]),off=Object.keys(C
 const open=()=>{modal(editor())};
 const refresh=()=>{save();render();open()};
 H.h2_edit=()=>open();
+H.h2_dk=()=>{if(H.dk_on)H.dk_on();open()};
 H.h2_close=()=>{closeM();render()};
 H.h2_pre=e=>{const k=e.dataset.k;if(!PRE[k])return;const h2=H2();if(e.dataset.keep&&h2.list.length){h2.on=1;h2.hide=1;save();render();return}h2.on=1;h2.preset=k;h2.list=PRE[k].l.filter(id=>CAT[id]);h2.hide=1;refresh()};
 H.h2_off=()=>{H2().on=0;H2().hide=1;save();render();if($('#ovl')&&$('#ovl').innerHTML)open()};

@@ -10,7 +10,7 @@ const ITEMS={
  rh:{i:'🔄',n:['چرخه‌ی امروز','Today\'s rhythm'],r:()=>window.daniRhythmCard?window.daniRhythmCard():''},
  pm:{i:'🍅',n:['پومودورو','Pomodoro'],r:()=>window.daniPomoCard?window.daniPomoCard():''},
  nx:{i:'🎯',n:['بعدی چی؟','What next?'],r:()=>{try{return HSEC.nx.r()}catch(e){return''}}}};
-const DK=()=>{const s=db.set;if(!s.dk||typeof s.dk!=='object')s.dk={on:1,list:['ql','qk','rh']};if(!Array.isArray(s.dk.list))s.dk.list=['ql','qk','rh'];return s.dk};
+const DK=()=>{const s=db.set;if(!s.dk||typeof s.dk!=='object')s.dk={on:0,v:2,list:['ql','qk','rh']};if(s.dk.v!==2){s.dk.v=2;s.dk.on=0}if(!Array.isArray(s.dk.list))s.dk.list=['ql','qk','rh'];return s.dk};
 let cur='',cfg=0;
 const nm=k=>T(ITEMS[k].n[0],ITEMS[k].n[1]);
 function bar(){const d=DK(),el=document.getElementById('dkbar');
