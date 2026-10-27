@@ -16,6 +16,7 @@ function bar(){const q=QK(),l=top();if(!l.length)return'';
    +l.map(a=>'<button class="chip" data-a="qk_go" data-id="'+esc(a.id)+'" style="border-inline-start:4px solid '+aC(a.id)+'">'+esc(a.name)+'</button>').join('')+'</div>'
    +'<div class="row" style="margin-top:6px"><button class="chip '+(q.pm?'on':'')+'" data-a="qk_pm" aria-pressed="'+(q.pm?'true':'false')+'">🍅 '+T('با پومودورو','With Pomodoro')+'</button><span class="sp"></span>'
    +'<button class="chip" data-a="qk_t">'+(q.open?'▴ ':'▾ ')+T('جزئیات و ثبت دستی','Details & manual log')+'</button></div></div>'}
+window.daniQuickBar=bar;
 const _rc=recCard;recCard=function(){const t=db.timer;const o=_rc.apply(this,arguments);if(!t||t.state!=='ready')return o;
   const q=QK();return bar()+(q.open?o:'')};
 H.qk_go=e=>{const id=e.dataset.id;if(!act(id))return;
