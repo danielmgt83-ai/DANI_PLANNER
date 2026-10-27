@@ -19,5 +19,17 @@ H.ql_go=e=>{const a=pick,min=+e.dataset.m||0,d=todayISO();if(!act(a)||!min)retur
   if(tm(en)-min<0)return toast(T('این ثبت از نیمه‌شب می‌گذرد؛ از «ثبت دستی» استفاده کن','Crosses midnight — use manual log'),1);
   const st=hm(tm(en)-min);db.entries.push({id:uid(),date:d,actId:a,subId:'',start:st,end:en,min,note:'',src:'quick'});pick='';
   if(save()){toast(T('ثبت شد: ','Logged: ')+mm(min));render()}};
+/* «یک کار برای امروز»: فعالیت ← هدف (دقیقه) ← به برنامه‌ی امروز اضافه می‌شود */
+let pk2='';
+function taskCard(){const l=top();if(!l.length)return'';
+  let h='<div class="c" id="tkcard"><div class="m">📝 '+T('یک کار برای امروز — کدام فعالیت؟','Add a task for today — which activity?')+'</div><div class="row" style="margin-top:6px">'
+   +l.map(a=>'<button class="chip '+(pk2===a.id?'on':'')+'" data-a="tk_pick" data-id="'+esc(a.id)+'" style="border-inline-start:4px solid '+aC(a.id)+'">'+esc(a.name)+'</button>').join('')+'</div>';
+  if(pk2&&act(pk2))h+='<div class="m" style="margin-top:8px">'+T('هدف چند دقیقه؟','Goal in minutes?')+'</div><div class="row" style="margin-top:4px">'
+   +[15,30,45,60,90,120].map(m=>'<button class="chip" data-a="tk_go" data-m="'+m+'">'+mm(m)+'</button>').join('')+'</div>';
+  return h+'</div>'}
+H.tk_pick=e=>{pk2=pk2===e.dataset.id?'':e.dataset.id;render()};
+H.tk_go=e=>{const a=pk2,m=+e.dataset.m||0,d=todayISO();if(!act(a)||!m)return;(db.plans[d]=db.plans[d]||[]).push({id:uid(),actId:a,start:'',end:'',goal:m,status:'todo',reason:''});pk2='';
+  if(save()){toast(T('به برنامه‌ی امروز اضافه شد','Added to today\'s plan'));render()}};
+window.daniTaskCard=taskCard;
 window.daniQuickLog=card;
 })();

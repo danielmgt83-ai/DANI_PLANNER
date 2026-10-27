@@ -16,7 +16,7 @@ const HK={dlc:['موعد بعدی','Next deadline'],overdue:['کارهای عق�
 function banner(){const k=(typeof skId==='function')?skId():'';let h='';
   try{if(/^itu[123]$/.test(k)&&typeof ituHero==='function')h=ituHero(k)}catch(e){}
   try{if(!h&&/^(itv|ao|eren)/.test(k)&&typeof ivHead==='function')h=ivHead()}catch(e){}return h}
-const CAT={rhythm:{n:['چرخه‌ی امروز (برنامه ← اجرا ← بازبینی)','Today\'s rhythm (plan → do → review)'],t:'x',full:1,r:()=>window.daniRhythmCard?window.daniRhythmCard():''},ql:{n:['ثبت ۵ ثانیه‌ای','5-second log'],t:'x',full:1,r:()=>window.daniQuickLog?window.daniQuickLog():''},qk:{n:['شروع سریع','Quick start'],t:'x',full:1,r:()=>window.daniQuickBar?window.daniQuickBar():''},banner:{n:['بنر تم','Theme banner'],t:'x',full:1,r:banner},pm:{n:['پومودورو و تمرکز','Pomodoro & focus'],t:'x',r:()=>window.daniPomoCard?window.daniPomoCard():''}};
+const CAT={rhythm:{n:['چرخه‌ی امروز (برنامه ← اجرا ← بازبینی)','Today\'s rhythm (plan → do → review)'],t:'x',full:1,r:()=>window.daniRhythmCard?window.daniRhythmCard():''},tk:{n:['یک کار برای امروز','Add a task for today'],t:'x',full:1,r:()=>window.daniTaskCard?window.daniTaskCard():''},ql:{n:['ثبت ۵ ثانیه‌ای','5-second log'],t:'x',full:1,r:()=>window.daniQuickLog?window.daniQuickLog():''},qk:{n:['شروع سریع','Quick start'],t:'x',full:1,r:()=>window.daniQuickBar?window.daniQuickBar():''},banner:{n:['بنر تم','Theme banner'],t:'x',full:1,r:banner},pm:{n:['پومودورو و تمرکز','Pomodoro & focus'],t:'x',r:()=>window.daniPomoCard?window.daniPomoCard():''}};
 Object.keys(HK).filter(k=>k!=='quote').forEach(k=>{CAT[k]={n:HK[k],t:'h',full:/^(dlc|overdue|compare|week|review|links)$/.test(k)?1:0}});
 Object.keys(DK).forEach(k=>{CAT['d:'+k]={n:DK[k],t:'d',k,full:/^(rec|tl|top|logs|sum)$/.test(k)?1:0}});
 CAT['d:rec'].n=['ثبت فعالیت و تایمر','Log activity & timer'];
@@ -55,6 +55,7 @@ function html(){const h2=H2(),ids=h2.list.filter(id=>CAT[id]&&id!=='banner');
 setInterval(()=>{const e=document.getElementById('h2clk');if(e)e.textContent=clk();const g=document.querySelector('.dkgr span');if(g&&typeof danGreet==='function')g.textContent=danGreet()},1000);
 H.h2_qc=()=>{const h=H2();h.qc=h.qc?0:1;save();render()};
 
+H.h2_cx=e=>{const k=e.dataset.k,h2=H2();if(k==='nx'){const n=db.set.nx=db.set.nx||{};n.off=n.off?0:1}else{h2.cx=h2.cx||[];const i=h2.cx.indexOf(k);if(i>=0)h2.cx.splice(i,1);else h2.cx.push(k)}save();render();open()};
 /* ---------- ویرایشگر ---------- */
 function editor(){const h2=H2(),on=h2.list.filter(id=>CAT[id]),off=Object.keys(CAT).filter(id=>!on.includes(id));
   let h='<h3>✏️ '+T('شخصی‌سازی خانه','Customize home')+'</h3><div class="m">'+T('یک پیش‌تنظیم انتخاب کن؛ بعد اگر خواستی بخش‌ها را کم/زیاد یا جابه‌جا کن. تغییرها همان لحظه روی خانه اعمال می‌شود.','Pick a preset, then add, remove or reorder sections. Changes apply instantly.')+'</div>';
@@ -64,7 +65,11 @@ function editor(){const h2=H2(),on=h2.list.filter(id=>CAT[id]),off=Object.keys(C
   if(h2.on){
     h+='<div class="m">'+T('بخش‌های نمایش‌داده‌شده','Shown sections')+'</div>'+on.map(id=>'<div class="cwr"><span>'+esc(nm(id))+'</span><button data-a="h2_mv" data-k="'+esc(id)+'" data-m="up" aria-label="up">▲</button><button data-a="h2_mv" data-k="'+esc(id)+'" data-m="dn" aria-label="down">▼</button><button class="d" data-a="h2_mv" data-k="'+esc(id)+'" data-m="x" aria-label="remove">✕</button></div>').join('')
       +(off.length?'<div class="m" style="margin-top:8px">'+T('افزودن بخش','Add a section')+'</div><div class="row">'+off.map(id=>'<button class="chip" data-a="h2_mv" data-k="'+esc(id)+'" data-m="add">+ '+esc(nm(id))+'</button>').join('')+'</div>':'')}
-  else h+='<p class="m">'+T('الان «کلاسیک» فعال است: هر تم چیدمان خودش را دارد. برای خانه‌ی یکپارچه یک پیش‌تنظیم انتخاب کن؛ هر وقت خواستی با «کلاسیک» برمی‌گردی و هیچ چیزی پاک نمی‌شود.','"Classic" is active: each theme keeps its own layout. Pick a preset for a unified home; "Classic" brings the old one back and nothing is deleted.')+'</p>';
+  else{const cx=h2.cx||[],nxOn=!(db.set.nx&&db.set.nx.off);
+    h+='<div class="m" style="margin-top:8px">'+T('روی خانه‌ی کلاسیک هم می‌توانی این ابزارها را روشن/خاموش کنی:','On the classic home you can switch these tools on/off:')+'</div><div class="row">'
+     +'<button class="chip '+(nxOn?'on':'')+'" data-a="h2_cx" data-k="nx">🎯 '+esc(nm('nx'))+'</button>'
+     +['tk','ql','qk','rhythm','pm'].map(k=>'<button class="chip '+(cx.includes(k)?'on':'')+'" data-a="h2_cx" data-k="'+k+'">'+esc(nm(k))+'</button>').join('')+'</div>';
+    h+='<p class="m">'+T('الان «کلاسیک» فعال است: هر تم چیدمان خودش را دارد. برای خانه‌ی یکپارچه یک پیش‌تنظیم انتخاب کن؛ هر وقت خواستی با «کلاسیک» برمی‌گردی و هیچ چیزی پاک نمی‌شود.','"Classic" is active: each theme keeps its own layout. Pick a preset for a unified home; "Classic" brings the old one back and nothing is deleted.')+'</p>';}
   return h+'<div class="row" style="margin-top:12px"><button class="p" data-a="h2_close">'+T('تمام','Done')+'</button></div>'}
 const open=()=>{modal(editor())};
 const refresh=()=>{save();render();open()};
@@ -82,7 +87,9 @@ H.h2_no=()=>{H2().hide=1;save();render()};
 /* ---------- اتصال به صفحه‌ی خانه ---------- */
 {const _ph=PG.home;PG.home=function(){const h2=H2();
   if(h2.on){try{return html()}catch(e){console.error('home2',e)}}
-  const r=_ph.apply(this,arguments);
+  let r=_ph.apply(this,arguments);
+  if(typeof r==='string'&&(h2.cx||[]).length){let x='';(h2.cx||[]).forEach(k=>{try{x+=widget(k,{})}catch(e){}});
+    if(x){const i=r.indexOf('hcta');if(i>=0){const j=r.indexOf('</button>',i);r=j>=0?r.slice(0,j+9)+x+r.slice(j+9):x+r}else r=x+r}}
   if(h2.hide||typeof r!=='string')return r;
   return '<div class="c h2b"><b>✨ '+T('خانه‌ی جدید','New home')+'</b><div class="m">'+T('ساده‌تر، یکپارچه برای همه‌ی تم‌ها و کاملاً شخصی؛ یک پیش‌تنظیم انتخاب کن. چیزی پاک نمی‌شود و هر وقت خواستی برمی‌گردی.','Simpler, one layout for every theme, fully yours. Pick a preset; nothing is deleted and you can switch back anytime.')+'</div><div class="row"><button class="p" data-a="h2_edit">'+T('امتحان کن','Try it')+'</button><button data-a="h2_no">'+T('نه، ممنون','No thanks')+'</button></div></div>'+r}}
 
