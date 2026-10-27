@@ -34,7 +34,17 @@ const Notifier=(()=>{
     const seen=new Set();return out.filter(x=>!seen.has(x.id)&&seen.add(x.id)).slice(0,MAXN)}
 
   /* ---------- اپ اندروید ---------- */
-  async function setupChannels(){const p=LN();if(!p||!p.createChannel)return;
+  /* دکمه‌های داخل اعلان یادآوری: «انجام شد» و «۱۰ دقیقه بعد» (فقط JS؛ اگر افزونه پشتیبانی نکند بی‌اثر است) */
+  let actReg=false;
+  async function setupActions(){const p=LN();if(!p||actReg)return;actReg=true;
+    try{if(p.registerActionTypes)await p.registerActionTypes({types:[{id:'dani-rem',actions:[{id:'done',title:L('انجام شد','Done')},{id:'snz',title:L('۱۰ دقیقه بعد','Snooze 10 min')}]}]})}catch(e){}
+    try{if(p.addListener)p.addListener('localNotificationActionPerformed',ev=>{try{
+      const k=ev&&ev.notification&&ev.notification.extra&&ev.notification.extra.k;if(!k||(ev.actionId!=='done'&&ev.actionId!=='snz'))return;
+      const rid=String(k).split('|')[0];const r=(typeof rItems==='function'?rItems().concat(typeof dlRems==='function'?dlRems():[]):[]).find(x=>x.id===rid);if(!r)return;
+      const R=zRM();let x=R.log.find(z=>z.k===k);if(!x){rLog(k,r,Date.now(),'fired');x=R.log.find(z=>z.k===k)}
+      if(ev.actionId==='done'){x.st='done';x.seen=true}else{x.st='snooze';x.seen=true;R.snz.push({rid,k,at:Date.now()+10*60000})}
+      if(save())render();setTimeout(()=>{try{Notifier.sync()}catch(e){}},300)}catch(e){console.error('notif action',e)}})}catch(e){}}
+  async function setupChannels(){const p=LN();if(!p||!p.createChannel)return;setupActions();
     for(const o of['dani-alarm-v1','dani-remind-v1']){try{await p.deleteChannel({id:o})}catch(e){}}
     try{await p.createChannel({id:CH_ALARM,name:L('زنگ و تایمر','Alarm & timer'),description:L('پایان تایمر و هشدارهای مهم','Timer end and important alerts'),importance:5,visibility:1,sound:'dani_alarm.ogg',vibration:true,lights:true})}catch(e){}
     try{await p.createChannel({id:'dani-pin-v1',name:L('سنجاق‌شده (بی‌صدا)','Pinned (silent)'),description:L('اعلان ثابتِ «بعدی چی؟» یا پومودورو','Pinned “What next?” / Pomodoro notification'),importance:2,visibility:1,vibration:false})}catch(e){}
@@ -44,7 +54,7 @@ const Notifier=(()=>{
     try{const r=await p.checkPermissions();st.perm=r.display}catch(e){}
     try{const r=await p.checkExactNotificationSetting();st.exact=r.exact_alarm}catch(e){st.exact='unknown'}
     try{const r=await p.getPending();st.pending=(r.notifications||[]).length}catch(e){}}
-  function toNote(x){return{id:x.id,title:x.title,body:x.body,channelId:(x.ch===CH_ALARM&&window.daniAlarmCh)||x.ch,sound:x.ch===CH_ALARM?'dani_alarm.ogg':'dani_ping.ogg',smallIcon:'ic_stat_dani',iconColor:'#2563eb',autoCancel:!x.ongoing,ongoing:!!x.ongoing,schedule:{at:new Date(x.at),allowWhileIdle:true},extra:{k:x.key}}}
+  function toNote(x){return{id:x.id,title:x.title,body:x.body,channelId:(x.ch===CH_ALARM&&window.daniAlarmCh)||x.ch,sound:x.ch===CH_ALARM?'dani_alarm.ogg':'dani_ping.ogg',smallIcon:'ic_stat_dani',iconColor:'#2563eb',autoCancel:!x.ongoing,ongoing:!!x.ongoing,schedule:{at:new Date(x.at),allowWhileIdle:true},extra:{k:x.key},...(String(x.key||'').split('|').length===3?{actionTypeId:'dani-rem'}:{})}}
   async function sync(force){
     if(!isNative())return;const p=LN();if(!p)return;
     if(st.busy){st.again=true;return}
