@@ -87,7 +87,7 @@ function ivHome(k){const h0=homeTarget(),q=ituQ(),pc=Math.max(0,Math.min(100,Mat
 ['itv1','itv2','itv3'].forEach(k=>{PKR.home[k]=()=>ivHome(k)});
 
 /* ===== DANI: greeting at the top of Home - English only, no name, with the Dani icon (used by every theme via ituHome, ivHead and deskHTML0) ===== */
-function danGreet(){const hr=new Date().getHours();return hr>=5&&hr<12?'Good morning':hr>=12&&hr<17?'Good afternoon':'Good evening'}
+function danGreet(){const hr=new Date().getHours();return hr>=5&&hr<12?'Good morning':hr>=12&&hr<17?'Good afternoon':(hr>=17&&hr<21)?'Good evening':'Good night'}
 function danGreetHTML(){return'<div class="dkgr" style="display:flex;align-items:center;gap:10px"><img src="icons/icon-192.png" alt="" aria-hidden="true" width="44" height="44" style="width:44px;height:44px;border-radius:50%;flex:none;object-fit:cover"><span dir="ltr">'+danGreet()+'</span></div>'}
 function danFixGreet(){document.querySelectorAll('.dkgr').forEach(g=>{if(!g.querySelector('img')&&/بخیر/.test(g.textContent))g.outerHTML=danGreetHTML()})}
 const _rDg=render;render=function(){const r=_rDg.apply(this,arguments);try{danFixGreet()}catch(e){console.error('greet',e)}return r};

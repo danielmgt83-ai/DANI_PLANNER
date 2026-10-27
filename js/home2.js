@@ -37,18 +37,22 @@ function widget(id,dc){const c=CAT[id];if(!c)return'';let h='';
 const grT=hr=>hr>=5&&hr<12?T('صبح بخیر','Good morning'):hr>=12&&hr<17?T('ظهر بخیر','Good afternoon'):hr>=17&&hr<21?T('عصر بخیر','Good evening'):T('شب بخیر','Good night');
 const clk=()=>{try{return fa(nowHM())}catch(e){return''}};
 /* سربرگ ثابت: آیکون برنامه + سلام + تاریخ (طبق تقویم انتخابی) + ساعت گوشی — در همه‌ی شخصی‌سازی‌ها می‌ماند و قابل‌حذف نیست */
-function head(){return'<div class="h2top"><img src="icons/icon-192.png" width="44" height="44" alt="DANI" style="border-radius:12px;flex:none"><div style="min-width:0"><b class="h2gr" style="font-size:1.15em">'+grT(new Date().getHours())+'</b><div class="m">'+fmtDL(todayISO())+' · <span id="h2clk">'+clk()+'</span></div></div><span class="sp"></span><button class="chip" data-a="h2_edit">✏️ '+T('شخصی‌سازی','Customize')+'</button></div>'}
+function head(){return'<div class="h2top"><div style="min-width:0">'+danGreetHTML()+'<div class="m">'+fmtDL(todayISO())+' · <span id="h2clk">'+clk()+'</span></div></div><span class="sp"></span><button class="chip" data-a="h2_edit">✏️ '+T('شخصی‌سازی','Customize')+'</button></div>'}
 /* جمله‌ها همیشه می‌مانند؛ فقط از خود همین بخش می‌شود بستشان (جمع می‌شود) یا تنظیمشان کرد */
-function quote(bn){if(bn)return'';const h2=H2();
-  if(h2.qc)return'<div class="h2w h2f"><button class="chip" data-a="h2_qc" style="width:100%;justify-content:center">❝ '+T('جمله‌ها (بسته) — باز کردن','Quotes (closed) — open')+' ▾</button></div>';
-  let q='';try{q=hQuote()}catch(e){}return q?'<div class="h2w h2f"><div class="row" style="justify-content:flex-end;margin:0 0 4px"><button class="chip" data-a="h2_qc" aria-label="close quotes">▴ '+T('بستن جمله‌ها','Close quotes')+'</button></div>'+q+'</div>':''}
+function quote(bn){if(bn)return'';let q='';try{q=hQuote()}catch(e){}return q?'<div class="h2w h2f">'+q+'</div>':''}
+/* جمله‌ها در همه‌ی حالت‌ها (جدید و کلاسیک و همه‌ی تم‌ها) می‌مانند؛ فقط از خود همین بخش بسته/باز می‌شوند */
+{const _hq=hQuote;hQuote=function(){const h2=H2();
+  if(h2.qc)return'<div class="row" style="margin:4px 0"><button class="chip" data-a="h2_qc" style="width:100%;justify-content:center">❝ '+T('جمله‌ها (بسته) — باز کردن','Quotes (closed) — open')+' ▾</button></div>';
+  return'<div class="row" style="justify-content:flex-end;margin:0 0 4px"><button class="chip" data-a="h2_qc" aria-label="close quotes">▴ '+T('بستن جمله‌ها','Close quotes')+'</button></div>'+_hq.apply(this,arguments)}}
+{const _pq=PG.qt;PG.qt=function(){const h=_pq.apply(this,arguments);if(typeof h!=='string')return h;const o=!H2().qc;
+  return'<div class="c"><b>🏠 '+T('نمایش جمله‌ها در صفحه‌ی اصلی','Quotes on the home screen')+'</b><div class="row" style="margin-top:6px"><button class="chip '+(o?'on':'')+'" data-a="h2_qc">'+(o?T('باز است — بستن','Open — close'):T('بسته است — باز کردن','Closed — open'))+'</button></div><p class="m">'+T('جمله‌ها پاک نمی‌شوند؛ فقط از جلوی چشم جمع می‌شوند.','Quotes are never deleted; they just collapse out of sight.')+'</p></div>'+h}}
 function html(){const h2=H2(),ids=h2.list.filter(id=>CAT[id]&&id!=='banner');
   const dc=dashCards(ids.filter(id=>CAT[id].t==='d').map(id=>CAT[id].k));
   let bn='';if(h2.list.includes('banner')){try{bn=banner()}catch(e){}}
   let body=ids.map(id=>{const w=widget(id,dc);return w?'<div class="h2w'+(CAT[id].full?' h2f':'')+'" data-w="'+esc(id)+'">'+w+'</div>':''}).join('');
   if(!body.trim())body='<div class="c"><p class="m">'+T('هنوز بخشی انتخاب نشده؛ «شخصی‌سازی» را بزن و یک پیش‌تنظیم انتخاب کن.','No sections yet — tap "Customize" and pick a preset.')+'</p></div>';
   return'<div class="h2">'+head()+(bn?'<div class="h2g"><div class="h2w h2f" data-w="banner">'+bn+'</div></div>':'')+'<div class="h2g">'+quote(!!bn)+body+'</div></div>'}
-setInterval(()=>{const e=document.getElementById('h2clk');if(e)e.textContent=clk();const g=document.querySelector('.h2gr');if(g)g.textContent=grT(new Date().getHours())},1000);
+setInterval(()=>{const e=document.getElementById('h2clk');if(e)e.textContent=clk();const g=document.querySelector('.dkgr span');if(g&&typeof danGreet==='function')g.textContent=danGreet()},1000);
 H.h2_qc=()=>{const h=H2();h.qc=h.qc?0:1;save();render()};
 
 /* ---------- ویرایشگر ---------- */
@@ -79,6 +83,13 @@ H.h2_no=()=>{H2().hide=1;save();render()};
   const r=_ph.apply(this,arguments);
   if(h2.hide||typeof r!=='string')return r;
   return '<div class="c h2b"><b>✨ '+T('خانه‌ی جدید','New home')+'</b><div class="m">'+T('ساده‌تر، یکپارچه برای همه‌ی تم‌ها و کاملاً شخصی؛ یک پیش‌تنظیم انتخاب کن. چیزی پاک نمی‌شود و هر وقت خواستی برمی‌گردی.','Simpler, one layout for every theme, fully yours. Pick a preset; nothing is deleted and you can switch back anytime.')+'</div><div class="row"><button class="p" data-a="h2_edit">'+T('امتحان کن','Try it')+'</button><button data-a="h2_no">'+T('نه، ممنون','No thanks')+'</button></div></div>'+r}}
+
+/* سربرگ ثابت در همه‌ی تم‌ها و حالت‌ها: اگر خانه سلام/ساعت نداشت اضافه می‌شود */
+function ensureHead(){if(page!=='home')return;const m=document.getElementById('pg');if(!m)return;
+  if(!m.querySelector('.dkgr')){const d=document.createElement('div');d.className='h2top';d.innerHTML='<div style="min-width:0">'+danGreetHTML()+'<div class="m">'+fmtDL(todayISO())+' · <span id="h2clk">'+clk()+'</span></div></div>';m.insertBefore(d,m.firstChild)}
+  else if(!document.getElementById('h2clk')){const g=m.querySelector('.dkgr'),mm=g.parentElement.querySelector('.m');const sp=document.createElement('span');sp.id='h2clk';sp.textContent=clk();
+    if(mm){mm.appendChild(document.createTextNode(' · '));mm.appendChild(sp)}else{const d=document.createElement('div');d.className='m';d.appendChild(sp);g.insertAdjacentElement('afterend',d)}}}
+{const _rh=render;render=function(){const r=_rh.apply(this,arguments);try{ensureHead()}catch(e){console.error('ensureHead',e)}return r}}
 
 /* ---------- انتخاب سبک در تنظیمات ← ظاهر (بدون اضافه‌کردن آیتم به منو) ---------- */
 function styleCard(){const h2=H2();
