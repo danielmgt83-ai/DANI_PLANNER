@@ -321,3 +321,6 @@ DANI Planner: پلنر شخصی فارسی (RTL، با لایه‌ی ترجمه�
 
 ### js/quicklog.js
 کارت «ثبت ۵ ثانیه‌ای» (`window.daniQuickLog`)؛ در home2 با کلید `ql`. بارگذاری قبل از home2.js. داده‌ی جدید ندارد.
+
+### js/dock.js
+نوار ابزار سریع پایین صفحه (`#dkbar` + برگه‌ی `#dksh`)، `db.set.dk={on,list}`. بعد از home2.js بارگذاری شود. آیتم جدید = یک ورودی در `ITEMS`.
