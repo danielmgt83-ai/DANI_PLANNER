@@ -16,15 +16,15 @@ const HK={dlc:['موعد بعدی','Next deadline'],overdue:['کارهای عق�
 function banner(){const k=(typeof skId==='function')?skId():'';let h='';
   try{if(/^itu[123]$/.test(k)&&typeof ituHero==='function')h=ituHero(k)}catch(e){}
   try{if(!h&&/^(itv|ao|eren)/.test(k)&&typeof ivHead==='function')h=ivHead()}catch(e){}return h}
-const CAT={banner:{n:['بنر تم','Theme banner'],t:'x',full:1,r:banner},pm:{n:['پومودورو و تمرکز','Pomodoro & focus'],t:'x',r:()=>window.daniPomoCard?window.daniPomoCard():''}};
-Object.keys(HK).forEach(k=>{CAT[k]={n:HK[k],t:'h',full:/^(dlc|overdue|compare|week|review|links)$/.test(k)?1:0}});
+const CAT={rhythm:{n:['چرخه‌ی امروز (برنامه ← اجرا ← بازبینی)','Today\'s rhythm (plan → do → review)'],t:'x',full:1,r:()=>window.daniRhythmCard?window.daniRhythmCard():''},banner:{n:['بنر تم','Theme banner'],t:'x',full:1,r:banner},pm:{n:['پومودورو و تمرکز','Pomodoro & focus'],t:'x',r:()=>window.daniPomoCard?window.daniPomoCard():''}};
+Object.keys(HK).filter(k=>k!=='quote').forEach(k=>{CAT[k]={n:HK[k],t:'h',full:/^(dlc|overdue|compare|week|review|links)$/.test(k)?1:0}});
 Object.keys(DK).forEach(k=>{CAT['d:'+k]={n:DK[k],t:'d',k,full:/^(rec|tl|top|logs|sum)$/.test(k)?1:0}});
 CAT['d:rec'].n=['ثبت فعالیت و تایمر','Log activity & timer'];
 const PRE={
-  minimal:{n:['مینیمال','Minimal'],d:['فقط «بعدی چی؟» و برنامه‌ی امروز','Just "What next?" and today\'s plan'],l:['nx','d:rec','tgt']},
-  focus:{n:['تمرکز','Focus'],d:['پومودورو و یک جمله','Pomodoro and a quote'],l:['banner','nx','pm','d:rec','focus','quote']},
-  student:{n:['دانشجو','Student'],d:['مرور کارت‌ها، درس، موعد و عادت‌ها','Cards, lessons, deadlines, habits'],l:['banner','nx','d:rec','srs','lesson','dlc','tgt','overdue','week']},
-  full:{n:['کامل','Full'],d:['همه‌ی بخش‌های مهم، با خط زمانی','All key sections incl. timeline'],l:['banner','nx','d:rec','dlc','overdue','tgt','srs','lesson','d:tl','d:goals','week','compare','focus','quote','d:eod','d:note','links']}};
+  minimal:{n:['مینیمال','Minimal'],d:['فقط «بعدی چی؟» و برنامه‌ی امروز','Just "What next?" and today\'s plan'],l:['nx','rhythm','d:rec','tgt']},
+  focus:{n:['تمرکز','Focus'],d:['پومودورو و یک جمله','Pomodoro and a quote'],l:['banner','nx','rhythm','pm','d:rec','focus','d:cap']},
+  student:{n:['دانشجو','Student'],d:['مرور کارت‌ها، درس، موعد و عادت‌ها','Cards, lessons, deadlines, habits'],l:['banner','nx','rhythm','d:rec','srs','lesson','dlc','tgt','overdue','d:cap','week']},
+  full:{n:['کامل','Full'],d:['همه‌ی بخش‌های مهم، با خط زمانی','All key sections incl. timeline'],l:['banner','nx','rhythm','d:rec','dlc','overdue','tgt','srs','lesson','d:cap','d:tl','d:goals','week','compare','focus','d:eod','d:note','links']}};
 const H2=()=>{const s=db.set;if(!s.h2||typeof s.h2!=='object')s.h2={on:0,preset:'',list:[]};const h=s.h2;if(!Array.isArray(h.list))h.list=[];return h};
 const nm=id=>T(CAT[id].n[0],CAT[id].n[1]);
 
@@ -34,13 +34,22 @@ function dashCards(keys){if(!keys.length)return{};let arr=[];window.daniNoExtra=
   const o={};keys.forEach((k,i)=>o[k]=arr[i]||'');return o}
 function widget(id,dc){const c=CAT[id];if(!c)return'';let h='';
   try{if(c.t==='d')h=dc[c.k]||'';else if(c.t==='h'){const s=HSEC[id];h=s&&s.r?s.r():''}else h=c.r?c.r():''}catch(e){console.error('home2',id,e)}return h}
-function html(){const h2=H2(),ids=h2.list.filter(id=>CAT[id]);
+const grT=hr=>hr>=5&&hr<12?T('صبح بخیر','Good morning'):hr>=12&&hr<17?T('ظهر بخیر','Good afternoon'):hr>=17&&hr<21?T('عصر بخیر','Good evening'):T('شب بخیر','Good night');
+const clk=()=>{try{return fa(nowHM())}catch(e){return''}};
+/* سربرگ ثابت: آیکون برنامه + سلام + تاریخ (طبق تقویم انتخابی) + ساعت گوشی — در همه‌ی شخصی‌سازی‌ها می‌ماند و قابل‌حذف نیست */
+function head(){return'<div class="h2top"><img src="icons/icon-192.png" width="44" height="44" alt="DANI" style="border-radius:12px;flex:none"><div style="min-width:0"><b class="h2gr" style="font-size:1.15em">'+grT(new Date().getHours())+'</b><div class="m">'+fmtDL(todayISO())+' · <span id="h2clk">'+clk()+'</span></div></div><span class="sp"></span><button class="chip" data-a="h2_edit">✏️ '+T('شخصی‌سازی','Customize')+'</button></div>'}
+/* جمله‌ها همیشه می‌مانند؛ فقط از خود همین بخش می‌شود بستشان (جمع می‌شود) یا تنظیمشان کرد */
+function quote(bn){if(bn)return'';const h2=H2();
+  if(h2.qc)return'<div class="h2w h2f"><button class="chip" data-a="h2_qc" style="width:100%;justify-content:center">❝ '+T('جمله‌ها (بسته) — باز کردن','Quotes (closed) — open')+' ▾</button></div>';
+  let q='';try{q=hQuote()}catch(e){}return q?'<div class="h2w h2f"><div class="row" style="justify-content:flex-end;margin:0 0 4px"><button class="chip" data-a="h2_qc" aria-label="close quotes">▴ '+T('بستن جمله‌ها','Close quotes')+'</button></div>'+q+'</div>':''}
+function html(){const h2=H2(),ids=h2.list.filter(id=>CAT[id]&&id!=='banner');
   const dc=dashCards(ids.filter(id=>CAT[id].t==='d').map(id=>CAT[id].k));
-  const hr=new Date().getHours(),gr=hr<5?T('شب بخیر','Good night'):hr<12?T('صبح بخیر','Good morning'):hr<17?T('ظهر بخیر','Good afternoon'):hr<20?T('عصر بخیر','Good evening'):T('شب بخیر','Good evening');
-  let h='<div class="h2"><div class="h2top"><div><b>'+gr+'</b><div class="m">'+fmtDL(todayISO())+'</div></div><span class="sp"></span><button class="chip" data-a="h2_edit">✏️ '+T('شخصی‌سازی','Customize')+'</button></div>';
+  let bn='';if(h2.list.includes('banner')){try{bn=banner()}catch(e){}}
   let body=ids.map(id=>{const w=widget(id,dc);return w?'<div class="h2w'+(CAT[id].full?' h2f':'')+'" data-w="'+esc(id)+'">'+w+'</div>':''}).join('');
   if(!body.trim())body='<div class="c"><p class="m">'+T('هنوز بخشی انتخاب نشده؛ «شخصی‌سازی» را بزن و یک پیش‌تنظیم انتخاب کن.','No sections yet — tap "Customize" and pick a preset.')+'</p></div>';
-  return h+'<div class="h2g">'+body+'</div></div>'}
+  return'<div class="h2">'+head()+(bn?'<div class="h2g"><div class="h2w h2f" data-w="banner">'+bn+'</div></div>':'')+'<div class="h2g">'+quote(!!bn)+body+'</div></div>'}
+setInterval(()=>{const e=document.getElementById('h2clk');if(e)e.textContent=clk();const g=document.querySelector('.h2gr');if(g)g.textContent=grT(new Date().getHours())},1000);
+H.h2_qc=()=>{const h=H2();h.qc=h.qc?0:1;save();render()};
 
 /* ---------- ویرایشگر ---------- */
 function editor(){const h2=H2(),on=h2.list.filter(id=>CAT[id]),off=Object.keys(CAT).filter(id=>!on.includes(id));

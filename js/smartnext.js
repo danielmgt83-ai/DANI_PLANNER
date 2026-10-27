@@ -52,6 +52,7 @@ function card(force){const n0=NX();if(n0.off&&!force)return'';const run=db.timer
     +'<div class="row"><button data-a="nx_off">'+T('پنهان کردن این کارت از خانه','Hide this card from home')+'</button></div><p class="m">'+T('پیشنهاد بر اساس: زمان کار در برنامه، اولویت ★، عقب‌افتاده‌ها، موعدهای ۳ روز آینده، کارت‌های مرور و عادت‌ها. اعلان‌ها فقط در اپ اندروید.','Based on: planned time, ★ priority, overdue items, deadlines in 3 days, due cards and habits. Notifications work in the Android app only.')+'</p></details></div>';
   return h}
 
+window.daniNextTop=()=>ranked()[0]||null;
 /* ---------- عمل‌ها ---------- */
 const find=id=>cands().find(c=>c.id===id);
 H.nx_go=e=>{const c=find(e.dataset.i);if(!c)return render();
@@ -82,7 +83,8 @@ const hs=s=>{let h=5381;for(let i=0;i<s.length;i++)h=((h<<5)+h+s.charCodeAt(i))|
       const[y,m,dd]=d.split('-').map(Number),[H0,M0]=hm0.split(':').map(Number),at=new Date(y,m-1,dd,H0,M0).getTime();
       if(at<now+2000||(typeof inQuiet==='function'&&inQuiet(at)))return;
       let body;
-      if(k==='am'){const b=i===0?ranked()[0]:null;body=b?T('اول: '+b.t+' — '+b.why,'First: '+b.t+' — '+b.why):T('صبح بخیر! برنامه‌ی امروز را ببین و اولین کار را شروع کن','Good morning! Check today\'s plan and start the first task')}
+      if(k==='am'){const b=i===0?ranked()[0]:null;let cp='';try{if(i===0){const pv=Object.keys(db.days).filter(x=>x<d&&db.days[x].tomorrow).sort().pop();if(pv&&!db.caps['cap'+pv]&&db.days[pv].tomorrow)cp='✦ '+S_(db.days[pv].tomorrow,80)+' — '}}catch(e){}
+        body=cp+(b?T('اول: '+b.t+' — '+b.why,'First: '+b.t+' — '+b.why):T('صبح بخیر! برنامه‌ی امروز را ببین و اولین کار را شروع کن','Good morning! Check today\'s plan and start the first task'))}
       else{let c=0,s=0;try{if(i===0){if(on('hab'))c=hItems().filter(h=>hExp(h,d)&&!hSt(h,d)).length;s=srsDue().length}}catch(e){}
         body=T('امروز چه کردی؟ ثبت‌ها را کامل کن'+(c?' · '+fa(c)+' عادت مانده':'')+(s?' · '+fa(s)+' کارت مرور':''),'How was your day? Complete your log'+(c?' · '+c+' habit(s) left':'')+(s?' · '+s+' cards due':''))}
       out.push({id:hs(d+k),at,title:k==='am'?'DANI ☀️':'DANI 🌙',body,ch:'dani-remind-v2',key:'nx-'+d+k})})}

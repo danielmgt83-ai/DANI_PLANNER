@@ -37,13 +37,14 @@ const Notifier=(()=>{
   async function setupChannels(){const p=LN();if(!p||!p.createChannel)return;
     for(const o of['dani-alarm-v1','dani-remind-v1']){try{await p.deleteChannel({id:o})}catch(e){}}
     try{await p.createChannel({id:CH_ALARM,name:L('زنگ و تایمر','Alarm & timer'),description:L('پایان تایمر و هشدارهای مهم','Timer end and important alerts'),importance:5,visibility:1,sound:'dani_alarm.ogg',vibration:true,lights:true})}catch(e){}
+    try{await p.createChannel({id:'dani-pin-v1',name:L('سنجاق‌شده (بی‌صدا)','Pinned (silent)'),description:L('اعلان ثابتِ «بعدی چی؟» یا پومودورو','Pinned “What next?” / Pomodoro notification'),importance:2,visibility:1,vibration:false})}catch(e){}
     try{await p.createChannel({id:CH_REM,name:L('یادآورها','Reminders'),description:L('یادآورها و موعدها','Reminders and deadlines'),importance:4,visibility:1,sound:'dani_ping.ogg',vibration:true})}catch(e){}}
   async function refresh(){if(!isNative()){st.perm=('Notification' in window)?Notification.permission:'unsupported';return}
     const p=LN();if(!p){st.err='plugin';return}
     try{const r=await p.checkPermissions();st.perm=r.display}catch(e){}
     try{const r=await p.checkExactNotificationSetting();st.exact=r.exact_alarm}catch(e){st.exact='unknown'}
     try{const r=await p.getPending();st.pending=(r.notifications||[]).length}catch(e){}}
-  function toNote(x){return{id:x.id,title:x.title,body:x.body,channelId:(x.ch===CH_ALARM&&window.daniAlarmCh)||x.ch,sound:x.ch===CH_ALARM?'dani_alarm.ogg':'dani_ping.ogg',smallIcon:'ic_stat_dani',iconColor:'#2563eb',autoCancel:true,schedule:{at:new Date(x.at),allowWhileIdle:true},extra:{k:x.key}}}
+  function toNote(x){return{id:x.id,title:x.title,body:x.body,channelId:(x.ch===CH_ALARM&&window.daniAlarmCh)||x.ch,sound:x.ch===CH_ALARM?'dani_alarm.ogg':'dani_ping.ogg',smallIcon:'ic_stat_dani',iconColor:'#2563eb',autoCancel:!x.ongoing,ongoing:!!x.ongoing,schedule:{at:new Date(x.at),allowWhileIdle:true},extra:{k:x.key}}}
   async function sync(force){
     if(!isNative())return;const p=LN();if(!p)return;
     if(st.busy){st.again=true;return}
