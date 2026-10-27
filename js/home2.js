@@ -16,15 +16,15 @@ const HK={dlc:['موعد بعدی','Next deadline'],overdue:['کارهای عق�
 function banner(){const k=(typeof skId==='function')?skId():'';let h='';
   try{if(/^itu[123]$/.test(k)&&typeof ituHero==='function')h=ituHero(k)}catch(e){}
   try{if(!h&&/^(itv|ao|eren)/.test(k)&&typeof ivHead==='function')h=ivHead()}catch(e){}return h}
-const CAT={rhythm:{n:['چرخه‌ی امروز (برنامه ← اجرا ← بازبینی)','Today\'s rhythm (plan → do → review)'],t:'x',full:1,r:()=>window.daniRhythmCard?window.daniRhythmCard():''},banner:{n:['بنر تم','Theme banner'],t:'x',full:1,r:banner},pm:{n:['پومودورو و تمرکز','Pomodoro & focus'],t:'x',r:()=>window.daniPomoCard?window.daniPomoCard():''}};
+const CAT={rhythm:{n:['چرخه‌ی امروز (برنامه ← اجرا ← بازبینی)','Today\'s rhythm (plan → do → review)'],t:'x',full:1,r:()=>window.daniRhythmCard?window.daniRhythmCard():''},ql:{n:['ثبت ۵ ثانیه‌ای','5-second log'],t:'x',full:1,r:()=>window.daniQuickLog?window.daniQuickLog():''},banner:{n:['بنر تم','Theme banner'],t:'x',full:1,r:banner},pm:{n:['پومودورو و تمرکز','Pomodoro & focus'],t:'x',r:()=>window.daniPomoCard?window.daniPomoCard():''}};
 Object.keys(HK).filter(k=>k!=='quote').forEach(k=>{CAT[k]={n:HK[k],t:'h',full:/^(dlc|overdue|compare|week|review|links)$/.test(k)?1:0}});
 Object.keys(DK).forEach(k=>{CAT['d:'+k]={n:DK[k],t:'d',k,full:/^(rec|tl|top|logs|sum)$/.test(k)?1:0}});
 CAT['d:rec'].n=['ثبت فعالیت و تایمر','Log activity & timer'];
 const PRE={
-  minimal:{n:['مینیمال','Minimal'],d:['فقط «بعدی چی؟» و برنامه‌ی امروز','Just "What next?" and today\'s plan'],l:['nx','rhythm','d:rec','tgt']},
-  focus:{n:['تمرکز','Focus'],d:['پومودورو و یک جمله','Pomodoro and a quote'],l:['banner','nx','rhythm','pm','d:rec','focus','d:cap']},
-  student:{n:['دانشجو','Student'],d:['مرور کارت‌ها، درس، موعد و عادت‌ها','Cards, lessons, deadlines, habits'],l:['banner','nx','rhythm','d:rec','srs','lesson','dlc','tgt','overdue','d:cap','week']},
-  full:{n:['کامل','Full'],d:['همه‌ی بخش‌های مهم، با خط زمانی','All key sections incl. timeline'],l:['banner','nx','rhythm','d:rec','dlc','overdue','tgt','srs','lesson','d:cap','d:tl','d:goals','week','compare','focus','d:eod','d:note','links']}};
+  minimal:{n:['مینیمال','Minimal'],d:['فقط «بعدی چی؟» و برنامه‌ی امروز','Just "What next?" and today\'s plan'],l:['nx','rhythm','ql','d:rec','tgt']},
+  focus:{n:['تمرکز','Focus'],d:['پومودورو و یک جمله','Pomodoro and a quote'],l:['banner','nx','rhythm','ql','pm','d:rec','focus','d:cap']},
+  student:{n:['دانشجو','Student'],d:['مرور کارت‌ها، درس، موعد و عادت‌ها','Cards, lessons, deadlines, habits'],l:['banner','nx','rhythm','ql','d:rec','srs','lesson','dlc','tgt','overdue','d:cap','week']},
+  full:{n:['کامل','Full'],d:['همه‌ی بخش‌های مهم، با خط زمانی','All key sections incl. timeline'],l:['banner','nx','rhythm','ql','d:rec','dlc','overdue','tgt','srs','lesson','d:cap','d:tl','d:goals','week','compare','focus','d:eod','d:note','links']}};
 const H2=()=>{const s=db.set;if(!s.h2||typeof s.h2!=='object')s.h2={on:0,preset:'',list:[]};const h=s.h2;if(!Array.isArray(h.list))h.list=[];return h};
 const nm=id=>T(CAT[id].n[0],CAT[id].n[1]);
 
