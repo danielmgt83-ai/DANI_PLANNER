@@ -12,6 +12,8 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.media.AudioAttributes;
 import android.media.MediaPlayer;
+import android.media.Ringtone;
+import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
@@ -434,5 +436,40 @@ public class DaniNativePlugin extends Plugin {
         } catch (Exception e) {
             call.reject(String.valueOf(e.getMessage()), e);
         }
+    }
+
+    /* ---------------------------------------------------------- زنگ/اعلان‌های خودِ گوشی (انتخابگر سیستم) */
+    @PluginMethod
+    public void pickRingtone(PluginCall call) {
+        int type = call.getInt("type", 2);
+        Intent i = new Intent(RingtoneManager.ACTION_RINGTONE_PICKER);
+        i.putExtra(RingtoneManager.EXTRA_RINGTONE_TYPE, type);
+        i.putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_DEFAULT, true);
+        i.putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_SILENT, false);
+        startActivityForResult(call, i, "ringDone");
+    }
+
+    @ActivityCallback
+    private void ringDone(PluginCall call, ActivityResult res) {
+        if (call == null) return;
+        JSObject o = new JSObject();
+        Intent d = res.getData();
+        Uri u = null;
+        if (d != null) {
+            try { u = (Uri) d.getParcelableExtra(RingtoneManager.EXTRA_RINGTONE_PICKED_URI); } catch (Exception ignored) {}
+        }
+        if (res.getResultCode() != Activity.RESULT_OK || u == null) {
+            o.put("cancelled", true);
+            call.resolve(o);
+            return;
+        }
+        String name = "";
+        try {
+            Ringtone r = RingtoneManager.getRingtone(getContext(), u);
+            if (r != null) name = r.getTitle(getContext());
+        } catch (Exception ignored) {}
+        o.put("uri", u.toString());
+        o.put("name", name);
+        call.resolve(o);
     }
 }
