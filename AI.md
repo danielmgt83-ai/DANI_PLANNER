@@ -334,3 +334,7 @@ DANI Planner: پلنر شخصی فارسی (RTL، با لایه‌ی ترجمه�
 ### js/insight.js + js/quicklog.js + home2.js (به‌روزرسانی)
 - `insight.js`: کارت «الگوی تو» (`daniInsightCard`, کلید `in`). `quicklog.js`: کارت‌های `ql` (ثبت ۵ ثانیه‌ای) و `tk` (یک کار برای امروز) + دکمه‌ی برگردان.
 - `home2.js`: دکمه‌ی «شخصی‌سازی خانه» پایین صفحه (`custBtn`)؛ حالت کلاسیک: `db.set.h2.cx` (ابزارهای اضافه) و `db.set.h2.cl={o,x}` (ترتیب/پنهان‌کردن کارت‌های هر تم، `applyCL()` بعد از render).
+
+### js/soundcenter.js
+صدای جدا برای هر دسته‌ی اعلان (alarm/rem/habit/gen). `db.set.snd2`, `db.set.sndCh`, `window.daniChFor`. دسته‌ی alarm همان `db.set.soundUri` (native-extras) است. متد native جدید: `pickRingtone` در DaniNativePlugin.java (نیازمند APK جدید).
+قانون تاریخ: هیچ‌جا `<input type="date">` نگذار؛ از متن + `fmtD`/`readD` استفاده کن تا تقویم انتخابی تنظیمات رعایت شود.
