@@ -338,3 +338,8 @@ DANI Planner: پلنر شخصی فارسی (RTL، با لایه‌ی ترجمه�
 ### js/soundcenter.js
 صدای جدا برای هر دسته‌ی اعلان (alarm/rem/habit/gen). `db.set.snd2`, `db.set.sndCh`, `window.daniChFor`. دسته‌ی alarm همان `db.set.soundUri` (native-extras) است. متد native جدید: `pickRingtone` در DaniNativePlugin.java (نیازمند APK جدید).
 قانون تاریخ: هیچ‌جا `<input type="date">` نگذار؛ از متن + `fmtD`/`readD` استفاده کن تا تقویم انتخابی تنظیمات رعایت شود.
+
+### js/qa-more.js · js/capsule.js · js/onboard.js
+- `qa-more.js`: ورودی‌های جستجوی سراسری (آرایه‌ی X) + `daniQADyn`. قابلیت جدید = یک خط در X.
+- `capsule.js`: مدیریت کپسول (`db.days[d].tomorrow`).
+- `onboard.js`: راهنمای شروع؛ گام جدید = یک شیء در آرایه‌ی S (k, t, why, done(), body()) + هندلرهای `ob_*`. بعد از qa-more.js بارگذاری شود.
