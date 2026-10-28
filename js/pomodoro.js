@@ -5,7 +5,7 @@
    - حالت تمرکز: صفحه‌ی تمام‌صفحه‌ی ساده با ساعت بزرگ؛ صفحه خاموش نمی‌شود
    داده: db.set.pomo (کوچک؛ در پشتیبان می‌آید) */
 (function(){
-const T=(fa,en)=>{try{return LANGEN()?en:fa}catch(e){return fa}};
+const T=window.daniT;
 const DEF={w:25,b:5,l:15,n:4,auto:0,ph:'idle',until:0,sid:'',a:'',s:'',cy:0,dn:0,dd:''};
 const PM=()=>{const s=db.set;if(!s.pomo||typeof s.pomo!=='object')s.pomo={};const p=s.pomo;for(const k in DEF)if(p[k]===undefined)p[k]=DEF[k];
   if(p.dd!==todayISO()){p.dd=todayISO();p.dn=0}return p};
@@ -64,7 +64,7 @@ function updFoc(){if(!FOC)return;const d=$('#pm-fd');if(!d)return;const p=PM(),t
 /* ---------- کارت ---------- */
 function card(){const p=PM(),idle=p.ph==='idle'||p.ph==='next',w=p.ph==='work',b=p.ph==='break'||p.ph==='long';
   const nm=(k,l,v,lo,hi)=>'<div><label>'+l+'</label><input type="number" id="pm-'+k+'" min="'+lo+'" max="'+hi+'" value="'+v+'" style="width:80px" '+(idle?'':'disabled')+'></div>';
-  let h='<div class="c" id="pmcard"><h3>🍅 '+T('پومودورو و حالت تمرکز','Pomodoro & focus mode')+'</h3>';
+  let h='<div class="c" id="pmcard">'+daniH('🍅','پومودورو و حالت تمرکز','Pomodoro & focus mode')+'';
   h+='<p class="m">'+T('کار در بازه‌های متمرکز با استراحت‌های کوتاه؛ هر جلسه‌ی کار خودکار در لاگ همان فعالیت ثبت می‌شود. امروز: ','Work in focused blocks with short breaks; each work session is logged to the activity automatically. Today: ')+'<b>'+fa(p.dn)+'</b> 🍅 · '+T('دور','round')+' '+fa(b?(p.cy-1)%p.n+1:p.cy%p.n+1)+'/'+fa(p.n)+'</p>';
   if(idle){
     h+='<div class="row"><div><label>'+T('فعالیت','Activity')+'</label><select id="pm-a">'+aOpts(p.a||db.timer&&db.timer.actId)+'</select></div>'

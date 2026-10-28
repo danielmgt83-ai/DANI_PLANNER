@@ -4,7 +4,7 @@
    انتخاب می‌کند، دلیلش را می‌گوید و با یک دکمه شروع می‌کند. داده: db.set.nx (کوچک).
    بخش خانه: HSEC.nx (در اولین اجرا به بالای خانه اضافه می‌شود؛ از «مدیریت بخش‌های خانه» قابل‌خاموش‌کردن است). */
 (function(){
-const T=(fa,en)=>{try{return LANGEN()?en:fa}catch(e){return fa}};
+const T=window.daniT;
 const NX=()=>{const s=db.set;if(!s.nx||typeof s.nx!=='object')s.nx={};const n=s.nx;
   if(n.am===undefined){n.am='08:00';n.pm='21:00';n.amOn=1;n.pmOn=1}
   if(!n.skip||n.skip.d!==todayISO())n.skip={d:todayISO(),ids:[]};return n};
@@ -38,7 +38,7 @@ function ranked(){const n=NX();return cands().filter(c=>!n.skip.ids.includes(c.i
 
 /* ---------- کارت ---------- */
 function card(force){const n0=NX();if(n0.off&&!force)return'';const run=db.timer&&['running','paused','ended'].includes(db.timer.state);if(run)return'';
-  const n=NX(),l=ranked(),b=l[0];let h='<div class="c" id="nxcard"><div class="m">✨ '+T('بعدی چی؟','What next?')+'</div>';
+  const n=NX(),l=ranked(),b=l[0];let h='<div class="c" id="nxcard">'+daniH('✨','بعدی چی؟','What next?')+'';
   if(!b){const fresh=!(E(todayISO())||[]).length;h+='<div style="font-size:1.15em;font-weight:700;margin:6px 0">'+(fresh?T('امروز را شروع کنیم؟','Shall we start today?'):T('همه‌چیز مرتب است 🎉','All clear 🎉'))+'</div><p class="m">'+(fresh?T('هنوز برنامه یا ثبتی برای امروز نیست. یک کار برای امروز بنویس یا از «شروع سریع» یک فعالیت را شروع کن.','No plan or entry for today yet. Add a task or start an activity from Quick start.'):T('برنامه‌ای برای ادامه نیست. یک کار برای امروز بنویس یا یک فعالیت را شروع کن.','Nothing left to do. Add a task for today or start an activity.'))+'</p>'
     +'<div class="row"><button class="p" data-a="go" data-p="plan">'+T('برنامه‌ریزی امروز','Plan today')+'</button>'+(n.skip.ids.length?'<button data-a="nx_reset">'+T('نمایش دوباره‌ی ردشده‌ها','Show skipped again')+'</button>':'')+'</div></div>';return h}
   h+='<div style="font-size:1.3em;font-weight:700;margin:6px 0 2px">'+esc(b.t)+'</div><div class="m">'+esc(b.why)+'</div><div class="row" style="margin-top:10px">';

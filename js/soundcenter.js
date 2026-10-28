@@ -4,7 +4,7 @@
    فقط نام و آدرس ذخیره می‌شود؛ خود فایل هیچ‌وقت داخل برنامه/پشتیبان کپی نمی‌شود. فقط در برنامه‌ی اندروید فعال است.
    داده: db.set.snd2 {rem,habit,gen: {uri,name,sys}}، db.set.sndCh (شناسه‌ی کانال‌ها)، فهرست آهنگ‌ها: db.set.soundList (مشترک با native-extras). دسته‌ی «زنگ و تایمر» همان db.set.soundUri است. */
 (function(){
-const T=(fa,en)=>{try{return LANGEN()?en:fa}catch(e){return fa}};
+const T=window.daniT;
 const cap=()=>window.Capacitor;
 const native=()=>{try{return !!(cap()&&cap().isNativePlatform&&cap().isNativePlatform())}catch(e){return false}};
 const DN=()=>{try{return cap().Plugins.DaniNative||null}catch(e){return null}};
@@ -54,7 +54,7 @@ H.sc_def=async e=>{const k=e.dataset.k;if(k==='alarm')return H.snd_unpick();dele
 H.sc_play=e=>{const D=DN(),k=e.dataset.k,s=e.dataset.i!==undefined?lib()[+e.dataset.i]:cur(k);if(!D||!D.playUri||!s)return;
   try{D.playUri({uri:s.sys||s.uri,volume:Math.max(0,Math.min(1,+db.set.vol||1)),loop:false}).then(()=>setTimeout(()=>{try{D.stopPlay()}catch(e){}},8000)).catch(()=>toast(T('پخش ممکن نشد؛ شاید فایل جابه‌جا شده','Could not play; file may have moved'),1))}catch(err){}};
 function card(){
-  let h='<div class="c" id="sccard"><h3>🎵 '+T('صدای اعلان‌ها','Notification sounds')+'</h3><p class="m">'+T('برای هر دسته یک صدای جدا انتخاب کن: از فهرست زنگ و اعلان‌های خود گوشی یا از آهنگ‌های حافظه‌ی گوشی. فایل‌ها کپی نمی‌شوند و به حجم برنامه و پشتیبان اضافه نمی‌شوند.','Pick a separate sound per category: from your phone\'s own ringtone list or songs on your phone. Files are never copied; nothing is added to app or backup size.')+'</p>';
+  let h='<div class="c" id="sccard">'+daniH('🎵','صدای اعلان‌ها','Notification sounds')+'<p class="m">'+T('برای هر دسته یک صدای جدا انتخاب کن: از فهرست زنگ و اعلان‌های خود گوشی یا از آهنگ‌های حافظه‌ی گوشی. فایل‌ها کپی نمی‌شوند و به حجم برنامه و پشتیبان اضافه نمی‌شوند.','Pick a separate sound per category: from your phone\'s own ringtone list or songs on your phone. Files are never copied; nothing is added to app or backup size.')+'</p>';
   CATS.forEach(c=>{const s=cur(c.k),op=OPEN===c.k;
     h+='<div class="cwr" style="display:block;margin:8px 0;padding:8px;border:1px solid var(--bd,#8884);border-radius:12px"><div class="row"><b style="flex:1">'+esc(T(c.n[0],c.n[1]))+'</b>'+(s?'<button data-a="sc_play" data-k="'+c.k+'" aria-label="play">▶</button>':'')+'</div>'
      +'<div class="m" dir="auto">'+(s?'🎶 '+esc(s.name):T('صدای پیش‌فرض برنامه','App default sound'))+'</div>'

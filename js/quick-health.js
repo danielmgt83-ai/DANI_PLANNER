@@ -4,7 +4,7 @@
    (۲) چک‌لیست: مجوز، آلارم دقیق، تعداد و بازه‌ی اعلان‌های زمان‌بندی‌شده، ساعت سکوت و راهنمای تنظیمات باتری گوشی.
    داده: db.set.qk ({open,pm}). این فایل باید قبل از pomodoro.js بیاید (recCard را از داخل می‌پیچد). */
 (function(){
-const T=(fa,en)=>{try{return LANGEN()?en:fa}catch(e){return fa}};
+const T=window.daniT;
 const QK=()=>{const s=db.set;if(!s.qk||typeof s.qk!=='object')s.qk={open:0,pm:0};return s.qk};
 /* ---------- فعالیت‌های پرکاربرد ---------- */
 function top(){const now=Date.now(),sc={};
@@ -12,7 +12,7 @@ function top(){const now=Date.now(),sc={};
   const ok=a=>a&&a.active&&!a.arch,l=Object.keys(sc).map(id=>act(id)).filter(ok).sort((a,b)=>sc[b.id]-sc[a.id]).slice(0,6);
   if(l.length<4)db.acts.filter(a=>ok(a)&&!l.includes(a)).slice(0,6-l.length).forEach(a=>l.push(a));return l}
 function bar(){const q=QK(),l=top();if(!l.length)return'';
-  return'<div class="c qkc"><div class="m">⚡ '+T('شروع سریع — یک لمس','Quick start — one tap')+'</div><div class="row" style="margin-top:6px">'
+  return'<div class="c qkc">'+daniH('▶','شروع سریع','Quick start')+'<div class="m">'+T('یک لمس','One tap')+'</div><div class="row" style="margin-top:6px">'
    +l.map(a=>'<button class="chip" data-a="qk_go" data-id="'+esc(a.id)+'" style="border-inline-start:4px solid '+aC(a.id)+'">'+esc(a.name)+'</button>').join('')+'</div>'
    +'<div class="row" style="margin-top:6px"><button class="chip '+(q.pm?'on':'')+'" data-a="qk_pm" aria-pressed="'+(q.pm?'true':'false')+'">🍅 '+T('با پومودورو','With Pomodoro')+'</button><span class="sp"></span>'
    +'<button class="chip" data-a="qk_t">'+(q.open?'▴ ':'▾ ')+T('جزئیات و ثبت دستی','Details & manual log')+'</button></div></div>'}
@@ -29,7 +29,7 @@ H.qk_t=()=>{QK().open=QK().open?0:1;save();render()};
 function health(){const N=typeof Notifier!=='undefined'?Notifier:null;if(!N)return'';const s=N.state,nat=N.isNative();let list=[];try{list=N.plan()}catch(e){}
   const last=list.reduce((m,x)=>Math.max(m,x.at),0),ok=b=>b?'✅':'⚠️';let q=false;try{q=!!(rSet().quiet&&rSet().quiet.on)}catch(e){}
   const row=(good,txt)=>'<div class="m" style="margin:3px 0">'+ok(good)+' '+txt+'</div>';
-  let h='<div class="c" id="nthealth" style="margin-top:10px"><h3>🩺 '+T('سلامت اعلان‌ها','Notification health')+'</h3>';
+  let h='<div class="c" id="nthealth" style="margin-top:10px">'+daniH('🩺','سلامت اعلان‌ها','Notification health')+'';
   h+=row(s.perm==='granted',T('اجازه‌ی اعلان: ','Notification permission: ')+(s.perm==='granted'?T('مجاز','allowed'):T('لازم است فعال شود','must be enabled')));
   if(nat){h+=row(s.exact==='granted',T('آلارم دقیق: ','Exact alarm: ')+(s.exact==='granted'?T('مجاز','allowed'):T('خاموش؛ زنگ ممکن است چند دقیقه دیر بیاید','off — alarms may be late')));
     h+=row(list.length>0,T('اعلان زمان‌بندی‌شده: ','Scheduled: ')+fa(list.length)+(last?' · '+T('تا ','until ')+fmtD(iso(new Date(last))):''));

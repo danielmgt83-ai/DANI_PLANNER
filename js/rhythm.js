@@ -6,7 +6,7 @@
    - اعلان سنجاق‌شده (پیش‌فرض خاموش): «بعدی چی؟» / پومودورو / تایمر، بی‌صدا و غیرقابل‌پاک‌کردن تا خودت ببندی.
    داده: db.set.rh ({plan,streak,week,pin,tPlan,tStreak}). */
 (function(){
-const T=(fa,en)=>{try{return LANGEN()?en:fa}catch(e){return fa}};
+const T=window.daniT;
 const RH=()=>{const s=db.set;if(!s.rh||typeof s.rh!=='object')s.rh={};const r=s.rh;
   if(r.plan===undefined){r.plan=1;r.streak=1;r.week=1;r.pin=0;r.tPlan='20:30';r.tStreak='21:30'}return r};
 const has=d=>{try{return(E(d)||[]).length>0}catch(e){return false}};
@@ -30,7 +30,7 @@ function card(){const s=stateOf(),sk=streak(),hr=new Date().getHours(),t=todayIS
   else if(hr>=18&&!s.tmr)cta='<button class="p" data-a="rh_plan" data-n="1">'+T('برنامه‌ی فردا','Plan tomorrow')+'</button>';
   else if(!s.logged)cta='<button class="p" data-a="go" data-p="log">'+T('یک ثبت کوتاه','A short log')+'</button>';
   const pb=hr>=17?problems():[];
-  let h='<div class="c" id="rhcard"><div class="row"><b>'+T('چرخه‌ی امروز','Today\'s rhythm')+'</b><span class="sp"></span><span class="m">'+(sk.n?'🔥 '+T(fa(sk.n)+' روز پیوسته','' +sk.n+'-day streak'):T('زنجیره‌ای نداری؛ امروز شروعش کن','No streak yet — start today'))+'</span></div>'
+  let h='<div class="c" id="rhcard"><div class="row">'+daniH('🔄','چرخه‌ی امروز','Today\'s rhythm')+'<span class="sp"></span><span class="m">'+(sk.n?'🔥 '+T(fa(sk.n)+' روز پیوسته','' +sk.n+'-day streak'):T('زنجیره‌ای نداری؛ امروز شروعش کن','No streak yet — start today'))+'</span></div>'
    +'<div class="row" style="gap:8px;margin:8px 0;flex-wrap:nowrap">'+step(s.planned,'📝',T('برنامه','Plan'))+step(s.logged&&s.min>=1,'⏱',T('اجرا','Do')+(s.min?' · '+mm(s.min):''))+step(s.reviewed,'🔎',T('بازبینی','Review'))+'</div>';
   if(sk.n&&!sk.today)h+='<div class="m">'+T('امروز هنوز ثبت نداری؛ برای حفظ زنجیره یک ثبت کوتاه کافی است.','Nothing logged yet today — one short log keeps your streak.')+'</div>';
   if(pb.length)h+='<div class="m" style="margin-top:6px">⚠️ '+pb.map(esc).join(' · ')+'</div>';

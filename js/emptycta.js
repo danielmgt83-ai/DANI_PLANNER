@@ -1,7 +1,7 @@
 "use strict";
 /* DANI · emptycta.js — به پیام‌های «خالی» خانه/میزکار دکمه‌ی «قدم اول» اضافه می‌کند (متن‌ها دست‌نخورده می‌مانند). */
 (function(){
-const T=(fa,en)=>{try{return LANGEN()?en:fa}catch(e){return fa}};
+const T=window.daniT;
 const B=(a,p,k,l)=>'<button class="chip" data-a="'+a+'"'+(p?' data-p="'+p+'"':'')+(k?' data-k="'+k+'"':'')+'>'+l+'</button>';
 const RULES=[
  [/هنوز برنامه یا ثبتی برای امروز نیست|No plan or log for today/i,()=>B('go','plan','',T('📝 یک کار برای امروز','📝 Add a task for today'))+B('dk_o','','ql',T('⚡ ثبت ۵ ثانیه‌ای','⚡ 5-sec log'))+B('dk_o','','nx',T('🎯 بعدی چی؟','🎯 What next?'))],

@@ -2,7 +2,7 @@
 /* DANI · setsearch.js — کادر «جستجوی تنظیمات» بالای صفحه‌ی تنظیمات. کارت‌های تبِ فعلی را فیلتر می‌کند و نتیجه‌ی تب‌های دیگر را با یک لمس باز می‌کند.
    شاخص با رندر آنی هر سه تب ساخته می‌شود (یک‌بار، بدون چشمک). چیزی تغییر یا حذف نمی‌شود. */
 (function(){
-const T=(fa,en)=>{try{return LANGEN()?en:fa}catch(e){return fa}};
+const T=window.daniT;
 const TABS={look:['ظاهر','Look'],time:['زمان و اعلان','Time & alerts'],data:['داده و پشتیبان','Data & backup']};
 let IDX=null,Q='';
 const norm=s=>String(s||'').toLowerCase().replace(/ي/g,'ی').replace(/ك/g,'ک').replace(/\s+/g,' ').trim();

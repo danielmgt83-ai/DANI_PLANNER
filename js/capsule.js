@@ -3,10 +3,10 @@
    نوشتن کپسول برای فردا، ویرایش و حذف کپسول‌های اخیر، از یک جا. روی کارت «✦ کپسول دیروز» هم دکمه‌ی «مدیریت» اضافه می‌شود.
    داده همان db.days[تاریخ].tomorrow است (چیزی جدا ذخیره نمی‌شود). */
 (function(){
-const T=(fa,en)=>{try{return LANGEN()?en:fa}catch(e){return fa}};
+const T=window.daniT;
 const days=()=>Object.keys(db.days).filter(k=>db.days[k]&&db.days[k].tomorrow).sort().reverse().slice(0,6);
 function html(){const t=todayISO();
-  let h='<h3>✦ '+T('کپسول','Capsule')+'</h3><p class="m">'+T('کپسول یک جمله‌ی کوتاه است که شب برای فردای خودت می‌نویسی (تعهد فردا). صبح بعد در خانه به‌صورت «کپسول دیروز» می‌بینی و با «انجام دادم» می‌بندی.','A capsule is one short sentence you write tonight for tomorrow\'s you. Tomorrow morning it shows on Home as "Yesterday\'s capsule" and you close it with "Done".')+'</p>'
+  let h=''+daniH('✦','کپسول','Capsule')+'<p class="m">'+T('کپسول یک جمله‌ی کوتاه است که شب برای فردای خودت می‌نویسی (تعهد فردا). صبح بعد در خانه به‌صورت «کپسول دیروز» می‌بینی و با «انجام دادم» می‌بندی.','A capsule is one short sentence you write tonight for tomorrow\'s you. Tomorrow morning it shows on Home as "Yesterday\'s capsule" and you close it with "Done".')+'</p>'
    +'<label>'+T('کپسول برای فردا (نوشتن / تغییر)','Capsule for tomorrow (write / change)')+'</label><input id="cap-new" maxlength="200" style="width:100%" value="'+esc((db.days[t]||{}).tomorrow||'')+'" placeholder="'+esc(T('فردا اول از همه…','Tomorrow, first thing…'))+'">'
    +'<div class="row" style="margin-top:6px"><button class="p" data-a="cap_save">'+T('ذخیره','Save')+'</button></div>';
   const l=days().filter(d=>d!==t);

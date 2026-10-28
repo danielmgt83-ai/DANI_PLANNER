@@ -3,7 +3,7 @@
    دکمه‌های کوچک پایین صفحه؛ هر کدام یک برگه‌ی پایین‌کشو باز می‌کند: ثبت ۵ ثانیه‌ای، شروع سریع، چرخه‌ی امروز، پومودورو، بعدی چی؟.
    انتخاب اینکه کدام‌ها باشند: ⚙ داخل خود برگه یا تنظیمات ← ظاهر. داده: db.set.dk ({on,list}). */
 (function(){
-const T=(fa,en)=>{try{return LANGEN()?en:fa}catch(e){return fa}};
+const T=window.daniT;
 const ITEMS={
  ql:{i:'⚡',n:['ثبت ۵ ثانیه‌ای','5-sec log'],r:()=>window.daniQuickLog?window.daniQuickLog():''},
  qk:{i:'▶',n:['شروع سریع','Quick start'],r:()=>window.daniQuickBar?window.daniQuickBar():''},
@@ -21,11 +21,11 @@ function bar(){const d=DK(),el=document.getElementById('dkbar');
 function sheet(){let s=document.getElementById('dksh');
   if(!cur&&!cfg){if(s)s.remove();return}
   let h='';
-  if(cfg){const d=DK();h='<div class="row"><b>⚙ '+T('نوار ابزار سریع','Quick toolbar')+'</b><span class="sp"></span><button class="chip" data-a="dk_x" aria-label="close">✕</button></div><div class="m" style="margin:6px 0">'+T('انتخاب کن کدام‌ها پایین صفحه باشند','Choose which appear at the bottom')+'</div><div class="row">'
+  if(cfg){const d=DK();h='<div class="row">'+daniH('⚙','نوار ابزار سریع','Quick toolbar')+'<span class="sp"></span><button class="chip" data-a="dk_x" aria-label="close">✕</button></div><div class="m" style="margin:6px 0">'+T('انتخاب کن کدام‌ها پایین صفحه باشند','Choose which appear at the bottom')+'</div><div class="row">'
     +Object.keys(ITEMS).map(k=>'<button class="chip '+(d.list.includes(k)?'on':'')+'" data-a="dk_t" data-k="'+k+'">'+ITEMS[k].i+' '+esc(nm(k))+'</button>').join('')+'</div>'
     +'<div class="row" style="margin-top:10px"><button class="chip '+(d.on?'on':'')+'" data-a="dk_on">'+(d.on?T('نوار روشن است — خاموش کردن','Bar on — turn off'):T('نوار خاموش است — روشن کردن','Bar off — turn on'))+'</button></div>'}
-  else{let c='';try{c=ITEMS[cur].r()}catch(e){console.error('dock',e)}h='<div class="row"><b>'+ITEMS[cur].i+' '+esc(nm(cur))+'</b><span class="sp"></span><button class="chip" data-a="dk_x" aria-label="close">✕</button></div>'+(c||'<p class="m">'+T('فعلاً چیزی برای نمایش نیست.','Nothing to show yet.')+'</p>')}
-  if(!s){s=document.createElement('div');s.id='dksh';s.setAttribute('data-nobi','');document.body.appendChild(s)}
+  else{let c='';try{c=ITEMS[cur].r()}catch(e){console.error('dock',e)}h='<div class="row">'+daniH(ITEMS[cur].i,ITEMS[cur].n[0],ITEMS[cur].n[1])+'<span class="sp"></span><button class="chip" data-a="dk_x" aria-label="close">✕</button></div>'+(c||'<p class="m">'+T('فعلاً چیزی برای نمایش نیست.','Nothing to show yet.')+'</p>')}
+  if(!s){s=document.createElement('div');s.id='dksh';document.body.appendChild(s)}
   s.innerHTML=h}
 window.daniDockOpen=k=>{if(k==='cfg'){cfg=1;cur=''}else{cur=k;cfg=0}bar()};
 H.dk_o=e=>{const k=e.dataset.k;cur=cur===k?'':k;cfg=0;bar()};

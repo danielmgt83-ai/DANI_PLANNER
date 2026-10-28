@@ -5,7 +5,7 @@
    - تم فقط ظاهر را می‌دهد (رنگ، تصویر، آیکون)؛ بنر تم (در صورت وجود) به‌عنوان بخش «بنر تم» در دسترس است.
    داده: db.set.h2 = {on, preset, list:[ids]} (کوچک). هوک: window.daniWant در dashToday (dashboard-planner.js). */
 (function(){
-const T=(fa,en)=>{try{return LANGEN()?en:fa}catch(e){return fa}};
+const T=window.daniT;
 const say=(m,b)=>{try{toast(m,b)}catch(e){}};
 /* ---------- کاتالوگ بخش‌ها ---------- */
 const DK={rec:['ثبت زمان و تایمر','Timer & quick log'],tl:['خط زمانی امروز','Today\'s timeline'],goals:['پیشرفت اهداف روزانه','Daily goals'],dist:['توزیع زمان','Time distribution'],abars:['سهم فعالیت‌ها','Activity share'],
@@ -46,7 +46,7 @@ function quote(bn){if(bn)return'';let q='';try{q=hQuote()}catch(e){}return q?'<d
   if(h2.qc)return'<div class="row" style="margin:4px 0"><button class="chip" data-a="h2_qc" style="width:100%;justify-content:center">❝ '+T('جمله‌ها (بسته) — باز کردن','Quotes (closed) — open')+' ▾</button></div>';
   return'<div class="row" style="justify-content:flex-end;margin:0 0 4px"><button class="chip" data-a="h2_qc" aria-label="close quotes">▴ '+T('بستن جمله‌ها','Close quotes')+'</button></div>'+_hq.apply(this,arguments)}}
 {const _pq=PG.qt;PG.qt=function(){const h=_pq.apply(this,arguments);if(typeof h!=='string')return h;const o=!H2().qc;
-  return'<div class="c"><b>🏠 '+T('نمایش جمله‌ها در صفحه‌ی اصلی','Quotes on the home screen')+'</b><div class="row" style="margin-top:6px"><button class="chip '+(o?'on':'')+'" data-a="h2_qc">'+(o?T('باز است — بستن','Open — close'):T('بسته است — باز کردن','Closed — open'))+'</button></div><p class="m">'+T('جمله‌ها پاک نمی‌شوند؛ فقط از جلوی چشم جمع می‌شوند.','Quotes are never deleted; they just collapse out of sight.')+'</p></div>'+h}}
+  return'<div class="c">'+daniH('🏠','نمایش جمله‌ها در صفحه‌ی اصلی','Quotes on the home screen')+'<div class="row" style="margin-top:6px"><button class="chip '+(o?'on':'')+'" data-a="h2_qc">'+(o?T('باز است — بستن','Open — close'):T('بسته است — باز کردن','Closed — open'))+'</button></div><p class="m">'+T('جمله‌ها پاک نمی‌شوند؛ فقط از جلوی چشم جمع می‌شوند.','Quotes are never deleted; they just collapse out of sight.')+'</p></div>'+h}}
 function html(){const h2=H2(),ids=h2.list.filter(id=>CAT[id]&&id!=='banner');
   const dc=dashCards(ids.filter(id=>CAT[id].t==='d').map(id=>CAT[id].k));
   let bn='';if(h2.list.includes('banner')){try{bn=banner()}catch(e){}}
@@ -74,7 +74,7 @@ H.h2_clr=()=>{const h=H2();h.cl={o:[],x:[]};save();render();open()};
 H.h2_cx=e=>{const k=e.dataset.k,h2=H2();if(k==='nx'){const n=db.set.nx=db.set.nx||{};n.off=n.off?0:1}else{h2.cx=h2.cx||[];const i=h2.cx.indexOf(k);if(i>=0)h2.cx.splice(i,1);else h2.cx.push(k)}save();render();open()};
 /* ---------- ویرایشگر ---------- */
 function editor(){const h2=H2(),on=h2.list.filter(id=>CAT[id]),off=Object.keys(CAT).filter(id=>!on.includes(id));
-  let h='<h3>✏️ '+T('شخصی‌سازی خانه','Customize home')+'</h3><div class="m">'+T('یک پیش‌تنظیم انتخاب کن؛ بعد اگر خواستی بخش‌ها را کم/زیاد یا جابه‌جا کن. تغییرها همان لحظه روی خانه اعمال می‌شود.','Pick a preset, then add, remove or reorder sections. Changes apply instantly.')+'</div>';
+  let h=''+daniH('✏️','شخصی‌سازی خانه','Customize home')+'<div class="m">'+T('یک پیش‌تنظیم انتخاب کن؛ بعد اگر خواستی بخش‌ها را کم/زیاد یا جابه‌جا کن. تغییرها همان لحظه روی خانه اعمال می‌شود.','Pick a preset, then add, remove or reorder sections. Changes apply instantly.')+'</div>';
   h+='<div class="row" style="margin:8px 0">'+Object.keys(PRE).map(k=>'<button class="chip '+(h2.on&&h2.preset===k?'on':'')+'" data-a="h2_pre" data-k="'+k+'" title="'+esc(T(PRE[k].d[0],PRE[k].d[1]))+'">'+esc(T(PRE[k].n[0],PRE[k].n[1]))+'</button>').join('')
     +'<button class="chip '+(!h2.on?'on':'')+'" data-a="h2_off" title="'+esc(T('چیدمان قبلی هر تم','Each theme\'s own layout'))+'">'+T('کلاسیک (قبلی)','Classic (previous)')+'</button></div>';
   {const dk=(db.set.dk&&db.set.dk.on)?1:0;h+='<div class="row" style="margin:6px 0"><span class="m">'+T('نوار ابزار شناور پایین صفحه','Floating bottom toolbar')+':</span><button class="chip '+(dk?'on':'')+'" data-a="h2_dk">'+(dk?T('روشن — خاموش کن','On — turn off'):T('خاموش — روشن کن','Off — turn on'))+'</button></div><div class="m">'+T('ابزارهای سریع (ثبت ۵ ثانیه‌ای، شروع سریع، چرخه، پومودورو، بعدی چی؟) را یا داخل خانه (پایین، با «افزودن بخش») بگذار یا نوار شناور را روشن کن.','Put the quick tools (5-sec log, quick start, rhythm, Pomodoro, next) inside Home (below, via "Add a section") or turn on the floating bar.')+'</div>'}
@@ -111,7 +111,7 @@ H.h2_no=()=>{H2().hide=1;save();render()};
     if(x){const i=r.indexOf('hcta');if(i>=0){const j=r.indexOf('</button>',i);r=j>=0?r.slice(0,j+9)+x+r.slice(j+9):x+r}else r=x+r}}
   if(typeof r==='string')r+=custBtn();
   if(h2.hide||typeof r!=='string')return r;
-  return '<div class="c h2b"><b>✨ '+T('خانه‌ی جدید','New home')+'</b><div class="m">'+T('ساده‌تر، یکپارچه برای همه‌ی تم‌ها و کاملاً شخصی؛ یک پیش‌تنظیم انتخاب کن. چیزی پاک نمی‌شود و هر وقت خواستی برمی‌گردی.','Simpler, one layout for every theme, fully yours. Pick a preset; nothing is deleted and you can switch back anytime.')+'</div><div class="row"><button class="p" data-a="h2_edit">'+T('امتحان کن','Try it')+'</button><button data-a="h2_no">'+T('نه، ممنون','No thanks')+'</button></div></div>'+r}}
+  return '<div class="c h2b">'+daniH('✨','خانه‌ی جدید','New home')+'<div class="m">'+T('ساده‌تر، یکپارچه برای همه‌ی تم‌ها و کاملاً شخصی؛ یک پیش‌تنظیم انتخاب کن. چیزی پاک نمی‌شود و هر وقت خواستی برمی‌گردی.','Simpler, one layout for every theme, fully yours. Pick a preset; nothing is deleted and you can switch back anytime.')+'</div><div class="row"><button class="p" data-a="h2_edit">'+T('امتحان کن','Try it')+'</button><button data-a="h2_no">'+T('نه، ممنون','No thanks')+'</button></div></div>'+r}}
 
 /* سربرگ ثابت در همه‌ی تم‌ها و حالت‌ها: اگر خانه سلام/ساعت نداشت اضافه می‌شود */
 function ensureHead(){if(page!=='home')return;const m=document.getElementById('pg');if(!m)return;

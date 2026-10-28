@@ -3,7 +3,7 @@
    به فهرست quickaccess.js اضافه می‌شود؛ چیزی را عوض یا حذف نمی‌کند. */
 (function(){
 const QA=window.daniQuickAccess;if(!QA)return;
-const T=(fa,en)=>{try{return LANGEN()?en:fa}catch(e){return fa}};
+const T=window.daniT;
 const F=window.daniQAFn=window.daniQAFn||{};
 const sc=sel=>setTimeout(()=>{const e=document.querySelector(sel);if(e)e.scrollIntoView({block:'start'})},350);
 const to=(id,sel)=>()=>{QA.go(id);if(sel)sc(sel)};
