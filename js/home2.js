@@ -71,6 +71,7 @@ H.h2_cl=e=>{const k=e.dataset.k,m=e.dataset.m,cl=CL(),keys=pgCards().map(ckey);
     if(m==='up'&&i>0)[ord[i-1],ord[i]]=[ord[i],ord[i-1]];if(m==='dn'&&i>=0&&i<ord.length-1)[ord[i+1],ord[i]]=[ord[i],ord[i+1]];cl.o=ord}
   save();render();open()};
 H.h2_clr=()=>{const h=H2();h.cl={o:[],x:[]};save();render();open()};
+H.h2_hs=()=>{closeM();const b=document.querySelector('#pg [data-a=hs][data-m=open]');if(b)b.click()};
 H.h2_cx=e=>{const k=e.dataset.k,h2=H2();if(k==='nx'){const n=db.set.nx=db.set.nx||{};n.off=n.off?0:1}else{h2.cx=h2.cx||[];const i=h2.cx.indexOf(k);if(i>=0)h2.cx.splice(i,1);else h2.cx.push(k)}save();render();open()};
 /* ---------- ویرایشگر ---------- */
 function editor(){const h2=H2(),on=h2.list.filter(id=>CAT[id]),off=Object.keys(CAT).filter(id=>!on.includes(id));
@@ -87,7 +88,7 @@ function editor(){const h2=H2(),on=h2.list.filter(id=>CAT[id]),off=Object.keys(C
      +['tk','ql','qk','rhythm','pm','in'].map(k=>'<button class="chip '+(cx.includes(k)?'on':'')+'" data-a="h2_cx" data-k="'+k+'">'+esc(nm(k))+'</button>').join('')+'</div>';
     {const cl=CL(),cs=pgCards().map(ckey),ord=cl.o.filter(k=>cs.includes(k));cs.forEach(k=>{if(!ord.includes(k))ord.push(k)});
      h+='<div class="m" style="margin-top:10px">'+T('بخش‌های همین تم (ترتیب و پنهان‌کردن):','This theme\'s sections (order & hide):')+'</div>'+ord.map(k=>'<div class="cwr"><span style="'+(cl.x.includes(k)?'opacity:.45':'')+'">'+esc(k)+'</span><button data-a="h2_cl" data-k="'+esc(k)+'" data-m="up" aria-label="up">▲</button><button data-a="h2_cl" data-k="'+esc(k)+'" data-m="dn" aria-label="down">▼</button><button data-a="h2_cl" data-k="'+esc(k)+'" data-m="eye" aria-label="hide/show">'+(cl.x.includes(k)?'🚫':'👁')+'</button></div>').join('')
-       +'<div class="row" style="margin-top:6px"><button class="chip" data-a="h2_clr">'+T('بازنشانی چیدمان','Reset layout')+'</button></div>'}
+       +'<div class="row" style="margin-top:6px"><button class="chip" data-a="h2_clr">'+T('بازنشانی چیدمان','Reset layout')+'</button><button class="chip" data-a="h2_hs">⚙ '+T('مدیریت بخش‌های قدیمی خانه','Legacy home sections')+'</button></div>'}
     h+='<p class="m">'+T('الان «کلاسیک» فعال است: هر تم چیدمان خودش را دارد. برای خانه‌ی یکپارچه یک پیش‌تنظیم انتخاب کن؛ هر وقت خواستی با «کلاسیک» برمی‌گردی و هیچ چیزی پاک نمی‌شود.','"Classic" is active: each theme keeps its own layout. Pick a preset for a unified home; "Classic" brings the old one back and nothing is deleted.')+'</p>';}
   return h+'<div class="row" style="margin-top:12px"><button class="p" data-a="h2_close">'+T('تمام','Done')+'</button></div>'}
 const open=()=>{modal(editor())};
@@ -115,9 +116,17 @@ H.h2_no=()=>{H2().hide=1;save();render()};
 
 /* سربرگ ثابت در همه‌ی تم‌ها و حالت‌ها: اگر خانه سلام/ساعت نداشت اضافه می‌شود */
 function ensureHead(){if(page!=='home')return;const m=document.getElementById('pg');if(!m)return;
-  if(!m.querySelector('.dkgr')){const d=document.createElement('div');d.className='h2top';d.innerHTML='<div style="min-width:0">'+danGreetHTML()+'<div class="m">'+fmtDL(todayISO())+' · <span id="h2clk">'+clk()+'</span></div></div>';m.insertBefore(d,m.firstChild)}
-  else if(!document.getElementById('h2clk')){const g=m.querySelector('.dkgr'),mm=g.parentElement.querySelector('.m');const sp=document.createElement('span');sp.id='h2clk';sp.textContent=clk();
-    if(mm){mm.appendChild(document.createTextNode(' · '));mm.appendChild(sp)}else{const d=document.createElement('div');d.className='m';d.appendChild(sp);g.insertAdjacentElement('afterend',d)}}}
+  const gs=[...m.querySelectorAll('.dkgr')],tops=[...m.querySelectorAll('.h2top')];
+  if(!gs.length&&!tops.length){const d=document.createElement('div');d.className='h2top';d.innerHTML='<div style="min-width:0">'+danGreetHTML()+'<div class="m">'+fmtDL(todayISO())+' · <span id="h2clk">'+clk()+'</span></div></div>';m.insertBefore(d,m.firstChild)}
+  /* فقط یک سلام (با آیکون، تاریخ و ساعت) دیده می‌شود؛ تکراری‌ها فقط پنهان می‌شوند */
+  const all=[...m.querySelectorAll('.dkgr')];all.forEach((g,i)=>{const blk=g.closest('.h2top')||g.parentElement;blk.style.display=i?'none':''});
+  const g=all[0];if(!g)return;m.querySelectorAll('#h2clk').forEach((e,i)=>{if(i)e.remove()});
+  const vis=m.querySelector('#h2clk');const host=g.parentElement.querySelector('.m');
+  if(vis&&host&&!host.contains(vis)){vis.remove()}
+  if(!m.querySelector('#h2clk')){const sp=document.createElement('span');sp.id='h2clk';sp.textContent=clk();
+    if(host){host.appendChild(document.createTextNode(' · '));host.appendChild(sp)}else{const d=document.createElement('div');d.className='m';d.appendChild(sp);g.insertAdjacentElement('afterend',d)}}
+  /* دکمه‌ی قدیمیِ «شخصی‌سازی خانه» (مدیریت بخش‌ها) پنهان می‌شود؛ از داخل ویرایشگر در دسترس است */
+  m.querySelectorAll('[data-a="hs"][data-m="open"]').forEach(b=>{b.style.display='none'})}
 {const _rh=render;render=function(){const r=_rh.apply(this,arguments);try{ensureHead()}catch(e){console.error('ensureHead',e)}return r}}
 
 /* ---------- انتخاب سبک در تنظیمات ← ظاهر (بدون اضافه‌کردن آیتم به منو) ---------- */
