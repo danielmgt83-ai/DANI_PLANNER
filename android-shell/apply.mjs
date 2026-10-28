@@ -59,7 +59,7 @@ function android() {
   const cfg = JSON.parse(fs.readFileSync(path.join(here, 'capacitor.config.json'), 'utf8'));
   const javaDir = path.join(app, 'java', ...String(cfg.appId).split('.'));
   fs.mkdirSync(javaDir, { recursive: true });
-  for (const f of ['MainActivity.java', 'DaniNativePlugin.java']) {
+  for (const f of ['MainActivity.java', 'DaniNativePlugin.java', 'DaniWidget.java']) {
     let src = fs.readFileSync(path.join(here, 'native', f), 'utf8');
     src = src.replace(/^package\s+[\w.]+;/m, 'package ' + cfg.appId + ';');
     fs.writeFileSync(path.join(javaDir, f), src);
@@ -67,6 +67,17 @@ function android() {
   const printDir = path.join(app, 'java', 'android', 'print');
   fs.mkdirSync(printDir, { recursive: true });
   fs.copyFileSync(path.join(here, 'native', 'DaniPdfPrint.java'), path.join(printDir, 'DaniPdfPrint.java'));
+  // 4) ویجت صفحه‌ی خانه: ثبت در مانیفست (فقط یک‌بار)
+  x = fs.readFileSync(mf, 'utf8');
+  if (!x.includes('.DaniWidget')) {
+    const rec = '        <receiver android:name=".DaniWidget" android:exported="false">\n' +
+      '            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>\n' +
+      '            <meta-data android:name="android.appwidget.provider" android:resource="@xml/dani_widget_info" />\n' +
+      '        </receiver>\n';
+    if (!x.includes('</application>')) throw new Error('AndroidManifest.xml بدون application');
+    x = x.replace('</application>', rec + '    </application>');
+    fs.writeFileSync(mf, x);
+  }
   console.log('مجوزها:', add ? 'اضافه شد' : 'از قبل بود', '| res کپی شد | افزونه‌ی DaniNative اضافه شد');
 }
 
