@@ -110,6 +110,7 @@ function count(){if(NAVING)return;const id=curId();if(id&&id!==LASTID)bump(id);L
 function go(x){
   const t=x.t;if(!t)return;NAVING=true;
   try{
+    if(typeof t.fn==='string'&&t.fn.indexOf('x:')===0){NAVING=false;try{close()}catch(e){}const f=window.daniQAFn&&window.daniQAFn[t.fn.slice(2)];if(f)setTimeout(f,60);return}
     if(t.fn==='backup'){NAVING=false;if(typeof H.crs_allexp==='function'){H.crs_allexp({dataset:{}});return}return go(BYID.get('st-data'))}
     document.getElementById('nav').classList.remove('o');
     H.go({dataset:{p:t.page==='dash'?(t.dt==='today'?'timer':t.dt):t.page}});
@@ -124,7 +125,7 @@ function go(x){
 const nz=s=>String(s==null?'':s).toLowerCase().replace(/ي/g,'ی').replace(/ك/g,'ک').replace(/[\u200c\u200d\u200f\u200e]/g,' ').replace(/[۰-۹]/g,d=>'۰۱۲۳۴۵۶۷۸۹'.indexOf(d)).replace(/\s+/g,' ').trim();
 function search(q){const toks=nz(q).split(' ').filter(Boolean);if(!toks.length)return[];
   return C.filter(avail).map(x=>{const lab=nz(x.fa),hay=nz(x.fa+' '+x.en+' '+(x.kw||'')+' '+x.g);let sc=0;
-    const words=hay.split(' ');for(const tk of toks){if(!hay.includes(tk))return null;sc+=(words.includes(tk)?10:0)+(lab.startsWith(tk)?6:lab.includes(tk)?4:2)}return[x,sc]}).filter(Boolean).sort((a,b)=>b[1]-a[1]).map(r=>r[0])}
+    const words=hay.split(' ');for(const tk of toks){if(!hay.includes(tk))return null;sc+=(words.includes(tk)?10:0)+(lab.startsWith(tk)?6:lab.includes(tk)?4:2)}return[x,sc]}).filter(Boolean).sort((a,b)=>b[1]-a[1]).map(r=>r[0]).concat((()=>{try{return window.daniQADyn?window.daniQADyn(toks,nz):[]}catch(e){return[]}})())}
 /* ---------- پنل ---------- */
 const Q={open:false,q:'',edit:false,sel:0,prevFocus:null};
 let ovl=null;
@@ -275,6 +276,6 @@ html.qa-lock body{overflow:hidden}
 }`;
 document.head.appendChild(st);
 decorate();LASTID=curId();
-window.daniQuickAccess={catalog:C,search:search,open:open,close:close,go:id=>go(BYID.get(id)),state:Q,load:load,version:1};
+window.daniQuickAccess={byid:BYID,catalog:C,search:search,open:open,close:close,go:id=>go(BYID.get(id)),state:Q,load:load,version:1};
 })();
 

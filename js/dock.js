@@ -27,6 +27,7 @@ function sheet(){let s=document.getElementById('dksh');
   else{let c='';try{c=ITEMS[cur].r()}catch(e){console.error('dock',e)}h='<div class="row"><b>'+ITEMS[cur].i+' '+esc(nm(cur))+'</b><span class="sp"></span><button class="chip" data-a="dk_x" aria-label="close">✕</button></div>'+(c||'<p class="m">'+T('فعلاً چیزی برای نمایش نیست.','Nothing to show yet.')+'</p>')}
   if(!s){s=document.createElement('div');s.id='dksh';s.setAttribute('data-nobi','');document.body.appendChild(s)}
   s.innerHTML=h}
+window.daniDockOpen=k=>{if(k==='cfg'){cfg=1;cur=''}else{cur=k;cfg=0}bar()};
 H.dk_o=e=>{const k=e.dataset.k;cur=cur===k?'':k;cfg=0;bar()};
 H.dk_c=()=>{cfg=cfg?0:1;cur='';bar()};
 H.dk_x=()=>{cur='';cfg=0;bar()};
