@@ -472,4 +472,147 @@ public class DaniNativePlugin extends Plugin {
         o.put("name", name);
         call.resolve(o);
     }
+
+    /* ---------------------------------------------------------- تایمر زنده در اعلان (کرنومتر خودِ اندروید؛ بدون مصرف باتری اضافه) */
+    private static final int LIVE_ID = 7710;
+
+    @PluginMethod
+    public void liveStart(PluginCall call) {
+        try {
+            Context c = getContext();
+            NotificationManager nm = (NotificationManager) c.getSystemService(Context.NOTIFICATION_SERVICE);
+            if (Build.VERSION.SDK_INT >= 26 && nm.getNotificationChannel("dani-live-v1") == null) {
+                NotificationChannel ch = new NotificationChannel("dani-live-v1", "DANI timer", NotificationManager.IMPORTANCE_LOW);
+                ch.setSound(null, null);
+                ch.enableVibration(false);
+                nm.createNotificationChannel(ch);
+            }
+            android.app.Notification.Builder b = Build.VERSION.SDK_INT >= 26
+                    ? new android.app.Notification.Builder(c, "dani-live-v1")
+                    : new android.app.Notification.Builder(c);
+            int ic = c.getResources().getIdentifier("ic_stat_dani", "drawable", c.getPackageName());
+            b.setSmallIcon(ic != 0 ? ic : android.R.drawable.ic_lock_idle_alarm);
+            b.setContentTitle(call.getString("title", "DANI"));
+            String text = call.getString("text", "");
+            if (!text.isEmpty()) b.setContentText(text);
+            b.setOngoing(true);
+            b.setOnlyAlertOnce(true);
+            b.setShowWhen(true);
+            boolean running = call.getBoolean("running", true);
+            if (running) {
+                long base = call.getLong("base", System.currentTimeMillis());
+                b.setWhen(base);
+                b.setUsesChronometer(true);
+                if (Build.VERSION.SDK_INT >= 24) b.setChronometerCountDown(call.getBoolean("countdown", false));
+            } else {
+                b.setShowWhen(false);
+                b.setUsesChronometer(false);
+            }
+            Intent li = c.getPackageManager().getLaunchIntentForPackage(c.getPackageName());
+            if (li != null) {
+                int fl = Build.VERSION.SDK_INT >= 23 ? (android.app.PendingIntent.FLAG_UPDATE_CURRENT | android.app.PendingIntent.FLAG_IMMUTABLE) : android.app.PendingIntent.FLAG_UPDATE_CURRENT;
+                b.setContentIntent(android.app.PendingIntent.getActivity(c, 7711, li, fl));
+            }
+            nm.notify(LIVE_ID, b.build());
+            call.resolve();
+        } catch (Exception e) {
+            call.reject(String.valueOf(e.getMessage()), e);
+        }
+    }
+
+    @PluginMethod
+    public void liveStop(PluginCall call) {
+        try {
+            NotificationManager nm = (NotificationManager) getContext().getSystemService(Context.NOTIFICATION_SERVICE);
+            nm.cancel(LIVE_ID);
+        } catch (Exception ignored) {}
+        call.resolve();
+    }
+
+    /* ---------------------------------------------------------- ویجت صفحه‌ی خانه */
+    @PluginMethod
+    public void widgetSet(PluginCall call) {
+        try {
+            Context c = getContext();
+            c.getSharedPreferences("dani_widget", Context.MODE_PRIVATE).edit()
+                    .putString("l1", call.getString("l1", ""))
+                    .putString("l2", call.getString("l2", ""))
+                    .putString("l3", call.getString("l3", ""))
+                    .apply();
+            DaniWidget.refresh(c);
+            call.resolve();
+        } catch (Exception e) {
+            call.reject(String.valueOf(e.getMessage()), e);
+        }
+    }
+
+    /* ---------------------------------------------------------- همگام‌سازی با یک فایل (پوشه‌ی Drive/Syncthing/…) */
+    @PluginMethod
+    public void syncPick(PluginCall call) {
+        Intent i;
+        if (call.getBoolean("create", false)) {
+            i = new Intent(Intent.ACTION_CREATE_DOCUMENT);
+            i.setType("application/json");
+            i.putExtra(Intent.EXTRA_TITLE, "dani-sync.json");
+        } else {
+            i = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+            i.setType("*/*");
+        }
+        i.addCategory(Intent.CATEGORY_OPENABLE);
+        i.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION);
+        startActivityForResult(call, i, "syncDone");
+    }
+
+    @ActivityCallback
+    private void syncDone(PluginCall call, ActivityResult res) {
+        if (call == null) return;
+        JSObject o = new JSObject();
+        Intent d = res.getData();
+        if (res.getResultCode() != Activity.RESULT_OK || d == null || d.getData() == null) {
+            o.put("cancelled", true);
+            call.resolve(o);
+            return;
+        }
+        Uri u = d.getData();
+        try {
+            getContext().getContentResolver().takePersistableUriPermission(u, Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+        } catch (Exception ignored) {}
+        o.put("uri", u.toString());
+        call.resolve(o);
+    }
+
+    @PluginMethod
+    public void syncRead(PluginCall call) {
+        try {
+            Uri u = Uri.parse(call.getString("uri", ""));
+            java.io.InputStream in = getContext().getContentResolver().openInputStream(u);
+            java.io.ByteArrayOutputStream bo = new java.io.ByteArrayOutputStream();
+            if (in != null) {
+                byte[] buf = new byte[16384];
+                int n;
+                while ((n = in.read(buf)) > 0) bo.write(buf, 0, n);
+                in.close();
+            }
+            JSObject o = new JSObject();
+            o.put("text", bo.toString("UTF-8"));
+            call.resolve(o);
+        } catch (Exception e) {
+            call.reject(String.valueOf(e.getMessage()), e);
+        }
+    }
+
+    @PluginMethod
+    public void syncWrite(PluginCall call) {
+        try {
+            Uri u = Uri.parse(call.getString("uri", ""));
+            java.io.OutputStream out = getContext().getContentResolver().openOutputStream(u, "wt");
+            if (out == null) throw new Exception("cannot open");
+            out.write(call.getString("text", "").getBytes("UTF-8"));
+            out.flush();
+            out.close();
+            call.resolve();
+        } catch (Exception e) {
+            call.reject(String.valueOf(e.getMessage()), e);
+        }
+    }
 }
