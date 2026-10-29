@@ -17,7 +17,7 @@ function apply(){const q=norm(Q),box=document.getElementById('sqres');
   if(!IDX){box.innerHTML='';return}
   const r=IDX.filter(e=>e.tab!==stt&&e.x.includes(q)).slice(0,8);
   box.innerHTML=r.length?'<div class="m">'+T('در تب‌های دیگر:','In other tabs:')+'</div><div class="row">'+r.map(e=>'<button class="chip" data-a="sq_go" data-tab="'+e.tab+'" data-i="'+e.i+'">'+esc(T(TABS[e.tab][0],TABS[e.tab][1]))+' › '+esc(e.t)+'</button>').join('')+'</div>':''}
-H.sq_go=e=>{stt=e.dataset.tab;render();setTimeout(()=>{const c=cards()[+e.dataset.i];if(c&&c.style.display!=='none')c.scrollIntoView({block:'center'})},50)};
+H.sq_go=e=>{stt=e.dataset.tab;render();setTimeout(()=>{const c=cards()[+e.dataset.i];if(c&&c.style.display!=='none'){window.daniUnfold&&window.daniUnfold(c);c.scrollIntoView({block:'center'})}},50)};
 function inject(){if(page!=='set'||document.getElementById('sqbox'))return;const pg=document.getElementById('pg');if(!pg)return;
   const d=document.createElement('div');d.id='sqbox';d.setAttribute('data-nobi','');d.style.margin='8px 0';
   d.innerHTML='<input id="sqin" type="search" placeholder="🔍 '+esc(T('جستجو در تنظیمات…','Search settings…'))+'" style="width:100%" value="'+esc(Q)+'"><div id="sqres"></div>';
