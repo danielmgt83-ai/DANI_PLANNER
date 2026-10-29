@@ -376,3 +376,6 @@ DANI Planner: پلنر شخصی فارسی (RTL، با لایه‌ی ترجمه�
 
 ### js/safety.js
 - `window.daniPlanFilter(out,now)` را notifier.js صدا می‌زند. هر اعلانِ ضروری (کانال alarm یا key با timer/pomo شروع شود) تعویق نمی‌خورد.
+
+### js/phase2.js
+- هیچ فرمِ موجودی تغییر نکرده؛ همه با پوشاندن PX/PG یا DOM بعد از render. اهداف ایندکسی‌اند (بدون id) پس زیرمرحله‌ها با ایندکس هدف کار می‌کنند.
