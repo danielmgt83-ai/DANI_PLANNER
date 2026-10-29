@@ -44,7 +44,7 @@ function liveSync(){
 let wsig='';
 function widgetSync(){
   const D=DN();if(!native()||!D||!D.widgetSet)return;
-  let l1='DANI',l2='',l3='';
+  let l1='DANI',l2='',l3='',hb='[]';
   try{
     if(!WG().on){l1=l2=l3=''}else{
       const c=window.daniNextTop&&window.daniNextTop();
@@ -52,18 +52,28 @@ function widgetSync(){
       const td=todayISO(),m=(db.entries||[]).filter(e=>e.date===td).reduce((a,e)=>a+(+e.min||0),0);
       l2='📊 '+T('امروز: ','Today: ')+mm(m);
       const t=db.timer||{};
+      try{const t0=todayISO();hb=JSON.stringify(hItems().filter(h=>!h.arch&&hExp(h,t0)).slice(0,3).map(h=>({id:h.id,n:String(h.name||'').slice(0,24),d:hSt(h,t0)==='done'})))}catch(e){}
       if(t.state==='running'||t.state==='paused')l3='⏱ '+((typeof aN==='function'?aN(t.actId):'')||'')+(t.state==='paused'?' ⏸':'');
     }
   }catch(e){}
-  const sig=l1+'|'+l2+'|'+l3;if(sig===wsig)return;wsig=sig;
-  try{D.widgetSet({l1,l2,l3})}catch(e){}
+  const sig=l1+'|'+l2+'|'+l3+'|'+hb;if(sig===wsig)return;wsig=sig;
+  try{D.widgetSet({l1,l2,l3,hb})}catch(e){}
 }
+/* دکمه‌های ویجت: صفِ عمل‌هایی که بدون باز کردن برنامه زده شده‌اند را اعمال کن */
+function widgetPop(){const D=DN();if(!native()||!D||!D.widgetPop)return;
+  try{Promise.resolve(D.widgetPop()).then(r=>{let q=[];try{q=JSON.parse((r&&r.q)||'[]')}catch(e){}if(!Array.isArray(q)||!q.length)return;let ch=0;
+    q.slice(0,100).forEach(x=>{try{const p=String(x).split(':');
+      if(p[0]==='hab'&&p[1]){const t0=todayISO(),h=hItems().find(k=>k.id===p[1]);if(h){const want=p[2]==='1'?'done':null,cur=hSt(h,t0);if((cur==='done')!==(want==='done')){const d0=zMS.hab.d;zMS.hab.d=null;try{zMA.hab.set(h.id+':done')}finally{zMS.hab.d=d0}ch++}}}
+      else if(p[0]==='log'){const m=Math.min(240,Math.max(1,+p[1]||15)),c=window.daniNextTop&&window.daniNextTop(),aid=c&&c.a;
+        if(aid&&db.acts.some(a=>a.id===aid)){const n=new Date(),en=pad(n.getHours())+':'+pad(n.getMinutes()),st=hm(Math.max(0,tm(en)-m));db.entries.push({id:uid(),date:todayISO(),actId:aid,subId:'',start:st,end:en,min:m,note:'',src:'widget'});ch++}}
+    }catch(e){}});
+    if(ch){save();wsig='';widgetSync();try{render()}catch(e){}try{toast(T('از ویجت اعمال شد: ','From widget: ')+ch)}catch(e){}}}).catch(()=>{})}catch(e){}}
 let lAct=false;
 function actListen(){const D=DN();if(lAct||!native()||!D||!D.addListener)return;lAct=true;
   try{D.addListener('liveAction',ev=>{const a=ev&&ev.action;try{
-    if(a==='pause')TM.pause();else if(a==='resume')TM.resume();else if(a==='stop'){TM.finish()}
+    if(a==='start'){try{page='dash';dt='today'}catch(e){}}else if(a==='pause')TM.pause();else if(a==='resume')TM.resume();else if(a==='stop'){TM.finish()}
     lsig='';liveSync();try{render()}catch(e){}}catch(e){console.error('liveAction',e)}})}catch(e){lAct=false}}
-setInterval(()=>{actListen();liveSync();widgetSync()},3000);setTimeout(actListen,800);
+setInterval(()=>{actListen();liveSync();widgetSync();widgetPop()},3000);setTimeout(actListen,800);document.addEventListener('visibilitychange',()=>{if(!document.hidden)widgetPop()});
 setTimeout(()=>{liveSync();widgetSync()},2500);
 {const _s=save;save=function(){const r=_s.apply(this,arguments);try{if(!busy)sl(DIRTY_K,'1');setTimeout(()=>{liveSync();widgetSync()},0);schedSync()}catch(e){}return r}}
 

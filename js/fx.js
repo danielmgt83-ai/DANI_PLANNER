@@ -6,7 +6,7 @@
 (function(){
 const T=window.daniT;
 const FX=()=>{const s=db.set;if(!s.fx||typeof s.fx!=='object')s.fx={};if(s.fx.hap===undefined)s.fx.hap=1;if(s.fx.anim===undefined)s.fx.anim=1;return s.fx};
-const VER='2026.10.30';
+const VER='2026.10.31';
 /* ---------- لرزش و پاپ ---------- */
 const HAP=/^(qk_go|nx_go|nx_sw|pf_add|tp_ap|bin_rs|ex_save|ab_now|ql_|pm_|tm_|tstart|tfinish|hab|ob_log|ob_go|dnd_set|ls_now|dk_)/;
 const reduce=()=>{try{return matchMedia('(prefers-reduced-motion: reduce)').matches}catch(e){return false}};
@@ -19,6 +19,7 @@ st.textContent='@keyframes fxpop{0%{transform:scale(1)}40%{transform:scale(.92)}
 document.head.appendChild(st);
 /* ---------- چه چیزی تازه است ---------- */
 const WN=[
+ ['🧩','ویجت در سه اندازه با تیک عادت و «+۱۵ دقیقه» بدون باز کردن برنامه (نیازمند APK جدید)','Widget in 3 sizes with habit ticks and “+15 min” without opening the app (needs the new APK)'],
  ['🧩','کارت «امروز» با تب: بعدی، ثبت، شروع، کار، چرخه، تمرکز، الگو، مرور، فردا','The “Today” card with tabs: next, log, start, task, rhythm, focus, pattern, review, tomorrow'],
  ['🗑','سطل بازیافت: هر چیز حذف‌شده تا ۴۵ روز برمی‌گردد (تنظیمات ← داده‌ها)','Recycle bin: anything deleted comes back for 45 days (Settings → Data)'],
  ['📅','برنامه‌ی فردا (پیشنهاد)، قالب روز/هفته و حالت امتحان','Tomorrow’s plan (suggested), day/week templates and exam mode'],
