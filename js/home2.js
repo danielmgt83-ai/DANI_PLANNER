@@ -30,6 +30,7 @@ function tdCard(){const h2=H2(),L=tdl().filter(k=>TDK.includes(k));
   let ed='';if(h2.tde)ed='<div class="m" style="margin-top:6px">'+T('تب‌های این کارت را روشن/خاموش کن (هیچ‌چیز پاک نمی‌شود):','Turn this card\'s tabs on/off (nothing is deleted):')+'</div><div class="row">'+TDM.map(x=>'<button class="chip '+(L.includes(x[0])?'on':'')+'" data-a="h2_tdl" data-k="'+x[0]+'">'+x[1]+' '+T(x[2][0],x[2][1])+'</button>').join('')+'</div>';
   const cur=parts.find(x=>x.k===act);
   return '<div class="tdw"><div class="row tdtabs" style="flex-wrap:wrap;align-items:center;gap:4px;margin-bottom:6px">'+tabs+'<button class="chip" data-a="h2_tde" aria-label="'+esc(T('تنظیم تب‌ها','Tabs settings'))+'" style="margin-inline-start:auto">⚙</button></div>'+ed+(cur?cur.h:'<div class="c"><p class="m">'+T('همه‌ی تب‌ها خاموش است؛ ⚙ را بزن.','All tabs are off — tap ⚙.')+'</p></div>')+'</div>'}
+window.daniTodayCard=tdCard;
 CAT.td={n:['امروز (چند ابزار در یک کارت)','Today (several tools in one card)'],t:'x',full:1,r:tdCard};
 H.h2_tdt=e=>{H2().tdt=e.dataset.k;save();render();if($('#ovl')&&$('#ovl').innerHTML.includes('h2_mg'))open()};
 H.h2_tde=()=>{const h=H2();h.tde=h.tde?0:1;save();render()};

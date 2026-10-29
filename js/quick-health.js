@@ -18,7 +18,7 @@ function bar(){const q=QK(),l=top();if(!l.length)return'';
    +'<button class="chip" data-a="qk_t">'+(q.open?'▴ ':'▾ ')+T('جزئیات و ثبت دستی','Details & manual log')+'</button></div></div>'}
 window.daniQuickBar=bar;
 const _rc=recCard;recCard=function(){const t=db.timer;const o=_rc.apply(this,arguments);if(!t||t.state!=='ready')return o;
-  const q=QK();return bar()+(q.open?o:'')};
+  const q=QK();return(window.daniTdMode?'':bar())+(q.open?o:'')};
 H.qk_go=e=>{const id=e.dataset.id;if(!act(id))return;
   if(QK().pm&&window.daniPomoStart)window.daniPomoStart(id);else TM.start('sw',id,'',0);render()};
 H.qk_pm=()=>{QK().pm=QK().pm?0:1;save();render()};

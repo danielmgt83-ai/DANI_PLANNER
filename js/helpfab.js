@@ -5,7 +5,7 @@
 const T=window.daniT;
 const HF=()=>{const s=db.set;if(!s.hf||typeof s.hf!=='object')s.hf={};return s.hf};
 const css=document.createElement('style');
-css.textContent='#hfab{position:fixed;z-index:44;width:46px;height:46px;border-radius:50%;padding:0;cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none;display:flex;align-items:center;justify-content:center;color:#fff;border:2px solid #fff;background:linear-gradient(135deg,#f43f5e,#a855f7);box-shadow:0 0 0 2px rgba(0,0,0,.6),0 6px 18px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.4);transition:transform .15s,box-shadow .2s}#hfab[data-tone=light]{background:linear-gradient(135deg,#4338ca,#7e22ce)}#hfab:active{cursor:grabbing;transform:scale(.94)}#hfab svg{width:24px;height:24px;stroke:#fff;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 1px 1px rgba(0,0,0,.5))}#hfab .sp{position:absolute;top:-5px;inset-inline-end:-4px;font-size:13px;line-height:1;color:#fff;text-shadow:0 0 4px #000,0 0 2px #000}#hfab i{position:absolute;inset:-6px;border-radius:50%;border:2px solid #ff5b7a;animation:hfp 1.8s infinite;pointer-events:none}@keyframes hfp{0%{transform:scale(.85);opacity:.9}100%{transform:scale(1.25);opacity:0}}@media print{#hfab{display:none}}';
+css.textContent='#hfab{position:fixed;z-index:44;width:46px;height:46px;border-radius:50%;padding:0;cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none;display:flex;align-items:center;justify-content:center;color:#fff;border:2px solid #fff;background:linear-gradient(135deg,#f43f5e,#a855f7);box-shadow:0 0 0 2px rgba(0,0,0,.6),0 6px 18px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.4);transition:transform .15s,box-shadow .2s}#hfab[data-tone=light]{background:linear-gradient(135deg,#4338ca,#7e22ce)}#hfab:active{cursor:grabbing;transform:scale(.94)}#hfab svg{width:24px;height:24px;stroke:#fff;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 1px 1px rgba(0,0,0,.5))}#hfab .sp{position:absolute;top:-5px;inset-inline-end:-4px;font-size:13px;line-height:1;color:#fff;text-shadow:0 0 4px #000,0 0 2px #000}#hfab .sd{position:absolute;bottom:-2px;inset-inline-start:-2px;width:13px;height:13px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1px rgba(0,0,0,.6)}#hfab .sd.ok{background:#22c55e}#hfab .sd.err{background:#ef4444}#hfab i{position:absolute;inset:-6px;border-radius:50%;border:2px solid #ff5b7a;animation:hfp 1.8s infinite;pointer-events:none}@keyframes hfp{0%{transform:scale(.85);opacity:.9}100%{transform:scale(1.25);opacity:0}}@media print{#hfab{display:none}}';
 document.head.appendChild(css);
 function tone(b){let dark=true;
   try{const S=(typeof SKINS!=='undefined'&&typeof skId==='function')?SKINS[skId()]:null;
@@ -25,7 +25,7 @@ function fab(){let b=document.getElementById('hfab');
   if(HF().off){if(b)b.remove();return}
   if(!b){b=document.createElement('button');b.id='hfab';b.type='button';b.setAttribute('data-a','hf_open');b.setAttribute('data-nobi','1');document.body.appendChild(b);drag(b)}
   place(b);tone(b);b.setAttribute('aria-label',T('راهنما و پشتیبانی','Help & support'));b.title=T('راهنما و پشتیبانی (برای جابه‌جایی بکش)','Help & support (drag to move)');
-  b.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.6 9.4a2.5 2.5 0 1 1 3.5 2.3c-.7.4-1.1.9-1.1 1.7"/><path d="M12 17h.01"/></svg><span class="sp" aria-hidden="true">✦</span>'+(HF().seen?'':'<i></i>')}
+  b.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.6 9.4a2.5 2.5 0 1 1 3.5 2.3c-.7.4-1.1.9-1.1 1.7"/><path d="M12 17h.01"/></svg><span class="sp" aria-hidden="true">✦</span>'+(HF().seen?'':'<i></i>')+(window.daniSyncState?'<span class="sd '+window.daniSyncState+'"></span>':'')}
 function sheet(){
   const it=(a,ic,fa,en,sub)=>'<button class="chip" data-a="'+a+'" style="display:flex;width:100%;text-align:start;gap:10px;align-items:center;margin:6px 0;padding:10px 12px"><span aria-hidden="true" style="font-size:20px">'+ic+'</span><span style="flex:1"><b>'+T(fa,en)+'</b><br><span class="m">'+T(sub[0],sub[1])+'</span></span></button>';
   return '<div style="max-width:420px">'+daniH('✦','راهنما و پشتیبانی','Help & support')
@@ -48,12 +48,14 @@ H.hf_show=()=>{HF().off=0;save();fab();render()};
 {const _sp=setPage;setPage=function(){const h=_sp.apply(this,arguments);
   return(typeof h==='string'&&typeof stt!=='undefined'&&stt==='time')?h+'<div class="c" id="hfcard">'+daniH('✦','دکمه‌ی راهنما','Help button')+'<div class="row"><button class="chip '+(HF().off?'':'on')+'" data-a="'+(HF().off?'hf_show':'hf_hide')+'">'+(HF().off?T('نمایش دکمه‌ی راهنما','Show help button'):T('دکمه‌ی راهنما نمایش داده می‌شود','Help button is shown'))+'</button></div></div>':h}}
 /* تب «زمان» در تنظیمات: کارت‌های صدا، همگام‌سازی/ویجت و دکمه‌ی راهنما در یک کارت جمع‌شونده «ابزارهای دستگاه» */
-function pack(){if(page!=='set'||typeof stt==='undefined'||stt!=='time')return;const pg=document.getElementById('pg');if(!pg||pg.querySelector('#devcard'))return;
-  const ids=['sccard','lscard','hfcard'].map(i=>pg.querySelector('#'+i)).filter(Boolean);if(ids.length<2)return;
-  const d=document.createElement('details');d.id='devcard';d.className='c';if(HF().dv)d.open=true;
-  d.innerHTML='<summary style="cursor:pointer;list-style:none">'+daniH('🧰','ابزارهای دستگاه (صدا، همگام‌سازی، ویجت، راهنما)','Device tools (sounds, sync, widget, help)')+'<span class="m">'+T('برای باز/بسته‌کردن بزن','Tap to expand / collapse')+'</span></summary>';
-  ids[0].before(d);ids.forEach(c=>d.appendChild(c));d.addEventListener('toggle',()=>{HF().dv=d.open?1:0;try{save()}catch(e){}})}
+function pack(){if(page!=='set'||typeof stt==='undefined'||stt!=='time')return;const pg=document.getElementById('pg');if(!pg)return;
+  const grp=(id,ico,fa,en,sub,list,flag)=>{if(pg.querySelector('#'+id))return;const ids=list.map(i=>pg.querySelector('#'+i)).filter(Boolean);if(ids.length<2)return;
+    const d=document.createElement('details');d.id=id;d.className='c';if(HF()[flag])d.open=true;
+    d.innerHTML='<summary style="cursor:pointer;list-style:none">'+daniH(ico,fa,en)+'<span class="m">'+T(sub[0],sub[1])+'</span></summary>';
+    ids[0].before(d);ids.forEach(c=>d.appendChild(c));d.addEventListener('toggle',()=>{HF()[flag]=d.open?1:0;try{save()}catch(e){}})};
+  grp('ntgrp','🔔','اعلان‌ها و صدا','Notifications & sounds',['اجازه‌ها، زنگ آزمایشی، صدای هر دسته','Permissions, test alarm, per-category sounds'],['ntcard','sccard'],'dv1');
+  grp('devcard','🧰','همگام‌سازی، ویجت و راهنما','Sync, widget & help',['فایل همگام‌سازی، تایمر زنده، ویجت، دکمه‌ی راهنما','Sync file, live timer, widget, help button'],['lscard','hfcard'],'dv')}
 {const _r=render;render=function(){const r=_r.apply(this,arguments);try{pack()}catch(e){console.error('pack',e)}return r}}
 if(document.body)fab();else document.addEventListener('DOMContentLoaded',fab);
-setTimeout(fab,1500);{const _r=render;render=function(){const r=_r.apply(this,arguments);try{const b=document.getElementById('hfab');if(b)tone(b)}catch(e){}return r}}
+setTimeout(fab,1500);document.addEventListener('dani-sync',()=>{try{fab()}catch(e){}});{const _r=render;render=function(){const r=_r.apply(this,arguments);try{const b=document.getElementById('hfab');if(b)tone(b)}catch(e){}return r}}
 })();

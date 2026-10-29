@@ -4,7 +4,7 @@
    (۲) ویجت صفحه‌ی خانه‌ی گوشی (کارِ بعدی + پیشرفت امروز + تایمر) — نیازمند APK جدید
    (۳) همگام‌سازی بین دستگاه‌ها با «یک فایل» در پوشه‌ی همگام‌شده‌ی خودت (Drive، Syncthing، Dropbox…) — در APK؛ در وب/PWA هم به‌صورت دستی (ساخت فایل و ادغام فایل)
    داده: db.set.lv {on}، db.set.wg {on}؛ نشانی فایل همگام‌سازی فقط در localStorage همین دستگاه (dani_sync_uri) می‌ماند و به پشتیبان نمی‌رود.
-   ادغام فقط «اضافه‌کردنِ موارد جدید» است؛ حذف‌ها و تغییرِ یک مورد موجود بین دستگاه‌ها منتقل نمی‌شود. */
+   اگر فقط یک دستگاه از آخرین همگام‌سازی تغییر کرده باشد، همه‌ی تغییرها (ویرایش و حذف هم) منتقل می‌شود؛ اگر هر دو تغییر کرده باشند فقط موارد جدید ادغام می‌شود. */
 (function(){
 const T=window.daniT;
 const cap=()=>window.Capacitor;
@@ -59,10 +59,10 @@ function widgetSync(){
 }
 setInterval(()=>{liveSync();widgetSync()},3000);
 setTimeout(()=>{liveSync();widgetSync()},2500);
-{const _s=save;save=function(){const r=_s.apply(this,arguments);try{setTimeout(()=>{liveSync();widgetSync()},0);schedSync()}catch(e){}return r}}
+{const _s=save;save=function(){const r=_s.apply(this,arguments);try{if(!busy)sl(DIRTY_K,'1');setTimeout(()=>{liveSync();widgetSync()},0);schedSync()}catch(e){}return r}}
 
 /* ---------- (۳) همگام‌سازی ---------- */
-const URI_K='dani_sync_uri',AUTO_K='dani_sync_auto',LAST_K='dani_sync_last';
+const URI_K='dani_sync_uri',AUTO_K='dani_sync_auto',LAST_K='dani_sync_last',RV_K='dani_sync_rv',DIRTY_K='dani_sync_dirty';
 const gl=k=>{try{return localStorage.getItem(k)||''}catch(e){return''}};
 const sl=(k,v)=>{try{if(v)localStorage.setItem(k,v);else localStorage.removeItem(k)}catch(e){}};
 const plain=o=>o&&typeof o==='object'&&!Array.isArray(o);
@@ -88,21 +88,31 @@ function mergeRemote(txt){
   const ch=before!==jk([db.acts,db.entries,db.notes,db.mods,db.days,db.plans]);
   if(ch){busy=true;try{save()}finally{busy=false}}
   return ch}
-const payload=()=>JSON.stringify({app:'hamrah',version:3,exportedAt:new Date().toISOString(),sync:true,db});
+let lastTs='';const payload=()=>{lastTs=new Date().toISOString();return JSON.stringify({app:'hamrah',version:3,exportedAt:lastTs,sync:true,db})};
+function adopt(j){const x=j&&j.db;if(!x||!Array.isArray(x.acts)||!Array.isArray(x.entries))throw new Error(T('فایل همگام‌سازی معتبر نیست','Not a valid sync file'));
+  const keys=Object.keys(x).filter(k=>!['set','timer','ver','version'].includes(k)&&x[k]&&typeof x[k]==='object'),snapK=()=>jk(keys.map(k=>db[k]));const before=snapK();
+  try{snap()}catch(e){}keys.forEach(k=>{db[k]=JSON.parse(jk(x[k]))});const ch=before!==snapK();if(ch){busy=true;try{save()}finally{busy=false}}return ch}
+const setSt=v=>{window.daniSyncState=v;try{document.dispatchEvent(new Event('dani-sync'))}catch(e){}};
 let busy=false,run=false,timer=0,msg='';
 async function doSync(manual){
   const D=DN(),u=gl(URI_K);if(!native()||!D||!D.syncRead||!u||run)return;
   run=true;
   try{
-    let ch=false,txt='';
+    let ch=false,txt='',skipWrite=false;
     try{const r=await D.syncRead({uri:u});txt=(r&&r.text||'').trim()}catch(e){if(manual)throw e}
-    if(txt)ch=mergeRemote(txt);
-    await D.syncWrite({uri:u,text:payload()});
+    const dirty=gl(DIRTY_K)==='1',rv=gl(RV_K);
+    if(txt){let j=null;try{j=JSON.parse(txt)}catch(e){throw new Error(T('فایل همگام‌سازی خراب است','Sync file is corrupted'))}
+      const rt=(j&&j.exportedAt)||'';
+      if(rt&&rt===rv)ch=false;
+      else if(rv&&!dirty){ch=adopt(j);skipWrite=true;sl(RV_K,rt)}  /* فقط آن دستگاه عوض شده: ویرایش‌ها و حذف‌ها هم می‌آید */
+      else ch=mergeRemote(txt);                                       /* هر دو عوض شده یا بار اول: فقط موارد تازه اضافه می‌شود */
+    }
+    if(!skipWrite&&(dirty||ch||!txt||manual||!rv)){await D.syncWrite({uri:u,text:payload()});sl(RV_K,lastTs);sl(DIRTY_K,'')}
     sl(LAST_K,String(Date.now()));
-    msg=T('همگام شد','Synced')+(ch?' · '+T('داده‌ی تازه از دستگاه دیگر آمد','new data came from another device'):'');
+    setSt('ok');msg=T('همگام شد','Synced')+(ch?' · '+T('داده‌ی تازه از دستگاه دیگر آمد','new data came from another device'):'');
     if(manual||ch)say('🔄 '+msg);
     if(ch)try{render()}catch(e){}
-  }catch(e){msg=T('همگام‌سازی ناموفق: ','Sync failed: ')+(e&&e.message||e);if(manual)say(msg,1)}
+  }catch(e){setSt('err');msg=T('همگام‌سازی ناموفق: ','Sync failed: ')+(e&&e.message||e);if(manual)say(msg,1)}
   finally{run=false;if(window.stt==='time'||typeof stt!=='undefined'&&stt==='time')try{render()}catch(e){}}}
 function schedSync(){if(busy||!native()||!gl(URI_K)||gl(AUTO_K)!=='1')return;clearTimeout(timer);timer=setTimeout(()=>doSync(false),20000)}
 setTimeout(()=>{if(gl(AUTO_K)==='1')doSync(false)},6000);
@@ -112,7 +122,7 @@ H.ls_pick=async e=>{const D=DN();if(!D||!D.syncPick)return say(T('این قاب�
   try{const r=await D.syncPick({create:e.dataset.c==='1'});if(!r||r.cancelled||!r.uri)return;sl(URI_K,r.uri);sl(AUTO_K,'1');await doSync(true)}catch(err){say(T('انتخاب ناموفق بود: ','Pick failed: ')+(err&&err.message||err),1)}};
 H.ls_now=()=>doSync(true);
 H.ls_auto=()=>{sl(AUTO_K,gl(AUTO_K)==='1'?'':'1');render()};
-H.ls_off=()=>{if(!confirm(T('اتصال به فایل همگام‌سازی قطع شود؟ خودِ فایل پاک نمی‌شود.','Disconnect the sync file? The file itself is not deleted.')))return;sl(URI_K,'');sl(AUTO_K,'');sl(LAST_K,'');msg='';render()};
+H.ls_off=()=>{if(!confirm(T('اتصال به فایل همگام‌سازی قطع شود؟ خودِ فایل پاک نمی‌شود.','Disconnect the sync file? The file itself is not deleted.')))return;sl(URI_K,'');sl(AUTO_K,'');sl(LAST_K,'');sl(RV_K,'');sl(DIRTY_K,'');setSt('');msg='';render()};
 H.ls_lv=()=>{LV().on=LV().on?0:1;save();lsig='';liveSync();render()};
 H.ls_wg=()=>{WG().on=WG().on?0:1;save();wsig='';widgetSync();render()};
 H.ls_mk=()=>{try{dl('dani-sync-'+todayISO()+'.json','application/json',payload())}catch(e){say(String(e&&e.message||e),1)}};
@@ -122,7 +132,7 @@ document.addEventListener('change',ev=>{const t=ev.target;if(!t||!t.matches||!t.
 function card(){
   const nat=native()&&DN(),u=gl(URI_K),last=+gl(LAST_K)||0,hasN=nat&&DN().syncPick;
   let h='<div class="c" id="lscard">'+daniH('🔄','همگام‌سازی، ویجت و تایمر زنده','Sync, widget & live timer');
-  h+='<p class="m">'+T('همگام‌سازی با یک فایل در پوشه‌ی خودت (Google Drive، Syncthing، Dropbox…) انجام می‌شود؛ هیچ سروری در کار نیست و داده‌ات فقط پیش خودت می‌ماند. در هر دو دستگاه همان فایل را انتخاب کن. فقط موارد «جدید» اضافه می‌شوند؛ حذف یا ویرایشِ موردِ قبلی منتقل نمی‌شود و لحظه‌ای هم نیست (هنگام باز کردن برنامه و ۲۰ ثانیه پس از هر تغییر).','Sync works through one file in a folder you already sync (Google Drive, Syncthing, Dropbox…). No server; your data stays yours. Pick the same file on both devices. Only NEW items are added; deleting or editing an existing item is not carried over, and it is not instant (on app open and ~20 s after a change).')+'</p>';
+  h+='<p class="m">'+T('همگام‌سازی با یک فایل در پوشه‌ی خودت (Google Drive، Syncthing، Dropbox…) انجام می‌شود؛ هیچ سروری در کار نیست و داده‌ات فقط پیش خودت می‌ماند. در هر دو دستگاه همان فایل را انتخاب کن. اگر بین دو همگام‌سازی فقط یک دستگاه را تغییر دهی، ویرایش و حذف هم منتقل می‌شود؛ اگر هر دو دستگاه را تغییر دادی فقط موارد جدید ادغام می‌شود. لحظه‌ای هم نیست (هنگام باز کردن برنامه و ۲۰ ثانیه پس از هر تغییر).','Sync works through one file in a folder you already sync (Google Drive, Syncthing, Dropbox…). No server; your data stays yours. Pick the same file on both devices. If only one device changed between syncs, edits and deletions carry over too; if both changed, only NEW items are merged. It is not instant (on app open and ~20 s after a change).')+'</p>';
   if(hasN){
     if(u){h+='<div class="m">✅ '+T('به یک فایل وصل است','Connected to a file')+(last?' · '+T('آخرین همگام‌سازی: ','Last sync: ')+new Date(last).toLocaleString():'')+'</div>'
       +(msg?'<div class="m">'+esc(msg)+'</div>':'')
