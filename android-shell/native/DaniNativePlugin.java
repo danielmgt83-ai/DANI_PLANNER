@@ -512,12 +512,45 @@ public class DaniNativePlugin extends Plugin {
             if (li != null) {
                 int fl = Build.VERSION.SDK_INT >= 23 ? (android.app.PendingIntent.FLAG_UPDATE_CURRENT | android.app.PendingIntent.FLAG_IMMUTABLE) : android.app.PendingIntent.FLAG_UPDATE_CURRENT;
                 b.setContentIntent(android.app.PendingIntent.getActivity(c, 7711, li, fl));
+                JSArray acts = call.getArray("actions");
+                if (acts != null) {
+                    for (int i = 0; i < acts.length() && i < 3; i++) {
+                        org.json.JSONObject o = acts.getJSONObject(i);
+                        Intent ai = new Intent(li);
+                        ai.setAction("dani.live." + o.optString("id"));
+                        ai.putExtra("dani_live", o.optString("id"));
+                        ai.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                        b.addAction(0, o.optString("title"), android.app.PendingIntent.getActivity(c, 7720 + i, ai, fl));
+                    }
+                }
             }
             nm.notify(LIVE_ID, b.build());
             call.resolve();
         } catch (Exception e) {
             call.reject(String.valueOf(e.getMessage()), e);
         }
+    }
+
+    /* دکمه‌های اعلان تایمر (مکث/ادامه/پایان): برنامه را باز می‌کنند و رویداد liveAction را به جاوااسکریپت می‌فرستند */
+    @Override
+    public void load() {
+        try { liveFrom(getActivity().getIntent()); } catch (Exception ignored) {}
+    }
+
+    @Override
+    protected void handleOnNewIntent(Intent intent) {
+        super.handleOnNewIntent(intent);
+        liveFrom(intent);
+    }
+
+    private void liveFrom(Intent i) {
+        if (i == null) return;
+        String a = i.getStringExtra("dani_live");
+        if (a == null || a.isEmpty()) return;
+        i.removeExtra("dani_live");
+        JSObject o = new JSObject();
+        o.put("action", a);
+        notifyListeners("liveAction", o, true);
     }
 
     @PluginMethod
