@@ -17,14 +17,50 @@ function banner(){const k=(typeof skId==='function')?skId():'';let h='';
   try{if(/^itu[123]$/.test(k)&&typeof ituHero==='function')h=ituHero(k)}catch(e){}
   try{if(!h&&/^(itv|ao|eren)/.test(k)&&typeof ivHead==='function')h=ivHead()}catch(e){}return h}
 const CAT={rhythm:{n:['چرخه‌ی امروز (برنامه ← اجرا ← بازبینی)','Today\'s rhythm (plan → do → review)'],t:'x',full:1,r:()=>window.daniRhythmCard?window.daniRhythmCard():''},in:{n:['الگوی تو (بهترین ساعت‌ها)','Your pattern (best hours)'],t:'x',full:1,r:()=>window.daniInsightCard?window.daniInsightCard():''},tk:{n:['یک کار برای امروز','Add a task for today'],t:'x',full:1,r:()=>window.daniTaskCard?window.daniTaskCard():''},ql:{n:['ثبت ۵ ثانیه‌ای','5-second log'],t:'x',full:1,r:()=>window.daniQuickLog?window.daniQuickLog():''},qk:{n:['شروع سریع','Quick start'],t:'x',full:1,r:()=>window.daniQuickBar?window.daniQuickBar():''},banner:{n:['بنر تم','Theme banner'],t:'x',full:1,r:banner},pm:{n:['پومودورو و تمرکز','Pomodoro & focus'],t:'x',r:()=>window.daniPomoCard?window.daniPomoCard():''}};
+
+/* ---------- کارت «امروز»: چند ابزار سریع در یک کارتِ تب‌دار (بعدی چی؟، ثبت، شروع، کار، چرخه، تمرکز، الگو) ---------- */
+const TDM=[['nx','🎯',['بعدی','Next']],['ql','⚡',['ثبت','Log']],['qk','▶',['شروع','Start']],['tk','＋',['کار','Task']],['rhythm','🔄',['چرخه','Rhythm']],['pm','🍅',['تمرکز','Focus']],['in','📈',['الگو','Pattern']]];
+const TDK=TDM.map(x=>x[0]);
+const tdl=()=>{const h=H2();if(!Array.isArray(h.tdl))h.tdl=TDK.slice();return h.tdl};
+const tdRender=k=>{try{if(k==='nx')return window.daniNextCard?window.daniNextCard():'';const c=CAT[k];return c&&c.r?c.r():''}catch(e){return''}};
+function tdCard(){const h2=H2(),L=tdl().filter(k=>TDK.includes(k));
+  const parts=L.map(k=>({k,h:tdRender(k)})).filter(x=>x.h);
+  let act=h2.tdt;if(!parts.some(x=>x.k===act))act=parts[0]&&parts[0].k;
+  const tabs=TDM.filter(x=>parts.some(p=>p.k===x[0])).map(x=>'<button class="chip '+(x[0]===act?'on':'')+'" data-a="h2_tdt" data-k="'+x[0]+'">'+x[1]+' '+T(x[2][0],x[2][1])+'</button>').join('');
+  let ed='';if(h2.tde)ed='<div class="m" style="margin-top:6px">'+T('تب‌های این کارت را روشن/خاموش کن (هیچ‌چیز پاک نمی‌شود):','Turn this card\'s tabs on/off (nothing is deleted):')+'</div><div class="row">'+TDM.map(x=>'<button class="chip '+(L.includes(x[0])?'on':'')+'" data-a="h2_tdl" data-k="'+x[0]+'">'+x[1]+' '+T(x[2][0],x[2][1])+'</button>').join('')+'</div>';
+  const cur=parts.find(x=>x.k===act);
+  return '<div class="tdw"><div class="row tdtabs" style="flex-wrap:wrap;align-items:center;gap:4px;margin-bottom:6px">'+tabs+'<button class="chip" data-a="h2_tde" aria-label="'+esc(T('تنظیم تب‌ها','Tabs settings'))+'" style="margin-inline-start:auto">⚙</button></div>'+ed+(cur?cur.h:'<div class="c"><p class="m">'+T('همه‌ی تب‌ها خاموش است؛ ⚙ را بزن.','All tabs are off — tap ⚙.')+'</p></div>')+'</div>'}
+CAT.td={n:['امروز (چند ابزار در یک کارت)','Today (several tools in one card)'],t:'x',full:1,r:tdCard};
+H.h2_tdt=e=>{H2().tdt=e.dataset.k;save();render();if($('#ovl')&&$('#ovl').innerHTML.includes('h2_mg'))open()};
+H.h2_tde=()=>{const h=H2();h.tde=h.tde?0:1;save();render()};
+H.h2_tdl=e=>{const L=tdl(),k=e.dataset.k,i=L.indexOf(k);if(i>=0)L.splice(i,1);else L.push(k);save();render()};
+/* ادغام/جداسازی: «ادغام» همه‌ی ابزارهای سریعِ پراکنده را در کارت «امروز» جمع می‌کند؛ «جداسازی» هر کدام را دوباره جدا می‌گذارد */
+function tdMerged(){const h=H2();return h.on?h.list.includes('td'):(h.cx||[]).includes('td')}
+function tdMerge(){const h=H2(),nx=db.set.nx=db.set.nx||{};
+  if(h.on){const first=h.list.findIndex(k=>TDK.includes(k)),found=h.list.filter(k=>TDK.includes(k));
+    if(!h.list.includes('td')){h.list=h.list.filter(k=>!TDK.includes(k));h.list.splice(first<0?Math.min(1,h.list.length):first,0,'td')}else h.list=h.list.filter(k=>!TDK.includes(k));
+    if(found.length)h.tdl=TDK.filter(k=>found.includes(k)||k==='pm'||k==='in')}
+  else{const cx=h.cx||[],found=cx.filter(k=>TDK.includes(k));if(!nx.off)found.push('nx');
+    h.cx=cx.filter(k=>!TDK.includes(k));if(!h.cx.includes('td'))h.cx.unshift('td');nx.off=1;
+    h.tdl=TDK.filter(k=>found.includes(k)||k==='pm'||k==='in'||k==='ql')}
+  h.mg=1;save();render()}
+function tdSplit(){const h=H2(),nx=db.set.nx=db.set.nx||{},L=tdl().filter(k=>TDK.includes(k));
+  if(h.on){const i=h.list.indexOf('td');h.list=h.list.filter(k=>k!=='td');h.list.splice(i<0?0:i,0,...L.filter(k=>!h.list.includes(k)))}
+  else{h.cx=(h.cx||[]).filter(k=>k!=='td');L.forEach(k=>{if(k==='nx')nx.off=0;else if(!h.cx.includes(k))h.cx.push(k)})}
+  h.mg=1;save();render()}
+H.h2_mg=()=>{tdMerged()?tdSplit():tdMerge();open()};
+/* یک‌بار: کاربرانی که از قبل چند ابزار پراکنده روی خانه دارند، خودکار ادغام می‌شوند (با دکمه‌ی «جداسازی» برمی‌گردد) */
+function mgOnce(){const h=H2();if(h.mg)return;h.mg=1;
+  try{const n=h.on?h.list.filter(k=>TDK.includes(k)).length:((h.cx||[]).filter(k=>TDK.includes(k)).length+((db.set.nx&&db.set.nx.off)?0:1));
+    if(n>=2){tdMerge();toast(T('ابزارهای سریع در یک کارت «امروز» جمع شد؛ از شخصی‌سازی خانه می‌توانی جدا کنی.','Quick tools were merged into one “Today” card; split them from Customize home.'))}else save()}catch(e){console.error('mgOnce',e)}}
 Object.keys(HK).filter(k=>k!=='quote').forEach(k=>{CAT[k]={n:HK[k],t:'h',full:/^(dlc|overdue|compare|week|review|links)$/.test(k)?1:0}});
 Object.keys(DK).forEach(k=>{CAT['d:'+k]={n:DK[k],t:'d',k,full:/^(rec|tl|top|logs|sum)$/.test(k)?1:0}});
 CAT['d:rec'].n=['ثبت فعالیت و تایمر','Log activity & timer'];
 const PRE={
-  minimal:{n:['مینیمال','Minimal'],d:['فقط «بعدی چی؟» و برنامه‌ی امروز','Just "What next?" and today\'s plan'],l:['nx','rhythm','ql','d:rec','tgt']},
-  focus:{n:['تمرکز','Focus'],d:['پومودورو و یک جمله','Pomodoro and a quote'],l:['banner','nx','rhythm','ql','pm','d:rec','focus','d:cap']},
-  student:{n:['دانشجو','Student'],d:['مرور کارت‌ها، درس، موعد و عادت‌ها','Cards, lessons, deadlines, habits'],l:['banner','nx','rhythm','ql','d:rec','srs','lesson','dlc','tgt','overdue','d:cap','week']},
-  full:{n:['کامل','Full'],d:['همه‌ی بخش‌های مهم، با خط زمانی','All key sections incl. timeline'],l:['banner','nx','rhythm','ql','d:rec','dlc','overdue','tgt','srs','lesson','d:cap','d:tl','d:goals','week','compare','focus','d:eod','d:note','links']}};
+  minimal:{n:['مینیمال','Minimal'],d:['فقط «بعدی چی؟» و برنامه‌ی امروز','Just "What next?" and today\'s plan'],l:['td','d:rec','tgt']},
+  focus:{n:['تمرکز','Focus'],d:['پومودورو و یک جمله','Pomodoro and a quote'],l:['banner','td','d:rec','focus','d:cap']},
+  student:{n:['دانشجو','Student'],d:['مرور کارت‌ها، درس، موعد و عادت‌ها','Cards, lessons, deadlines, habits'],l:['banner','td','d:rec','srs','lesson','dlc','tgt','overdue','d:cap','week']},
+  full:{n:['کامل','Full'],d:['همه‌ی بخش‌های مهم، با خط زمانی','All key sections incl. timeline'],l:['banner','td','d:rec','dlc','overdue','tgt','srs','lesson','d:cap','d:tl','d:goals','week','compare','focus','d:eod','d:note','links']}};
 const H2=()=>{const s=db.set;if(!s.h2||typeof s.h2!=='object')s.h2={on:0,preset:'',list:[]};const h=s.h2;if(!Array.isArray(h.list))h.list=[];return h};
 const nm=id=>T(CAT[id].n[0],CAT[id].n[1]);
 
@@ -72,10 +108,11 @@ H.h2_cl=e=>{const k=e.dataset.k,m=e.dataset.m,cl=CL(),keys=pgCards().map(ckey);
   save();render();open()};
 H.h2_clr=()=>{const h=H2();h.cl={o:[],x:[]};save();render();open()};
 H.h2_hs=()=>{closeM();const b=document.querySelector('#pg [data-a=hs][data-m=open]');if(b)b.click()};
-H.h2_cx=e=>{const k=e.dataset.k,h2=H2();if(k==='nx'){const n=db.set.nx=db.set.nx||{};n.off=n.off?0:1}else{h2.cx=h2.cx||[];const i=h2.cx.indexOf(k);if(i>=0)h2.cx.splice(i,1);else h2.cx.push(k)}save();render();open()};
+H.h2_cx=e=>{const k=e.dataset.k,h2=H2();if(k==='td'){tdMerged()?tdSplit():tdMerge()}else if(k==='nx'){const n=db.set.nx=db.set.nx||{};n.off=n.off?0:1}else{h2.cx=h2.cx||[];const i=h2.cx.indexOf(k);if(i>=0)h2.cx.splice(i,1);else h2.cx.push(k)}save();render();open()};
 /* ---------- ویرایشگر ---------- */
 function editor(){const h2=H2(),on=h2.list.filter(id=>CAT[id]),off=Object.keys(CAT).filter(id=>!on.includes(id));
   let h=''+daniH('✏️','شخصی‌سازی خانه','Customize home')+'<div class="m">'+T('یک پیش‌تنظیم انتخاب کن؛ بعد اگر خواستی بخش‌ها را کم/زیاد یا جابه‌جا کن. تغییرها همان لحظه روی خانه اعمال می‌شود.','Pick a preset, then add, remove or reorder sections. Changes apply instantly.')+'</div>';
+  {const mg=tdMerged();h+='<div class="c" style="margin:8px 0"><div class="row" style="align-items:center"><b style="flex:1">🧩 '+T('کارت «امروز» (ابزارهای سریع در یک کارت)','“Today” card (quick tools in one card)')+'</b><button class="chip '+(mg?'on':'')+'" data-a="h2_mg">'+(mg?T('ادغام‌شده — جدا کن','Merged — split'):T('جدا — ادغام کن','Separate — merge'))+'</button></div><div class="m">'+T('بعدی چی؟، ثبت ۵ ثانیه‌ای، شروع سریع، کار امروز، چرخه، پومودورو و الگو را به‌جای چند کارت، در یک کارت با تب نشان می‌دهد. تب‌ها را با ⚙ روی خود کارت خاموش/روشن کن.','Shows What next, 5-sec log, quick start, task, rhythm, Pomodoro and pattern as tabs in ONE card. Turn tabs on/off with ⚙ on the card.')+'</div></div>'}
   h+='<div class="row" style="margin:8px 0">'+Object.keys(PRE).map(k=>'<button class="chip '+(h2.on&&h2.preset===k?'on':'')+'" data-a="h2_pre" data-k="'+k+'" title="'+esc(T(PRE[k].d[0],PRE[k].d[1]))+'">'+esc(T(PRE[k].n[0],PRE[k].n[1]))+'</button>').join('')
     +'<button class="chip '+(!h2.on?'on':'')+'" data-a="h2_off" title="'+esc(T('چیدمان قبلی هر تم','Each theme\'s own layout'))+'">'+T('کلاسیک (قبلی)','Classic (previous)')+'</button></div>';
   {const dk=(db.set.dk&&db.set.dk.on)?1:0;h+='<div class="row" style="margin:6px 0"><span class="m">'+T('نوار ابزار شناور پایین صفحه','Floating bottom toolbar')+':</span><button class="chip '+(dk?'on':'')+'" data-a="h2_dk">'+(dk?T('روشن — خاموش کن','On — turn off'):T('خاموش — روشن کن','Off — turn on'))+'</button></div><div class="m">'+T('ابزارهای سریع (ثبت ۵ ثانیه‌ای، شروع سریع، چرخه، پومودورو، بعدی چی؟) را یا داخل خانه (پایین، با «افزودن بخش») بگذار یا نوار شناور را روشن کن.','Put the quick tools (5-sec log, quick start, rhythm, Pomodoro, next) inside Home (below, via "Add a section") or turn on the floating bar.')+'</div>'}
@@ -85,7 +122,7 @@ function editor(){const h2=H2(),on=h2.list.filter(id=>CAT[id]),off=Object.keys(C
   else{const cx=h2.cx||[],nxOn=!(db.set.nx&&db.set.nx.off);
     h+='<div class="m" style="margin-top:8px">'+T('روی خانه‌ی کلاسیک هم می‌توانی این ابزارها را روشن/خاموش کنی:','On the classic home you can switch these tools on/off:')+'</div><div class="row">'
      +'<button class="chip '+(nxOn?'on':'')+'" data-a="h2_cx" data-k="nx">🎯 '+esc(nm('nx'))+'</button>'
-     +['tk','ql','qk','rhythm','pm','in'].map(k=>'<button class="chip '+(cx.includes(k)?'on':'')+'" data-a="h2_cx" data-k="'+k+'">'+esc(nm(k))+'</button>').join('')+'</div>';
+     +['td','tk','ql','qk','rhythm','pm','in'].map(k=>'<button class="chip '+(cx.includes(k)?'on':'')+'" data-a="h2_cx" data-k="'+k+'">'+esc(nm(k))+'</button>').join('')+'</div>';
     {const cl=CL(),cs=pgCards().map(ckey),ord=cl.o.filter(k=>cs.includes(k));cs.forEach(k=>{if(!ord.includes(k))ord.push(k)});
      h+='<div class="m" style="margin-top:10px">'+T('بخش‌های همین تم (ترتیب و پنهان‌کردن):','This theme\'s sections (order & hide):')+'</div>'+ord.map(k=>'<div class="cwr"><span style="'+(cl.x.includes(k)?'opacity:.45':'')+'">'+esc(k)+'</span><button data-a="h2_cl" data-k="'+esc(k)+'" data-m="up" aria-label="up">▲</button><button data-a="h2_cl" data-k="'+esc(k)+'" data-m="dn" aria-label="down">▼</button><button data-a="h2_cl" data-k="'+esc(k)+'" data-m="eye" aria-label="hide/show">'+(cl.x.includes(k)?'🚫':'👁')+'</button></div>').join('')
        +'<div class="row" style="margin-top:6px"><button class="chip" data-a="h2_clr">'+T('بازنشانی چیدمان','Reset layout')+'</button><button class="chip" data-a="h2_hs">⚙ '+T('مدیریت بخش‌های قدیمی خانه','Legacy home sections')+'</button></div>'}
@@ -105,7 +142,7 @@ H.h2_mv=e=>{const h2=H2(),k=e.dataset.k,m=e.dataset.m,i=h2.list.indexOf(k);
 H.h2_no=()=>{H2().hide=1;save();render()};
 
 /* ---------- اتصال به صفحه‌ی خانه ---------- */
-{const _ph=PG.home;PG.home=function(){const h2=H2();
+{const _ph=PG.home;PG.home=function(){const h2=H2();try{mgOnce()}catch(e){}
   if(h2.on){try{return html()}catch(e){console.error('home2',e)}}
   let r=_ph.apply(this,arguments);
   if(typeof r==='string'&&(h2.cx||[]).length){let x='';(h2.cx||[]).forEach(k=>{try{x+=widget(k,{})}catch(e){}});

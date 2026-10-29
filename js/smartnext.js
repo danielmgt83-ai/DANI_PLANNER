@@ -53,6 +53,7 @@ function card(force){const n0=NX();if(n0.off&&!force)return'';const run=db.timer
   return h}
 
 window.daniNextTop=()=>ranked()[0]||null;
+window.daniNextCard=()=>card(true);
 /* ---------- عمل‌ها ---------- */
 const find=id=>cands().find(c=>c.id===id);
 H.nx_go=e=>{const c=find(e.dataset.i);if(!c)return render();

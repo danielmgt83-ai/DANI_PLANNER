@@ -31,7 +31,14 @@ H.hf_err=async()=>{let t='';try{t=window.daniErrText?window.daniErrText():''}cat
 H.hf_hide=()=>{HF().off=1;save();try{closeM()}catch(e){}fab();toast(T('پنهان شد','Hidden'))};
 H.hf_show=()=>{HF().off=0;save();fab();render()};
 {const _sp=setPage;setPage=function(){const h=_sp.apply(this,arguments);
-  return(typeof h==='string'&&typeof stt!=='undefined'&&stt==='time')?h+'<div class="c">'+daniH('✦','دکمه‌ی راهنما','Help button')+'<div class="row"><button class="chip '+(HF().off?'':'on')+'" data-a="'+(HF().off?'hf_show':'hf_hide')+'">'+(HF().off?T('نمایش دکمه‌ی راهنما','Show help button'):T('دکمه‌ی راهنما نمایش داده می‌شود','Help button is shown'))+'</button></div></div>':h}}
+  return(typeof h==='string'&&typeof stt!=='undefined'&&stt==='time')?h+'<div class="c" id="hfcard">'+daniH('✦','دکمه‌ی راهنما','Help button')+'<div class="row"><button class="chip '+(HF().off?'':'on')+'" data-a="'+(HF().off?'hf_show':'hf_hide')+'">'+(HF().off?T('نمایش دکمه‌ی راهنما','Show help button'):T('دکمه‌ی راهنما نمایش داده می‌شود','Help button is shown'))+'</button></div></div>':h}}
+/* تب «زمان» در تنظیمات: کارت‌های صدا، همگام‌سازی/ویجت و دکمه‌ی راهنما در یک کارت جمع‌شونده «ابزارهای دستگاه» */
+function pack(){if(page!=='set'||typeof stt==='undefined'||stt!=='time')return;const pg=document.getElementById('pg');if(!pg||pg.querySelector('#devcard'))return;
+  const ids=['sccard','lscard','hfcard'].map(i=>pg.querySelector('#'+i)).filter(Boolean);if(ids.length<2)return;
+  const d=document.createElement('details');d.id='devcard';d.className='c';if(HF().dv)d.open=true;
+  d.innerHTML='<summary style="cursor:pointer;list-style:none">'+daniH('🧰','ابزارهای دستگاه (صدا، همگام‌سازی، ویجت، راهنما)','Device tools (sounds, sync, widget, help)')+'<span class="m">'+T('برای باز/بسته‌کردن بزن','Tap to expand / collapse')+'</span></summary>';
+  ids[0].before(d);ids.forEach(c=>d.appendChild(c));d.addEventListener('toggle',()=>{HF().dv=d.open?1:0;try{save()}catch(e){}})}
+{const _r=render;render=function(){const r=_r.apply(this,arguments);try{pack()}catch(e){console.error('pack',e)}return r}}
 if(document.body)fab();else document.addEventListener('DOMContentLoaded',fab);
 setTimeout(fab,1500);
 })();
