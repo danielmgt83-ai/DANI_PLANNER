@@ -118,3 +118,7 @@
 - `js/livesync.js` جدید (بعد از capsule.js): `liveSync` (اعلان کرنومتری با متدهای `liveStart/liveStop`؛ تایمر، شمارش‌معکوس، مکث و استراحت پومودورو)، `widgetSync` (`widgetSet`: کار بعدی + مجموع امروز + تایمر)، همگام‌سازی (`syncPick/syncRead/syncWrite` با SAF؛ ادغامِ فقط‌افزودنی با `merge()` + `fill()` روی `db.mods/days/plans`). کارت «همگام‌سازی، ویجت و تایمر زنده» در تنظیمات ← تب «زمان».
 - نشانی فایل فقط در localStorage (`dani_sync_uri`) است، نه در پشتیبان. حذف‌ها منتقل نمی‌شوند.
 - بومی (نیازمند APK جدید): `DaniNativePlugin.java` (متدهای تازه)، `DaniWidget.java`، `res/layout/dani_widget.xml`، `res/xml/dani_widget_info.xml`، `res/drawable/dani_widget_bg.xml`؛ `apply.mjs` گیرنده‌ی ویجت را در مانیفست ثبت می‌کند. بدون APK جدید، همه‌ی بخش‌های بومی بی‌صدا غیرفعال می‌مانند؛ فقط روش دستی همگام‌سازی کار می‌کند.
+
+## (۲۲) دکمه‌ی راهنما و پشتیبانی + رفع خطای «T is not a function»
+- `js/helpfab.js` جدید: دستگیره‌ی کوچک ✦؟ کنار لبه‌ی چپ صفحه؛ برگه‌ی راهنما، جست‌وجوی همه‌چیز، شروع دوباره‌ی راهنما، کپی گزارش خطا، پنهان‌کردن (و برگرداندن از تنظیمات ← زمان). داده: `db.set.hf`.
+- `index.html`: قبل از `dani-t.js` یک جایگزین درون‌صفحه‌ای برای `daniT/daniH` گذاشته شد تا اگر `dani-t.js` هنوز آپلود نشده باشد، فایل‌های دیگر خطای «T is not a function» ندهند.
