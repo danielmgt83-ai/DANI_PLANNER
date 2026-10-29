@@ -12,8 +12,8 @@ function tone(b){let dark=true;
     if(S&&typeof S.dark==='boolean')dark=S.dark;
     else{const m=(getComputedStyle(document.body).backgroundColor||'').match(/\d+(\.\d+)?/g);if(m&&m.length>=3&&(m.length<4||+m[3]>0.5))dark=(0.2126*m[0]+0.7152*m[1]+0.0722*m[2])<140}}catch(e){}
   b.dataset.tone=dark?'dark':'light'}
-function place(b){const p=HF().pos||{s:'r',y:.62};b.style.top=Math.max(8,Math.min(innerHeight-58,p.y*innerHeight))+'px';
-  if(p.s==='l'){b.style.left='8px';b.style.right='auto'}else{b.style.right='8px';b.style.left='auto'}}
+function place(b){const p=HF().pos||{s:'r',y:(innerHeight-148)/innerHeight};b.style.top=Math.max(8,Math.min(innerHeight-58,p.y*innerHeight))+'px';
+  if(p.s==='l'){b.style.left='6px';b.style.right='auto'}else{b.style.right='6px';b.style.left='auto'}}
 function drag(b){let sx=0,sy=0,ox=0,oy=0,on=false,mv=false;
   b.addEventListener('pointerdown',e=>{on=true;mv=false;sx=e.clientX;sy=e.clientY;const r=b.getBoundingClientRect();ox=r.left;oy=r.top;try{b.setPointerCapture(e.pointerId)}catch(x){}});
   b.addEventListener('pointermove',e=>{if(!on)return;const dx=e.clientX-sx,dy=e.clientY-sy;if(!mv&&Math.hypot(dx,dy)<7)return;mv=true;
