@@ -25,6 +25,7 @@ function liveSync(){
     if(on&&t.state==='running'||on&&t.state==='paused'){
       const cd=t.mode==='cd',run=t.state==='running',e=el(),nm=(typeof aN==='function'?aN(t.actId):'')||'DANI';
       arg={title:'⏱ '+nm,text:cd?T('شمارش معکوس','Countdown'):T('کرنومتر','Stopwatch'),running:run,countdown:cd,base:cd?Date.now()+Math.max(0,t.dur-e):Date.now()-e};
+      arg.actions=[run?{id:'pause',title:'⏸ '+T('مکث','Pause')}:{id:'resume',title:'▶ '+T('ادامه','Resume')},{id:'stop',title:'⏹ '+T('پایان و ثبت','Finish & log')}];
       if(!run){arg.text='⏸ '+T('مکث','Paused')+' · '+mmss(cd?Math.max(0,t.dur-e):e)}
       sig=[t.state,t.mode,t.t0,t.acc,t.dur,t.actId].join('|');
     }else{
@@ -57,7 +58,12 @@ function widgetSync(){
   const sig=l1+'|'+l2+'|'+l3;if(sig===wsig)return;wsig=sig;
   try{D.widgetSet({l1,l2,l3})}catch(e){}
 }
-setInterval(()=>{liveSync();widgetSync()},3000);
+let lAct=false;
+function actListen(){const D=DN();if(lAct||!native()||!D||!D.addListener)return;lAct=true;
+  try{D.addListener('liveAction',ev=>{const a=ev&&ev.action;try{
+    if(a==='pause')TM.pause();else if(a==='resume')TM.resume();else if(a==='stop'){TM.finish()}
+    lsig='';liveSync();try{render()}catch(e){}}catch(e){console.error('liveAction',e)}})}catch(e){lAct=false}}
+setInterval(()=>{actListen();liveSync();widgetSync()},3000);setTimeout(actListen,800);
 setTimeout(()=>{liveSync();widgetSync()},2500);
 {const _s=save;save=function(){const r=_s.apply(this,arguments);try{if(!busy)sl(DIRTY_K,'1');setTimeout(()=>{liveSync();widgetSync()},0);schedSync()}catch(e){}return r}}
 

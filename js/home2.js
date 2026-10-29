@@ -19,10 +19,10 @@ function banner(){const k=(typeof skId==='function')?skId():'';let h='';
 const CAT={rhythm:{n:['چرخه‌ی امروز (برنامه ← اجرا ← بازبینی)','Today\'s rhythm (plan → do → review)'],t:'x',full:1,r:()=>window.daniRhythmCard?window.daniRhythmCard():''},in:{n:['الگوی تو (بهترین ساعت‌ها)','Your pattern (best hours)'],t:'x',full:1,r:()=>window.daniInsightCard?window.daniInsightCard():''},tk:{n:['یک کار برای امروز','Add a task for today'],t:'x',full:1,r:()=>window.daniTaskCard?window.daniTaskCard():''},ql:{n:['ثبت ۵ ثانیه‌ای','5-second log'],t:'x',full:1,r:()=>window.daniQuickLog?window.daniQuickLog():''},qk:{n:['شروع سریع','Quick start'],t:'x',full:1,r:()=>window.daniQuickBar?window.daniQuickBar():''},banner:{n:['بنر تم','Theme banner'],t:'x',full:1,r:banner},pm:{n:['پومودورو و تمرکز','Pomodoro & focus'],t:'x',r:()=>window.daniPomoCard?window.daniPomoCard():''}};
 
 /* ---------- کارت «امروز»: چند ابزار سریع در یک کارتِ تب‌دار (بعدی چی؟، ثبت، شروع، کار، چرخه، تمرکز، الگو) ---------- */
-const TDM=[['nx','🎯',['بعدی','Next']],['ql','⚡',['ثبت','Log']],['qk','▶',['شروع','Start']],['tk','＋',['کار','Task']],['rhythm','🔄',['چرخه','Rhythm']],['pm','🍅',['تمرکز','Focus']],['in','📈',['الگو','Pattern']],['rv','📝',['مرور','Review']]];
+const TDM=[['nx','🎯',['بعدی','Next']],['ql','⚡',['ثبت','Log']],['qk','▶',['شروع','Start']],['tk','＋',['کار','Task']],['rhythm','🔄',['چرخه','Rhythm']],['pm','🍅',['تمرکز','Focus']],['in','📈',['الگو','Pattern']],['rv','📝',['مرور','Review']],['pf','📅',['فردا','Tomorrow']]];
 const TDK=TDM.map(x=>x[0]);
-const tdl=()=>{const h=H2();if(!Array.isArray(h.tdl))h.tdl=TDK.slice();if(h.tdv!==2){h.tdv=2;if(!h.tdl.includes('rv'))h.tdl.push('rv')}return h.tdl};
-const tdRender=k=>{try{if(k==='rv'){let x='';try{x+=dashCards(['cap']).cap||''}catch(e){}try{const r=HSEC.review;if(r&&r.r)x+=r.r()||''}catch(e){}return x}if(k==='nx')return window.daniNextCard?window.daniNextCard():'';const c=CAT[k];return c&&c.r?c.r():''}catch(e){return''}};
+const tdl=()=>{const h=H2();if(!Array.isArray(h.tdl))h.tdl=TDK.slice();if(h.tdv!==3){h.tdv=3;if(!h.tdl.includes('rv'))h.tdl.push('rv');if(!h.tdl.includes('pf'))h.tdl.push('pf')}return h.tdl};
+const tdRender=k=>{try{if(k==='pf')return window.daniTomorrowCard?window.daniTomorrowCard():'';if(k==='rv'){let x='';try{x+=dashCards(['cap']).cap||''}catch(e){}try{const r=HSEC.review;if(r&&r.r)x+=r.r()||''}catch(e){}return x}if(k==='nx')return window.daniNextCard?window.daniNextCard():'';const c=CAT[k];return c&&c.r?c.r():''}catch(e){return''}};
 function tdCard(){const h2=H2(),L=tdl().filter(k=>TDK.includes(k));
   const parts=L.map(k=>({k,h:tdRender(k)})).filter(x=>x.h);
   let act=h2.tdt;if(!parts.some(x=>x.k===act))act=parts[0]&&parts[0].k;
@@ -41,10 +41,10 @@ function tdMerge(){const h=H2(),nx=db.set.nx=db.set.nx||{};
   if(h.on){const first=h.list.findIndex(k=>TDK.includes(k)),found=h.list.filter(k=>TDK.includes(k));
     if(!h.list.includes('td')){h.list=h.list.filter(k=>!TDK.includes(k));h.list.splice(first<0?Math.min(1,h.list.length):first,0,'td')}else h.list=h.list.filter(k=>!TDK.includes(k));
     const rvf=h.list.some(k=>k==='review'||k==='d:cap');h.list=h.list.filter(k=>k!=='review'&&k!=='d:cap');
-    if(found.length)h.tdl=TDK.filter(k=>found.includes(k)||k==='pm'||k==='in'||k==='rv')}
+    if(found.length)h.tdl=TDK.filter(k=>found.includes(k)||k==='pm'||k==='in'||k==='rv'||k==='pf')}
   else{const cx=h.cx||[],found=cx.filter(k=>TDK.includes(k));if(!nx.off)found.push('nx');
     h.cx=cx.filter(k=>!TDK.includes(k));if(!h.cx.includes('td'))h.cx.unshift('td');nx.off=1;
-    h.tdl=TDK.filter(k=>found.includes(k)||k==='pm'||k==='in'||k==='ql'||k==='rv')}
+    h.tdl=TDK.filter(k=>found.includes(k)||k==='pm'||k==='in'||k==='ql'||k==='rv'||k==='pf')}
   h.mg=1;save();render()}
 function tdSplit(){const h=H2(),nx=db.set.nx=db.set.nx||{},L=tdl().filter(k=>TDK.includes(k)).flatMap(k=>k==='rv'?(h.on?['d:cap','review']:[]):[k]);
   if(h.on){const i=h.list.indexOf('td');h.list=h.list.filter(k=>k!=='td');h.list.splice(i<0?0:i,0,...L.filter(k=>!h.list.includes(k)))}
