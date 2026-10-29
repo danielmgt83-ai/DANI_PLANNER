@@ -3,34 +3,51 @@
     android:id="@+id/dw_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
     android:padding="12dp"
     android:background="@drawable/dani_widget_bg">
-    <TextView
-        android:id="@+id/dw_l1"
-        android:layout_width="match_parent"
+    <LinearLayout
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical">
+        <TextView
+            android:id="@+id/dw_l1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="#FFFFFF"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            android:maxLines="2"
+            android:ellipsize="end" />
+        <TextView
+            android:id="@+id/dw_l2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:textColor="#C9D1FF"
+            android:textSize="13sp"
+            android:maxLines="1"
+            android:ellipsize="end" />
+        <TextView
+            android:id="@+id/dw_l3"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:textColor="#8AB4FF"
+            android:textSize="13sp"
+            android:maxLines="1"
+            android:ellipsize="end" />
+    </LinearLayout>
+    <TextView
+        android:id="@+id/dw_go"
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        android:layout_marginStart="8dp"
+        android:gravity="center"
+        android:text="▶"
         android:textColor="#FFFFFF"
-        android:textSize="15sp"
-        android:textStyle="bold"
-        android:maxLines="2"
-        android:ellipsize="end" />
-    <TextView
-        android:id="@+id/dw_l2"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:textColor="#C9D1FF"
-        android:textSize="13sp"
-        android:maxLines="1"
-        android:ellipsize="end" />
-    <TextView
-        android:id="@+id/dw_l3"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:textColor="#8AB4FF"
-        android:textSize="13sp"
-        android:maxLines="1"
-        android:ellipsize="end" />
+        android:textSize="20sp"
+        android:background="@drawable/dani_widget_btn" />
 </LinearLayout>
