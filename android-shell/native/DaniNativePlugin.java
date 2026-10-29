@@ -571,9 +571,25 @@ public class DaniNativePlugin extends Plugin {
                     .putString("l1", call.getString("l1", ""))
                     .putString("l2", call.getString("l2", ""))
                     .putString("l3", call.getString("l3", ""))
+                    .putString("hb", call.getString("hb", "[]"))
                     .apply();
             DaniWidget.refresh(c);
             call.resolve();
+        } catch (Exception e) {
+            call.reject(String.valueOf(e.getMessage()), e);
+        }
+    }
+
+    /* صف دکمه‌های ویجت (تیک عادت، +۱۵ دقیقه) را برمی‌گرداند و خالی می‌کند */
+    @PluginMethod
+    public void widgetPop(PluginCall call) {
+        try {
+            android.content.SharedPreferences sp = getContext().getSharedPreferences("dani_widget", Context.MODE_PRIVATE);
+            String q = sp.getString("q", "[]");
+            sp.edit().putString("q", "[]").apply();
+            JSObject r = new JSObject();
+            r.put("q", q);
+            call.resolve(r);
         } catch (Exception e) {
             call.reject(String.valueOf(e.getMessage()), e);
         }
