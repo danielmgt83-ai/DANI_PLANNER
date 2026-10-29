@@ -42,7 +42,9 @@ function sheet(){
    +it('hf_guide','🧭','راهنمای شروع و ویژگی‌ها','Guide & features',['تور برنامه، ساخت پروژه، نمونه‌ی هر ویژگی','App tour, project builder, a try-it for each feature'])
    +it('hf_find','🔎','جست‌وجوی همه‌چیز','Search everything',['ویژگی‌ها، تنظیمات و داده‌های خودت','Features, settings and your own data'])
    +it('hf_again','🔁','شروع دوباره‌ی راهنما','Restart the tour',['داده‌هایت پاک نمی‌شود','Your data is not deleted'])
+   +it('hf_hc','🩺','بررسی سلامت','Health check',['ذخیره‌سازی، پشتیبان، اعلان‌ها، یکپارچگی داده','Storage, backup, notifications, data integrity'])
    +it('hf_err','🐞','گزارش مشکل','Report a problem',['متن خطاها را کپی کن تا بفرستی','Copy the error log to send'])
+   +(window.daniDnd?'<div class="row" style="margin-top:8px"><span class="m">🌙 '+T('مزاحم نشو:','Do not disturb:')+'</span>'+[1,2,4].map(h=>'<button class="chip" data-a="dnd_set" data-h="'+h+'">'+h+T(' ساعت',' h')+'</button>').join('')+(window.daniDnd.on()?'<button class="chip on" data-a="dnd_set" data-h="0">'+T('خاموش کن','Turn off')+'</button>':'')+'</div>':'')
    +'<div class="m" style="margin-top:10px">'+T('جای دکمه','Button placement')+'</div>'
    +'<label class="m" style="display:block">'+T('چقدر به گوشه برود (منفی = نیمه‌پنهان در لبه)','How far into the corner (negative = half tucked into the edge)')+'<input type="range" min="-30" max="40" step="2" value="'+ED()+'" data-hfr="ed" style="width:100%"></label>'
    +'<label class="m" style="display:block">'+T('اندازه','Size')+'<input type="range" min="30" max="60" step="2" value="'+SZ()+'" data-hfr="sz" style="width:100%"></label>'
@@ -61,6 +63,7 @@ H.hf_err=async()=>{let t='';try{t=window.daniErrText?window.daniErrText():''}cat
   try{await navigator.clipboard.writeText(t);toast(T('کپی شد؛ برای پشتیبان بفرست','Copied — send it to support'))}catch(e){modal('<div>'+daniH('🐞','گزارش خطا','Error log')+'<textarea style="width:100%;height:200px" readonly>'+esc(t)+'</textarea></div>')}};
 H.hf_av=()=>{HF().av=HF().av===0?1:0;save();fab();H.hf_open()};
 H.hf_pos=()=>{delete HF().pos;delete HF().ed;delete HF().sz;save();fab();toast(T('به جای اول برگشت','Position reset'))};
+H.hf_hc=()=>{H.hc_run&&H.hc_run()};
 H.hf_hide=()=>{HF().off=1;save();try{closeM()}catch(e){}fab();toast(T('پنهان شد','Hidden'))};
 H.hf_show=()=>{HF().off=0;save();fab();render()};
 {const _sp=setPage;setPage=function(){const h=_sp.apply(this,arguments);
@@ -71,7 +74,7 @@ function pack(){if(page!=='set'||typeof stt==='undefined'||stt!=='time')return;c
     const d=document.createElement('details');d.id=id;d.className='c';if(HF()[flag])d.open=true;
     d.innerHTML='<summary style="cursor:pointer;list-style:none">'+daniH(ico,fa,en)+'<span class="m">'+T(sub[0],sub[1])+'</span></summary>';
     ids[0].before(d);ids.forEach(c=>d.appendChild(c));d.addEventListener('toggle',()=>{HF()[flag]=d.open?1:0;try{save()}catch(e){}})};
-  grp('ntgrp','🔔','اعلان‌ها و صدا','Notifications & sounds',['اجازه‌ها، زنگ آزمایشی، صدای هر دسته','Permissions, test alarm, per-category sounds'],['ntcard','sccard'],'dv1');
+  grp('ntgrp','🔔','اعلان‌ها و صدا','Notifications & sounds',['اجازه‌ها، زنگ آزمایشی، صدای هر دسته','Permissions, test alarm, per-category sounds'],['ntcard','sccard','qhcard'],'dv1');
   grp('devcard','🧰','همگام‌سازی، ویجت و راهنما','Sync, widget & help',['فایل همگام‌سازی، تایمر زنده، ویجت، دکمه‌ی راهنما','Sync file, live timer, widget, help button'],['lscard','hfcard'],'dv')}
 {const _r=render;render=function(){const r=_r.apply(this,arguments);try{pack()}catch(e){console.error('pack',e)}return r}}
 if(document.body)fab();else document.addEventListener('DOMContentLoaded',fab);

@@ -30,8 +30,9 @@ const Notifier=(()=>{
     try{if(modOn('rem')&&zRM().set.notif!==false){
       rFires(now,now+DAYS*864e5).forEach(f=>{if(f.ts>now+2000&&!inQuiet(f.ts))out.push({id:hash(f.k),at:f.ts,title:S_(f.r.title,80),body:f.o?L('یادآوری پیش از موعد','Heads-up before it is due'):L('اکنون','Now'),ch:CH_REM,key:f.k})});
       (zRM().snz||[]).forEach(s=>{if(s&&typeof s.at==='number'&&s.at>now+2000){const r=rItems().concat(dlRems()).find(x=>x.id===s.rid);if(r)out.push({id:hash(s.k+'|z'+Math.floor(s.at/1000)),at:s.at,title:S_(r.title,80),body:L('یادآوری مجدد','Snoozed reminder'),ch:CH_REM,key:s.k+'|z'+Math.floor(s.at/1000)})}})}}catch(e){console.error('notifier plan',e)}
-    out.sort((a,b)=>a.at-b.at);
-    const seen=new Set();return out.filter(x=>!seen.has(x.id)&&seen.add(x.id)).slice(0,MAXN)}
+    let o2=out;try{if(window.daniPlanFilter)o2=window.daniPlanFilter(out,now)||out}catch(e){}
+    o2.sort((a,b)=>a.at-b.at);
+    const seen=new Set();return o2.filter(x=>!seen.has(x.id)&&seen.add(x.id)).slice(0,MAXN)}
 
   /* ---------- اپ اندروید ---------- */
   /* دکمه‌های داخل اعلان یادآوری: «انجام شد» و «۱۰ دقیقه بعد» (فقط JS؛ اگر افزونه پشتیبانی نکند بی‌اثر است) */
