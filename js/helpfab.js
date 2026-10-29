@@ -42,6 +42,8 @@ function sheet(){
    +it('hf_guide','🧭','راهنمای شروع و ویژگی‌ها','Guide & features',['تور برنامه، ساخت پروژه، نمونه‌ی هر ویژگی','App tour, project builder, a try-it for each feature'])
    +it('hf_find','🔎','جست‌وجوی همه‌چیز','Search everything',['ویژگی‌ها، تنظیمات و داده‌های خودت','Features, settings and your own data'])
    +it('hf_again','🔁','شروع دوباره‌ی راهنما','Restart the tour',['داده‌هایت پاک نمی‌شود','Your data is not deleted'])
+   +it('fx_new','🆕','چه چیزی تازه است','What\'s new',['تغییرات اخیر برنامه در یک نگاه','Recent changes at a glance'])
+   +((window.daniFx&&window.daniFx.hasSample())?it('fx_smpx','🧹','پاک‌کردن نمونه‌داده','Remove sample data',['فقط داده‌های نمونه پاک می‌شود','Only the sample data is removed']):((window.daniFx&&window.daniFx.few())?it('fx_smp','🧪','بارگذاری نمونه‌داده','Load sample data',['برای دیدن امکانات با داده‌ی نمونه؛ هر وقت خواستی پاک می‌شود','See features with sample data; removable anytime']):''))
    +it('hf_hc','🩺','بررسی سلامت','Health check',['ذخیره‌سازی، پشتیبان، اعلان‌ها، یکپارچگی داده','Storage, backup, notifications, data integrity'])
    +it('hf_err','🐞','گزارش مشکل','Report a problem',['متن خطاها را کپی کن تا بفرستی','Copy the error log to send'])
    +(window.daniDnd?'<div class="row" style="margin-top:8px"><span class="m">🌙 '+T('مزاحم نشو:','Do not disturb:')+'</span>'+[1,2,4].map(h=>'<button class="chip" data-a="dnd_set" data-h="'+h+'">'+h+T(' ساعت',' h')+'</button>').join('')+(window.daniDnd.on()?'<button class="chip on" data-a="dnd_set" data-h="0">'+T('خاموش کن','Turn off')+'</button>':'')+'</div>':'')
