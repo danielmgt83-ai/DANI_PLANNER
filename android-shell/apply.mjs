@@ -59,7 +59,7 @@ function android() {
   const cfg = JSON.parse(fs.readFileSync(path.join(here, 'capacitor.config.json'), 'utf8'));
   const javaDir = path.join(app, 'java', ...String(cfg.appId).split('.'));
   fs.mkdirSync(javaDir, { recursive: true });
-  for (const f of ['MainActivity.java', 'DaniNativePlugin.java', 'DaniWidget.java']) {
+  for (const f of ['MainActivity.java', 'DaniNativePlugin.java', 'DaniWidget.java', 'DaniWidgetSmall.java', 'DaniWidgetLarge.java', 'DaniWidgetAction.java']) {
     let src = fs.readFileSync(path.join(here, 'native', f), 'utf8');
     src = src.replace(/^package\s+[\w.]+;/m, 'package ' + cfg.appId + ';');
     fs.writeFileSync(path.join(javaDir, f), src);
@@ -69,12 +69,26 @@ function android() {
   fs.copyFileSync(path.join(here, 'native', 'DaniPdfPrint.java'), path.join(printDir, 'DaniPdfPrint.java'));
   // 4) ویجت صفحه‌ی خانه: ثبت در مانیفست (فقط یک‌بار)
   x = fs.readFileSync(mf, 'utf8');
-  if (!x.includes('.DaniWidget')) {
-    const rec = '        <receiver android:name=".DaniWidget" android:exported="false">\n' +
+  if (!x.includes('.DaniWidget"')) {
+    const mk = (n, xml) => '        <receiver android:name=".' + n + '" android:exported="false">\n' +
       '            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>\n' +
-      '            <meta-data android:name="android.appwidget.provider" android:resource="@xml/dani_widget_info" />\n' +
+      '            <meta-data android:name="android.appwidget.provider" android:resource="@xml/' + xml + '" />\n' +
       '        </receiver>\n';
     if (!x.includes('</application>')) throw new Error('AndroidManifest.xml بدون application');
+    let rec = mk('DaniWidget', 'dani_widget_info');
+    if (!x.includes('.DaniWidgetSmall')) rec += mk('DaniWidgetSmall', 'dani_widget_small_info');
+    if (!x.includes('.DaniWidgetLarge')) rec += mk('DaniWidgetLarge', 'dani_widget_large_info');
+    if (!x.includes('.DaniWidgetAction')) rec += '        <receiver android:name=".DaniWidgetAction" android:exported="false" />\n';
+    x = x.replace('</application>', rec + '    </application>');
+    fs.writeFileSync(mf, x);
+  } else if (!x.includes('.DaniWidgetSmall')) {
+    /* نصب قدیمی که فقط ویجت متوسط داشت: دو اندازه‌ی دیگر و گیرنده‌ی دکمه‌ها را اضافه کن */
+    const mk = (n, xml) => '        <receiver android:name=".' + n + '" android:exported="false">\n' +
+      '            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>\n' +
+      '            <meta-data android:name="android.appwidget.provider" android:resource="@xml/' + xml + '" />\n' +
+      '        </receiver>\n';
+    const rec = mk('DaniWidgetSmall', 'dani_widget_small_info') + mk('DaniWidgetLarge', 'dani_widget_large_info') +
+      '        <receiver android:name=".DaniWidgetAction" android:exported="false" />\n';
     x = x.replace('</application>', rec + '    </application>');
     fs.writeFileSync(mf, x);
   }
