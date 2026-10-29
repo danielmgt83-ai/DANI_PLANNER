@@ -60,7 +60,7 @@ function monthly(){const t=todayISO(),b=addD(t,-30*OFF),a=addD(b,-29),pb=addD(a,
   const items=db.acts.filter(x=>x.active&&!x.arch&&x.goalWeek>0).map(x=>{const done=mins(ws[0],t,x.id),pace=done/passed,proj=Math.round(done+pace*rem);return{x,done,proj,pc:Math.round(proj/x.goalWeek*100)}}).sort((p,q)=>p.pc-q.pc);
   h+='<div class="c">'+daniH('🔮','پیش‌بینی پایان هفته','Week-end forecast')+'<p class="m">'+T('با فرض همین سرعت روزانه تا پایان هفته. فقط برای فعالیت‌هایی که هدف هفتگی دارند.','At the current daily pace until week end. Only for activities that have a weekly goal.')+'</p>';
   h+=items.length?items.map(o=>{const c=o.pc>=100?'#22c55e':o.pc>=70?'#f59e0b':'#ef4444';return'<div><div class="row"><span style="flex:1">'+esc(o.x.name)+'</span><span class="m">'+mm(o.done)+' → ~'+mm(o.proj)+' / '+mm(o.x.goalWeek)+'</span><b style="color:'+c+'">'+fa(Math.min(999,o.pc))+'٪</b></div><div class="bar"><i style="width:'+Math.min(100,o.pc)+'%;background:'+c+'"></i></div></div>'}).join(''):'<p class="m">'+T('هیچ فعالیتی هدف هفتگی ندارد؛ در «فعالیت‌ها» یک هدف هفتگی بگذار.','No activity has a weekly goal — set one in Activities.')+'</p>';
-  return h+'</div>'}
+  return h+'</div>'+(window.daniDlForecast?window.daniDlForecast():'')}
 try{if(!RT.some(x=>x[0]==='mon'))RT.push(['mon',T('ماهانه و پیش‌بینی','Monthly & forecast')])}catch(e){}
 {const _r=PG.res;PG.res=function(){if(rt==='mon')return tabBar(RT,rt,'r')+monthly();return _r.apply(this,arguments)}}
 })();
