@@ -5,20 +5,30 @@
 const T=window.daniT;
 const HF=()=>{const s=db.set;if(!s.hf||typeof s.hf!=='object')s.hf={};return s.hf};
 const css=document.createElement('style');
-css.textContent='#hfab{position:fixed;z-index:44;width:46px;height:46px;border-radius:50%;padding:0;cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none;display:flex;align-items:center;justify-content:center;color:#fff;border:2px solid #fff;background:linear-gradient(135deg,#f43f5e,#a855f7);box-shadow:0 0 0 2px rgba(0,0,0,.6),0 6px 18px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.4);transition:transform .15s,box-shadow .2s}#hfab[data-tone=light]{background:linear-gradient(135deg,#4338ca,#7e22ce)}#hfab:active{cursor:grabbing;transform:scale(.94)}#hfab svg{width:24px;height:24px;stroke:#fff;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 1px 1px rgba(0,0,0,.5))}#hfab .sp{position:absolute;top:-5px;inset-inline-end:-4px;font-size:13px;line-height:1;color:#fff;text-shadow:0 0 4px #000,0 0 2px #000}#hfab .sd{position:absolute;bottom:-2px;inset-inline-start:-2px;width:13px;height:13px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1px rgba(0,0,0,.6)}#hfab .sd.ok{background:#22c55e}#hfab .sd.err{background:#ef4444}#hfab i{position:absolute;inset:-6px;border-radius:50%;border:2px solid #ff5b7a;animation:hfp 1.8s infinite;pointer-events:none}@keyframes hfp{0%{transform:scale(.85);opacity:.9}100%{transform:scale(1.25);opacity:0}}@media print{#hfab{display:none}}';
+css.textContent='#hfab{position:fixed;z-index:44;box-sizing:border-box;min-height:0;min-width:0;border-radius:50%;padding:0;cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none;display:flex;align-items:center;justify-content:center;color:#fff;border:2px solid #fff;background:linear-gradient(135deg,#f43f5e,#a855f7);box-shadow:0 0 0 2px rgba(0,0,0,.6),0 6px 18px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.4);transition:transform .15s,box-shadow .2s}#hfab[data-tone=light]{background:linear-gradient(135deg,#4338ca,#7e22ce)}#hfab:active{cursor:grabbing;transform:scale(.94)}#hfab svg{width:24px;height:24px;stroke:#fff;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 1px 1px rgba(0,0,0,.5))}#hfab .sp{position:absolute;top:-5px;inset-inline-end:-4px;font-size:13px;line-height:1;color:#fff;text-shadow:0 0 4px #000,0 0 2px #000}#hfab .sd{position:absolute;bottom:-2px;inset-inline-start:-2px;width:13px;height:13px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1px rgba(0,0,0,.6)}#hfab .sd.ok{background:#22c55e}#hfab .sd.err{background:#ef4444}#hfab i{position:absolute;inset:-6px;border-radius:50%;border:2px solid #ff5b7a;animation:hfp 1.8s infinite;pointer-events:none}@keyframes hfp{0%{transform:scale(.85);opacity:.9}100%{transform:scale(1.25);opacity:0}}@media print{#hfab{display:none}}';
 document.head.appendChild(css);
 function tone(b){let dark=true;
   try{const S=(typeof SKINS!=='undefined'&&typeof skId==='function')?SKINS[skId()]:null;
     if(S&&typeof S.dark==='boolean')dark=S.dark;
     else{const m=(getComputedStyle(document.body).backgroundColor||'').match(/\d+(\.\d+)?/g);if(m&&m.length>=3&&(m.length<4||+m[3]>0.5))dark=(0.2126*m[0]+0.7152*m[1]+0.0722*m[2])<140}}catch(e){}
   b.dataset.tone=dark?'dark':'light'}
-function place(b){const p=HF().pos||{s:'r',y:(innerHeight-148)/innerHeight};b.style.top=Math.max(8,Math.min(innerHeight-58,p.y*innerHeight))+'px';
-  if(p.s==='l'){b.style.left='6px';b.style.right='auto'}else{b.style.right='6px';b.style.left='auto'}}
+const SZ=()=>{const v=+HF().sz;return v>=30&&v<=60?v:46},ED=()=>{const v=HF().ed;return typeof v==='number'&&v>=-30&&v<=60?v:6};
+function place(b){const z=SZ(),e=ED(),p=HF().pos||{s:'r',y:(innerHeight-z-102)/innerHeight};
+  b.style.width=b.style.height=z+'px';let top=Math.max(4,Math.min(innerHeight-z-4,p.y*innerHeight));
+  if(p.s==='l'){b.style.left=e+'px';b.style.right='auto'}else{b.style.right=e+'px';b.style.left='auto'}
+  b.style.opacity=e<0?'.9':'1';b.style.top=top+'px';
+  /* دوری از دکمه‌ها/نوارهای ثابت: اگر روی چیزی افتاد، فقط نمایش را بالا می‌برد (جای ذخیره‌شده عوض نمی‌شود) */
+  if(HF().av!==0){try{const R=b.getBoundingClientRect();let guard=0,moved=true;
+    while(moved&&guard++<4){moved=false;
+      for(const el of document.querySelectorAll('#dkbar,#mb,html[data-lay=bottom] nav,.itu-strip,.iv-chips')){if(el===b||!el.getClientRects().length)continue;const o=el.getBoundingClientRect();if(o.width<2||o.height<2)continue;
+        const cs=getComputedStyle(el);if(cs.position!=='fixed'&&cs.position!=='sticky')continue;
+        const ov=!(o.right<=R.left||o.left>=R.left+R.width||o.bottom<=top||o.top>=top+z);
+        if(ov){top=Math.max(4,o.top-z-8);b.style.top=top+'px';moved=true}}}}catch(x){}}}
 function drag(b){let sx=0,sy=0,ox=0,oy=0,on=false,mv=false;
   b.addEventListener('pointerdown',e=>{on=true;mv=false;sx=e.clientX;sy=e.clientY;const r=b.getBoundingClientRect();ox=r.left;oy=r.top;try{b.setPointerCapture(e.pointerId)}catch(x){}});
   b.addEventListener('pointermove',e=>{if(!on)return;const dx=e.clientX-sx,dy=e.clientY-sy;if(!mv&&Math.hypot(dx,dy)<7)return;mv=true;
-    b.style.left=Math.max(0,Math.min(innerWidth-46,ox+dx))+'px';b.style.right='auto';b.style.top=Math.max(0,Math.min(innerHeight-46,oy+dy))+'px'});
-  const end=()=>{if(!on)return;on=false;if(!mv)return;const r=b.getBoundingClientRect();HF().pos={s:(r.left+23<innerWidth/2)?'l':'r',y:r.top/innerHeight};save();place(b);setTimeout(()=>{mv=false},50)};
+    b.style.left=Math.max(-30,Math.min(innerWidth-SZ()+30,ox+dx))+'px';b.style.right='auto';b.style.top=Math.max(0,Math.min(innerHeight-SZ(),oy+dy))+'px'});
+  const end=()=>{if(!on)return;on=false;if(!mv)return;const r=b.getBoundingClientRect();HF().pos={s:(r.left+SZ()/2<innerWidth/2)?'l':'r',y:r.top/innerHeight};save();place(b);setTimeout(()=>{mv=false},50)};
   b.addEventListener('pointerup',end);b.addEventListener('pointercancel',end);
   b.addEventListener('click',e=>{if(mv){e.stopImmediatePropagation();e.preventDefault();mv=false}},true)}
 function fab(){let b=document.getElementById('hfab');
@@ -33,16 +43,24 @@ function sheet(){
    +it('hf_find','🔎','جست‌وجوی همه‌چیز','Search everything',['ویژگی‌ها، تنظیمات و داده‌های خودت','Features, settings and your own data'])
    +it('hf_again','🔁','شروع دوباره‌ی راهنما','Restart the tour',['داده‌هایت پاک نمی‌شود','Your data is not deleted'])
    +it('hf_err','🐞','گزارش مشکل','Report a problem',['متن خطاها را کپی کن تا بفرستی','Copy the error log to send'])
+   +'<div class="m" style="margin-top:10px">'+T('جای دکمه','Button placement')+'</div>'
+   +'<label class="m" style="display:block">'+T('چقدر به گوشه برود (منفی = نیمه‌پنهان در لبه)','How far into the corner (negative = half tucked into the edge)')+'<input type="range" min="-30" max="40" step="2" value="'+ED()+'" data-hfr="ed" style="width:100%"></label>'
+   +'<label class="m" style="display:block">'+T('اندازه','Size')+'<input type="range" min="30" max="60" step="2" value="'+SZ()+'" data-hfr="sz" style="width:100%"></label>'
+   +'<div class="row" style="margin-top:4px"><button class="chip '+(HF().av===0?'':'on')+'" data-a="hf_av">'+T('دوری خودکار از دکمه‌ها و نوارها','Auto-avoid other buttons & bars')+'</button><span class="m">'+T('دکمه را با انگشت هم می‌توانی بکشی.','You can also drag the button.')+'</span></div>'
    +'<div class="row" style="margin-top:8px"><button class="chip" data-a="hf_pos">'+T('بازگرداندن جا','Reset position')+'</button><button class="chip" data-a="hf_hide">'+T('پنهان‌کردن این دکمه','Hide this button')+'</button><button class="chip" data-a="ob_close">'+T('بستن','Close')+'</button></div>'
    +'<p class="m">'+T('برگرداندن دکمه: تنظیمات ← زمان ← «دکمه‌ی راهنما».','To bring it back: Settings → Time → “Help button”.')+'</p></div>'}
 H.hf_open=()=>{HF().seen=1;save();fab();modal(sheet())};
+document.addEventListener('input',e=>{const t=e.target;if(!t||!t.dataset||!t.dataset.hfr)return;HF()[t.dataset.hfr]=+t.value;fab()});
+document.addEventListener('change',e=>{const t=e.target;if(t&&t.dataset&&t.dataset.hfr)save()});
+window.addEventListener('resize',()=>{try{fab()}catch(e){}});
 H.hf_guide=()=>{try{closeM()}catch(e){}setTimeout(()=>window.daniOnboard&&window.daniOnboard.hub(),50)};
 H.hf_find=()=>{try{closeM()}catch(e){}setTimeout(()=>window.daniQuickAccess&&window.daniQuickAccess.open(),50)};
 H.hf_again=()=>{try{closeM()}catch(e){}setTimeout(()=>H.ob_reset&&H.ob_reset(),50)};
 H.hf_err=async()=>{let t='';try{t=window.daniErrText?window.daniErrText():''}catch(e){}
   if(!t)return toast(T('خطایی ثبت نشده 👌','No errors recorded 👌'));
   try{await navigator.clipboard.writeText(t);toast(T('کپی شد؛ برای پشتیبان بفرست','Copied — send it to support'))}catch(e){modal('<div>'+daniH('🐞','گزارش خطا','Error log')+'<textarea style="width:100%;height:200px" readonly>'+esc(t)+'</textarea></div>')}};
-H.hf_pos=()=>{delete HF().pos;save();fab();toast(T('به جای اول برگشت','Position reset'))};
+H.hf_av=()=>{HF().av=HF().av===0?1:0;save();fab();H.hf_open()};
+H.hf_pos=()=>{delete HF().pos;delete HF().ed;delete HF().sz;save();fab();toast(T('به جای اول برگشت','Position reset'))};
 H.hf_hide=()=>{HF().off=1;save();try{closeM()}catch(e){}fab();toast(T('پنهان شد','Hidden'))};
 H.hf_show=()=>{HF().off=0;save();fab();render()};
 {const _sp=setPage;setPage=function(){const h=_sp.apply(this,arguments);
