@@ -110,12 +110,20 @@ function adopt(j){const x=j&&j.db;if(!x||!Array.isArray(x.acts)||!Array.isArray(
   try{snap()}catch(e){}keys.forEach(k=>{db[k]=JSON.parse(jk(x[k]))});const ch=before!==snapK();if(ch){busy=true;try{save()}finally{busy=false}}return ch}
 const setSt=v=>{window.daniSyncState=v;try{document.dispatchEvent(new Event('dani-sync'))}catch(e){}};
 let busy=false,run=false,timer=0,msg='';
+/* رمزگذاری فایل همگام‌سازی (lock.js → window.daniCrypt). فایل رمزگذاری‌شده بدون رمز ادغام نمی‌شود؛ همگام‌سازی خودکار بی‌صدا خطا می‌دهد، دستی رمز می‌پرسد. */
+const CR=()=>window.daniCrypt||null;
+async function decTxt(t,manual){const c=CR();if(!t||!c||!c.isEnv(t))return t;
+  if(!c.on()){if(!manual)throw new Error(T('فایل همگام‌سازی رمزگذاری شده؛ رمز را در تنظیمات ← داده‌ها وارد کن','The sync file is encrypted; enter the password in Settings → Data'));
+    const p=await c.ask(T('رمز فایل همگام‌سازی','Sync file password'),'',false);if(!p)throw new Error(T('رمز وارد نشد','No password entered'));await c.setPw(p)}
+  try{return(await c.dec(t)).trim()}catch(e){if(manual&&c.on()){const p=await c.ask(T('رمز نادرست بود؛ دوباره','Wrong password; try again'),'',false);if(p){await c.setPw(p);return(await c.dec(t)).trim()}}throw e}}
+async function encTxt(t){const c=CR();return c&&c.on()?c.enc(t):t}
 async function doSync(manual){
   const D=DN(),u=gl(URI_K);if(!native()||!D||!D.syncRead||!u||run)return;
   run=true;
   try{
     let ch=false,txt='',skipWrite=false;
     try{const r=await D.syncRead({uri:u});txt=(r&&r.text||'').trim()}catch(e){if(manual)throw e}
+    txt=await decTxt(txt,manual);
     const dirty=gl(DIRTY_K)==='1',rv=gl(RV_K);
     if(txt){let j=null;try{j=JSON.parse(txt)}catch(e){throw new Error(T('فایل همگام‌سازی خراب است','Sync file is corrupted'))}
       const rt=(j&&j.exportedAt)||'';
@@ -123,7 +131,7 @@ async function doSync(manual){
       else if(rv&&!dirty){ch=adopt(j);skipWrite=true;sl(RV_K,rt)}  /* فقط آن دستگاه عوض شده: ویرایش‌ها و حذف‌ها هم می‌آید */
       else ch=mergeRemote(txt);                                       /* هر دو عوض شده یا بار اول: فقط موارد تازه اضافه می‌شود */
     }
-    if(!skipWrite&&(dirty||ch||!txt||manual||!rv)){await D.syncWrite({uri:u,text:payload()});sl(RV_K,lastTs);sl(DIRTY_K,'')}
+    if(!skipWrite&&(dirty||ch||!txt||manual||!rv)){await D.syncWrite({uri:u,text:await encTxt(payload())});sl(RV_K,lastTs);sl(DIRTY_K,'')}
     sl(LAST_K,String(Date.now()));
     setSt('ok');msg=T('همگام شد','Synced')+(ch?' · '+T('داده‌ی تازه از دستگاه دیگر آمد','new data came from another device'):'');
     if(manual||ch)say('🔄 '+msg);
@@ -143,7 +151,7 @@ H.ls_lv=()=>{LV().on=LV().on?0:1;save();lsig='';liveSync();render()};
 H.ls_wg=()=>{WG().on=WG().on?0:1;save();wsig='';widgetSync();render()};
 H.ls_mk=()=>{try{dl('dani-sync-'+todayISO()+'.json','application/json',payload())}catch(e){say(String(e&&e.message||e),1)}};
 document.addEventListener('change',ev=>{const t=ev.target;if(!t||!t.matches||!t.matches('[data-ls-file]'))return;const f=t.files&&t.files[0];t.value='';if(!f)return;
-  f.text().then(tx=>{const ch=mergeRemote(tx);say(ch?T('ادغام شد؛ داده‌ی تازه اضافه شد','Merged — new data added'):T('چیز تازه‌ای برای افزودن نبود','Nothing new to add'));try{render()}catch(e){}}).catch(err=>say(String(err&&err.message||err),1))});
+  f.text().then(async tx=>{tx=await decTxt(tx.trim(),true);const ch=mergeRemote(tx);say(ch?T('ادغام شد؛ داده‌ی تازه اضافه شد','Merged — new data added'):T('چیز تازه‌ای برای افزودن نبود','Nothing new to add'));try{render()}catch(e){}}).catch(err=>say(String(err&&err.message||err),1))});
 
 function card(){
   const nat=native()&&DN(),u=gl(URI_K),last=+gl(LAST_K)||0,hasN=nat&&DN().syncPick;
@@ -161,5 +169,5 @@ function card(){
       +'<div class="m">'+T('ویجت: روی صفحه‌ی خانه‌ی گوشی نگه دار ← ویجت‌ها ← DANI. (نیازمند APK جدید)','Widget: long-press home screen → Widgets → DANI. (needs the new APK)')+'</div>'}
   return h+'</div>'}
 {const _sp=setPage;setPage=function(){const h=_sp.apply(this,arguments);return(typeof h==='string'&&typeof stt!=='undefined'&&stt==='time')?h+card():h}}
-window.daniLiveSync={liveSync,widgetSync,doSync,mergeRemote};
+window.daniLiveSync={liveSync,widgetSync,doSync,mergeRemote,payload};
 })();

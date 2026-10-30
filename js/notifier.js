@@ -36,14 +36,18 @@ const Notifier=(()=>{
 
   /* ---------- اپ اندروید ---------- */
   /* دکمه‌های داخل اعلان یادآوری: «انجام شد» و «۱۰ دقیقه بعد» (فقط JS؛ اگر افزونه پشتیبانی نکند بی‌اثر است) */
+  /* تیک عادتِ متصل به یادآور (امروز)؛ تکراری نمی‌زند */
+  function tickHabit(r){try{const lk=r&&r.link;if(!lk||lk.type!=='habit')return false;const t0=todayISO(),h=hItems().find(k=>k.id===lk.id);if(!h||!hExp(h,t0)||hSt(h,t0)==='done')return false;
+    const d0=zMS.hab.d;zMS.hab.d=null;try{zMA.hab.set(h.id+':done')}finally{zMS.hab.d=d0}try{toast(L('عادت «'+h.name+'» تیک خورد ✓','Habit “'+h.name+'” ticked ✓'))}catch(e){}return true}catch(e){console.error('tickHabit',e);return false}}
+  const isHabRem=x=>{try{const rid=String(x.key||'').split('|')[0],r=rItems().concat(typeof dlRems==='function'?dlRems():[]).find(z=>z.id===rid);return !!(r&&r.link&&r.link.type==='habit'&&hItems().some(h=>h.id===r.link.id))}catch(e){return false}};
   let actReg=false;
   async function setupActions(){const p=LN();if(!p||actReg)return;actReg=true;
-    try{if(p.registerActionTypes)await p.registerActionTypes({types:[{id:'dani-rem',actions:[{id:'done',title:L('انجام شد','Done')},{id:'snz',title:L('۱۰ دقیقه بعد','Snooze 10 min')}]}]})}catch(e){}
+    try{if(p.registerActionTypes)await p.registerActionTypes({types:[{id:'dani-rem',actions:[{id:'done',title:L('انجام شد','Done')},{id:'snz',title:L('۱۰ دقیقه بعد','Snooze 10 min')}]},{id:'dani-hab',actions:[{id:'hdone',title:L('✓ انجام شد (عادت تیک بخورد)','✓ Done (tick habit)')},{id:'snz',title:L('۱۰ دقیقه بعد','Snooze 10 min')}]}]})}catch(e){}
     try{if(p.addListener)p.addListener('localNotificationActionPerformed',ev=>{try{
-      const k=ev&&ev.notification&&ev.notification.extra&&ev.notification.extra.k;if(!k||(ev.actionId!=='done'&&ev.actionId!=='snz'))return;
+      const k=ev&&ev.notification&&ev.notification.extra&&ev.notification.extra.k;if(!k||(ev.actionId!=='done'&&ev.actionId!=='snz'&&ev.actionId!=='hdone'))return;
       const rid=String(k).split('|')[0];const r=(typeof rItems==='function'?rItems().concat(typeof dlRems==='function'?dlRems():[]):[]).find(x=>x.id===rid);if(!r)return;
       const R=zRM();let x=R.log.find(z=>z.k===k);if(!x){rLog(k,r,Date.now(),'fired');x=R.log.find(z=>z.k===k)}
-      if(ev.actionId==='done'){x.st='done';x.seen=true}else{x.st='snooze';x.seen=true;R.snz.push({rid,k,at:Date.now()+10*60000})}
+      if(ev.actionId==='done'||ev.actionId==='hdone'){x.st='done';x.seen=true;if(ev.actionId==='hdone')tickHabit(r)}else{x.st='snooze';x.seen=true;R.snz.push({rid,k,at:Date.now()+10*60000})}
       if(save())render();setTimeout(()=>{try{Notifier.sync()}catch(e){}},300)}catch(e){console.error('notif action',e)}})}catch(e){}}
   async function setupChannels(){const p=LN();if(!p||!p.createChannel)return;setupActions();
     for(const o of['dani-alarm-v1','dani-remind-v1']){try{await p.deleteChannel({id:o})}catch(e){}}
@@ -55,7 +59,7 @@ const Notifier=(()=>{
     try{const r=await p.checkPermissions();st.perm=r.display}catch(e){}
     try{const r=await p.checkExactNotificationSetting();st.exact=r.exact_alarm}catch(e){st.exact='unknown'}
     try{const r=await p.getPending();st.pending=(r.notifications||[]).length}catch(e){}}
-  function toNote(x){return{id:x.id,title:x.title,body:x.body,channelId:(x.ch===CH_ALARM&&window.daniAlarmCh)||(window.daniChFor&&window.daniChFor(x))||x.ch,sound:x.ch===CH_ALARM?'dani_alarm.ogg':'dani_ping.ogg',smallIcon:'ic_stat_dani',iconColor:'#2563eb',autoCancel:!x.ongoing,ongoing:!!x.ongoing,schedule:{at:new Date(x.at),allowWhileIdle:true},extra:{k:x.key},...(String(x.key||'').split('|').length===3?{actionTypeId:'dani-rem'}:{})}}
+  function toNote(x){return{id:x.id,title:x.title,body:x.body,channelId:(x.ch===CH_ALARM&&window.daniAlarmCh)||(window.daniChFor&&window.daniChFor(x))||x.ch,sound:x.ch===CH_ALARM?'dani_alarm.ogg':'dani_ping.ogg',smallIcon:'ic_stat_dani',iconColor:'#2563eb',autoCancel:!x.ongoing,ongoing:!!x.ongoing,schedule:{at:new Date(x.at),allowWhileIdle:true},extra:{k:x.key},...(String(x.key||'').split('|').length===3?{actionTypeId:isHabRem(x)?'dani-hab':'dani-rem'}:{}),...((window.daniNoteExtra&&window.daniNoteExtra(x))||{})}}
   async function sync(force){
     if(!isNative())return;const p=LN();if(!p)return;
     if(st.busy){st.again=true;return}
