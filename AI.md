@@ -384,3 +384,18 @@ DANI Planner: پلنر شخصی فارسی (RTL، با لایه‌ی ترجمه�
 
 ### js/fx.js
 - هر نسخه‌ی مهم: `VER` و آرایه‌ی `WN` (دوزبانه) را به‌روز کن تا «چه چیزی تازه است» یک‌بار نمایش داده شود.
+
+## js/lock.js  (جدید، مرحله ۶)
+- قفل PIN (۴/۶ رقم): هش PBKDF2 در `localStorage.dani_lock` (فقط همین دستگاه، نه پشتیبان/همگام‌سازی)، `dani_lock_f` (تلاش اشتباه)، کد بازیابی، «پاک‌کردن همه‌ی داده» به‌عنوان آخرین راه. `index.html` در `<head>` با یک اسکریپت کوچک تا بارگذاری `lock.js` محتوا را پنهان می‌کند (`html[data-lk]`)؛ اگر `lock.js` تا ۱۲ ثانیه بالا نیامد پنهان‌سازی برداشته می‌شود (جلوگیری از قفل‌ماندن).
+- رمزگذاری فایل همگام‌سازی: `window.daniCrypt {on,isEnv,enc,dec,ask,setPw,clear}` (AES-GCM + PBKDF2 ۲۰۰هزار دور؛ رمز در `dani_sync_pw`). `livesync.js` در `doSync` و ادغام دستی از آن استفاده می‌کند (`decTxt/encTxt`). پاکت فایل: `{"dani_enc":1,...}`.
+- عمل‌ها: `lk_set lk_chg lk_off lk_now lk_pw lk_pwoff lk_mke`. کارت در تنظیمات ← داده‌ها.
+
+## js/share-csv.js  (جدید، مرحله ۶)
+- کارت اشتراک پیشرفت: تب `shr` در نتیجه‌گیری (`RT`)؛ بوم ۱۰۸۰×۱۳۵۰؛ `db.set.sc {p,names,habits,dark,who}`؛ `H.sc_save` با `daniSaveFile`/Web Share/دانلود.
+- ورود CSV: کارت در تنظیمات ← داده‌ها؛ `daniCsvImport.parseCSV/analyze`؛ ثبت‌ها با `src:'csv'`؛ قبل از نوشتن `snap()`.
+
+## js/notifx.js  (جدید، بقیه‌ی مرحله ۵)
+- اعلان گروهی (`db.set.ng`، هوک `window.daniNoteExtra` در `toNote` از `notifier.js`) و تاریخچه‌ی اعلان‌ها (`dani_ns` برنامه‌ی آینده، `dani_nh` تاریخچه؛ از طریق پوشاندن `daniPlanFilter`، بعد از `safety.js`). کارت در تنظیمات ← زمان.
+- `notifier.js`: نوع اعلان `dani-hab` با دکمه‌ی `hdone` برای یادآورِ متصل به عادت (`tickHabit`).
+
+> ترتیب تازه‌ی انتهای `index.html`: … `safety.js` ← `notifx.js` ← `phase2.js` ← `lock.js` ← `share-csv.js` ← `fx.js` ← `qa-more.js` ← `onboard.js` ← `i18n-late.js`.
