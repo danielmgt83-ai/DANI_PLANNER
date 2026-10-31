@@ -5,14 +5,14 @@
 (function(){
 const T=window.daniT;
 const say=(m,b)=>{try{toast(m,b)}catch(e){}};
-const SC=()=>{const s=db.set;if(!s.sc||typeof s.sc!=='object')s.sc={};const o=s.sc;if(!/^[wmt]$/.test(o.p||''))o.p='w';if(o.names===undefined)o.names=1;if(o.habits===undefined)o.habits=1;if(o.dark===undefined)o.dark=1;if(typeof o.who!=='string')o.who='';return o};
+const SC=()=>{const s=db.set;if(!s.sc||typeof s.sc!=='object')s.sc={};const o=s.sc;if(!/^[wmty]$/.test(o.p||''))o.p='w';if(o.names===undefined)o.names=1;if(o.habits===undefined)o.habits=1;if(o.dark===undefined)o.dark=1;if(typeof o.who!=='string')o.who='';return o};
 
 /* ---------- کارت اشتراک ---------- */
-function range(p){const t=todayISO();if(p==='t')return[t,t,T('امروز','Today')];if(p==='m')return[addD(t,-29),t,T('۳۰ روز اخیر','Last 30 days')];const a=weekStart(t);return[a,t,T('این هفته','This week')]}
+function range(p){const t=todayISO();if(p==='t')return[t,t,T('امروز','Today')];if(p==='m')return[addD(t,-29),t,T('۳۰ روز اخیر','Last 30 days')];if(p==='y')return[addD(t,-364),t,T('یک سال اخیر','Last 12 months')];const a=weekStart(t);return[a,t,T('این هفته','This week')]}
 function stats(){const o=SC(),[a,b,lab]=range(o.p),es=E(a,b)||[],tot=sum(es),days={},byA={};
   es.forEach(e=>{days[e.date]=(days[e.date]||0)+(e.min||0);byA[e.actId]=(byA[e.actId]||0)+(e.min||0)});
   const ad=Object.keys(days).length,top=Object.entries(byA).sort((x,y)=>y[1]-x[1]).slice(0,4),best=Object.entries(days).sort((x,y)=>y[1]-x[1])[0];
-  let hb=null;try{if(o.habits){const hs=hItems().filter(h=>!h.arch);if(hs.length){let e=0,d=0,cur=0;hs.forEach(h=>{const s=hStats(h);cur=Math.max(cur,s.cur||0);const w=o.p==='m'?s.m:s.w;e+=w.e;d+=w.dn});hb={pct:e?Math.round(d/e*100):null,cur}}}}catch(x){}
+  let hb=null;try{if(o.habits){const hs=hItems().filter(h=>!h.arch);if(hs.length){let e=0,d=0,cur=0;hs.forEach(h=>{const s=hStats(h);cur=Math.max(cur,s.cur||0);const w=(o.p==='m'||o.p==='y')?s.m:s.w;e+=w.e;d+=w.dn});hb={pct:e?Math.round(d/e*100):null,cur}}}}catch(x){}
   return{a,b,lab,tot,ad,top,best,hb,avg:ad?Math.round(tot/ad):0}}
 const clamp=(c,w,t)=>{while(t.length>1&&c.measureText(t).width>w)t=t.slice(0,-1);return t};
 function draw(cv){const o=SC(),s=stats(),W=1080,Hh=1350,c=cv.getContext('2d'),rtl=!LANGEN(),dark=!!o.dark;cv.width=W;cv.height=Hh;
@@ -54,7 +54,7 @@ document.addEventListener('input',e=>{const t=e.target;if(t&&t.id==='sc-who'){SC
 function shareTab(){const o=SC(),chip=(k,l)=>'<button class="chip '+(o[k]?'on':'')+'" data-a="sc_t" data-k="'+k+'">'+l+'</button>';
   setTimeout(preview,0);
   return'<div class="c" id="sccard">'+daniH('🖼','کارت اشتراک پیشرفت','Progress share card')+'<p class="m">'+T('یک تصویر زیبا از پیشرفتت برای فرستادن به دوستان. هر چیزی را که نمی‌خواهی دیده شود خاموش کن؛ هیچ چیز جایی فرستاده نمی‌شود مگر خودت بفرستی.','A neat picture of your progress to send to friends. Turn off anything you don’t want shown; nothing is sent anywhere unless you send it.')+'</p>'
-   +'<div class="row">'+[['t',T('امروز','Today')],['w',T('این هفته','This week')],['m',T('۳۰ روز','30 days')]].map(x=>'<button class="chip '+(o.p===x[0]?'on':'')+'" data-a="sc_p" data-p="'+x[0]+'">'+x[1]+'</button>').join('')+'</div>'
+   +'<div class="row">'+[['t',T('امروز','Today')],['w',T('این هفته','This week')],['m',T('۳۰ روز','30 days')],['y',T('یک سال','1 year')]].map(x=>'<button class="chip '+(o.p===x[0]?'on':'')+'" data-a="sc_p" data-p="'+x[0]+'">'+x[1]+'</button>').join('')+'</div>'
    +'<div class="row" style="margin-top:6px">'+chip('names','🏷 '+T('نام فعالیت‌ها','Activity names'))+chip('habits','🔥 '+T('عادت‌ها','Habits'))+chip('dark','🌙 '+T('پس‌زمینه‌ی تیره','Dark background'))+'</div>'
    +'<div class="row" style="margin-top:6px"><input id="sc-who" maxlength="40" value="'+esc(o.who)+'" placeholder="'+T('نام یا عنوان روی کارت (اختیاری)','Name or caption on the card (optional)')+'" style="flex:1;min-width:0"></div>'
    +'<div style="margin:10px 0;text-align:center"><canvas id="scv" style="width:100%;max-width:340px;border-radius:14px;box-shadow:0 4px 18px rgba(0,0,0,.25)"></canvas></div>'
