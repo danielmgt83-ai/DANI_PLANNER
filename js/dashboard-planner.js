@@ -83,7 +83,7 @@ function dashToday(){const d=todayISO(),pr=prog(d),es=E(d),rec=sum(es),dd=db.day
  else if(ALK==='analytics')cards.logs=cards.logs+cards.abars;
  if(window.daniWant){const w=window.daniWant;window.daniWant=null;return w.map(k=>cards[k]||'')}
  let ord=LK==='custom'?cwList():LO.order.slice();ord=['chk'].concat(ord.filter(k=>k!=='chk'));if(!ord.includes('rec'))ord.push('rec');if(!ord.includes('logs'))ord.push('logs');
- return dlSel(LK,ALK)+'<div class="g '+LO.cols+' al-'+ALK+'">'+ord.filter(k=>cards[k]&&(k==='rec'||k==='logs'||!hid(k))).map(k=>`<div ${(LO.full.includes(k)||k==='chk')?'style="grid-column:1/-1"':''}>${cards[k]}</div>`).join('')+'</div>'}
+ return '<div class="g '+LO.cols+' al-'+ALK+'">'+ord.filter(k=>cards[k]&&(k==='rec'||k==='logs'||!hid(k))).map(k=>`<div ${(LO.full.includes(k)||k==='chk')?'style="grid-column:1/-1"':''}>${cards[k]}</div>`).join('')+'</div>'}
 PX.acts=function(){const l=db.acts.filter(a=>!acQ||a.name.includes(acQ)),w=weekStart(todayISO());
  return`<div class="c"><h3>افزودن سریع فعالیت</h3><div class="row"><input id="qa" placeholder="نام فعالیت جدید + Enter" style="flex:1;min-width:160px">${catSel('qc','learn')}${prSel('qp','')}<button class="p" data-a="qadd">افزودن</button></div><div>${chips('qtg',[])}</div><p class="m">بقیه‌ی ویژگی‌ها (هدف، توضیح، زیرمجموعه) هر وقت خواستی با «ویرایش» تنظیم می‌شود.</p></div>
  <div class="c" style="margin-top:10px"><div class="row"><h3 class="sp">فعالیت‌ها (${fa(l.length)})</h3><input placeholder="جست‌وجو" value="${esc(acQ)}" data-ch="acq"><button data-a="tags">برچسب‌ها</button></div>

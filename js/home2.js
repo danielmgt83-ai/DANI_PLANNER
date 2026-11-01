@@ -150,7 +150,7 @@ H.h2_no=()=>{H2().hide=1;save();render()};
   if(typeof r==='string'&&(h2.cx||[]).length){let x='';(h2.cx||[]).forEach(k=>{try{x+=widget(k,{})}catch(e){}});
     if(x){const i=r.indexOf('hcta');if(i>=0){const j=r.indexOf('</button>',i);r=j>=0?r.slice(0,j+9)+x+r.slice(j+9):x+r}else r=x+r}}
   if(typeof r==='string')r+=custBtn();
-  if(h2.hide||typeof r!=='string')return r;
+  if(true||h2.hide||typeof r!=='string')return r; /* بنر «خانه‌ی جدید» به درخواست کاربر برداشته شد؛ شخصی‌سازی از دکمه‌ی خود صفحه هست */
   return '<div class="c h2b">'+daniH('✨','خانه‌ی جدید','New home')+'<div class="m">'+T('ساده‌تر، یکپارچه برای همه‌ی تم‌ها و کاملاً شخصی؛ یک پیش‌تنظیم انتخاب کن. چیزی پاک نمی‌شود و هر وقت خواستی برمی‌گردی.','Simpler, one layout for every theme, fully yours. Pick a preset; nothing is deleted and you can switch back anytime.')+'</div><div class="row"><button class="p" data-a="h2_edit">'+T('امتحان کن','Try it')+'</button><button data-a="h2_no">'+T('نه، ممنون','No thanks')+'</button></div></div>'+r}}
 
 /* سربرگ ثابت در همه‌ی تم‌ها و حالت‌ها: اگر خانه سلام/ساعت نداشت اضافه می‌شود */

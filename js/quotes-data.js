@@ -175,7 +175,7 @@ function skinCardHTML(){const cur=skId(),S=SKINS[cur];
   +'<p class="m">تصویر شما فقط در همین مرورگر نگه‌داری می‌شود و در فایل پشتیبان نیست.</p>'}
  h+='<div class="row" style="margin-top:8px"><label class="btn" style="margin:0">وارد کردن تم (فایل)<input type="file" accept=".json,application/json" data-skthemefile style="display:none"></label><button data-skexp>خروجی تم فعلی</button></div><p class="m">تم جدید فقط یک فایل داده (JSON) است؛ هیچ کدی اجرا نمی‌شود.</p>';
  return h+'</div>'}
-function injectSkinCard(){if(page!=='set'||typeof stt==='undefined'||stt!=='look'||$('#skincard'))return;const t=$('#pg .tabs');if(t)t.insertAdjacentHTML('afterend',skinCardHTML()+(typeof studioCard==='function'?studioCard():''))}
+function injectSkinCard(){if(page!=='set'||typeof stt==='undefined'||stt!=='look'||$('#skincard'))return;const t=$('#pg .tabs');if(t)t.insertAdjacentHTML('afterend',skinCardHTML())}
 const _renderBase=render;
 render=function(){_renderBase.apply(this,arguments);try{applySkin();decorateIcons();injectSkinCard()}catch(e){console.error('skin',e)}};
 function skSet(k,v){if(!db.set.skinImg||typeof db.set.skinImg!=='object')db.set.skinImg={};db.set.skinImg[k]=v}
