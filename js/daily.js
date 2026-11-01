@@ -85,7 +85,9 @@ H.dy_resc=e=>{const d=todayISO(),I=dayInfo(d),m=e.dataset.m,goal=(db.days[d]||{}
   save();say(T(fa(placed)+' کار چیده شد'+(fail?' · '+fa(fail)+' کار جا نشد؛ به فردا ببر':''),placed+' placed'+(fail?' · '+fail+' did not fit — move to tomorrow':'')));render()};
 
 /* ---------- ثبت یکپارچه ---------- */
-let TR={mode:'sw',act:'',min:25};
+const LG=()=>{const o=db.set;if(!o.lg||typeof o.lg!=='object')o.lg={on:1};if(o.lg.on===undefined)o.lg.on=1;if(!o.lg.ms||typeof o.lg.ms!=='object')o.lg.ms={};return o.lg};
+const lgOn=()=>!!LG().on;
+let TR={mode:'sw',act:'',sub:'',min:25};
 const tOn=()=>['running','paused','ended'].includes((db.timer||{}).state);
 const pmPh=()=>{try{return db.set.pomo&&db.set.pomo.ph}catch(e){return''}};
 function secTrack(){const t=db.timer||{},on=tOn(),ph=pmPh(),pmOn=ph==='work'||ph==='break'||ph==='long';
@@ -94,26 +96,37 @@ function secTrack(){const t=db.timer||{},on=tOn(),ph=pmPh(),pmOn=ph==='work'||ph
     h+='<div class="row" style="align-items:center"><span style="font-size:1.1em">● <b>'+esc(aN(t.actId))+'</b> <span class="m">'+esc(subN(t.actId,t.subId))+'</span></span><span class="sp"></span><span class="m">'+({running:T('در حال اجرا','running'),paused:T('مکث','paused'),ended:T('تمام شد','finished')}[t.state])+(pmOn&&ph==='work'?' · 🍅':'')+'</span></div><div class="big" id="tmd" style="text-align:center">00:00:00</div>'
      +'<div class="row" style="justify-content:center">'+(t.state==='running'?'<button data-a="dy_tp">⏸ '+T('مکث','Pause')+'</button>':t.state==='paused'?'<button class="p" data-a="dy_tr">▶ '+T('ادامه','Resume')+'</button>':'')+'<button class="p" data-a="dy_tf">⏹ '+T('پایان و ثبت','Finish & log')+'</button>'
      +(cd&&t.state!=='ended'?'<button class="chip" data-a="dy_tadd" data-m="5">+۵</button>':'')+(!cd&&t.state==='running'&&!pmOn?'<button class="chip" data-a="dy_topm">🍅 '+T('تبدیل به پومودورو','Make it a Pomodoro')+'</button>':'')+'<button class="chip" data-a="dy_tc">✕</button></div>';
+    h+='<label class="m">'+T('یادداشت جلسه','Session note')+'</label><input style="width:100%" value="'+esc(t.note||'')+'" data-ch="tnote"><label class="m">'+T('علت وقفه (اختیاری)','Reason for interruption (optional)')+'</label><input style="width:100%" value="'+esc(t.cut||'')+'" data-ch="tcut">';
     if(pmOn&&window.daniPomoCard)h+='<div style="margin-top:8px">'+window.daniPomoCard().replace('<div class="c" id="pmcard">','<div id="pmcard">')+'</div>';
     return h+'</div>'}
   if(pmOn&&window.daniPomoCard)return h+window.daniPomoCard().replace('<div class="c" id="pmcard">','<div id="pmcard">')+'</div>';
-  const M=[['sw','▶',T('کرنومتر','Stopwatch')],['cd','⏳',T('شمارش‌معکوس','Countdown')],['pm','🍅',T('پومودورو','Pomodoro')],['ql','⚡',T('ثبت سریع','Quick log')]];
+  const M=[['sw','▶',T('کرنومتر','Stopwatch')],['cd','⏳',T('شمارش‌معکوس','Countdown')],['pm','🍅',T('پومودورو','Pomodoro')],['ql','⚡',T('ثبت سریع','Quick log')],['mn','✍️',T('ثبت دستی','Manual')]];
   h+='<div class="row">'+M.map(m=>'<button class="chip '+(TR.mode===m[0]?'on':'')+'" data-a="dy_mode" data-m="'+m[0]+'">'+m[1]+' '+m[2]+'</button>').join('')+'</div>';
-  if(TR.mode==='ql'){let q='';try{q=window.daniQuickLog?window.daniQuickLog():''}catch(e){}return h+'<div style="margin-top:8px">'+q+'</div></div>'}
+  if(TR.mode==='mn'){let f='';try{RM.m='manual';f=window.daniRecRaw()}catch(e){console.error(e)}f=f.replace(/^<div class="c"><h3>[^<]*<\/h3><div class="row seg">[\s\S]*?<\/div>/,'<div>').replace(/<button class="p" data-a="rgo2">/,'<button class="p" data-a="rgo2">✍️ ');return h+'<div style="margin-top:8px">'+f+'</div>'+foot()}
+  if(TR.mode==='ql'){let q='';try{q=window.daniQuickLog?window.daniQuickLog():''}catch(e){}return h+'<div style="margin-top:8px">'+q+'</div>'+foot()}
   const pi=(plan(todayISO())||[]).filter(x=>!['done','canceled','carried'].includes(x.status)).map(x=>x.actId),ids=[...new Set(pi.concat(recent(8)))].slice(0,8);
   if(!TR.user||!TR.act||!act(TR.act))TR.act=ids[0]||(db.acts.find(a=>a.active&&!a.arch&&a.cat!=='sleep')||{}).id||'';
   h+='<div class="m" style="margin-top:8px">'+T('چه کاری؟','What are you doing?')+(pi.length?' <small>('+T('اول: از برنامه‌ی امروز','first: from today\'s plan')+')</small>':'')+'</div><div class="row">'+ids.map(id=>'<button class="chip '+(TR.act===id?'on':'')+'" data-a="dy_pick" data-id="'+id+'">'+(pi.includes(id)?'🎯 ':'')+esc(aN(id))+'</button>').join('')+'</div>'
-   +'<div class="row" style="margin-top:4px"><select id="dy-a" data-dya style="flex:1;min-width:0">'+aOpts(TR.act)+'</select></div>';
+   +'<div class="row" style="margin-top:4px"><select id="dy-a" data-dya style="flex:1;min-width:0">'+aOpts(TR.act)+'</select>'+(((act(TR.act)||{}).subs||[]).length?'<select id="dy-s" data-dys style="flex:1;min-width:0"><option value="">'+T('— زیرمجموعه —','— sub-item —')+'</option>'+act(TR.act).subs.map(q=>'<option value="'+esc(q.id)+'"'+(TR.sub===q.id?' selected':'')+'>'+esc(q.name)+'</option>').join('')+'</select>':'')+'</div>';
   if(TR.mode==='cd')h+='<div class="row" style="margin-top:6px">'+[15,25,45,60,90].map(n=>'<button class="chip '+(TR.min===n?'on':'')+'" data-a="dy_min" data-n="'+n+'">'+fa(n)+'</button>').join('')+'<input type="number" id="dy-m" min="1" max="600" value="'+TR.min+'" style="width:70px"><span class="m">'+T('دقیقه','min')+'</span></div>';
   h+='<div class="row" style="margin-top:8px"><button class="p" data-a="dy_go2" style="flex:1">'+({sw:'▶ '+T('شروع کرنومتر','Start stopwatch'),cd:'⏳ '+T('شروع شمارش‌معکوس','Start countdown'),pm:'🍅 '+T('شروع پومودورو','Start Pomodoro')}[TR.mode])+'</button></div>'
-   +'<p class="m">'+T('بعداً هم می‌توانی کرنومتر در حال اجرا را به پومودورو تبدیل کنی.','You can turn a running stopwatch into a Pomodoro later.')+'</p></div>';return h}
-H.dy_mode=e=>{TR.mode=e.dataset.m;render()};H.dy_pick=e=>{TR.act=e.dataset.id;TR.user=1;render()};H.dy_min=e=>{TR.min=+e.dataset.n;render()};
-document.addEventListener('change',e=>{const t=e.target;if(t&&t.dataset&&t.dataset.dya!==undefined){TR.act=t.value;TR.user=1;render()}else if(t&&t.id==='dy-m')TR.min=Math.max(1,Math.min(600,+t.value||25))});
+   +'<p class="m">'+T('بعداً هم می‌توانی کرنومتر در حال اجرا را به پومودورو تبدیل کنی.','You can turn a running stopwatch into a Pomodoro later.')+'</p>'+foot();return h}
+H.dy_mode=e=>{TR.mode=e.dataset.m;if(TR.act)LG().ms[TR.act]=TR.mode;save();render()};H.dy_pick=e=>{TR.act=e.dataset.id;TR.user=1;TR.sub='';const m=LG().ms[TR.act];if(m)TR.mode=m;render()};H.dy_min=e=>{TR.min=+e.dataset.n;render()};
+document.addEventListener('change',e=>{const t=e.target;if(t&&t.dataset&&t.dataset.dya!==undefined){TR.act=t.value;TR.user=1;TR.sub='';const m=LG().ms[TR.act];if(m)TR.mode=m;render()}else if(t&&t.dataset&&t.dataset.dys!==undefined){TR.sub=t.value}else if(t&&t.id==='dy-m')TR.min=Math.max(1,Math.min(600,+t.value||25))});
 H.dy_go2=()=>{const m=(document.getElementById('dy-m')||{}).value;if(m)TR.min=Math.max(1,Math.min(600,+m||25));if(!TR.act)return say(T('یک فعالیت انتخاب کن','Pick an activity'),1);
-  if(TR.mode==='pm'&&window.daniPomoStart)window.daniPomoStart(TR.act);else if(TR.mode==='cd')TM.start('cd',TR.act,'',TR.min);else TM.start('sw',TR.act,'',0);render()};
+  LG().ms[TR.act]=TR.mode;if(TR.mode==='pm'&&window.daniPomoStart)window.daniPomoStart(TR.act);else if(TR.mode==='cd')TM.start('cd',TR.act,TR.sub||'',TR.min);else TM.start('sw',TR.act,TR.sub||'',0);save();render()};
 H.dy_tp=()=>{TM.pause();render()};H.dy_tr=()=>{TM.resume();render()};H.dy_tf=()=>{TM.finish();render()};H.dy_tc=()=>{TM.cancel();render()};H.dy_tadd=e=>{TM.add(+e.dataset.m||5);render()};
 H.dy_topm=()=>{const t=db.timer,a=t.actId;if(!window.daniPomoStart)return;if(TM.finish()){window.daniPomoStart(a);say(T('کار ثبت شد و پومودورو شروع شد 🍅','Logged — Pomodoro started 🍅'))}render()};
 
+/* میانبرهای «دسترسی سریع» قدیمی، داخل همین کارت */
+function foot(){return'<details style="margin-top:8px"><summary class="m" style="cursor:pointer">'+T('میانبرها','Shortcuts')+'</summary><div class="row">'+[['acts','＋',T('افزودن فعالیت','Add activity')],['plan','▦',T('افزودن برنامه','Add plan')],['goals','◎',T('هدف','Goal')],['notes','✎',T('یادداشت','Note')],['hab','↻',T('عادت','Habit')]].map(x=>'<button class="chip" data-a="go" data-p="'+x[0]+'">'+x[1]+' '+x[2]+'</button>').join('')+'</div></details></div>'}
+/* وصل‌کردن به جاهای قدیمی (کارت‌های جدا فقط وقتی «ثبت یکپارچه» خاموش شود برمی‌گردند) */
+const _rec=recCard;recCard=function(){return lgOn()?secTrack():_rec.apply(this,arguments)};
+{const _f=hFocusTimer;hFocusTimer=function(){return lgOn()?secTrack():_f.apply(this,arguments)}}
+{const _q=hQuickLog;hQuickLog=function(){return lgOn()?'':_q.apply(this,arguments)}}
+{const _a=hActionsDesk;hActionsDesk=function(){return lgOn()?'':_a.apply(this,arguments)}}
+window.daniLogCard=secTrack;
+H.lg_t=()=>{LG().on=LG().on?0:1;save();render()};
 /* ---------- سایر کارت‌ها ---------- */
 function secTl(){const d=todayISO();return'<div class="c dyc">'+daniH('🕒','تایم‌لاین امروز','Today\'s timeline')+tlHTML(d)+'<details style="margin-top:6px"><summary class="m">'+T('فهرست ثبت‌ها','Entries')+'</summary>'+logTL(d)+'</details></div>'}
 function secEd(){const I=dayInfo(todayISO()),mn=sum(E(todayISO())||[]),late=nowMin()>=18*60;
@@ -165,7 +178,7 @@ PG.mx=function(){const mod=(typeof MODULES!=='undefined'?MODULES:[]).filter(m=>m
    +(DY().setup?'<button class="chip" data-a="dy_sureset" style="margin:3px">↺ '+T('نمایش دوباره‌ی راه‌اندازی در «امروز»','Show set-up again on Today')+'</button>':'')+'</div>';return h};
 H.dy_sureset=()=>{DY().setup=0;save();render()};
 /* در تنظیمات ← ظاهر هم قابل انتخاب باشد */
-{const _sp=setPage;setPage=function(){const h=_sp.apply(this,arguments);return(typeof h==='string'&&typeof stt!=='undefined'&&stt==='look')?h+'<div class="c" id="nvcard">'+daniH('🧭','شکل منو','Menu style')+'<div class="row"><button class="chip '+(simple()?'on':'')+'" data-a="nv_set" data-m="simple">'+T('ساده','Simple')+'</button><button class="chip '+(simple()?'':'on')+'" data-a="nv_set" data-m="classic">'+T('کلاسیک','Classic')+'</button></div></div>':h}}
+{const _sp=setPage;setPage=function(){const h=_sp.apply(this,arguments);return(typeof h==='string'&&typeof stt!=='undefined'&&stt==='look')?h+'<div class="c" id="lgcard">'+daniH('⏱','کارت «ثبت» یکپارچه','Unified Track card')+'<div class="row"><button class="chip '+(lgOn()?'on':'')+'" data-a="lg_t">'+(lgOn()?'✓ ':'')+T('کرنومتر، شمارش‌معکوس، پومودورو، ثبت سریع و ثبت دستی در یک کارت','Stopwatch, countdown, Pomodoro, quick and manual log in one card')+'</button></div><p class="m">'+T('خاموش‌کردن، کارت‌های جدای قدیمی (تمرکز فعلی، ثبت سریع عملکرد، دسترسی سریع، ثبت فعالیت) را برمی‌گرداند.','Turning it off brings back the old separate cards (Current Focus, Quick Log, Quick Actions, Log activity).')+'</p></div><div class="c" id="nvcard">'+daniH('🧭','شکل منو','Menu style')+'<div class="row"><button class="chip '+(simple()?'on':'')+'" data-a="nv_set" data-m="simple">'+T('ساده','Simple')+'</button><button class="chip '+(simple()?'':'on')+'" data-a="nv_set" data-m="classic">'+T('کلاسیک','Classic')+'</button></div></div>':h}}
 try{const s=document.createElement('style');s.textContent='.dyc{margin-top:10px}.dyp{display:flex;gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid var(--b,#8883)}.dyp.dn b{opacity:.65}.dyp.off{opacity:.55}.dyex{margin:6px 0;padding:6px 10px;border-radius:10px;background:rgba(245,158,11,.1)}.bar.thin{height:5px;margin:3px 0}'
  +'.dytl{margin-top:6px}.dytr{position:relative;height:12px;margin-bottom:4px;border-radius:6px;background:rgba(127,127,127,.12)}.dytr.big{height:30px}.dytr i{position:absolute;top:0;bottom:0;border-radius:4px}.dytr i.pb{opacity:.55;border:1px dashed currentColor;background-clip:padding-box}.dytr .gp{position:absolute;top:0;bottom:0;cursor:pointer;background:repeating-linear-gradient(45deg,rgba(245,158,11,.5) 0 4px,transparent 4px 8px);border:1px solid rgba(245,158,11,.7);border-radius:4px;z-index:2}.dytr .nw{position:absolute;top:-3px;bottom:-3px;width:2px;background:#ef4444;z-index:3}'
  +'.dyax{position:relative;height:14px;font-size:10px;opacity:.7}.dyax span{position:absolute;transform:translateX(-50%)}';document.head.appendChild(s)}catch(e){}

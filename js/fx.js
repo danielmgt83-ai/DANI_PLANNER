@@ -6,7 +6,7 @@
 (function(){
 const T=window.daniT;
 const FX=()=>{const s=db.set;if(!s.fx||typeof s.fx!=='object')s.fx={};if(s.fx.hap===undefined)s.fx.hap=1;if(s.fx.anim===undefined)s.fx.anim=1;return s.fx};
-const VER='2026.11.5';
+const VER='2026.11.6';
 /* ---------- لرزش و پاپ ---------- */
 const HAP=/^(qk_go|nx_go|nx_sw|pf_add|tp_ap|bin_rs|ex_save|ab_now|ql_|pm_|tm_|tstart|tfinish|hab|ob_log|ob_go|dnd_set|ls_now|dk_)/;
 const reduce=()=>{try{return matchMedia('(prefers-reduced-motion: reduce)').matches}catch(e){return false}};
@@ -19,6 +19,7 @@ st.textContent='@keyframes fxpop{0%{transform:scale(1)}40%{transform:scale(.92)}
 document.head.appendChild(st);
 /* ---------- چه چیزی تازه است ---------- */
 const WN=[
+ ['⏱','یک کارت «ثبت» به‌جای چند کارت جدا (کرنومتر، شمارش‌معکوس، پومودورو، ثبت سریع، ثبت دستی، میانبرها)؛ شیوه‌ی هر فعالیت یادش می‌ماند. کارت‌های هم‌هدف در تنظیمات و برنامه زیر یک عنوان تاشو جمع شدند','One “Track” card instead of several (stopwatch, countdown, Pomodoro, quick and manual log, shortcuts); each activity remembers its mode. Related cards in Settings and Plan are grouped under one collapsible title'],
  ['🎴','نوار تم (سلام، تاریخ، ساعت و جمله‌ی شخصیت) بالای همه‌ی صفحه‌ها و قابل‌بستن؛ «برنامه‌ی فردا» حالا تبی در میزکار است؛ تاریخ‌ها همه‌جا طبق تقویم انتخابی (شمسی/میلادی)','A theme bar (greeting, date, time, character quote) on every page, closable; “Tomorrow’s plan” is now a Workspace tab; every date follows your chosen calendar'],
  ['🎓','پروژه‌ها: پروژه ← بخش ← نوع کار با موعد و بودجه‌ی ساعت؛ آهنگ لازم برای امروز، هفته و ماه، و افزودن به برنامه‌ی فردا با یک ضربه','Projects: project → part → work type with a deadline and hour budget; the pace you need today, this week and this month, and one-tap add to tomorrow’s plan'],
  ['🌙','برنامه‌ی فردا در یک صفحه‌ی مرتب (هر خط یک کار)، صفحه‌ی «امروز» با ثبت یکپارچه و تایم‌لاین، و «نتیجه‌ی امروز» — منوی ساده (قابل‌برگشت به کلاسیک از «بیشتر»)','Tomorrow’s plan on one tidy page (one item per line), a Today page with unified tracking and a timeline, and Today’s result — simple menu (switch back to classic under “More”)'],
