@@ -6,6 +6,8 @@
    داده: db.mods.pj {items:[{id,name,dl,due,hrs,from,arch,parts:[{id,a,s:[زیرمجموعه‌ها؛ خالی=همه],hrs}]}], today:1, v:'d|w|m'}
    موعد: یا یکی از موعدهای بخش «موعدها» (p.dl) یا تاریخ دستی (p.due).
    نمایش: امروز / این هفته / این ماه؛ هدفِ دوره = آهنگ لازم (ساعتِ مانده ÷ روزِ مانده) و «انجام‌شده» از ثبت‌ها.
+   v44: پروژه = موعد + هدف + عادت + یادآور در یک جا: p.hb (شناسه‌ی عادت‌ها)، p.rm (شناسه‌ی یادآورها)، p.dl (موعد؛ اگر تاریخ دستی بدهی یک موعد هم در بخش «موعدها» ساخته می‌شود تا هشدار بگیرد، p.dlAuto)،
+   موعدهای مستقل و هدف‌های بلندمدتِ قدیمی همین‌جا فهرست می‌شوند و با یک دکمه «پروژه» می‌شوند (داده‌ی قبلی دست‌نخورده).
    اختیاری: کارت «پروژه‌ها» در «امروز» و «برنامه‌ی فردا» (db.mods.pj.today)، دکمه‌ی «به برنامه‌ی فردا». */
 (function(){
 const T=window.daniT;
@@ -31,6 +33,57 @@ const mm0=m=>{m=Math.round(m);const h=Math.floor(m/60),r=m%60;return(h?h+'h':'')
 const bar=(a,b,c)=>'<div class="bar thin"><i style="width:'+Math.min(100,b?Math.round(a/b*100):0)+'%'+(c?';background:'+c:'')+'"></i></div>';
 const PN={d:T('امروز','Today'),w:T('این هفته','This week'),m:T('این ماه','This month')};
 
+/* ---------- عادت‌ها و یادآورهای پروژه ---------- */
+const zHs=()=>{try{return zHB()}catch(e){return null}};
+const hOf=p=>{const hs=zHs();return hs?(p.hb||[]).map(id=>hItems().find(h=>h.id===id&&!h.arch)).filter(Boolean):[]};
+const rOf=p=>{try{const R=zRM();return (p.rm||[]).map(id=>R.items.find(r=>r.id===id&&!r.off)).filter(Boolean)}catch(e){return[]}};
+function hrBlock(p){const t=todayISO(),log=((zHs()||{log:{}}).log||{})[t]||{},hb=hOf(p),rm=rOf(p);
+  let h='<div class="dyp" style="display:block"><div class="row"><b style="flex:1">🔁 '+T('عادت‌های این پروژه','Habits for this project')+'</b><button class="chip" data-a="pj_hnew" data-p="'+esc(p.id)+'">＋ '+T('عادت','Habit')+'</button></div>'
+   +(hb.length?hb.map(x=>{const d=log[x.id]&&log[x.id].s==='done';return'<div class="row" style="margin-top:3px"><button class="chip '+(d?'on':'')+'" data-a="pj_hb" data-h="'+esc(x.id)+'">'+(d?'✅':'⬜')+' '+esc(x.name)+'</button><span class="m" style="flex:1">'+(x.type==='days'?(x.days||[]).map(i=>zWD[i]).join(' '):T('هر روز','Every day'))+'</span><button class="chip" data-a="pj_hun" data-p="'+esc(p.id)+'" data-h="'+esc(x.id)+'" aria-label="unlink">✕</button></div>'}).join(''):'<div class="m">'+T('هنوز عادتی وصل نشده (مثلاً «۳۰ دقیقه مرور»).','No habit linked yet (e.g. “30 min review”).')+'</div>')+'</div>';
+  h+='<div class="dyp" style="display:block"><div class="row"><b style="flex:1">🔔 '+T('یادآوری‌های این پروژه','Reminders for this project')+'</b><button class="chip" data-a="pj_rnew" data-p="'+esc(p.id)+'">＋ '+T('یادآوری','Reminder')+'</button></div>'
+   +(rm.length?rm.map(x=>'<div class="row" style="margin-top:3px"><span style="flex:1;min-width:0">'+esc(x.title)+' <span class="m">'+(x.repeat==='none'?fmtD(x.date):(RREP[x.repeat]||''))+' · '+fa(x.time)+'</span></span><button class="chip" data-a="pj_run" data-p="'+esc(p.id)+'" data-r="'+esc(x.id)+'" aria-label="unlink">✕</button></div>').join(''):'<div class="m">'+T('بدون یادآوری.','No reminders.')+'</div>')+'</div>';
+  return h}
+const byId=id=>PJ().items.find(x=>x.id===id);
+H.pj_hb=e=>{const t=todayISO(),L=zobj(zHB().log,t),id=e.dataset.h,cur=L[id]&&L[id].s;if(cur==='done'){const n=L[id].n;if(n)L[id]={s:'',n};else delete L[id]}else L[id]=Object.assign({},L[id],{s:'done'});if(!Object.keys(L).length)delete zHB().log[t];save();render()};
+H.pj_hun=e=>{const p=byId(e.dataset.p);if(p){p.hb=(p.hb||[]).filter(x=>x!==e.dataset.h);save();render()}};
+H.pj_run=e=>{const p=byId(e.dataset.p);if(p){p.rm=(p.rm||[]).filter(x=>x!==e.dataset.r);save();render()}};
+let SUB=null;
+H.pj_hnew=e=>{const p=byId(e.dataset.p);if(!p)return;SUB={k:'h',p:p.id};
+  const ex=hItems().filter(x=>!x.arch&&!(p.hb||[]).includes(x.id));
+  modal('<div class="c"><h3>'+T('عادت برای','Habit for')+' «'+esc(p.name)+'»</h3>'
+   +(ex.length?'<label class="m">'+T('یک عادت موجود را وصل کن','Link an existing habit')+'</label><div class="row"><select id="sb-ex" style="flex:1;min-width:0"><option value="">—</option>'+ex.map(x=>'<option value="'+esc(x.id)+'">'+esc(x.name)+'</option>').join('')+'</select><button class="chip" data-a="pj_hlink">'+T('وصل کن','Link')+'</button></div><p class="m">'+T('یا یکی تازه بساز:','or create a new one:')+'</p>':'')
+   +'<input id="sb-n" placeholder="'+T('مثلاً ۳۰ دقیقه مرور جزوه','e.g. 30 min notes review')+'" style="width:100%"><div class="row" style="margin-top:6px"><select id="sb-t"><option value="daily">'+T('هر روز','Every day')+'</option><option value="days">'+T('روزهای انتخابی','Chosen days')+'</option></select></div>'
+   +'<div class="row" style="margin:6px 0">'+WORDER.map(i=>'<label class="chip"><input type="checkbox" class="sb-d" value="'+i+'">'+zWD[i]+'</label>').join('')+'</div>'
+   +'<label class="m">'+T('تاریخ شروع','Start date')+'</label>'+daniDF.html('sb-s',p.from||todayISO())
+   +'<div class="row" style="margin-top:8px"><button class="on" data-a="pj_hsave">'+T('ذخیره','Save')+'</button><button data-a="cl">'+T('انصراف','Cancel')+'</button></div></div>')};
+H.pj_hlink=()=>{const p=byId(SUB&&SUB.p),id=(document.getElementById('sb-ex')||{}).value;if(!p||!id)return;(p.hb=p.hb||[]).push(id);SUB=null;closeM();save();render()};
+H.pj_hsave=()=>{const p=byId(SUB&&SUB.p);if(!p)return;const name=(document.getElementById('sb-n').value||'').trim().slice(0,60);if(!name)return say(T('نام عادت را بنویس','Type a habit name'),1);
+  const type=document.getElementById('sb-t').value==='days'?'days':'daily',days=[...document.querySelectorAll('.sb-d')].filter(x=>x.checked).map(x=>+x.value);if(type==='days'&&!days.length)return say(T('حداقل یک روز را انتخاب کن','Pick at least one day'),1);
+  const HB=zHB();if(HB.items.length>=100)return say(T('حداکثر ۱۰۰ عادت','Up to 100 habits'),1);const id='h'+uid();
+  HB.items.push({id,name,type,days:type==='days'?days:[0,1,2,3,4,5,6],start:daniDF.get('sb-s')||todayISO(),color:zCOLORS[0],note:'',arch:false});(p.hb=p.hb||[]).push(id);SUB=null;closeM();save();render()};
+H.pj_rnew=e=>{const p=byId(e.dataset.p);if(!p)return;SUB={k:'r',p:p.id};const ex=(()=>{try{return zRM().items.filter(r=>!r.off&&!(p.rm||[]).includes(r.id))}catch(x){return[]}})();
+  modal('<div class="c"><h3>'+T('یادآوری برای','Reminder for')+' «'+esc(p.name)+'»</h3>'
+   +(ex.length?'<label class="m">'+T('یک یادآوری موجود را وصل کن','Link an existing reminder')+'</label><div class="row"><select id="sb-ex" style="flex:1;min-width:0"><option value="">—</option>'+ex.map(x=>'<option value="'+esc(x.id)+'">'+esc(x.title)+'</option>').join('')+'</select><button class="chip" data-a="pj_rlink">'+T('وصل کن','Link')+'</button></div><p class="m">'+T('یا یکی تازه بساز:','or create a new one:')+'</p>':'')
+   +'<input id="sb-n" placeholder="'+T('مثلاً شروع درس ریاضی','e.g. Start maths')+'" style="width:100%"><label class="m">'+T('تاریخ','Date')+'</label>'+daniDF.html('sb-s',todayISO())
+   +'<div class="row" style="margin-top:6px"><input id="sb-tm" type="time" value="18:00"><select id="sb-t">'+Object.keys(RREP).map(k=>'<option value="'+k+'">'+(k==='none'?T('بدون تکرار','No repeat'):k==='daily'?T('هر روز','Daily'):k==='weekly'?T('هفتگی','Weekly'):T('ماهانه','Monthly'))+'</option>').join('')+'</select></div>'
+   +'<div class="row" style="margin:6px 0">'+WORDER.map(i=>'<label class="chip"><input type="checkbox" class="sb-d" value="'+i+'">'+zWD[i]+'</label>').join('')+'</div><p class="m">'+T('روزها فقط برای «هفتگی» به کار می‌رود.','Days apply to “Weekly” only.')+'</p>'
+   +'<div class="row" style="margin-top:8px"><button class="on" data-a="pj_rsave">'+T('ذخیره','Save')+'</button><button data-a="cl">'+T('انصراف','Cancel')+'</button></div></div>')};
+H.pj_rlink=()=>{const p=byId(SUB&&SUB.p),id=(document.getElementById('sb-ex')||{}).value;if(!p||!id)return;(p.rm=p.rm||[]).push(id);SUB=null;closeM();save();render()};
+H.pj_rsave=()=>{const p=byId(SUB&&SUB.p);if(!p)return;const title=(document.getElementById('sb-n').value||'').trim().slice(0,80),date=daniDF.get('sb-s'),time=document.getElementById('sb-tm').value,repeat=document.getElementById('sb-t').value,days=[...document.querySelectorAll('.sb-d')].filter(x=>x.checked).map(x=>+x.value);
+  if(!title)return say(T('عنوان را بنویس','Type a title'),1);if(!date||!mTime(time))return say(T('تاریخ و ساعت را درست وارد کن','Enter a valid date and time'),1);if(repeat==='weekly'&&!days.length)return say(T('برای هفتگی روز انتخاب کن','Pick days for weekly'),1);
+  const R=zRM();if(R.items.length>=200)return say(T('حداکثر ۲۰۰ یادآوری','Up to 200 reminders'),1);const id='r'+uid();
+  R.items.push({id,off:false,title,date,time,repeat,days:repeat==='weekly'?days:[],steps:[0,10],link:null});(p.rm=p.rm||[]).push(id);SUB=null;closeM();save();render()};
+
+/* ---------- موعدهای مستقل و هدف‌های قدیمی: همین‌جا دیده می‌شوند ---------- */
+function others(){const A=PJ(),used=new Set(A.items.map(p=>p.dl).filter(Boolean));
+  const dl=(zDL().items||[]).filter(d=>!d.arch&&!d.done&&!used.has(d.id)),gl=(db.goals||[]).map((g,i)=>({g,i})).filter(x=>!x.g.pj);
+  if(!dl.length&&!gl.length)return'';
+  return'<details class="c" style="margin-top:10px"><summary style="cursor:pointer"><b>⏳ '+T('موعدها و هدف‌های بدون پروژه','Deadlines & goals without a project')+'</b> <span class="m">· '+fa(dl.length+gl.length)+'</span></summary><p class="m">'+T('این‌ها همان موعدها و هدف‌های قبلی‌اند، دست‌نخورده. با «پروژه‌اش کن» بخش، ساعت، عادت و یادآور هم می‌گیرند.','These are your earlier deadlines and goals, untouched. “Make it a project” adds parts, hours, habits and reminders.')+'</p>'
+   +dl.map(d=>'<div class="dyp"><span style="flex:1;min-width:0">⏳ '+esc(d.title)+' <span class="m">'+fmtD(d.dt)+'</span></span><button class="chip" data-a="pj_fromdl" data-id="'+esc(d.id)+'">🎓 '+T('پروژه‌اش کن','Make it a project')+'</button></div>').join('')
+   +gl.map(x=>'<div class="dyp"><span style="flex:1;min-width:0">🏁 '+esc(x.g.t)+' <span class="m">'+(x.g.due?fmtD(x.g.due):'')+'</span></span><button class="chip" data-a="pj_fromgl" data-i="'+x.i+'">🎓 '+T('پروژه‌اش کن','Make it a project')+'</button></div>').join('')+'</details>'}
+H.pj_fromdl=e=>{const d=(zDL().items||[]).find(x=>x.id===e.dataset.id);if(!d)return;const p={id:'p'+uid(),cr:Date.now(),arch:0,name:d.title.slice(0,80),dl:d.id,due:'',hrs:0,from:todayISO(),parts:[],hb:[],rm:[]};PJ().items.push(p);save();ED=freshED(p);open()};
+H.pj_fromgl=e=>{const g=(db.goals||[])[+e.dataset.i];if(!g)return;const parts=g.actId&&act(g.actId)?[{id:uid(),a:g.actId,s:[],hrs:0}]:[];const p={id:'p'+uid(),cr:Date.now(),arch:0,name:String(g.t).slice(0,80),dl:'',due:g.due||'',hrs:0,from:todayISO(),parts,hb:[],rm:[]};g.pj=p.id;PJ().items.push(p);save();ED=freshED(p);open()};
+
 /* ---------- صفحه ---------- */
 function projCard(p,v){const s=stats(p,v),ps=parts(p);
   let h='<div class="c pjc" style="margin-top:10px"><div class="row"><b style="flex:1;min-width:0">'+esc(p.name)+'</b>'+(s.st?'<span class="chip on" style="background:'+s.col+'22;color:'+s.col+'">'+s.st+'</span>':'')+'</div>';
@@ -42,13 +95,15 @@ function projCard(p,v){const s=stats(p,v),ps=parts(p);
     h+='<div class="dyp" style="display:block"><div class="row"><span style="width:10px;height:10px;border-radius:50%;background:'+esc(a.color||'#3b82f6')+'"></span><b style="flex:1;min-width:0">'+esc(a.name)+'</b><button class="chip" data-a="pj_add" data-p="'+esc(p.id)+'" data-x="'+esc(x.id)+'" title="'+T('به برنامه‌ی فردا','To tomorrow’s plan')+'">＋ '+T('فردا','Tomorrow')+'</button></div>'
      +'<div class="m">'+PN[v]+' '+mm(per)+' · '+T('کل','total')+' '+mm(tot)+(bh?' / '+mm(bh):'')+'</div>'+(bh?bar(tot,bh,a.color):'')
      +(subs.length?'<div class="m" style="margin-top:2px">'+subs.map(q=>{const t1=mins(p,s.from,todayISO(),x,q.id);return esc(q.name)+' '+(t1?mm(t1):'—')}).join(' · ')+'</div>':'')+'</div>'});
+  h+=hrBlock(p);
   if(!ps.length)h+='<p class="m">'+T('هنوز بخشی نداری؛ «ویرایش» را بزن و بخش اضافه کن.','No parts yet — tap Edit and add one.')+'</p>';
   h+='<div class="row" style="margin-top:6px"><button class="chip" data-a="pj_ed" data-p="'+esc(p.id)+'">✏️ '+T('ویرایش','Edit')+'</button><button class="chip" data-a="pj_arch" data-p="'+esc(p.id)+'">'+(p.arch?'↩ '+T('بازگردانی','Restore'):'🗄 '+T('بایگانی','Archive'))+'</button></div></div>';return h}
 function pjCards(v,arch){const it=PJ().items.filter(p=>!!p.arch===!!arch);return it.map(p=>projCard(p,v)).join('')}
 PG.pj=function(){const A=PJ(),v=A.v;
-  let h='<div class="c">'+daniH('🎓','پروژه‌ها','Projects')+'<p class="m">'+T('هر پروژه موعد و بودجه‌ی ساعت دارد، از چند بخش ساخته می‌شود و هر بخش چند نوع کار دارد (مثلاً MBA ← ریاضی ← تمرین). زمانی که با کرنومتر یا ثبت سریع ثبت می‌کنی خودکار به پروژه می‌رود.','Each project has a deadline and an hour budget, is made of parts, and each part has work types (e.g. MBA → Maths → Practice). Time you log with the timer or quick log lands in the project automatically.')+'</p>'
+  let h='<div class="c">'+daniH('🎓','پروژه‌ها، موعدها و اهداف','Projects, deadlines & goals')+'<p class="m">'+T('هر پروژه موعد دارد یا ندارد (آزمون یا ورزش)، بودجه‌ی ساعت دارد، عادت‌ها و یادآورهایش همین‌جاست. هر پروژه موعد و بودجه‌ی ساعت دارد، از چند بخش ساخته می‌شود و هر بخش چند نوع کار دارد (مثلاً MBA ← ریاضی ← تمرین). زمانی که با کرنومتر یا ثبت سریع ثبت می‌کنی خودکار به پروژه می‌رود.','Each project has a deadline and an hour budget, is made of parts, and each part has work types (e.g. MBA → Maths → Practice). Time you log with the timer or quick log lands in the project automatically.')+'</p>'
    +'<div class="row">'+['d','w','m'].map(k=>'<button class="chip '+(v===k?'on':'')+'" data-a="pj_v" data-v="'+k+'">'+PN[k]+'</button>').join('')+'<span style="flex:1"></span><button class="chip on" data-a="pj_ed" data-p="">＋ '+T('پروژه‌ی جدید','New project')+'</button></div></div>';
   const cur=pjCards(v,false);h+=cur||'<div class="c" style="margin-top:10px"><p class="m">'+T('هنوز پروژه‌ای نداری. «پروژه‌ی جدید» را بزن؛ نام، موعد و بودجه‌ی ساعت را بگذار و بخش‌ها را از فعالیت‌هایت انتخاب کن.','No projects yet. Tap “New project”, set a name, deadline and hour budget and pick parts from your activities.')+'</p></div>';
+  h+=others();
   const ar=PJ().items.filter(p=>p.arch).length;if(ar)h+='<details style="margin-top:10px"><summary class="m" style="cursor:pointer">🗄 '+T('بایگانی','Archive')+' · '+fa(ar)+'</summary>'+pjCards(v,true)+'</details>';
   h+='<div class="c" style="margin-top:10px"><label class="row" style="gap:8px"><input type="checkbox" data-a="pj_td" '+(A.today?'checked':'')+'> '+T('نمایش کارت پروژه‌ها در «امروز» و «برنامه‌ی فردا»','Show the Projects card on Today and Tomorrow')+'</label></div>';
   return h};
@@ -61,7 +116,7 @@ H.pj_add=e=>{const p=PJ().items.find(x=>x.id===e.dataset.p);if(!p)return;const x
 
 /* ---------- ویرایشگر ---------- */
 let ED=null;
-const freshED=p=>p?{id:p.id,name:p.name,dl:p.dl||'',due:p.due||'',hrs:p.hrs||'',from:p.from||todayISO(),parts:JSON.parse(JSON.stringify(p.parts||[]))}:{id:'',name:'',dl:'',due:'',hrs:'',from:todayISO(),parts:[]};
+const freshED=p=>p?{id:p.id,name:p.name,dl:p.dlAuto?'':(p.dl||''),due:p.dlAuto?due(p):(p.due||''),hrs:p.hrs||'',from:p.from||todayISO(),parts:JSON.parse(JSON.stringify(p.parts||[]))}:{id:'',name:'',dl:'',due:'',hrs:'',from:todayISO(),parts:[]};
 function pull(){if(!ED)return;const g=i=>{const el=document.getElementById(i);return el?el.value:null};
   const n=g('pj-n');if(n!==null)ED.name=n;const dl=g('pj-dl');if(dl!==null)ED.dl=dl;if(document.getElementById('pj-du'))ED.due=daniDF.get('pj-du');const hr=g('pj-h');if(hr!==null)ED.hrs=hr;if(document.getElementById('pj-f'))ED.from=daniDF.get('pj-f')||ED.from;
   ED.parts.forEach(x=>{const el=document.getElementById('pj-ph-'+x.id);if(el)x.hrs=el.value})}
@@ -95,7 +150,14 @@ H.pj_nt=e=>{pull();const x=ED.parts.find(q=>q.id===e.dataset.x),a=x&&act(x.a),el
   let s=(a.subs||[]).find(q=>q.name===n);if(!s){s={id:uid(),name:n,goal:0};(a.subs=a.subs||[]).push(s)}if(x.s&&x.s.length&&!x.s.includes(s.id))x.s.push(s.id);save();open()};
 H.pj_save=()=>{pull();const n=(ED.name||'').trim();if(!n)return say(T('نام پروژه را بنویس','Type a project name'),1);
   const o={name:n.slice(0,80),dl:ED.dl||'',due:ED.dl?'':(ED.due||''),hrs:+ED.hrs>0?+ED.hrs:0,from:ED.from||todayISO(),parts:ED.parts.map(x=>({id:x.id,a:x.a,s:(x.s||[]).slice(),hrs:+x.hrs>0?+x.hrs:0}))};
-  const A=PJ();if(ED.id){const p=A.items.find(x=>x.id===ED.id);if(p)Object.assign(p,o)}else{if(A.items.length>=100)return say(T('حداکثر ۱۰۰ پروژه','Up to 100 projects'),1);A.items.push(Object.assign({id:'p'+uid(),cr:Date.now(),arch:0},o))}
+  const A=PJ();
+  /* تاریخ دستی ← یک موعد در بخش «موعدها» هم ساخته/به‌روز می‌شود تا هشدار بگیرد */
+  const prev=ED.id?A.items.find(x=>x.id===ED.id):null;
+  try{const D=zDL();if(!ED.dl&&o.due){let it=prev&&prev.dlAuto&&prev.dl&&D.items.find(x=>x.id===prev.dl);
+      if(it){it.title=o.name;it.dt=o.due}else{it={id:'d'+uid(),title:o.name,cat:'custom',imp:2,dt:o.due,tm:'09:00',note:'',cr:Date.now(),done:false,arch:false,al:[1440,60]};D.items.push(it)}
+      o.dl=it.id;o.dlAuto=1;o.due=''}
+    else if(!ED.dl&&!o.due&&prev&&prev.dlAuto)o.dlAuto=0}catch(e){console.error('pj dl',e)}
+  if(ED.id){const p=A.items.find(x=>x.id===ED.id);if(p)Object.assign(p,o)}else{if(A.items.length>=100)return say(T('حداکثر ۱۰۰ پروژه','Up to 100 projects'),1);A.items.push(Object.assign({id:'p'+uid(),cr:Date.now(),arch:0},o))}
   ED=null;closeM();save();render()};
 H.pj_del=()=>{if(!ED||!ED.id)return;if(!confirm(T('این پروژه حذف شود؟ (ثبت‌های زمان و فعالیت‌ها دست‌نخورده می‌مانند)','Delete this project? (Logged time and activities are untouched)')))return;
   const A=PJ();A.items=A.items.filter(x=>x.id!==ED.id);ED=null;closeM();save();render()};
