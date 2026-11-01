@@ -159,5 +159,6 @@ setInterval(hookLN,1500);setTimeout(hookLN,300);
 if('serviceWorker' in navigator)navigator.serviceWorker.addEventListener('message',e=>{try{if(e.data&&e.data.type==='dani-notif-click')route(e.data.tag)}catch(_){}});
 /* دکمه‌ی «برنامه‌ی فردا» در چرخه و جاهای قدیمی به همین صفحه برود */
 {const _o=H.rh_plan;if(typeof _o==='function')H.rh_plan=e=>{if(e&&e.dataset&&e.dataset.n==='1')return window.daniPlanOpen(tmrDate());return window.daniPlanOpen(todayISO())}}
+window.daniPlanAdd=(date,a,s,min)=>{load(date||tmrDate());PLN.rows.push({id:rid(),actId:a||'',subId:s||'',min:+min||45,start:'',status:'todo',reason:'night',nn:''});PLN.saved=false;page='tmr';render();try{window.scrollTo(0,0)}catch(e){}};
 window.daniTmrState={tmrDate,total,capacity};
 })();
