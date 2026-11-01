@@ -7,7 +7,7 @@
 const T=window.daniT;
 const BD=()=>{const s=db.set;if(!s.bd||typeof s.bd!=='object')s.bd={};const o=s.bd;if(!o.off||typeof o.off!=='object')o.off={};if(o.all===undefined)o.all=1;if(o.q===undefined)o.q=1;return o};
 const SKIP=new Set(['home','set']);
-const PN={dash:['Workspace','میزکار'],res:['Insights','نتیجه‌گیری'],cm:['Deadlines & habits','موعد و عادت'],dl:['Deadlines','موعدها'],hab:['Habits','عادت‌ها'],rem:['Reminders','یادآوری‌ها'],pj:['Projects','پروژه‌ها'],day:['Today','امروز'],tmr:['Tomorrow','فردا'],mx:['More','بیشتر']};
+const PN={plan2:['Plan','برنامه'],dash:['Workspace','میزکار'],res:['Insights','نتیجه‌گیری'],cm:['Deadlines & habits','موعد و عادت'],dl:['Deadlines','موعدها'],hab:['Habits','عادت‌ها'],rem:['Reminders','یادآوری‌ها'],pj:['Projects','پروژه‌ها'],day:['Today','امروز'],tmr:['Tomorrow','فردا'],mx:['More','بیشتر']};
 const nm=p=>PN[p]?T(PN[p][1],PN[p][0]):(typeof BI_NAV!=='undefined'&&BI_NAV[p]?T(BI_NAV[p][1],BI_NAV[p][0]):p);
 function quote(){try{const sk=SKINS[skId()],ch=sk&&sk.qchar;if(ch){const q=heroQuote(ch);if(q&&(q.fa||q.en))return{t:T(q.fa||q.en,q.en||q.fa),a:q.a||''}}
   if(sk&&sk.tag)return{t:sk.tag,a:''}}catch(e){}return null}
@@ -20,7 +20,7 @@ H.bd_o=()=>{delete BD().off[page];save();render()};
 H.bd_all=e=>{BD().all=BD().all?0:1;save();render()};
 H.bd_q=()=>{BD().q=BD().q?0:1;save();render()};
 H.bd_pg=e=>{const o=BD().off,k=e.dataset.k;if(o[k])delete o[k];else o[k]=1;save();render()};
-function inject(){try{if(SKIP.has(page))return;const B=BD();if(!B.all)return;const m=document.getElementById('pg');if(!m||document.getElementById('pgband'))return;
+function inject(){try{if(SKIP.has(page))return;if(page==='day'&&window.daniDayHero&&window.daniDayHero())return;const B=BD();if(!B.all)return;const m=document.getElementById('pg');if(!m||document.getElementById('pgband'))return;
   const d=document.createElement('div');d.innerHTML=B.off[page]?mini():band();m.insertBefore(d.firstChild,m.firstChild);m.classList.toggle('hasband',!B.off[page]&&!!B.q)}catch(e){console.error('pgband',e)}}
 {const _r=render;render=function(){const r=_r.apply(this,arguments);inject();return r}}
 setInterval(()=>{try{const c=document.querySelector('#pgband #h2clk');if(c)c.textContent=fa(nowHM())}catch(e){}},20000);

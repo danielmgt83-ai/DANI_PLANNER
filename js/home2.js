@@ -176,7 +176,7 @@ function styleCard(){const h2=H2();
    +'<button class="chip '+(!h2.on?'on':'')+'" data-a="h2_off">'+T('کلاسیک (چیدمان هر تم)','Classic (each theme\'s layout)')+'</button>'
    +'<button class="chip" data-a="h2_edit">✏️ '+T('شخصی‌سازی','Customize')+'</button></div>'
    +'<p class="m">'+T('هر دو سبک کنار هم می‌مانند و هر وقت خواستی عوض می‌کنی؛ چیزی پاک نمی‌شود.','Both styles stay available and you can switch anytime; nothing is deleted.')+'</p></div>'}
-{const _sp=setPage;setPage=function(){const h=_sp.apply(this,arguments);return typeof h==='string'&&typeof stt!=='undefined'&&stt==='look'?h+styleCard():h}}
+{const _sp=setPage;setPage=function(){const h=_sp.apply(this,arguments);return h}} /* کارت «سبک خانه» برداشته شد (کاربر: لازم نیست)؛ تابع styleCard برای بازگشت مانده */
 
 /* ---------- استایل ---------- */
 const st=document.createElement('style');st.textContent='.h2top{display:flex;align-items:center;gap:8px;margin:2px 0 10px}.h2g{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(min(100%,330px),1fr))}.h2f{grid-column:1/-1}.h2w>.c,.h2w>div>.c{margin:0}.h2w .g{margin:0}.h2b{margin-bottom:10px}';

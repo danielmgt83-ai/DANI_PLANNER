@@ -21,7 +21,7 @@ function load(date){PLN.date=date;PLN.saved=false;PLN.txt='';
   const dd=db.days[date]||{};PLN.exp=dd.exp||'';PLN.star='';
   if(dd.goal){const r=PLN.rows.find(x=>x.actId&&aN(x.actId)===dd.goal);if(r)PLN.star=r.id}
   PLN.init=date}
-const goTmr=()=>{if((db.set.nv||{}).mode==='simple')page='tmr';else{page='dash';dt='tmr'}};
+const goTmr=()=>{if(window.daniP2Go)window.daniP2Go('day',PLN.date);else{page='dash';dt='tmr'}};
 window.daniPlanOpen=(date)=>{load(date||tmrDate());goTmr();render();try{window.scrollTo(0,0)}catch(e){}};
 H.tmr_open=e=>window.daniPlanOpen(e&&e.dataset&&e.dataset.d?e.dataset.d:tmrDate());
 const rid=()=>'n'+Math.random().toString(36).slice(2,8);
@@ -114,9 +114,9 @@ function cfgHTML(){const o=TN(),r=RHs();
    +'<label class="m" style="display:block;margin:4px 0"><input type="checkbox" data-tnk="eod" '+(o.eod?'checked':'')+'> '+T('اعلان «نتیجه‌ی امروز» در ساعت','“Today’s result” notification at')+' <input type="time" data-tnk="tEod" value="'+esc(o.tEod)+'"></label>'
    +'<p class="m">'+T('اعلان‌ها فقط در اپ اندروید کار می‌کنند. ضربه روی اعلان مستقیم همین صفحه را باز می‌کند.','Notifications work in the Android app only. Tapping one opens this page directly.')+'</p></div>'}
 PG.tmr=function(){if(PLN.init===''||(PLN.date&&PLN.init!==PLN.date))load(PLN.date||tmrDate());
-  const d=PLN.date,isT=d===todayISO(),ttl=isT?T('برنامه‌ی امروز','Plan for today'):T('برنامه‌ی فردا','Plan for tomorrow'),tot=total(),cap=capacity(),v=verdict(tot,cap);
+  const d=PLN.date,isT=d===todayISO(),isTm=d===tmrDate(),ttl=isT?T('برنامه‌ی امروز','Plan for today'):isTm?T('برنامه‌ی فردا','Plan for tomorrow'):T('برنامه‌ی روز','Plan for the day'),tot=total(),cap=capacity(),v=verdict(tot,cap);
   let oc='';try{if(window.daniOccasions)oc=window.daniOccasions(d).filter(x=>!x.wk).map(x=>(x.h?'🟥 ':'▫️ ')+esc(x.n)).join(' · ')}catch(e){}
-  let h='<div class="c tpc">'+daniH(isT?'📝':'🌙',isT?'برنامه‌ی امروز':'برنامه‌ی فردا',isT?'Plan for today':'Plan for tomorrow')+'<div class="m">'+fmtDL(d)+(oc?' · '+oc:'')+'</div>';
+  let h='<div class="c tpc">'+daniH(isT?'📝':isTm?'🌙':'🗓',isT?'برنامه‌ی امروز':isTm?'برنامه‌ی فردا':'برنامه‌ی روز',isT?'Plan for today':isTm?'Plan for tomorrow':'Plan for the day')+'<div class="m">'+fmtDL(d)+(oc?' · '+oc:'')+'</div>';
   if(PLN.saved){const tp=PLN.rows;h+='<div style="text-align:center;padding:14px 0"><div style="font-size:2.4em">✅</div><b>'+T('آماده است','All set')+'</b><div class="m">'+fa(tp.length)+' '+T('کار','items')+' · '+mm(tot)+(PLN.exp?'<br>💭 '+esc(PLN.exp):'')+'</div></div>'
      +tp.map(r=>'<div class="cwr">'+(PLN.star===r.id?'★ ':'')+'<b>'+esc(r.actId?aN(r.actId):r.nn)+'</b> · '+mm(r.min)+(r.start?' · '+r.start:'')+'</div>').join('')
      +'<div class="row" style="margin-top:10px"><button class="p" data-a="go" data-p="day">'+T('برو به امروز','Go to Today')+'</button><button class="chip" data-a="tp_edit">✎ '+T('ویرایش','Edit')+'</button></div></div>';
@@ -163,5 +163,6 @@ if('serviceWorker' in navigator)navigator.serviceWorker.addEventListener('messag
 /* دکمه‌ی «برنامه‌ی فردا» در چرخه و جاهای قدیمی به همین صفحه برود */
 {const _o=H.rh_plan;if(typeof _o==='function')H.rh_plan=e=>{if(e&&e.dataset&&e.dataset.n==='1')return window.daniPlanOpen(tmrDate());return window.daniPlanOpen(todayISO())}}
 window.daniPlanAdd=(date,a,s,min)=>{load(date||tmrDate());PLN.rows.push({id:rid(),actId:a||'',subId:s||'',min:+min||45,start:'',status:'todo',reason:'night',nn:''});PLN.saved=false;goTmr();render();try{window.scrollTo(0,0)}catch(e){}};
+window.daniPlanLoad=d=>{d=d||tmrDate();if(PLN.date!==d||PLN.init==='')load(d)};
 window.daniTmrState={tmrDate,total,capacity};
 })();

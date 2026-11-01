@@ -6,7 +6,7 @@
 (function(){
 const T=window.daniT;
 const FX=()=>{const s=db.set;if(!s.fx||typeof s.fx!=='object')s.fx={};if(s.fx.hap===undefined)s.fx.hap=1;if(s.fx.anim===undefined)s.fx.anim=1;return s.fx};
-const VER='2026.11.9';
+const VER='2026.11.10';
 /* ---------- لرزش و پاپ ---------- */
 const HAP=/^(qk_go|nx_go|nx_sw|pf_add|tp_ap|bin_rs|ex_save|ab_now|ql_|pm_|tm_|tstart|tfinish|hab|ob_log|ob_go|dnd_set|ls_now|dk_)/;
 const reduce=()=>{try{return matchMedia('(prefers-reduced-motion: reduce)').matches}catch(e){return false}};
@@ -19,6 +19,7 @@ st.textContent='@keyframes fxpop{0%{transform:scale(1)}40%{transform:scale(.92)}
 document.head.appendChild(st);
 /* ---------- چه چیزی تازه است ---------- */
 const WN=[
+ ['🗓','منوی تازه: امروز · برنامه · پروژه‌ها · نتیجه · آکادمی · تنظیمات. صفحه‌ی «برنامه» همه‌چیز برنامه‌ریزی را دارد: روز دلخواه، انتظار هفته/ماه، ساعت‌های پر (کلاس/کار)، عادت، یادآور، موعد.','New menu: Today · Plan · Projects · Results · Academy · Settings. The Plan page holds day plan, weekly/monthly expectations, busy blocks, habits, reminders, deadlines.'],
  ['🖥','حالت تمرکز (صفحه‌ی تاریک با شمارش‌معکوس و استراحت) در کارت «ثبت» ← پومودورو دوباره پیداست؛ استودیوی تم و بسته‌های تم برگشتند؛ ۹ زبانه‌ی «امروز» (بعدی، ثبت، شروع…) یک کارت شد','Focus mode (dark screen with countdown and breaks) is back in Track → Pomodoro; Theme Studio and theme packs are restored; the 9-tab Today card is now one card'],
  ['🎓','پروژه + موعد + هدف + عادت + یادآور در یک جا: پروژه می‌تواند موعد داشته باشد یا نه، عادت‌ها و یادآورهایش همان‌جاست، و موعدها و هدف‌های قبلی با یک دکمه پروژه می‌شوند','Project + deadline + goal + habits + reminders in one place: a project may or may not have a deadline, its habits and reminders live there, and your earlier deadlines/goals become projects in one tap'],
  ['🧹','چند کارت بی‌استفاده برداشته شد (بنر خانه‌ی جدید، راستی‌آزمایی v4، بسته‌های تم و استودیوی تم، پیشنهاد فردا در تب برنامه، چیدمان داشبورد)؛ پیشنهاد فردا در تب «برنامه‌ی فردا» هست','Unused cards removed (New-home banner, v4 verification, theme packs & Theme Studio, tomorrow suggestion in Plan tab, dashboard layout); suggestions live in the “Tomorrow’s plan” tab'],
