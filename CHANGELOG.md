@@ -2,6 +2,9 @@
 
 > هر تحویل یک خط در اینجا. جدیدترین بالا. (هوش مصنوعی‌ها: هر بار که فایلی را عوض می‌کنید، این‌جا یک خط بنویسید.)
 
+## (۴۱) v43 — حذف کارت‌های بی‌استفاده (با تأیید)
+- تغییر: `js/home2.js`، `js/home-weekly.js`، `js/home-desk.js`، `js/quotes-data.js`، `js/dashboard-planner.js`، `js/growth.js`، `js/fx.js`، `sw.js`، `AI.md`، `CHANGELOG.md`. فقط آپلود.
+
 ## (۴۰) v42 — مرتب‌سازی ۲: کارت «ثبت» یکپارچه + گروه‌بندی کارت‌های هم‌هدف
 - جدید: `js/groups.js`. تغییر: `js/daily.js`، `js/dashboard-planner.js` (فقط `window.daniRecRaw`)، `js/fx.js`، `index.html`، `sw.js`، `AI.md`. هیچ قابلیتی حذف نشد؛ کارت‌های قدیمی با کلید «ثبت یکپارچه» و «گروه‌بندی» برمی‌گردند. فقط آپلود.
 
