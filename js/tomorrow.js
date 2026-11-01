@@ -21,7 +21,8 @@ function load(date){PLN.date=date;PLN.saved=false;PLN.txt='';
   const dd=db.days[date]||{};PLN.exp=dd.exp||'';PLN.star='';
   if(dd.goal){const r=PLN.rows.find(x=>x.actId&&aN(x.actId)===dd.goal);if(r)PLN.star=r.id}
   PLN.init=date}
-window.daniPlanOpen=(date)=>{load(date||tmrDate());page='tmr';render();try{window.scrollTo(0,0)}catch(e){}};
+const goTmr=()=>{if((db.set.nv||{}).mode==='simple')page='tmr';else{page='dash';dt='tmr'}};
+window.daniPlanOpen=(date)=>{load(date||tmrDate());goTmr();render();try{window.scrollTo(0,0)}catch(e){}};
 H.tmr_open=e=>window.daniPlanOpen(e&&e.dataset&&e.dataset.d?e.dataset.d:tmrDate());
 const rid=()=>'n'+Math.random().toString(36).slice(2,8);
 
@@ -133,6 +134,8 @@ PG.tmr=function(){if(PLN.init===''||(PLN.date&&PLN.init!==PLN.date))load(PLN.dat
   if(PLN.cfg)h+=cfgHTML();return h};
 try{ICONS.tmr='<path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/><path d="M17 3v4M15 5h4"/>'}catch(e){}
 try{BI_NAV.tmr=['Tomorrow','فردا'];EXT_PAGES.add('tmr')}catch(e){}
+/* زیرمجموعه‌ی «میزکار»: تب «برنامه‌ی فردا» (اعلان شب مستقیم به همین‌جا می‌آید) */
+try{if(!DT.some(x=>x[0]==='tmr'))DT.splice(Math.max(1,DT.findIndex(x=>x[0]==='plan')+1),0,['tmr','برنامه‌ی فردا']);PX.tmr=()=>PG.tmr();T('برنامه‌ی فردا','Tomorrow’s plan')}catch(e){console.error('tmr tab',e)}
 try{const s=document.createElement('style');s.textContent='.tpr{border:1px solid var(--b,#8883);border-radius:12px;padding:8px;margin:6px 0}.tpr.st{border-color:#f59e0b;background:rgba(245,158,11,.08)}.tpc textarea,.tpc input[type=text]{box-sizing:border-box}';document.head.appendChild(s)}catch(e){}
 
 /* ---------- اعلان‌ها ---------- */
@@ -151,7 +154,7 @@ const quiet=at=>{try{return typeof inQuiet==='function'&&inQuiet(at)}catch(e){re
 function route(k){k=String(k||'');
   if(/^(rh-pl-|tp-rep-)/.test(k))window.daniPlanOpen(tmrDate());
   else if(/^eod-/.test(k)){try{page='res';rt='eod';render();window.scrollTo(0,0)}catch(e){}}
-  else if(/^rh-sk-/.test(k)){page='day';render()}}
+  else if(/^rh-sk-/.test(k)){if((db.set.nv||{}).mode==='simple')page='day';else{page='dash';dt='today'}render()}}
 let lnOk=false;
 function hookLN(){if(lnOk)return;try{const p=window.Capacitor&&Capacitor.Plugins&&Capacitor.Plugins.LocalNotifications;if(!p||!p.addListener)return;lnOk=true;
   p.addListener('localNotificationActionPerformed',ev=>{try{if(ev&&(ev.actionId==='tap'||!ev.actionId))route(ev.notification&&ev.notification.extra&&ev.notification.extra.k)}catch(e){console.error('tap route',e)}})}catch(e){}}
@@ -159,6 +162,6 @@ setInterval(hookLN,1500);setTimeout(hookLN,300);
 if('serviceWorker' in navigator)navigator.serviceWorker.addEventListener('message',e=>{try{if(e.data&&e.data.type==='dani-notif-click')route(e.data.tag)}catch(_){}});
 /* دکمه‌ی «برنامه‌ی فردا» در چرخه و جاهای قدیمی به همین صفحه برود */
 {const _o=H.rh_plan;if(typeof _o==='function')H.rh_plan=e=>{if(e&&e.dataset&&e.dataset.n==='1')return window.daniPlanOpen(tmrDate());return window.daniPlanOpen(todayISO())}}
-window.daniPlanAdd=(date,a,s,min)=>{load(date||tmrDate());PLN.rows.push({id:rid(),actId:a||'',subId:s||'',min:+min||45,start:'',status:'todo',reason:'night',nn:''});PLN.saved=false;page='tmr';render();try{window.scrollTo(0,0)}catch(e){}};
+window.daniPlanAdd=(date,a,s,min)=>{load(date||tmrDate());PLN.rows.push({id:rid(),actId:a||'',subId:s||'',min:+min||45,start:'',status:'todo',reason:'night',nn:''});PLN.saved=false;goTmr();render();try{window.scrollTo(0,0)}catch(e){}};
 window.daniTmrState={tmrDate,total,capacity};
 })();

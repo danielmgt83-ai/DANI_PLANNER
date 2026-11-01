@@ -8,7 +8,7 @@
 (function(){
 const T=window.daniT;
 const say=(m,b)=>{try{toast(m,b)}catch(e){}};
-const NV=()=>{const s=db.set;if(!s.nv||typeof s.nv!=='object')s.nv={mode:'simple'};if(s.nv.mode!=='classic')s.nv.mode='simple';return s.nv};
+const NV=()=>{const s=db.set;if(!s.nv||typeof s.nv!=='object')s.nv={mode:'classic'};if(s.nv.mode!=='simple')s.nv.mode='classic';return s.nv};
 const simple=()=>NV().mode==='simple';
 const DY=()=>{const s=db.set;if(!s.dy||typeof s.dy!=='object')s.dy={};const o=s.dy;if(!Array.isArray(o.hide))o.hide=[];if(o.gaps===undefined)o.gaps=1;if(!Array.isArray(o.order))o.order=['sp','pl','tr','tl','ed'];['sp','pl','tr','tl','ed'].forEach(k=>{if(!o.order.includes(k))o.order.push(k)});return o};
 const nowMin=()=>{const d=new Date();return d.getHours()*60+d.getMinutes()};

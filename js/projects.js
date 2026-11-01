@@ -63,14 +63,15 @@ H.pj_add=e=>{const p=PJ().items.find(x=>x.id===e.dataset.p);if(!p)return;const x
 let ED=null;
 const freshED=p=>p?{id:p.id,name:p.name,dl:p.dl||'',due:p.due||'',hrs:p.hrs||'',from:p.from||todayISO(),parts:JSON.parse(JSON.stringify(p.parts||[]))}:{id:'',name:'',dl:'',due:'',hrs:'',from:todayISO(),parts:[]};
 function pull(){if(!ED)return;const g=i=>{const el=document.getElementById(i);return el?el.value:null};
-  const n=g('pj-n');if(n!==null)ED.name=n;const dl=g('pj-dl');if(dl!==null)ED.dl=dl;const du=g('pj-du');if(du!==null)ED.due=du;const hr=g('pj-h');if(hr!==null)ED.hrs=hr;const fr=g('pj-f');if(fr!==null)ED.from=fr;
+  const n=g('pj-n');if(n!==null)ED.name=n;const dl=g('pj-dl');if(dl!==null)ED.dl=dl;if(document.getElementById('pj-du'))ED.due=daniDF.get('pj-du');const hr=g('pj-h');if(hr!==null)ED.hrs=hr;if(document.getElementById('pj-f'))ED.from=daniDF.get('pj-f')||ED.from;
   ED.parts.forEach(x=>{const el=document.getElementById('pj-ph-'+x.id);if(el)x.hrs=el.value})}
 function edHTML(){const dls=(zDL().items||[]).filter(d=>!d.arch&&!d.done);
   let h='<div class="c"><h3>'+(ED.id?T('ویرایش پروژه','Edit project'):T('پروژه‌ی جدید','New project'))+'</h3>'
    +'<label class="m">'+T('نام پروژه','Project name')+'</label><input id="pj-n" value="'+esc(ED.name)+'" placeholder="'+T('مثلاً آزمون MBA','e.g. MBA exam')+'" style="width:100%">'
    +'<label class="m">'+T('موعد','Deadline')+'</label><select id="pj-dl" style="width:100%"><option value="">'+T('تاریخ دستی (پایین)','Manual date (below)')+'</option>'+dls.map(d=>'<option value="'+esc(d.id)+'" '+(ED.dl===d.id?'selected':'')+'>'+esc(d.title)+' · '+fmtD(d.dt)+'</option>').join('')+'</select>'
-   +'<label class="m">'+T('تاریخ موعد (اگر موعد بالا انتخاب نشده)','Due date (if no deadline picked above)')+'</label><input id="pj-du" type="date" value="'+esc(ED.due)+'" style="width:100%">'
-   +'<div class="row" style="margin-top:6px"><div style="flex:1"><label class="m">'+T('بودجه‌ی ساعت','Hour budget')+'</label><input id="pj-h" type="number" min="0" step="0.5" value="'+esc(ED.hrs)+'" style="width:100%"></div><div style="flex:1"><label class="m">'+T('شمارش از تاریخ','Count from')+'</label><input id="pj-f" type="date" value="'+esc(ED.from)+'" style="width:100%"></div></div>'
+   +'<label class="m">'+T('تاریخ موعد (اگر موعد بالا انتخاب نشده)','Due date (if no deadline picked above)')+'</label>'+daniDF.html('pj-du',ED.due)+''
+   +'<label class="m">'+T('بودجه‌ی ساعت (کل پروژه)','Hour budget (whole project)')+'</label><input id="pj-h" type="number" min="0" step="0.5" value="'+esc(ED.hrs)+'" style="width:100%">'
+   +'<label class="m">'+T('شمارش از تاریخ','Count from')+'</label>'+daniDF.html('pj-f',ED.from)
    +'<p class="m">'+T('«شمارش از» یعنی کارهای ثبت‌شده از این روز به بعد به پروژه حساب شوند.','“Count from” = work logged from this day on counts toward the project.')+'</p></div>';
   h+='<div class="c" style="margin-top:8px">'+daniH('🧩','بخش‌ها و نوع کار','Parts & work types')+ED.parts.map(x=>{const a=act(x.a);if(!a)return'';
     return'<div class="dyp" style="display:block"><div class="row"><b style="flex:1">'+esc(a.name)+'</b><input id="pj-ph-'+esc(x.id)+'" type="number" min="0" step="0.5" value="'+esc(x.hrs||'')+'" placeholder="'+T('ساعت','hours')+'" style="width:80px"><button class="chip" data-a="pj_pd" data-x="'+esc(x.id)+'">🗑</button></div>'
