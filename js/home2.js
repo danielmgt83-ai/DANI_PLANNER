@@ -23,7 +23,8 @@ const TDM=[['nx','🎯',['بعدی','Next']],['ql','⚡',['ثبت','Log']],['qk'
 const TDK=TDM.map(x=>x[0]);
 const tdl=()=>{const h=H2();if(!Array.isArray(h.tdl))h.tdl=TDK.slice();if(h.tdv!==3){h.tdv=3;if(!h.tdl.includes('rv'))h.tdl.push('rv');if(!h.tdl.includes('pf'))h.tdl.push('pf')}return h.tdl};
 const tdRender=k=>{try{if(k==='pf')return window.daniTomorrowCard?window.daniTomorrowCard():'';if(k==='rv'){let x='';try{x+=dashCards(['cap']).cap||''}catch(e){}try{const r=HSEC.review;if(r&&r.r)x+=r.r()||''}catch(e){}return x}if(k==='nx')return window.daniNextCard?window.daniNextCard():'';const c=CAT[k];return c&&c.r?c.r():''}catch(e){return''}};
-function tdCard(){const h2=H2(),L=tdl().filter(k=>TDK.includes(k));
+function tdCard(){if(window.daniLogOn&&window.daniLogOn()&&window.daniLogCard){let nx='';try{nx=window.daniNextCard?window.daniNextCard():''}catch(e){}return nx+window.daniLogCard()}
+  const h2=H2(),L=tdl().filter(k=>TDK.includes(k));
   const parts=L.map(k=>({k,h:tdRender(k)})).filter(x=>x.h);
   let act=h2.tdt;if(!parts.some(x=>x.k===act))act=parts[0]&&parts[0].k;
   const tabs=TDM.filter(x=>parts.some(p=>p.k===x[0])).map(x=>'<button class="chip '+(x[0]===act?'on':'')+'" data-a="h2_tdt" data-k="'+x[0]+'">'+x[1]+' '+T(x[2][0],x[2][1])+'</button>').join('');
