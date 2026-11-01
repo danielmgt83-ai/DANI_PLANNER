@@ -108,5 +108,5 @@ async function checkRecover(){try{const m=await get();if(!m||!m.json)return;cons
   modal('<div style="max-width:440px">'+daniH('🛟','داده‌ی ذخیره‌شده پیدا شد','Saved data found')+'<p>'+T('داده‌ی اصلی خالی است ولی یک نسخه‌ی آینه با '+fa(m.n)+' ثبت از '+new Date(m.t).toLocaleString()+' هست. بازگردانی شود؟','The main data is empty but a mirror copy with '+m.n+' entries from '+new Date(m.t).toLocaleString()+' exists. Restore it?')+'</p><div class="row"><button class="p" data-a="mr_go">'+T('بازگردانی','Restore')+'</button><button data-a="ob_close">'+T('نه، ممنون','No thanks')+'</button></div></div>')}catch(e){}}
 H.mr_go=async()=>{try{const m=await get();if(!m)return;snap();localStorage.setItem(KEY,JSON.stringify(JSON.parse(m.json)));location.reload()}catch(e){say(String(e&&e.message||e),1)}};
 setTimeout(checkRecover,4000);
-window.daniQuickParse=parse;
+window.daniQuickParse=parse;window.daniNz=nz;
 })();

@@ -37,7 +37,7 @@ H.pf_add=()=>{const l=suggest(),t1=addD(todayISO(),1),st=PF().start.split(':').m
   l.forEach(x=>{const s=tm2(cur,cur%60);cur+=x.dur;const e=tm2(cur,cur%60);cur+=10;if(!SEL[x.a.id])return;
     db.plans[t1].push({id:uid(),actId:x.a.id,start:s,end:e,goal:x.dur,status:'todo',reason:x.why});n++});
   if(!n)return toast(T('چیزی انتخاب نشده','Nothing selected'),1);save();toast(T('به برنامه‌ی فردا اضافه شد ✓ ('+fa(n)+')','Added to tomorrow ✓ ('+n+')'));render()};
-window.daniTomorrowCard=card;
+window.daniTomorrowCard=card;window.daniSuggest=suggest;
 /* در تب «برنامه»ی میزکار، بالای صفحه (جمع‌شونده) */
 {const _p=PX.plan;if(typeof _p==='function')PX.plan=function(){const h=_p.apply(this,arguments);let c='';try{c=card()}catch(e){}return(typeof h==='string'?'<details class="c" id="pfdet"'+(PF().open?' open':'')+'><summary style="cursor:pointer">'+daniH('📅','برنامه‌ی فردا (پیشنهاد)','Tomorrow\'s plan (suggested)')+'</summary>'+c.replace('<div class="c" id="pfcard">','<div id="pfcard">')+'</details>':'')+h}}
 

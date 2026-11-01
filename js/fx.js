@@ -6,7 +6,7 @@
 (function(){
 const T=window.daniT;
 const FX=()=>{const s=db.set;if(!s.fx||typeof s.fx!=='object')s.fx={};if(s.fx.hap===undefined)s.fx.hap=1;if(s.fx.anim===undefined)s.fx.anim=1;return s.fx};
-const VER='2026.11.2';
+const VER='2026.11.3';
 /* ---------- لرزش و پاپ ---------- */
 const HAP=/^(qk_go|nx_go|nx_sw|pf_add|tp_ap|bin_rs|ex_save|ab_now|ql_|pm_|tm_|tstart|tfinish|hab|ob_log|ob_go|dnd_set|ls_now|dk_)/;
 const reduce=()=>{try{return matchMedia('(prefers-reduced-motion: reduce)').matches}catch(e){return false}};
@@ -19,6 +19,7 @@ st.textContent='@keyframes fxpop{0%{transform:scale(1)}40%{transform:scale(.92)}
 document.head.appendChild(st);
 /* ---------- چه چیزی تازه است ---------- */
 const WN=[
+ ['🌙','برنامه‌ی فردا در یک صفحه‌ی مرتب (هر خط یک کار)، صفحه‌ی «امروز» با ثبت یکپارچه و تایم‌لاین، و «نتیجه‌ی امروز» — منوی ساده (قابل‌برگشت به کلاسیک از «بیشتر»)','Tomorrow’s plan on one tidy page (one item per line), a Today page with unified tracking and a timeline, and Today’s result — simple menu (switch back to classic under “More”)'],
  ['✍️','افزودن سریع با جمله («فردا ۱۸ ریاضی ۲ ساعت»)، ساعت‌های طلایی و مناسبت‌های ایران (تب «برنامه» و نتیجه‌گیری)','Quick add with a sentence (“tomorrow 18:00 maths 2 hours”), golden hours and Iranian occasions (Plan tab and Results)'],
  ['🔒','قفل برنامه با PIN و رمزگذاری فایل همگام‌سازی (تنظیمات ← داده‌ها)','App lock with a PIN and an encrypted sync file (Settings → Data)'],
  ['🖼','کارت اشتراک پیشرفت (نتیجه‌گیری ← کارت اشتراک) و ورود CSV (تنظیمات ← داده‌ها)','Progress share card (Results → Share card) and CSV import (Settings → Data)'],
