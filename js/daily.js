@@ -58,10 +58,13 @@ H.dy_gapsave=e=>{let id=e.dataset.id,s=e.dataset.s?hh(+e.dataset.s):'',en=e.data
   db.entries.push({id:uid(),date:todayISO(),actId:id,subId:'',start:s,end:en,min:dur(s,en),note:'',src:'gap'});if(!save())return;closeM();say(T('ثبت شد ✓','Saved ✓'));render()};
 
 /* ---------- کارت برنامه‌ی امروز ---------- */
+function focusGoal(d){const dd=db.days[d]||{};let h='<input value="'+esc(dd.goal||'')+'" placeholder="★ '+T('مهم‌ترین کار امروز چیست؟','Most important thing today?')+'" style="width:100%;margin:6px 0" data-ch="dgoal">';
+  try{const l=db.acts.filter(a=>a.active&&!a.arch&&+a.goalDay>0).slice(0,5);if(l.length)h+='<div class="m" style="margin-top:4px">'+T('هدف روزانه‌ی فعالیت‌ها','Daily activity goals')+'</div>'+l.map(a=>{const v=actual(d,a.id),p=Math.min(100,pct(v,a.goalDay));return'<div class="dkg"><div class="row"><span>'+esc(a.name)+'</span><span class="sp"></span><b>'+fa(p)+'٪</b> <small class="m">'+mm(v)+' / '+mm(a.goalDay)+'</small></div><div class="ckb"><i style="width:'+p+'%;background:var(--ac)"></i></div></div>'}).join('')}catch(e){}
+  return h}
 function secPlan(){const d=todayISO(),I=dayInfo(d),dd=db.days[d]||{};
   let h='<div class="c dyc">'+daniH('🎯','برنامه‌ی امروز','Today\'s plan')+'<div class="m">'+fmtDL(d)+' · <b id="clk">'+fa(nowHM())+'</b></div>';
   try{const q=(zDL().items||[]).filter(x=>!x.arch&&!x.done&&x.dt&&x.dt>=d).sort((x,y)=>x.dt<y.dt?-1:1)[0];if(q)h+='<div class="m">⏳ '+T('موعد بعدی: ','Next deadline: ')+'<b>'+esc(q.title)+'</b> · '+fmtDL(q.dt)+'</div>'}catch(e){}
-  if(dd.goal||dd.exp)h+='<div class="dyex">'+(dd.goal?'★ <b>'+esc(dd.goal)+'</b>':'')+(dd.exp?'<div class="m">💭 '+esc(dd.exp)+'</div>':'')+'</div>';
+  h+=focusGoal(d);if(dd.exp)h+='<div class="dyex">'+(dd.exp?'<div class="m">💭 '+esc(dd.exp)+'</div>':'')+'</div>';
   if(!I.rows.length){return h+'<p class="m">'+T('برنامه‌ای برای امروز ثبت نشده.','No plan for today yet.')+'</p><div class="row"><button class="p" data-a="tmr_open" data-d="'+d+'">📝 '+T('برنامه‌ی امروز را بنویس','Write today\'s plan')+'</button></div></div>'}
   h+='<div class="row" style="align-items:baseline"><b style="font-size:1.5em">'+fa(I.pct)+(LANGEN()?'%':'٪')+'</b><span class="m">'+mm(I.got)+' / '+mm(I.need)+'</span></div><div class="bar"><i style="width:'+Math.min(100,I.pct)+'%;background:'+(I.pct>=100?'#22c55e':'var(--ac)')+'"></i></div>'+(I.need>I.got?'<div class="m">⏳ '+T('مانده: ','Left: ')+'<b>'+mm(I.need-I.got)+'</b> '+T('تا توقع امروز','to reach today\'s goal')+'</div>':'<div class="m">✅ '+T('توقع امروز انجام شد','Today\'s goal is done')+'</div>')+(window.daniWeekLines?window.daniWeekLines():'');
   h+=I.rows.map(r=>{const x=r.x,id=x.id,pc=r.need?Math.min(100,Math.round(r.got/r.need*100)):0;
@@ -109,7 +112,7 @@ function secTrack(){const t=db.timer||{},on=tOn(),ph=pmPh(),pmOn=ph==='work'||ph
   if(TR.mode==='ql'){let q='';try{q=window.daniQuickLog?window.daniQuickLog():''}catch(e){}return h+'<div style="margin-top:8px">'+q+'</div>'+foot()}
   const pi=(plan(todayISO())||[]).filter(x=>!['done','canceled','carried'].includes(x.status)).map(x=>x.actId),ids=[...new Set(pi.concat(recent(8)))].slice(0,8);
   if(!TR.user||!TR.act||!act(TR.act))TR.act=ids[0]||(db.acts.find(a=>a.active&&!a.arch&&a.cat!=='sleep')||{}).id||'';
-  h+='<div class="m" style="margin-top:8px">'+T('چه کاری؟','What are you doing?')+(pi.length?' <small>('+T('اول: از برنامه‌ی امروز','first: from today\'s plan')+')</small>':'')+'</div><div class="row">'+ids.map(id=>'<button class="chip '+(TR.act===id?'on':'')+'" data-a="dy_pick" data-id="'+id+'">'+(pi.includes(id)?'🎯 ':'')+esc(aN(id))+'</button>').join('')+'</div>'
+  h+='<div class="m" style="margin-top:8px">'+T('چه کاری؟','What are you doing?')+(pi.length?' <small>('+T('اول: از برنامه‌ی امروز','first: from today\'s plan')+')</small>':'')+'</div><div class="row">'+ids.map(id=>'<button class="chip '+(TR.act===id?'on':'')+'" data-a="dy_pick" data-id="'+id+'">'+(pi.includes(id)?'🎯 ':'')+esc(aN(id))+'</button>').join('')+'<button class="chip" data-a="dy_go" data-p="dash" data-d="acts" title="'+T('فعالیت‌ها و برچسب‌ها','Activities & tags')+'">✏️</button></div>'
    +'<div class="row" style="margin-top:4px"><select id="dy-a" data-dya style="flex:1;min-width:0">'+aOpts(TR.act)+'</select>'+(((act(TR.act)||{}).subs||[]).length?'<select id="dy-s" data-dys style="flex:1;min-width:0"><option value="">'+T('— زیرمجموعه —','— sub-item —')+'</option>'+act(TR.act).subs.map(q=>'<option value="'+esc(q.id)+'"'+(TR.sub===q.id?' selected':'')+'>'+esc(q.name)+'</option>').join('')+'</select>':'')+'</div>';
   if(TR.mode==='cd')h+='<div class="row" style="margin-top:6px">'+[15,25,45,60,90].map(n=>'<button class="chip '+(TR.min===n?'on':'')+'" data-a="dy_min" data-n="'+n+'">'+fa(n)+'</button>').join('')+'<input type="number" id="dy-m" min="1" max="600" value="'+TR.min+'" style="width:70px"><span class="m">'+T('دقیقه','min')+'</span></div>';
   h+='<div class="row" style="margin-top:8px"><button class="p" data-a="dy_go2" style="flex:1">'+({sw:'▶ '+T('شروع کرنومتر','Start stopwatch'),cd:'⏳ '+T('شروع شمارش‌معکوس','Start countdown'),pm:'🍅 '+T('شروع پومودورو','Start Pomodoro')}[TR.mode])+'</button></div>'
@@ -157,7 +160,7 @@ function heroTop(){try{const k=(typeof skId==='function')?skId():'';if(typeof de
   const root=doc.body.firstElementChild;if(!root)return'';
   doc.body.querySelectorAll('#nxcard,.hcta,.hmgr,.h2cust,[data-a="h2_edit"]').forEach(e=>{if(e!==root)(e.closest('.row')&&e.closest('.row')!==root?e.closest('.row'):e).remove()});
   /* کارت‌های هم‌کارِ خانه‌ی قدیمی که یکی‌شان در «امروز» هست: موعد بعدی، ثبت فعالیت، برنامه‌ی زمانی، هدف امروز، خلاصه‌ی امروز */
-  const DUP=/موعد بعدی|Next deadline|^(⏱)?\s*(Activity Log|ثبت فعالیت)|Today's Schedule|برنامه‌ی زمانی امروز|Today's Target|هدف امروز|Today's Summary|خلاصه‌ی عملکرد/;
+  const DUP=/موعد بعدی|Next deadline|^(⏱)?\s*(Activity Log|ثبت فعالیت)|Today's Schedule|برنامه‌ی زمانی امروز|Today's Target|هدف امروز|Today's Summary|خلاصه‌ی عملکرد|Today's Notes|یادداشت امروز|Goal Progress|پیشرفت اهداف|^Compare|مقایسه‌ی روزها|Main Focus|تمرکز اصلی|My week|هفته‌ی من/;
   const hasH=x=>!!x.querySelector('h3,h2,.dh');
   [...root.querySelectorAll('h3,h2,.dh')].forEach(h=>{if(!h.isConnected||!DUP.test(h.textContent.replace(/\s+/g,' ').trim()))return;
     let n=h;while(n.parentElement&&n.parentElement!==root&&![...n.parentElement.children].some(x=>x!==n&&hasH(x)))n=n.parentElement;
@@ -168,7 +171,7 @@ function heroTop(){try{const k=(typeof skId==='function')?skId():'';if(typeof de
 const extChips=()=>{try{return MODULES.filter(m=>modOn(m.id)&&!['dl','hab','rem','pj','acd','qt'].includes(m.id)).map(m=>'<button class="chip" data-a="dy_go" data-p="'+esc(m.id)+'">🧩 '+esc(m.name)+'</button>').join('')}catch(e){return''}};
 window.daniDayHero=()=>{try{return!!heroTop()}catch(e){return false}};
 PG.day=function(){const hr=new Date().getHours(),ph=hr<5?T('شب','Night'):hr<12?T('صبح','Morning'):hr<17?T('ظهر','Midday'):hr<20?T('عصر','Evening'):T('شب','Night');
-  let h=heroTop()+'<div class="row" style="align-items:center;margin:2px 0 6px"><span class="sp"></span><button class="chip" data-a="dy_go" data-p="dash" data-d="find" title="'+T('جست‌وجو','Search')+'">🔎</button><button class="chip" data-a="dy_go" data-p="dash" data-d="notes" title="'+T('یادداشت‌ها','Notes')+'">📝</button><button class="chip" data-a="dy_go" data-p="dash" data-d="acts" title="'+T('فعالیت‌ها و زیرمجموعه‌ها','Activities')+'">🎯</button>'+(modOn('qt')?'<button class="chip" data-a="dy_go" data-p="qt" title="'+T('جملات','Quotes')+'">💬</button>':'')+extChips()+'<button class="chip" data-a="dy_cfg" aria-label="customize">⚙</button></div>';
+  let h=heroTop()+'<div class="row" style="align-items:center;margin:2px 0 6px"><span class="sp"></span><button class="chip" data-a="dy_go" data-p="dash" data-d="find" title="'+T('جست‌وجو','Search')+'">🔎</button><button class="chip" data-a="dy_note" title="'+T('یادداشت‌ها','Notes')+'">📝</button><button class="chip" data-a="dy_go" data-p="dash" data-d="acts" title="'+T('فعالیت‌ها و زیرمجموعه‌ها','Activities')+'">🎯</button>'+(modOn('qt')?'<button class="chip" data-a="dy_go" data-p="qt" title="'+T('جملات','Quotes')+'">💬</button>':'')+extChips()+'<button class="chip" data-a="dy_cfg" aria-label="customize">⚙</button></div>';
   if(window.__dyCfg)h+=cfgPanel();
   try{h+=secRescue()}catch(e){console.error('rescue',e)}
   DY().order.forEach(k=>{if(DY().hide.includes(k))return;try{h+=SECS[k][0]()}catch(e){console.error('day '+k,e)}});return h};
@@ -216,3 +219,9 @@ try{setInterval(()=>{if(page==='day'&&!tOn()){const c=document.getElementById('c
  for(let i=DT.length-1;i>=0;i--)if(MAP[DT[i][0]])DT.splice(i,1);
  const _d=PG.dash;
  PG.dash=function(){const m=MAP[dt];if(m){dt='acts';setTimeout(()=>{if(m[0]==='plan2'&&window.daniP2Go)window.daniP2Go(m[1]);else{page=m[0];render()}},0)}return _d.apply(this,arguments)}}
+
+H.dy_note=()=>modal('<div style="max-width:420px">'+daniH('📝','یادداشت سریع','Quick note')+'<textarea id="qn" rows="5" placeholder="'+T('یادداشت…','Note…')+'" style="width:100%"></textarea><div class="row" style="margin-top:8px"><button class="p" data-a="dy_nsave">'+T('ذخیره','Save')+'</button><button data-a="dy_nall">'+T('همه‌ی یادداشت‌ها','All notes')+'</button></div></div>');
+H.dy_nsave=()=>{const t=((document.getElementById('qn')||{}).value||'').trim();if(!t)return toast(T('متن خالی است','Empty note'),1);db.notes.push({id:uid(),t,a:'',d:todayISO(),at:Date.now()});save();closeM();toast(T('یادداشت ذخیره شد ✓','Note saved ✓'))};
+H.dy_nall=()=>{closeM();page='dash';dt='notes';render()};
+/* مقایسه‌ی روزها و هفته‌ها به «نتیجه ← آمار» رفت */
+{const _s=PX.stats;if(typeof _s==='function'&&typeof hCompare==='function')PX.stats=function(){let c='';try{c=hCompare()}catch(e){}return c+_s.apply(this,arguments)}}
