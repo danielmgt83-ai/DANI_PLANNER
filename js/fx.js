@@ -6,7 +6,7 @@
 (function(){
 const T=window.daniT;
 const FX=()=>{const s=db.set;if(!s.fx||typeof s.fx!=='object')s.fx={};if(s.fx.hap===undefined)s.fx.hap=1;if(s.fx.anim===undefined)s.fx.anim=1;return s.fx};
-const VER='2026.11.11';
+const VER='2026.11.12';
 /* ---------- لرزش و پاپ ---------- */
 const HAP=/^(qk_go|nx_go|nx_sw|pf_add|tp_ap|bin_rs|ex_save|ab_now|ql_|pm_|tm_|tstart|tfinish|hab|ob_log|ob_go|dnd_set|ls_now|dk_)/;
 const reduce=()=>{try{return matchMedia('(prefers-reduced-motion: reduce)').matches}catch(e){return false}};
@@ -19,6 +19,7 @@ st.textContent='@keyframes fxpop{0%{transform:scale(1)}40%{transform:scale(.92)}
 document.head.appendChild(st);
 /* ---------- چه چیزی تازه است ---------- */
 const WN=[
+ ['🏠','منو: «خانه» (همان صفحه‌ی خانه‌ی تم‌ها با کارت‌های ادغام‌شده)؛ صفحه‌ی «ابزارهای من» برداشته شد و میان‌بُرها (جست‌وجو، یادداشت، فعالیت‌ها، جملات) بالای خانه‌اند.','Menu: “Home” (the theme home with merged cards); “My tools” page removed — shortcuts (search, notes, activities, quotes) sit on top of Home.'],
  ['🎨','«امروز» حالا هیرو، گالری، جمله و میان‌بُرهای خودِ هر تم را دارد؛ مرکز پشتیبان یک‌جا شد؛ «بعدی‌چی؟»، «موعد بعدی» و «شخصی‌سازی خانه» که تکراری بودند از امروز برداشته شد (موعد بعدی یک خط در برنامه‌ی امروز است).','Today now shows each theme’s own hero, gallery, quote and shortcuts; one Backup centre; duplicate “What next”, “Next deadline” and “Customize home” removed from Today.'],
  ['🗓','منوی تازه: امروز · برنامه · پروژه‌ها · نتیجه · آکادمی · تنظیمات. صفحه‌ی «برنامه» همه‌چیز برنامه‌ریزی را دارد: روز دلخواه، انتظار هفته/ماه، ساعت‌های پر (کلاس/کار)، عادت، یادآور، موعد.','New menu: Today · Plan · Projects · Results · Academy · Settings. The Plan page holds day plan, weekly/monthly expectations, busy blocks, habits, reminders, deadlines.'],
  ['🖥','حالت تمرکز (صفحه‌ی تاریک با شمارش‌معکوس و استراحت) در کارت «ثبت» ← پومودورو دوباره پیداست؛ استودیوی تم و بسته‌های تم برگشتند؛ ۹ زبانه‌ی «امروز» (بعدی، ثبت، شروع…) یک کارت شد','Focus mode (dark screen with countdown and breaks) is back in Track → Pomodoro; Theme Studio and theme packs are restored; the 9-tab Today card is now one card'],

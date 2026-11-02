@@ -16,14 +16,14 @@ const hh=m=>pad(Math.floor(m/60)%24)+':'+pad(m%60);
 
 /* ---------- منو ---------- */
 try{Object.assign(ICONS,{day:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',mx:'<circle cx="6" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="18" cy="12" r="1.6"/>'})}catch(e){}
-try{BI_NAV.day=['Today','امروز'];BI_NAV.mx=['More','بیشتر'];EXT_PAGES.add('day');EXT_PAGES.add('mx')}catch(e){}
+try{BI_NAV.day=['Home','خانه'];BI_NAV.mx=['More','بیشتر'];EXT_PAGES.add('day');EXT_PAGES.add('mx')}catch(e){}
 /* منوی اصلی: قدم‌های کار (امروز ← برنامه ← پروژه‌ها ← نتیجه) + آکادمی و تنظیمات. همه‌ی بخش‌های قبلی از «برنامه»، «پروژه‌ها»، «بیشتر» و «دسترسی سریع» در دسترس‌اند. */
 {const _s=syncNav;syncNav=function(){_s.apply(this,arguments);try{
-  NAV.length=0;NAV.push(['day','امروز'],['plan2','برنامه'],['pj','پروژه‌ها'],['res','نتیجه']);if(modOn('acd'))NAV.push(['acd','آکادمی']);NAV.push(['set','تنظیمات'])}catch(e){console.error('nav',e)}}}
+  NAV.length=0;NAV.push(['day','خانه'],['plan2','برنامه'],['pj','پروژه‌ها'],['res','نتیجه']);if(modOn('acd'))NAV.push(['acd','آکادمی']);NAV.push(['set','تنظیمات'])}catch(e){console.error('nav',e)}}}
 const PRIMARY=new Set(['day','plan2','pj','res','acd','set']);
 function markNav(){if(!simple())return;document.querySelectorAll('#nav a[data-p="mx"]').forEach(a=>a.classList.toggle('on',!PRIMARY.has(page)||page==='mx'))}
 {const _r=render;render=function(){const r=_r.apply(this,arguments);try{markNav()}catch(e){}return r}}
-if(page==='home'){page='day'}
+if(page==='home'||page==='mx'){page='day'}
 H.nv_set=e=>{NV().mode=e.dataset.m==='classic'?'classic':'simple';if(simple()&&!PRIMARY.has(page))page='day';save();render()};
 H.dy_go=e=>{const d=e.dataset;page=d.p;if(d.d)dt=d.d;if(d.r)rt=d.r;if(d.s)stt=d.s;render();try{window.scrollTo(0,0)}catch(x){}};
 
@@ -160,9 +160,10 @@ function heroTop(){try{const k=(typeof skId==='function')?skId():'';if(!k||!ownH
     const thought=/deskwide/.test(c)&&/یک اندیشه|A Thought/.test(h);
     if(!(KEEP.test(c)||thought))e.remove()});
   return doc.body.innerHTML}catch(e){console.error('hero',e);return''}}
+const extChips=()=>{try{return MODULES.filter(m=>modOn(m.id)&&!['dl','hab','rem','pj','acd','qt'].includes(m.id)).map(m=>'<button class="chip" data-a="dy_go" data-p="'+esc(m.id)+'">🧩 '+esc(m.name)+'</button>').join('')}catch(e){return''}};
 window.daniDayHero=()=>{try{return!!heroTop()}catch(e){return false}};
 PG.day=function(){const hr=new Date().getHours(),ph=hr<5?T('شب','Night'):hr<12?T('صبح','Morning'):hr<17?T('ظهر','Midday'):hr<20?T('عصر','Evening'):T('شب','Night');
-  let h=heroTop()+'<div class="row" style="align-items:center;margin:2px 0 6px"><b style="font-size:1.25em">'+ph+' · '+T('امروز','Today')+'</b><span class="sp"></span><button class="chip" data-a="dy_go" data-p="mx" title="'+T('همه‌ی بخش‌ها','All sections')+'">⋯ '+T('همه‌ی بخش‌ها','All sections')+'</button><button class="chip" data-a="dy_cfg" aria-label="customize">⚙</button></div>';
+  let h=heroTop()+'<div class="row" style="align-items:center;margin:2px 0 6px"><b style="font-size:1.25em">'+ph+' · '+T('امروز','Today')+'</b><span class="sp"></span><button class="chip" data-a="dy_go" data-p="dash" data-d="find" title="'+T('جست‌وجو','Search')+'">🔎</button><button class="chip" data-a="dy_go" data-p="dash" data-d="notes" title="'+T('یادداشت‌ها','Notes')+'">📝</button><button class="chip" data-a="dy_go" data-p="dash" data-d="acts" title="'+T('فعالیت‌ها و زیرمجموعه‌ها','Activities')+'">🎯</button>'+(modOn('qt')?'<button class="chip" data-a="dy_go" data-p="qt" title="'+T('جملات','Quotes')+'">💬</button>':'')+extChips()+'<button class="chip" data-a="dy_cfg" aria-label="customize">⚙</button></div>';
   if(window.__dyCfg)h+=cfgPanel();
   try{h+=secRescue()}catch(e){console.error('rescue',e)}
   DY().order.forEach(k=>{if(DY().hide.includes(k))return;try{h+=SECS[k][0]()}catch(e){console.error('day '+k,e)}});return h};
