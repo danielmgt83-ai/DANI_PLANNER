@@ -61,7 +61,7 @@ function occ(d){const[y,m,dd]=(()=>{const[a,b,c]=d.split('-').map(Number);return
   FIX.forEach(f=>{if(f[0]===m&&f[1]===dd)out.push({n:T(f[2],f[3]),h:!!f[4],ap:false})});
   const hj=hijri(d);if(hj)LUN.forEach(f=>{if(f[0]===hj[0]&&f[1]===hj[1])out.push({n:T(f[2],f[3]),h:!!f[4],ap:true})});
   if(zdow(d)===5&&!out.some(x=>x.h))out.push({n:T('جمعه','Friday'),h:true,ap:false,wk:true});return out}
-function oCard(){const t=todayISO(),rows=[];for(let i=0;i<=21&&rows.length<5;i++){const d=addD(t,i);occ(d).filter(x=>!x.wk).forEach(x=>rows.push({d,i,x}))}
+function oCard(){const t=todayISO(),rows=[];for(let i=0;i<=120&&rows.length<6;i++){const d=addD(t,i);occ(d).filter(x=>!x.wk).forEach(x=>rows.push({d,i,x}))}
   const td=occ(t).filter(x=>!x.wk);
   let h='<div class="c" id="occard">'+daniH('🗓','مناسبت‌ها و تعطیلات','Occasions & holidays');
   h+=td.length?'<div class="cwr">'+(td.some(x=>x.h)?'🟥 ':'')+'<b>'+T('امروز: ','Today: ')+td.map(x=>esc(x.n)).join(' · ')+'</b></div>':'';

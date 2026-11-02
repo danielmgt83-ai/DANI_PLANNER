@@ -116,14 +116,47 @@ function bhTab(){const k=SUBS.some(x=>x[0]===P2.sub)?P2.sub:'busy',cur=SUBS.find
   return'<div class="row" style="margin:6px 0">'+SUBS.map(x=>'<button class="chip '+(x[0]===k?'on':'')+'" data-a="p2_s" data-k="'+x[0]+'">'+x[1]+' '+T(x[2][0],x[2][1])+'</button>').join('')+'</div><p class="m" style="margin:0 0 6px">'+T(cur[3][0],cur[3][1])+'</p>'
    +(k==='busy'?busyTab():k==='hab'?embed(PG.hab,'habits'):embed(PG.rem,'reminders'))}
 H.p2_s=e=>{P2.sub=e.dataset.k;render()};
-function calTab(){let h=embed(PX.cal,'calendar');
-  h+='<details class="c" open><summary style="cursor:pointer">'+daniH('⏳','موعدها','Deadlines')+'</summary>'+embed(PG.dl,'deadlines')+'</details>'+legacyCards(['#ocdet']);return h}
+/* ---------- تقویم یکپارچه ---------- */
+function monthOf(base){let st,len,title;
+  if(db.set.cal==='g'){const d=P(base);st=iso(new Date(d.getFullYear(),d.getMonth(),1,12));len=new Date(d.getFullYear(),d.getMonth()+1,0).getDate();title=d.toLocaleDateString(LANGEN()?'en-US':'fa-IR',{calendar:'gregory',month:'long',year:'numeric'})}
+  else{const[y,m]=J(base),f=j2g(y,m,1);st=iso(new Date(f[0],f[1]-1,f[2],12));len=m<=6?31:m<=11?30:([1,5,9,13,17,22,26,30].includes(y%33)?30:29);title=JM[m-1]+' '+fa(y)}
+  return{st,len,title}}
+function marks(d){const o={hol:0,occ:0,dl:0,rm:0,bz:0,pl:0,lg:0};
+  try{if(window.daniOccasions)window.daniOccasions(d).forEach(x=>{if(x.wk)return;if(x.h)o.hol=1;else o.occ=1})}catch(e){}
+  try{o.dl=(zDL().items||[]).some(x=>!x.arch&&!x.done&&x.dt===d)?1:0}catch(e){}
+  try{o.rm=(zRM().items||[]).some(r=>!r.off&&r.date===d)?1:0}catch(e){}
+  try{o.bz=busyOn(d).length?1:0}catch(e){}
+  try{o.pl=(plan(d)||[]).filter(x=>x.status!=='carried'&&x.status!=='canceled').length}catch(e){}
+  try{o.lg=sum(E(d)||[])}catch(e){}
+  return o}
+function calTab(){const t=todayISO();if(!P2.cm)P2.cm=t;if(!P2.cs)P2.cs=t;const M=monthOf(P2.cm),off=(P(M.st).getDay()+1)%7;
+  const dot=(c,tt)=>'<i title="'+esc(tt)+'" style="background:'+c+'"></i>';
+  let g='<div class="p2cal">'+['ش','ی','د','س','چ','پ','ج'].map(x=>'<b class="p2h">'+x+'</b>').join('')+'<span></span>'.repeat(off);
+  for(let i=0;i<M.len;i++){const d=addD(M.st,i),k=marks(d);
+    g+='<button class="p2c'+(d===t?' td':'')+(d===P2.cs?' sel':'')+(k.hol?' hol':'')+'" data-a="p2_cd" data-d="'+d+'"><span>'+fa(dnum(d))+'</span><em>'+(k.hol?dot('#ef4444',T('تعطیلی','Holiday')):'')+(k.occ?dot('#a855f7',T('مناسبت','Occasion')):'')+(k.dl?dot('#f59e0b',T('موعد','Deadline')):'')+(k.rm?dot('#3b82f6',T('یادآوری','Reminder')):'')+(k.bz?dot('#94a3b8',T('ساعت پر','Busy')):'')+(k.pl?dot('var(--ac,#22c55e)',T('برنامه','Plan')):'')+'</em></button>'}
+  g+='</div>';
+  const leg='<p class="m" style="margin:6px 0 0"><span class="p2l" style="background:#ef4444"></span>'+T('تعطیلی','Holiday')+' <span class="p2l" style="background:#a855f7"></span>'+T('مناسبت','Occasion')+' <span class="p2l" style="background:#f59e0b"></span>'+T('موعد','Deadline')+' <span class="p2l" style="background:#3b82f6"></span>'+T('یادآوری','Reminder')+' <span class="p2l" style="background:#94a3b8"></span>'+T('ساعت پر','Busy')+' <span class="p2l" style="background:var(--ac,#22c55e)"></span>'+T('برنامه','Plan')+'</p>';
+  let h='<div class="c"><div class="row" style="align-items:center"><button class="chip" data-a="p2_cm" data-n="-1" aria-label="prev">‹</button><b style="flex:1;text-align:center">'+M.title+'</b><button class="chip" data-a="p2_cm" data-n="1" aria-label="next">›</button><button class="chip" data-a="p2_cm" data-n="0">'+T('امروز','Today')+'</button></div>'+g+leg+'</div>';
+  const d=P2.cs,k=marks(d);let ev=[];try{ev=eventsOf(d)}catch(e){}
+  let pl=[];try{pl=(plan(d)||[]).filter(x=>x.actId&&act(x.actId))}catch(e){}
+  h+='<div class="c"><b>'+fmtDL(d)+'</b>'
+   +(ev.length?'<div class="dyex" style="margin-top:6px">'+ev.join('<br>')+'</div>':'<p class="m">'+T('رویدادی برای این روز نیست (نه تعطیلی، نه موعد، نه یادآوری).','Nothing on this day (no holiday, deadline or reminder).')+'</p>')
+   +(pl.length?'<div class="m" style="margin-top:6px">🗓 '+pl.map(x=>esc(aN(x.actId))+' '+mm(+x.goal||0)).join(' · ')+'</div>':'')
+   +(k.lg?'<div class="m">✅ '+T('ثبت‌شده: ','Logged: ')+mm(k.lg)+'</div>':'')
+   +'<div class="row" style="margin-top:8px"><button class="p" data-a="p2_cp">🗓 '+T('برنامه‌ریزی این روز','Plan this day')+'</button><button class="chip" data-a="p2_cr">🔔 '+T('یادآوری','Reminder')+'</button><button class="chip" data-a="p2_cb">⛔ '+T('ساعت پر','Busy')+'</button></div></div>';
+  h+='<details class="c"><summary style="cursor:pointer">'+daniH('⏳','موعدها (افزودن و فهرست)','Deadlines (add & list)')+'</summary>'+embed(PG.dl,'deadlines')+'</details>'+legacyCards(['#ocdet']);
+  return h}
+H.p2_cd=e=>{P2.cs=e.dataset.d;render()};
+H.p2_cm=e=>{const n=+e.dataset.n,M=monthOf(P2.cm||todayISO());P2.cm=n===0?todayISO():(n>0?addD(M.st,M.len):addD(M.st,-1));if(n===0)P2.cs=todayISO();render()};
+H.p2_cp=()=>{P2.date=P2.cs;P2.tab='day';render();try{window.scrollTo(0,0)}catch(e){}};
+H.p2_cr=()=>{P2.tab='bh';P2.sub='rem';render();try{window.scrollTo(0,0)}catch(e){}};
+H.p2_cb=()=>{P2.tab='bh';P2.sub='busy';P2.f={k:'d'};render();try{window.scrollTo(0,0)}catch(e){}};
 PG.plan2=function(){
   let h='<div class="row np tabs" style="flex-wrap:wrap">'+TABS.map(x=>'<button class="'+(P2.tab===x[0]?'p':'')+'" data-a="p2_t" data-k="'+x[0]+'">'+x[1]+' '+T(x[2][0],x[2][1])+'</button>').join('')+'</div>';
   const k=OLD[P2.tab]?OLD[P2.tab][0]:P2.tab;
   if(k==='day')h+=dayTab();else if(k==='exp')h+=expTab();else if(k==='bh')h+=bhTab();else if(k==='cal')h+=calTab();
   return h};
-try{const s=document.createElement('style');s.textContent='.p2st{display:flex;gap:4px;margin-top:8px}.p2d{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:1px;padding:5px 2px;border-radius:10px;border:1px solid var(--b,#8883);background:transparent;color:inherit;font:inherit}.p2d.on{border-color:var(--ac,#3b82f6);background:rgba(59,130,246,.12)}.p2d small{font-size:.62em;opacity:.8;line-height:1.2;max-width:100%;overflow:hidden;white-space:nowrap}.p2b{width:10px;height:22px;border-radius:5px;background:var(--b,#8883);display:flex;align-items:flex-end;overflow:hidden}.p2b i{display:block;width:100%;background:var(--ac,#3b82f6)}';document.head.appendChild(s)}catch(e){}
+try{const s=document.createElement('style');s.textContent='.p2cal{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-top:8px}.p2h{text-align:center;font-size:.75em;opacity:.7}.p2c{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:2px;min-height:46px;padding:4px 0;border-radius:10px;border:1px solid var(--b,#8883);background:transparent;color:inherit;font:inherit}.p2c.td{border-color:var(--ac,#3b82f6)}.p2c.sel{background:rgba(59,130,246,.15)}.p2c.hol span{color:#ef4444}.p2c em{display:flex;flex-wrap:wrap;gap:2px;justify-content:center;max-width:100%}.p2c em i{width:6px;height:6px;border-radius:50%;display:inline-block}.p2l{display:inline-block;width:8px;height:8px;border-radius:50%;margin-inline:4px 2px}.p2st{display:flex;gap:4px;margin-top:8px}.p2d{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:1px;padding:5px 2px;border-radius:10px;border:1px solid var(--b,#8883);background:transparent;color:inherit;font:inherit}.p2d.on{border-color:var(--ac,#3b82f6);background:rgba(59,130,246,.12)}.p2d small{font-size:.62em;opacity:.8;line-height:1.2;max-width:100%;overflow:hidden;white-space:nowrap}.p2b{width:10px;height:22px;border-radius:5px;background:var(--b,#8883);display:flex;align-items:flex-end;overflow:hidden}.p2b i{display:block;width:100%;background:var(--ac,#3b82f6)}';document.head.appendChild(s)}catch(e){}
 try{BI_NAV.plan2=['Plan','برنامه'];EXT_PAGES.add('plan2');ICONS.plan2='<rect x="3" y="4" width="18" height="17" rx="2"/><path d="M8 2v4M16 2v4M3 10h18"/>'}catch(e){}
 /* تایم‌لاین: بلوک‌های مشغول هم دیده شوند (ردیف جدا زیر نوار اصلی) */
 window.daniBusyBar=d=>{try{const b=busyOn(d);if(!b.length)return'';return'<div class="dytr" title="'+T('مشغول','Busy')+'">'+b.map(x=>'<i style="left:'+(tm(x.s)/14.4)+'%;width:'+((tm(x.e)-tm(x.s))/14.4)+'%;background:rgba(148,163,184,.55)" title="'+esc(x.t)+'"></i>').join('')+'</div>'}catch(e){return''}};
