@@ -471,3 +471,8 @@ DANI Planner: پلنر شخصی فارسی (RTL، با لایه‌ی ترجمه�
 ## v53 — guide2.js (راهنمای شروع) و helpfab.js
 - `js/guide2.js` باید بعد از onboard.js بارگذاری شود (`H.ob_open/ob_hub/ob_reset` را بازنویسی می‌کند). مراحل `STEPS`: lang,cal,pj,sch,exp,log,res,fin. وضعیت: `db.set.gd`. `window.daniPageTip()` نکته‌ی هر صفحه برای پنل «؟» (نقشه‌ی `TIPS`). ساخت پروژه با فعالیت cat:learn + زیرمجموعه‌ها + بخش با wk + موعد با `zDL().items`. کد بیرون IIFE باید `const T=window.daniT` خودش را داشته باشد.
 - v54: guide2 first-run flag; step exp has live calc().
+
+## v56 — برنامه (plan2.js) و مدیر فعالیت‌ها (acts2.js)
+- plan2: `TABS` = day|exp|bh|cal؛ `OLD` نقشه‌ی کلیدهای قدیمی؛ `P2.sub` = busy|hab|rem. `embed()` نوار `.cmbar` ماژول‌ها را حذف می‌کند. `legacyCards([sel])` کارت‌های IIFE-محلیِ `PX.plan` (مثل `#tpcard`, `#ocdet`) را از خروجی HTML می‌کشد. `vd` را قبل از رندر کارت‌های قدیمی (`pst/ppr/pmv/pdel`) روی تاریخ صفحه بگذار.
+- tomorrow.js: `addLine` جمله‌ی تاریخ‌دار را مستقیم در `db.plans[date]` می‌گذارد؛ `data-tpr` تکرار را در `db.set.prec` می‌سازد؛ `cfgHTML` در تنظیمات←time.
+- acts2: `PX.acts` کارت‌محور؛ `PG.dash` وقتی dt==='acts' بدون tabBar؛ `H.ftag_add`, `H.trn`.
