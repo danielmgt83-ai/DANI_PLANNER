@@ -39,6 +39,9 @@ function matchAct(name){const q=nz(name).split(/\s+/).filter(Boolean);if(!q.leng
   return bs>=1.5?best:null}
 function addLine(line){let n=0;pieces(line).forEach(p=>{const r=window.daniQuickParse?window.daniQuickParse(p):null;if(!r||!r.name)return;
     const m=matchAct(r.name),min=r.min||(m&&m.a.goalDay)||45;
+    /* جمله‌ی تاریخ‌دار («پس‌فردا ۱۸ ریاضی ۲ ساعت») = همان افزودن سریع قدیمی؛ مستقیم به برنامه‌ی همان روز می‌رود */
+    if(r.dset&&r.date!==PLN.date&&r.date>=todayISO()){let a=m&&m.a;if(!a){const ck=typeof catOf==='function'?catOf(r.name):'personal';a={id:uid(),name:r.name.slice(0,80),cat:ck,tags:[],color:(CATS[ck]||CATS.personal)[1],prio:'',goalDay:0,goalWeek:0,subs:[],desc:'',active:true,days:[]};db.acts.push(a)}
+      if(!db.plans)db.plans={};(db.plans[r.date]=db.plans[r.date]||[]).push({id:uid(),actId:a.id,subId:m&&m.sub?m.sub.id:'',start:r.st||'',end:r.st?hm((tm(r.st)+min)%1440):'',goal:min,status:'todo',reason:'quick'});save();say(T('به برنامه‌ی '+fmtDL(r.date)+' اضافه شد ✓','Added to the plan of '+fmtDL(r.date)+' ✓'));n++;return}
     PLN.rows.push({id:rid(),actId:m?m.a.id:'',subId:m&&m.sub?m.sub.id:'',min,start:r.st||'',status:'todo',reason:'night',nn:m?'':r.name.slice(0,80)});n++});return n}
 function addText(){const t=document.getElementById('tp-in'),v=t?t.value:PLN.txt;let n=0;String(v||'').split(/\n+/).forEach(l=>{if(l.trim())n+=addLine(l)});
   if(!n)return say(T('چیزی فهمیده نشد؛ مثلاً بنویس «۲ ساعت فیلم ریاضی»','Nothing understood — try “2 hours maths video”'),1);PLN.txt='';PLN.saved=false;render()}
@@ -82,6 +85,9 @@ H.tp_cfg=()=>{PLN.cfg=!PLN.cfg;render()};
 document.addEventListener('change',e=>{const t=e.target;if(!t||!t.dataset)return;const d=t.dataset;
   if(d.tpa){const r=row(d.tpa);if(!r)return;if(t.value==='__new'){const n=prompt(T('نام فعالیت تازه','New activity name'),'');if(n&&n.trim()){r.actId='';r.nn=n.trim().slice(0,80)}render();return}r.actId=t.value;r.nn='';r.subId='';render()}
   else if(d.tps){const r=row(d.tps);if(r)r.subId=t.value}
+  else if(d.tpr){const r=row(d.tpr);if(!r||!t.value)return;if(!r.actId){say(T('اول فعالیت را انتخاب کن','Pick an activity first'),1);t.value='';return}
+    const l=Array.isArray(db.set.prec)?db.set.prec:[];if(l.length>=30){say(T('حداکثر ۳۰ کار تکرارشونده','Up to 30 repeating tasks'),1);t.value='';return}
+    const f=t.value==='daily'?'daily':'days',dw=new Date(PLN.date+'T12:00:00').getDay();l.push({id:uid(),actId:r.actId,goal:+r.min||30,freq:f,dow:f==='days'?[dw]:[],on:true,last:''});db.set.prec=l;save();say(T('تکرار ثبت شد ✓ (فهرست: پایین همین صفحه)','Repeat saved ✓ (list: below on this page)'));render()}
   else if(d.tpt){const r=row(d.tpt);if(r)r.start=/^\d\d:\d\d$/.test(t.value)?t.value:''}
   else if(d.tpm){const r=row(d.tpm);if(r){r.min=Math.max(5,Math.min(720,+t.value||30));render()}}
   else if(d.tnk){const o=TN();if(d.tnk==='on')o.on=t.checked?1:0;else if(d.tnk==='eod')o.eod=t.checked?1:0;else if(d.tnk==='rep')o.rep=Math.max(0,Math.min(3,+t.value||0));else if(d.tnk==='gap')o.gap=Math.max(5,Math.min(30,+t.value||10));
@@ -100,6 +106,7 @@ function rowHTML(r,i){const a=r.actId?act(r.actId):null,subs=a&&a.subs||[];
    +'<div class="row" style="gap:4px;margin-top:4px;align-items:center">'
    +'<button class="chip" data-a="tp_min" data-i="'+r.id+'" data-n="-15">−</button><input type="number" min="5" max="720" step="5" value="'+(+r.min||30)+'" data-tpm="'+r.id+'" style="width:64px;text-align:center"><span class="m">'+T('دقیقه','min')+'</span><button class="chip" data-a="tp_min" data-i="'+r.id+'" data-n="15">＋</button>'
    +'<span style="flex:1"></span>'+(subs.length?'<select data-tps="'+r.id+'" style="max-width:120px"><option value="">'+T('زیرمجموعه','Sub-item')+'</option>'+subs.map(s=>'<option value="'+s.id+'" '+(s.id===r.subId?'selected':'')+'>'+esc(s.name)+'</option>').join('')+'</select>':'')
+   +'<select data-tpr="'+r.id+'" title="'+esc(T('تکرار خودکار','Auto-repeat'))+'" style="max-width:92px"><option value="">🔁 '+T('تکرار','Repeat')+'</option><option value="daily">'+T('هر روز','Every day')+'</option><option value="week">'+T('هر هفته (این روز)','Weekly (this day)')+'</option></select>'
    +'<input type="time" value="'+esc(r.start)+'" data-tpt="'+r.id+'" title="'+esc(T('ساعت شروع (اختیاری)','Start time (optional)'))+'"></div></div>'}
 function sugHTML(){let l=[];try{l=(window.daniSuggest?window.daniSuggest():[]).filter(x=>!PLN.rows.some(r=>r.actId===x.a.id))}catch(e){}
   const rec=[],seen=new Set(PLN.rows.map(r=>r.actId));try{(window.daniQuickActs?window.daniQuickActs():[]).forEach(id=>{const a=act(id);if(a&&!seen.has(a.id)&&a.cat!=='rest'&&rec.length<12){seen.add(a.id);rec.push(a)}})}catch(e){}(db.entries||[]).slice(-80).reverse().forEach(e=>{const a=act(e.actId);if(a&&a.active&&!a.arch&&!seen.has(a.id)&&a.cat!=='sleep'&&a.cat!=='rest'&&rec.length<6){seen.add(a.id);rec.push(a)}});
@@ -120,24 +127,25 @@ PG.tmr=function(){if(PLN.init===''||(PLN.date&&PLN.init!==PLN.date))load(PLN.dat
   if(PLN.saved){const tp=PLN.rows;h+='<div style="text-align:center;padding:14px 0"><div style="font-size:2.4em">✅</div><b>'+T('آماده است','All set')+'</b><div class="m">'+fa(tp.length)+' '+T('کار','items')+' · '+mm(tot)+(PLN.exp?'<br>💭 '+esc(PLN.exp):'')+'</div></div>'
      +tp.map(r=>'<div class="cwr">'+(PLN.star===r.id?'★ ':'')+'<b>'+esc(r.actId?aN(r.actId):r.nn)+'</b> · '+mm(r.min)+(r.start?' · '+r.start:'')+'</div>').join('')
      +'<div class="row" style="margin-top:10px"><button class="p" data-a="go" data-p="day">'+T('برو به امروز','Go to Today')+'</button><button class="chip" data-a="tp_edit">✎ '+T('ویرایش','Edit')+'</button></div></div>';
-    return h+cfgHTML()}
-  h+='<p class="m">'+T('هر خط یک کار، با مدت. مثلاً: «۲ ساعت فیلم ریاضی»، «۱ ساعت تست حل کنم». می‌توانی چند کار را با «و» یا «،» پشت هم بنویسی.','One item per line with a duration, e.g. “2 hours maths video”, “1 hour practice tests”. You can chain several with “and” or commas.')+'</p>'
-   +'<textarea id="tp-in" rows="3" dir="auto" style="width:100%" placeholder="'+esc(T('۲ ساعت فیلم ریاضی\n۱ ساعت تست حل کنم\n۱ ساعت مرور جزوه','2 hours maths video\n1 hour practice tests\n1 hour review notes'))+'">'+esc(PLN.txt)+'</textarea>'
-   +'<div class="row" style="margin-top:6px"><button class="p" data-a="tp_add">＋ '+T('بچین در فهرست','Add to the list')+'</button><button class="chip" data-a="tp_copy">'+T('برنامه‌ی روز قبل','Copy previous day')+'</button></div></div>';
-  h+='<div class="c tpc">'+daniH('🗂','فهرست','List')+(PLN.rows.length?PLN.rows.map(rowHTML).join(''):'<p class="m">'+T('هنوز کاری نیست. بالا بنویس یا از پیشنهادها بردار.','Nothing yet — type above or pick a suggestion.')+'</p>')+sugHTML()+'</div>';
-  const pct=cap?Math.min(160,Math.round(tot/cap*100)):0;
-  h+='<div class="c tpc" style="border-inline-start:4px solid '+v.c+'">'+daniH('📊','جمع و ارزیابی','Total & check')+'<div class="row" style="align-items:baseline"><b style="font-size:1.6em">'+mm(tot)+'</b><span class="m">'+(cap?T('معمولاً انجام می‌دهی: ','You usually do: ')+mm(cap):'')+'</span></div>'
-   +(cap?'<div class="bar"><i style="width:'+Math.min(100,pct)+'%;background:'+v.c+'"></i></div>':'')+'<div style="margin-top:6px">'+v.t+'</div>'
+    return h}
+  h+='<p class="m">'+T('هر خط یک کار با مدت: «۲ ساعت فیلم ریاضی». برای روز دیگر تاریخ هم بنویس: «پس‌فردا ساعت ۱۸ ریاضی ۲ ساعت».','One item per line with a duration: “2 hours maths video”. For another day add the date: “day after tomorrow 18:00 maths 2 hours”.')+'</p>'
+   +'<textarea id="tp-in" rows="3" dir="auto" style="width:100%" placeholder="'+esc(T('۲ ساعت فیلم ریاضی\n۱ ساعت تست حل کنم\nفردا ساعت ۱۸ مرور جزوه ۱ ساعت','2 hours maths video\n1 hour practice tests\ntomorrow 18:00 review notes 1 hour'))+'">'+esc(PLN.txt)+'</textarea>'
+   +'<div class="row" style="margin-top:6px"><button class="p" data-a="tp_add">＋ '+T('بچین در فهرست','Add to the list')+'</button><button class="chip" data-a="tp_copy">'+T('برنامه‌ی روز قبل','Copy previous day')+'</button></div>'
+   +'<div style="margin-top:10px">'+(PLN.rows.length?PLN.rows.map(rowHTML).join(''):'<p class="m">'+T('هنوز کاری نیست. بالا بنویس یا از پیشنهادها بردار.','Nothing yet — type above or pick a suggestion.')+'</p>')+sugHTML()+'</div>'
+   +'<div style="border-top:1px solid var(--b,#8883);margin-top:12px;padding-top:10px;border-inline-start:4px solid '+v.c+';padding-inline-start:8px"><div class="row" style="align-items:baseline"><b style="font-size:1.4em">'+mm(tot)+'</b><span class="m">'+(cap?T('معمولاً انجام می‌دهی: ','You usually do: ')+mm(cap):'')+'</span></div>'
+   +(cap?'<div class="bar"><i style="width:'+Math.min(100,cap?Math.min(160,Math.round(tot/cap*100)):0)+'%;background:'+v.c+'"></i></div>':'')+'<div class="m" style="margin-top:4px">'+v.t+'</div></div>'
    +'<label class="m" style="display:block;margin-top:10px">💭 '+T('توقع من از این روز (یک جمله)','What I expect from this day (one line)')+'</label><input id="tp-exp" dir="auto" style="width:100%" maxlength="300" value="'+esc(PLN.exp)+'" placeholder="'+esc(T('مثلاً: ریاضی را تمام کنم و تمرکزم را حفظ کنم','e.g. finish maths and keep my focus'))+'">'
    +'<div class="row" style="margin-top:8px"><button class="chip" data-a="tp_arr">🕘 '+T('چیدن در ساعت‌ها','Arrange in time')+'</button><label class="m">'+T('شروع','Start')+' <input type="time" id="tp-st" value="'+esc(window.__tpst||(db.set.pf&&db.set.pf.start)||'09:00')+'"></label><button class="chip" data-a="tp_clr">'+T('پاک‌کردن ساعت‌ها','Clear times')+'</button></div>'
-   +'<div class="row" style="margin-top:10px"><button class="p" data-a="tp_save" style="flex:1">✓ '+T('ثبت '+(isT?'برنامه‌ی امروز':'برنامه‌ی فردا'),isT?'Save today’s plan':'Save tomorrow’s plan')+'</button><button class="chip" data-a="tp_cfg">⚙</button></div></div>';
-  if(PLN.cfg)h+=cfgHTML();return h};
+   +'<div class="row" style="margin-top:10px"><button class="p" data-a="tp_save" style="flex:1">✓ '+T('ثبت '+(isT?'برنامه‌ی امروز':'برنامه‌ی فردا'),isT?'Save today’s plan':'Save tomorrow’s plan')+'</button></div></div>';
+  return h};
 try{ICONS.tmr='<path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/><path d="M17 3v4M15 5h4"/>'}catch(e){}
 try{BI_NAV.tmr=['Tomorrow','فردا'];EXT_PAGES.add('tmr')}catch(e){}
 /* زیرمجموعه‌ی «میزکار»: تب «برنامه‌ی فردا» (اعلان شب مستقیم به همین‌جا می‌آید) */
 try{if(!DT.some(x=>x[0]==='tmr'))DT.splice(Math.max(1,DT.findIndex(x=>x[0]==='plan')+1),0,['tmr','برنامه‌ی فردا']);PX.tmr=()=>PG.tmr();T('برنامه‌ی فردا','Tomorrow’s plan')}catch(e){console.error('tmr tab',e)}
 try{const s=document.createElement('style');s.textContent='.tpr{border:1px solid var(--b,#8883);border-radius:12px;padding:8px;margin:6px 0}.tpr.st{border-color:#f59e0b;background:rgba(245,158,11,.08)}.tpc textarea,.tpc input[type=text]{box-sizing:border-box}';document.head.appendChild(s)}catch(e){}
 
+/* تنظیم اعلان «برنامه‌ی فردا / نتیجه‌ی امروز» → تنظیمات ← زمان و اعلان */
+{const _sp=setPage;setPage=function(){const h=_sp.apply(this,arguments);try{return(typeof h==='string'&&typeof stt!=='undefined'&&stt==='time')?h+cfgHTML():h}catch(e){return h}}}
 /* ---------- اعلان‌ها ---------- */
 const hs=s=>{let h=5381;for(let i=0;i<s.length;i++)h=((h<<5)+h+s.charCodeAt(i))|0;return 4e8+Math.abs(h)%1e8};
 const atOf=(d,t)=>{const[y,m,dd]=d.split('-').map(Number),[h,n]=t.split(':').map(Number);return new Date(y,m-1,dd,h,n).getTime()};

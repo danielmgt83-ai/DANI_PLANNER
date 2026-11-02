@@ -14,6 +14,8 @@ const X=[
  ['p2exp','پلنر','توقع هفته و ماه (ساعت هر پروژه)','Week & month expectations','plan','توقع انتظار هدف هفته ماه ساعت expectation weekly monthly','x:p2exp',()=>{if(window.daniP2Go)window.daniP2Go('exp')}],
  ['p2busy','پلنر','ساعت‌های پر (کلاس، کار، جلسه)','Busy blocks (class, job, meeting)','plan','کلاس کار جلسه مزاحم نشو busy block','x:p2busy',()=>{if(window.daniP2Go)window.daniP2Go('busy')}],
  ['pj','پلنر','پروژه‌ها (بخش، موعد، عادت)','Projects (parts, deadline, habits)','goals','پروژه بخش موعد هدف project part','x:pj',()=>{page='pj';render()}],
+ ['find','پلنر','جست‌وجو و ویرایش (همه‌چیز)','Search & edit (everything)','notes','جستجو پیدا کردن ویرایش حذف search find edit','x:find',()=>{page='dash';dt='find';render()}],
+ ['actmgr','پلنر','مدیر فعالیت‌ها (ساخت، برچسب، زیرمجموعه)','Activities manager (create, tags, sub-items)','acts','فعالیت برچسب زیرمجموعه ویرایش activity tag','x:actmgr',()=>{page='dash';dt='acts';render()}],
  ['note','پلنر','یادداشت سریع','Quick note','notes','یادداشت نوشتن note','x:note',()=>{if(H.dy_note)H.dy_note()}],
  ['snd','تنظیمات','صدای اعلان‌ها (زنگ، یادآور، عادت‌ها)','Notification sounds','gear','صدا آهنگ زنگ اعلان رینگتون ringtone sound alarm','x:snd',to('st-time','#sccard')],
  ['nhealth','تنظیمات','سلامت اعلان‌ها','Notification health','gear','اعلان مجوز باتری آلارم دقیق notification permission battery','x:nhealth',to('st-time','#nthealth')],

@@ -7,9 +7,10 @@
 (function(){
 const T=window.daniT;
 const say=(m,b)=>{try{toast(m,b)}catch(e){}};
-const P2={tab:'day',date:'',f:null};
-const TABS=[['day','🗓',['برنامه‌ی روز','Day plan']],['exp','🎯',['توقع هفته و ماه','Week & month goals']],['busy','⛔',['بلوک‌های مشغول','Busy blocks']],['hab','🔁',['عادت‌ها','Habits']],['rem','🔔',['یادآوری‌ها','Reminders']],['dl','⏳',['موعدها','Deadlines']],['cal','📅',['تقویم','Calendar']],['tpl','🧩',['قالب و تکرار','Templates & repeats']]];
-window.daniP2Go=(tab,date)=>{P2.tab=tab||'day';if(date)P2.date=date;page='plan2';render();try{window.scrollTo(0,0)}catch(e){}};
+const P2={tab:'day',date:'',f:null,sub:'busy'};
+const TABS=[['day','🗓',['برنامه‌ی روز','Day plan']],['exp','🎯',['توقع هفته و ماه','Week & month goals']],['bh','⛔',['ساعت پر · عادت · یادآور','Busy · Habits · Reminders']],['cal','📅',['تقویم و موعدها','Calendar & deadlines']]];
+const OLD={busy:['bh','busy'],hab:['bh','hab'],rem:['bh','rem'],dl:['cal'],tpl:['day']};
+window.daniP2Go=(tab,date)=>{tab=tab||'day';if(OLD[tab]){if(OLD[tab][1])P2.sub=OLD[tab][1];tab=OLD[tab][0]}P2.tab=tab;if(date)P2.date=date;page='plan2';render();try{window.scrollTo(0,0)}catch(e){}};
 H.p2_t=e=>{P2.tab=e.dataset.k;render()};
 const BZ=()=>{const s=db.set;if(!s.bz||typeof s.bz!=='object')s.bz={};if(!Array.isArray(s.bz.items))s.bz.items=[];return s.bz};
 const hh=m=>pad(Math.floor(m/60)%24)+':'+pad(m%60);
@@ -43,12 +44,40 @@ function eventsOf(d){const out=[];
   try{(zRM().items||[]).filter(r=>!r.off&&r.date===d&&r.repeat==='none').forEach(r=>out.push('🔔 <b>'+esc(r.title)+'</b> '+fa(r.time)))}catch(e){}
   try{if(window.daniOccasions)window.daniOccasions(d).forEach(o=>out.push((o.h?'🟥 ':'▫️ ')+esc(o.n)))}catch(e){}
   return out}
-function dayTab(){const t=todayISO(),d=P2.date&&P2.date>=addD(t,-30)?P2.date:addD(t,1);P2.date=d;
-  let h='<div class="c"><div class="row" style="align-items:center"><button class="chip" data-a="p2_d" data-n="-1" aria-label="prev">‹</button><b style="flex:1;text-align:center">'+fmtDL(d)+'</b><button class="chip" data-a="p2_d" data-n="1" aria-label="next">›</button></div>'
-   +'<div class="row" style="justify-content:center;margin-top:4px"><button class="chip '+(d===t?'on':'')+'" data-a="p2_d" data-to="0">'+T('امروز','Today')+'</button><button class="chip '+(d===addD(t,1)?'on':'')+'" data-a="p2_d" data-to="1">'+T('فردا','Tomorrow')+'</button><span class="m" style="align-self:center">'+T('یا روز دیگر را با ‹ › بزن','or step with ‹ ›')+'</span></div>';
-  const ev=eventsOf(d);h+=ev.length?'<div class="dyex">'+ev.join('<br>')+'</div>':'<p class="m">'+T('رویداد یا قراری برای این روز ثبت نشده.','No events or appointments on this day.')+'</p>';
-  h+='<p class="m">'+T('کار فوری، قرار یا هر چیز دیگر را همین‌جا بنویس؛ مثلاً «۱ ساعت جلسه ساعت ۱۶».','Write an urgent task, an appointment or anything else here — e.g. “1 hour meeting at 16”.')+'</p></div>';
+const dnum=x=>db.set.cal==='g'?+x.slice(8):J(x)[2];
+function stripHTML(d){const t=todayISO();let h='<div class="p2st">';
+  for(let i=0;i<7;i++){const x=addD(t,i);let mins=0,pl=[];try{pl=plan(x)||[];pl.forEach(y=>{if(y.status!=='carried'&&y.status!=='canceled')mins+=+y.goal||0})}catch(e){}
+    let mk='';try{if(window.daniOccasions&&window.daniOccasions(x).some(o=>o.h&&!o.wk))mk+='🟥'}catch(e){}try{if((zDL().items||[]).some(q=>!q.arch&&!q.done&&q.dt===x))mk+='⏳'}catch(e){}try{if(busyOn(x).length)mk+='⛔'}catch(e){}
+    h+='<button class="p2d'+(x===d?' on':'')+'" data-a="p2_d" data-to="'+i+'"><small>'+esc(WD[P(x).getDay()])+'</small><b>'+fa(dnum(x))+'</b><span class="p2b"><i style="height:'+Math.min(100,Math.round(mins/6))+'%"></i></span><small>'+(mins?mm(mins):'·')+'</small><small>'+mk+'</small></button>'}
+  return h+'</div>'}
+function odBar(){let l=[];try{l=plOverdue()}catch(e){}if(!l.length)return'';
+  return'<details class="c" id="p2od"><summary style="cursor:pointer"><b>⚠ '+fa(l.length)+' '+T('کار ناتمام از روزهای قبل','unfinished from earlier days')+'</b> <span class="m">'+T('(باز کن)','(open)')+'</span></summary>'
+   +'<div class="row" style="margin:6px 0"><button class="chip" data-a="p2_odall">⟳ '+T('همه را به امروز ببر','Move all to today')+'</button></div>'+overdueCard()+'</details>'}
+H.p2_odall=()=>{const t=todayISO();let n=0;plOverdue().forEach(o=>{const p=plan(o.d).find(x=>x.id===o.x.id);if(!p)return;p.status='carried';p.to=t;(db.plans[t]=db.plans[t]||[]).push(Object.assign({},p,{id:uid(),status:'todo',reason:'',from:o.d,n:(p.n||0)+1,to:undefined}));n++});save();say(T(fa(n)+' کار به امروز منتقل شد','Moved '+n+' items to today'));render()};
+/* برنامه در برابر واقعی (برنامه‌ی ذخیره‌شده‌ی این روز) */
+function vsCard(d){let p=[];try{p=plan(d)||[]}catch(e){}if(!p.length)return'';vd=d;let pr={pc:0,goal:0,act:0};try{pr=prog(d)}catch(e){}
+  return'<div class="c">'+daniH('📊','برنامه در برابر واقعی','Planned vs actual')+'<p class="m">'+T('پیشرفت','Progress')+' '+fa(pr.pc)+(LANGEN()?'%':'٪')+' · '+T('هدف','goal')+' '+mm(pr.goal)+' · '+T('واقعی','actual')+' '+mm(pr.act)+'</p>'
+   +p.map((x,i)=>{if(!x.actId||!act(x.actId))return'';const a=actual(d,x.actId),g=+x.goal||0;
+     return'<div class="dyp" style="display:block"><div class="row" style="flex-wrap:nowrap;gap:6px"><b style="flex:1;min-width:0">'+(x.pr==='high'?'★ ':'')+esc(aN(x.actId))+'</b><span class="m">'+mm(a)+(g?' / '+mm(g):'')+'</span></div>'
+     +(g?'<div class="bar thin"><i style="width:'+Math.min(100,Math.round(a/g*100))+'%;background:'+(a>=g*.9?'#22c55e':'#f59e0b')+'"></i></div>':'')
+     +(x.from?'<div class="m">'+T('از ','From ')+fmtD(x.from)+'</div>':'')+(x.reason&&!/^(night|quick|copy|tpl|rec)$/.test(x.reason)?'<div class="m">'+T('دلیل: ','Reason: ')+esc(x.reason)+'</div>':'')
+     +'<div class="row" style="margin-top:4px"><select data-ch="pst" data-i="'+i+'" style="flex:1;min-width:0">'+PL_ST.map(z=>'<option value="'+z[0]+'"'+(x.status===z[0]?' selected':'')+'>'+z[1]+'</option>').join('')+'</select>'
+     +'<button class="chip" data-a="ppr" data-i="'+i+'" aria-label="priority">'+(x.pr==='high'?'★':'☆')+'</button><button class="chip" data-a="pmv" data-i="'+i+'">'+T('فردا','Tomorrow')+'</button><button class="chip" data-a="pdel" data-i="'+i+'" aria-label="delete">🗑</button></div></div>'}).join('')+'</div>'}
+/* کارهای تکرارشونده: فقط فهرست (افزودنش با گزینه‌ی 🔁 کنار هر کار در فهرست) */
+function recList(){let l=[];try{l=prList()}catch(e){}
+  return'<details class="c"><summary style="cursor:pointer">'+daniH('🔁','کارهای تکرارشونده ('+fa(l.length)+')','Repeating tasks ('+fa(l.length)+')')+'</summary><p class="m">'+T('در فهرست بالا کنار هر کار گزینه‌ی «تکرار» را بزن تا هر روز یا هر هفته خودکار به برنامه بیاید.','Use the “Repeat” choice next to any item above to add it automatically every day or week.')+'</p>'
+   +(l.length?l.map(r=>'<div class="cwr '+(r.on===false?'off':'')+'" style="display:flex;gap:6px;align-items:center"><span style="flex:1;min-width:0">'+esc(aN(r.actId))+' · '+mm(r.goal||0)+' · '+(r.freq==='daily'?T('هر روز','Every day'):(r.dow||[]).map(i=>zWD[i]).join('، '))+'</span><button class="chip" data-a="prt" data-id="'+r.id+'">'+(r.on===false?T('روشن','On'):T('خاموش','Off'))+'</button><button class="chip" data-a="prd" data-id="'+r.id+'" aria-label="delete">✕</button></div>').join(''):'<p class="m">'+T('هنوز تکراری نداری.','No repeats yet.')+'</p>')+'</details>'}
+/* از کارت‌های قدیمی «برنامه» فقط قالب‌ها و مناسبت‌ها نگه داشته می‌شوند (داخل خودِ همان کارت‌ها) */
+function legacyCards(ids){try{const t=document.createElement('div');t.innerHTML=PX.plan();return ids.map(id=>{const e=t.querySelector(id);return e?e.outerHTML:''}).join('')}catch(e){return''}}
+function dayTab(){const t=todayISO(),d=P2.date&&P2.date>=addD(t,-30)?P2.date:addD(t,1);P2.date=d;vd=d;
+  let h='<div class="c"><div class="row" style="align-items:center"><button class="chip" data-a="p2_d" data-n="-1" aria-label="prev">‹</button><b style="flex:1;text-align:center">'+fmtDL(d)+'</b><button class="chip" data-a="p2_d" data-n="1" aria-label="next">›</button></div>'+stripHTML(d)
+   +'<p class="m" style="margin:4px 0 0">'+T('ستون = حجم برنامه‌ی آن روز · 🟥 تعطیلی · ⏳ موعد · ⛔ ساعت پر','Bar = planned load · 🟥 holiday · ⏳ deadline · ⛔ busy')+'</p>';
+  const ev=eventsOf(d);if(ev.length)h+='<div class="dyex" style="margin-top:6px">'+ev.join('<br>')+'</div>';
+  h+='</div>'+odBar();
   try{window.daniPlanLoad(d);h+=PG.tmr()}catch(e){console.error('p2 day',e)}
+  h+=vsCard(d)+recList();
+  const cp='<div class="row" style="margin:6px 0"><button class="chip" data-a="copyDay">'+T('کپی به روز دیگر','Copy to another day')+'</button><button class="chip" data-a="tmpl">'+T('قالب هفتگی: اعمال روی ۷ روز','Weekly template: apply to 7 days')+'</button></div>';
+  h+=legacyCards(['#tpcard']).replace('</summary>','</summary>'+cp);
   return h}
 H.p2_d=e=>{const t=todayISO(),x=e.dataset;if(x.to!==undefined)P2.date=addD(t,+x.to);else P2.date=addD(P2.date||addD(t,1),+x.n||0);render()};
 
@@ -68,6 +97,7 @@ function expTab(){const t=todayISO(),w0=weekStart(t),[m0,m1]=mRange(),L=PJs();
      +(p.parts||[]).filter(x=>act(x.a)).map(x=>{const xw=+x.wk||0,dX=per(p,w0,t,x);return'<div class="row" style="margin-top:4px;gap:6px"><span style="flex:1;min-width:0">'+esc(aN(x.a))+' <span class="m">'+mm(dX)+'</span></span><input type="number" min="0" step="0.5" value="'+(xw||'')+'" placeholder="'+T('ساعت/هفته','h/week')+'" data-ex="x" data-p="'+esc(p.id)+'" data-x="'+esc(x.id)+'" data-f="wk" style="width:90px"></div>'+(xw?bar2(dX,xw*60,wd/7,''):'')}).join('')+'</div>'});
   h+='</div>';
   if(tw||tmn)h+='<div class="c" style="margin-top:8px">'+daniH('📈','نتیجه','Result')+(tw?verdict(dw,tw,wd/7,T('این هفته','This week')):'')+(tmn?verdict(dmn,tmn,md/mt,T('این ماه','This month')):'')+'</div>';
+  try{h+=weekCard()}catch(e){}
   return h}
 const dDays=(a,b)=>Math.round((P(b)-P(a))/864e5);
 const bar2=(done,need,exp,lb)=>'<div class="m">'+(lb?lb+': ':'')+mm(done)+' / '+mm(need)+'</div><div class="bar thin"><i style="width:'+Math.min(100,need?Math.round(done/need*100):0)+'%;background:'+(done>=need*exp*.95?'#22c55e':'#f59e0b')+'"></i></div>';
@@ -80,14 +110,20 @@ document.addEventListener('change',e=>{const t=e.target;if(!t||!t.dataset||!t.da
 window.daniWeekLines=()=>{try{const t=todayISO(),w0=weekStart(t),L=PJs().filter(p=>+p.wk>0);if(!L.length)return'';
   return'<div style="margin-top:6px">'+L.slice(0,4).map(p=>'<div class="m">🎯 '+esc(p.name)+' · '+T('این هفته','this week')+' '+mm(per(p,w0,t))+' / '+mm(p.wk*60)+'</div>').join('')+'</div>'}catch(e){return''}};
 /* ---------- صفحه ---------- */
-const embed=(fn,name)=>{try{return typeof fn==='function'?fn():''}catch(e){console.error('p2 '+name,e);return'<div class="c"><p class="m">⚠ '+name+'</p></div>'}};
+const embed=(fn,name)=>{try{return typeof fn==='function'?String(fn()).replace(/<div class="row cmbar"[^>]*>.*?<\/div>/,''):''}catch(e){console.error('p2 '+name,e);return'<div class="c"><p class="m">⚠ '+name+'</p></div>'}};
+const SUBS=[['busy','⛔',['ساعت‌های پر','Busy blocks'],['کلاس، کار، جلسه: ساعت‌هایی که مشغولی؛ در آن‌ها اعلان نمی‌آید و برنامه نمی‌چیند.','Class, job, meetings: times you are busy; no notifications then.']],['hab','🔁',['عادت‌ها','Habits'],['کار بله/نه بدون زمان که هر روز تکرار می‌شود (آب، دارو، ورزش کوتاه)؛ فقط پیوستگی روزها را می‌شمارد.','A yes/no thing without duration you repeat daily (water, medicine, short workout); it only counts your streak.']],['rem','🔔',['یادآوری‌ها','Reminders'],['یک اعلان در ساعت مشخص (قرار دکتر، پرداخت قبض)، یک‌بار یا تکراری.','One notification at a set time (appointment, bill), once or repeating.']]];
+function bhTab(){const k=SUBS.some(x=>x[0]===P2.sub)?P2.sub:'busy',cur=SUBS.find(x=>x[0]===k);
+  return'<div class="row" style="margin:6px 0">'+SUBS.map(x=>'<button class="chip '+(x[0]===k?'on':'')+'" data-a="p2_s" data-k="'+x[0]+'">'+x[1]+' '+T(x[2][0],x[2][1])+'</button>').join('')+'</div><p class="m" style="margin:0 0 6px">'+T(cur[3][0],cur[3][1])+'</p>'
+   +(k==='busy'?busyTab():k==='hab'?embed(PG.hab,'habits'):embed(PG.rem,'reminders'))}
+H.p2_s=e=>{P2.sub=e.dataset.k;render()};
+function calTab(){let h=embed(PX.cal,'calendar');
+  h+='<details class="c" open><summary style="cursor:pointer">'+daniH('⏳','موعدها','Deadlines')+'</summary>'+embed(PG.dl,'deadlines')+'</details>'+legacyCards(['#ocdet']);return h}
 PG.plan2=function(){
   let h='<div class="row np tabs" style="flex-wrap:wrap">'+TABS.map(x=>'<button class="'+(P2.tab===x[0]?'p':'')+'" data-a="p2_t" data-k="'+x[0]+'">'+x[1]+' '+T(x[2][0],x[2][1])+'</button>').join('')+'</div>';
-  const k=P2.tab;
-  if(k==='day')h+=dayTab();else if(k==='exp')h+=expTab();else if(k==='busy')h+=busyTab();
-  else if(k==='hab')h+=embed(PG.hab,'habits');else if(k==='rem')h+=embed(PG.rem,'reminders');else if(k==='dl')h+=embed(PG.dl,'deadlines');
-  else if(k==='cal')h+=embed(PX.cal,'calendar');else if(k==='tpl')h+=embed(PX.plan,'plan');
+  const k=OLD[P2.tab]?OLD[P2.tab][0]:P2.tab;
+  if(k==='day')h+=dayTab();else if(k==='exp')h+=expTab();else if(k==='bh')h+=bhTab();else if(k==='cal')h+=calTab();
   return h};
+try{const s=document.createElement('style');s.textContent='.p2st{display:flex;gap:4px;margin-top:8px}.p2d{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:1px;padding:5px 2px;border-radius:10px;border:1px solid var(--b,#8883);background:transparent;color:inherit;font:inherit}.p2d.on{border-color:var(--ac,#3b82f6);background:rgba(59,130,246,.12)}.p2d small{font-size:.62em;opacity:.8;line-height:1.2;max-width:100%;overflow:hidden;white-space:nowrap}.p2b{width:10px;height:22px;border-radius:5px;background:var(--b,#8883);display:flex;align-items:flex-end;overflow:hidden}.p2b i{display:block;width:100%;background:var(--ac,#3b82f6)}';document.head.appendChild(s)}catch(e){}
 try{BI_NAV.plan2=['Plan','برنامه'];EXT_PAGES.add('plan2');ICONS.plan2='<rect x="3" y="4" width="18" height="17" rx="2"/><path d="M8 2v4M16 2v4M3 10h18"/>'}catch(e){}
 /* تایم‌لاین: بلوک‌های مشغول هم دیده شوند (ردیف جدا زیر نوار اصلی) */
 window.daniBusyBar=d=>{try{const b=busyOn(d);if(!b.length)return'';return'<div class="dytr" title="'+T('مشغول','Busy')+'">'+b.map(x=>'<i style="left:'+(tm(x.s)/14.4)+'%;width:'+((tm(x.e)-tm(x.s))/14.4)+'%;background:rgba(148,163,184,.55)" title="'+esc(x.t)+'"></i>').join('')+'</div>'}catch(e){return''}};
