@@ -476,3 +476,6 @@ DANI Planner: پلنر شخصی فارسی (RTL، با لایه‌ی ترجمه�
 - plan2: `TABS` = day|exp|bh|cal؛ `OLD` نقشه‌ی کلیدهای قدیمی؛ `P2.sub` = busy|hab|rem. `embed()` نوار `.cmbar` ماژول‌ها را حذف می‌کند. `legacyCards([sel])` کارت‌های IIFE-محلیِ `PX.plan` (مثل `#tpcard`, `#ocdet`) را از خروجی HTML می‌کشد. `vd` را قبل از رندر کارت‌های قدیمی (`pst/ppr/pmv/pdel`) روی تاریخ صفحه بگذار.
 - tomorrow.js: `addLine` جمله‌ی تاریخ‌دار را مستقیم در `db.plans[date]` می‌گذارد؛ `data-tpr` تکرار را در `db.set.prec` می‌سازد؛ `cfgHTML` در تنظیمات←time.
 - acts2: `PX.acts` کارت‌محور؛ `PG.dash` وقتی dt==='acts' بدون tabBar؛ `H.ftag_add`, `H.trn`.
+
+## v57 — تقویم یکپارچه (plan2.js)
+- `calTab` با `monthOf(base)` (شمسی/میلادی) و `marks(d)`؛ حالت‌ها `P2.cm` (ماه نمایشی) و `P2.cs` (روز انتخابی)؛ دکمه‌ها `p2_cd/p2_cm/p2_cp/p2_cr/p2_cb`. `PX.cal` قدیمی دیگر در برنامه استفاده نمی‌شود (برای میزکار قدیمی می‌ماند).
