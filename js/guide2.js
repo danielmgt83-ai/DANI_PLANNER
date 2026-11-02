@@ -14,6 +14,17 @@ const val=id=>{const e=q(id);return e?e.value:(S[id]||'')};
 const say=(m,b)=>{try{toast(m,b)}catch(e){}};
 /* ---------- قدم‌ها ---------- */
 const hasPerm=()=>{try{return Notification.permission==='granted'}catch(e){return false}};
+const dueOf=p=>{try{if(p.dl){const d=zDL().items.find(x=>x.id===p.dl);if(d&&d.dt)return d.dt}}catch(e){}return p.due||''};
+const nf=x=>fa(Math.round(x*10)/10);
+function calc(p){const w=+p.wk||0,d=dueOf(p),t=todayISO();
+ if(!w)return'<span class="m">'+T('ساعت هفتگی را بنویس تا حساب شود.','Type weekly hours to see the maths.')+'</span>';
+ let h='<b>'+T('هر روز: ','Per day: ')+nf(w/7)+T(' ساعت',' h')+'</b> · '+T('هفته: ','week: ')+nf(w)+T(' ساعت',' h')+' · '+T('ماه: ','month: ')+nf(w*30/7)+T(' ساعت',' h');
+ if(d){const left=Math.max(0,Math.round((new Date(d+'T00:00:00')-new Date(t+'T00:00:00'))/864e5));
+  if(left>0){const tot=w*left/7;h+='<br>📅 '+T('تا موعد ','Until the deadline ')+fa(left)+T(' روز مانده (حدود ',' days left (about ')+nf(left/7)+T(' هفته). اگر هر هفته ',' weeks). If you do ')+nf(w)+T(' ساعت وقت بگذاری، مجموع: ',' h every week, the total is: ')+'<b>'+nf(tot)+T(' ساعت',' h')+'</b>.';
+   if(+p.hrs>0){const need=+p.hrs;h+='<br>🎯 '+T('هدف کل ',' Target ')+nf(need)+T(' ساعت: ',' h: ')+(tot>=need?'✅ '+T('کافی است.','enough.'):'⚠ '+T('کم است؛ باید هفته‌ای ',' not enough; you need ')+nf(need/(left/7))+T(' ساعت باشد.',' h/week.'))}}
+  else h+='<br>⚠ '+T('موعد گذشته است.','The deadline has passed.')}
+ else h+='<br><span class="m">'+T('موعد ندارد؛ برای حساب تا موعد، در «پروژه‌ها» موعد بگذار.','No deadline; add one in Projects to see totals until then.')+'</span>';
+ return h}
 const STEPS=[
  {k:'lang',i:'🌐',t:['Language','Language'],ok:()=>true,
   body:()=>'<h2 style="margin:6px 0 2px">Welcome to DANI 👋</h2><p class="m">Pick your language. You can change it any time in Settings.<br>زبان را انتخاب کن؛ هر وقت خواستی در تنظیمات عوض می‌شود.</p>'
@@ -46,7 +57,7 @@ const STEPS=[
  {k:'exp',i:'🎯',t:['۳ · توقع‌ها','3 · Expectations'],ok:()=>PJs().some(p=>+p.wk>0),
   body:()=>{const L=PJs();
    return'<p>'+T('بگو در هفته از هر پروژه چند ساعت انتظار داری؛ فردا هم همین‌جا برنامه‌ریزی می‌شود. موفقیت هر روز، هفته و ماه با همین سنجیده می‌شود.','Say how many hours per week you expect from each project; tomorrow is planned from this too. Success per day, week and month is judged against it.')+'</p>'
-   +(L.length?L.map(p=>'<div class="row" style="gap:8px;margin:4px 0"><b style="flex:1;min-width:0">'+esc(p.name)+'</b><input type="number" min="0" step="0.5" value="'+(+p.wk||'')+'" data-g2w="'+esc(p.id)+'" style="width:80px" placeholder="0"> <span class="m">'+T('ساعت/هفته','h/week')+'</span></div>').join(''):'<p class="m">'+T('اول یک پروژه بساز (قدم ۱).','Create a project first (step 1).')+'</p>')
+   +(L.length?L.map(p=>'<div class="row" style="gap:8px;margin:4px 0"><b style="flex:1;min-width:0">'+esc(p.name)+'</b><input type="number" min="0" step="0.5" value="'+(+p.wk||'')+'" data-g2w="'+esc(p.id)+'" style="width:80px" placeholder="0"> <span class="m">'+T('ساعت/هفته','h/week')+'</span></div><div class="m" id="g2c-'+esc(p.id)+'" style="margin:0 0 8px">'+calc(p)+'</div>').join(''):'<p class="m">'+T('اول یک پروژه بساز (قدم ۱).','Create a project first (step 1).')+'</p>')
    +'<div class="row" style="margin-top:10px"><button class="chip" data-a="g2_go" data-t="day">🗓 '+T('برنامه‌ی فردا / هر روز','Plan tomorrow / any day')+'</button><button class="chip" data-a="g2_go" data-t="exp">🎯 '+T('توقع ماه و بخش‌ها','Month & per-part goals')+'</button></div>'}},
  {k:'log',i:'⏱',t:['۴ · ثبت','4 · Track'],ok:()=>db.entries.length>0,
   body:()=>'<p>'+T('یک کارت «ثبت» با همه‌ی حالت‌ها در «خانه» است: کرنومتر، شمارش‌معکوس، پومودورو و ثبت دستی. بعد از هر ثبت می‌توانی امتیاز سریع بدهی. برای ثبت دقیق‌تر ساعت‌هایت، اجازه‌ی اعلان را بده؛ پرسش ساعتی «الان چه می‌کنی؟» با نسخه‌ی اپ اندروید می‌آید.','One “Track” card on Home has every mode: stopwatch, countdown, pomodoro and manual. After each log you can rate it quickly. Allow notifications so your hours stay accurate; the hourly “what are you doing?” check-in comes with the Android app.')+'</p>'
@@ -65,6 +76,7 @@ const I=()=>Math.max(0,Math.min(STEPS.length-1,GD().i|0));
 function css(){if(q('gd2-css'))return;const s=document.createElement('style');s.id='gd2-css';s.textContent='#gd2{position:fixed;inset:0;z-index:2147481000;background:var(--bg,#fff);color:var(--t,#111);display:flex;flex-direction:column}#gd2 .gh{padding:12px 14px 10px;border-bottom:1px solid var(--b,#ddd)}#gd2 .gp{height:5px;border-radius:4px;background:var(--b,#ddd);overflow:hidden;margin-top:8px}#gd2 .gp i{display:block;height:100%;background:var(--ac,#3b82f6);transition:width .25s}#gd2 .gb{flex:1;overflow:auto;padding:14px;width:100%;max-width:560px;margin:0 auto;box-sizing:border-box}#gd2 .gf{padding:10px 14px calc(10px + env(safe-area-inset-bottom));border-top:1px solid var(--b,#ddd);display:flex;gap:8px;width:100%;max-width:560px;margin:0 auto;box-sizing:border-box}#gd2 .gd{display:flex;gap:6px;overflow:auto;margin-top:8px}#gd2 .gd button{min-width:32px;height:32px;border-radius:50%;padding:0}@media (prefers-reduced-motion:reduce){#gd2 .gp i{transition:none}}';document.head.appendChild(s)}
 function snap(){const o=q('gd2');if(!o)return;o.querySelectorAll('input[id],textarea[id],select[id]').forEach(e=>{S[e.id]=e.type==='checkbox'?e.checked:e.value})}
 function draw(){css();snap();let o=q('gd2');if(!o){o=document.createElement('div');o.id='gd2';o.setAttribute('data-nobi','1');o.setAttribute('role','dialog');o.setAttribute('aria-modal','true');document.body.appendChild(o);
+    o.addEventListener('input',e=>{const t=e.target;if(t&&t.dataset&&t.dataset.g2w){const p=PJs().find(x=>x.id===t.dataset.g2w),c=q('g2c-'+t.dataset.g2w);if(p&&c){p.wk=Math.max(0,+t.value||0);c.innerHTML=calc(p)}}});
     o.addEventListener('change',e=>{const t=e.target;if(t&&t.dataset&&t.dataset.g2w){const p=PJs().find(x=>x.id===t.dataset.g2w);if(p){p.wk=Math.max(0,+t.value||0);save()}}});
     document.addEventListener('keydown',e=>{if(e.key==='Escape'&&q('gd2'))close()})}
   const g=GD(),s=STEPS[I()],last=I()===STEPS.length-1,pct=Math.round((I()+1)/STEPS.length*100);
@@ -125,5 +137,6 @@ const TIPS={
  dash:[['🎯','فعالیت‌ها','Activities'],[['⭐ = فعالیت ضروری (دکمه‌ی سریع).','⭐ = essential activity (quick button).'],['اسم، رنگ، برچسب، زیرمجموعه و هدف را همین‌جا عوض کن.','Rename, recolor, tag, add sub-items and goals here.']]]};
 window.daniPageTip=()=>{const t=TIPS[page];if(!t)return'';return'<div class="c" style="margin:8px 0">'+daniH(t[0][0],'درباره‌ی این صفحه: '+t[0][1],'About this page: '+t[0][2])+t[1].map(x=>'<div class="m" style="margin:3px 0">• '+T(x[0],x[1])+'</div>').join('')+'</div>'};
 /* بار اول (هیچ داده‌ای نیست): خودکار باز شود، یک‌بار */
-setTimeout(()=>{try{const g=GD();if(!g.fin&&!g.auto&&!db.entries.length&&!(db.set.ob&&(db.set.ob.fin||db.set.ob.dis))&&!PJs().length){g.auto=1;save();draw()}}catch(e){}},1500);
+try{if(!localStorage.getItem('dani_ob_seen'))localStorage.setItem('dani_ob_seen','1')}catch(e){}
+setTimeout(()=>{try{const g=GD();if(!g.fin&&!g.auto&&db.entries.length<=14&&!PJs().length){g.auto=1;const o=db.set.ob||(db.set.ob={});o.opened=1;save();draw()}}catch(e){}},1500);
 })();
