@@ -6,7 +6,7 @@
 (function(){
 const T=window.daniT;
 const FX=()=>{const s=db.set;if(!s.fx||typeof s.fx!=='object')s.fx={};if(s.fx.hap===undefined)s.fx.hap=1;if(s.fx.anim===undefined)s.fx.anim=1;return s.fx};
-const VER='2026.11.18';
+const VER='2026.11.19';
 /* ---------- لرزش و پاپ ---------- */
 const HAP=/^(qk_go|nx_go|nx_sw|pf_add|tp_ap|bin_rs|ex_save|ab_now|ql_|pm_|tm_|tstart|tfinish|hab|ob_log|ob_go|dnd_set|ls_now|dk_)/;
 const reduce=()=>{try{return matchMedia('(prefers-reduced-motion: reduce)').matches}catch(e){return false}};
@@ -19,6 +19,7 @@ st.textContent='@keyframes fxpop{0%{transform:scale(1)}40%{transform:scale(.92)}
 document.head.appendChild(st);
 /* ---------- چه چیزی تازه است ---------- */
 const WN=[
+ ['🛡','یادآوری پشتیبان حالا می‌گوید: تنظیمات ← داده‌ها ← مرکز پشتیبان.','The backup reminder now points to Settings → Data → Backup centre.'],
  ['🧮','راهنمای جدید حالا اول کار می‌آید (راهنمای قدیمی نمی‌آید). در قدم «توقع‌ها» ساعت هفتگی را بنویس تا حساب هر روز، هفته، ماه و مجموع تا موعد را ببینی.','The new guide now opens first (the old one is gone). In the Expectations step, type weekly hours to see per-day, week, month and total-until-deadline maths.'],
  ['🧭','راهنمای شروع از نو ساخته شد: صفحه‌ی کامل و قدم‌به‌قدم (زبان، تقویم، پروژه، برنامه، توقع، ثبت، نتیجه). پروژه و بخش‌ها و برنامه‌ی هفتگی را همان‌جا می‌سازی. دکمه‌ی «؟» هم نکته‌ی همان صفحه را نشان می‌دهد.','Start guide rebuilt: a full-screen step-by-step wizard (language, calendar, project, schedule, expectations, log, results). Build projects, parts and your weekly schedule right there. The “?” button now shows a tip for the current page.'],
  ['🧭','راهنمای شروع با ترتیب جدید: زبان ← تقویم ← پروژه‌ها ← برنامه‌ی من ← توقع‌ها ← ثبت ← نتیجه ← تنظیمات. ⚡ دسترسی سریع در خانه؛ «شخصی‌سازی» خانه (ترتیب، حذف، افزودن کارت)؛ ⭐ فعالیت‌های ضروری و ＋ فعالیت جدید در همه‌ی انتخاب‌ها؛ باگ پنجره‌ی یادداشت درست شد.','New guide order: language → calendar → projects → my schedule → expectations → track → results → settings. ⚡ Quick access on Home; Customize Home (reorder, hide, add cards); ⭐ essential activities and ＋ new activity everywhere; quick-note bug fixed.'],

@@ -1447,7 +1447,7 @@ const I18_EXTRA={
 "رفتن به مرکز":"Go to Center",
 "خوانده نشد":"Could not be read",
 "نتیجه‌ی بازیابی — آکادمی: فایل":"Restore result — academy: file",
-"یادآوری: چند روز است پشتیبان کامل نگرفته‌ای (تنظیمات ← مرکز":"Reminder: you haven't taken a full backup for several days (Settings ← Center",
+"یادآوری: چند روز است پشتیبان کامل نگرفته‌ای (تنظیمات ← داده‌ها ← مرکز پشتیبان)":"Reminder: you haven't taken a full backup for several days (Settings → Data → Backup centre)",
 "ایتاچی|اوچیها/":"Itachi|Uchiha/",
 "پوشه‌های تم":"Theme folders",
 "پوشه‌ی جدید":"New folder",
