@@ -10,6 +10,11 @@ const to=(id,sel)=>()=>{QA.go(id);if(sel)sc(sel)};
 const dock=k=>()=>{if(window.daniDockOpen)window.daniDockOpen(k)};
 const modalCard=fn=>()=>{let h='';try{h=fn()}catch(e){}modal('<div>'+(h||'')+'</div><div class="row" style="margin-top:12px"><button class="p" data-a="h2_close">'+T('تمام','Done')+'</button></div>')};
 const X=[
+ ['p2day','پلنر','برنامه‌ی روز (امروز، فردا، هر روز دلخواه)','Day plan (today, tomorrow, any day)','plan','برنامه فردا امروز روز قرار کار فوری tomorrow plan day','x:p2day',()=>{if(window.daniP2Go)window.daniP2Go('day')}],
+ ['p2exp','پلنر','توقع هفته و ماه (ساعت هر پروژه)','Week & month expectations','plan','توقع انتظار هدف هفته ماه ساعت expectation weekly monthly','x:p2exp',()=>{if(window.daniP2Go)window.daniP2Go('exp')}],
+ ['p2busy','پلنر','ساعت‌های پر (کلاس، کار، جلسه)','Busy blocks (class, job, meeting)','plan','کلاس کار جلسه مزاحم نشو busy block','x:p2busy',()=>{if(window.daniP2Go)window.daniP2Go('busy')}],
+ ['pj','پلنر','پروژه‌ها (بخش، موعد، عادت)','Projects (parts, deadline, habits)','goals','پروژه بخش موعد هدف project part','x:pj',()=>{page='pj';render()}],
+ ['note','پلنر','یادداشت سریع','Quick note','notes','یادداشت نوشتن note','x:note',()=>{if(H.dy_note)H.dy_note()}],
  ['snd','تنظیمات','صدای اعلان‌ها (زنگ، یادآور، عادت‌ها)','Notification sounds','gear','صدا آهنگ زنگ اعلان رینگتون ringtone sound alarm','x:snd',to('st-time','#sccard')],
  ['nhealth','تنظیمات','سلامت اعلان‌ها','Notification health','gear','اعلان مجوز باتری آلارم دقیق notification permission battery','x:nhealth',to('st-time','#nthealth')],
  ['hstyle','تنظیمات','سبک خانه (جدید / کلاسیک)','Home style (new / classic)','look','خانه سبک چیدمان کلاسیک جدید home style layout','x:hstyle',to('st-look','#h2style')],

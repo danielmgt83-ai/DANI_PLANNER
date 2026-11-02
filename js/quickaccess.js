@@ -83,7 +83,7 @@ const C=[
  {id:'ac-restore',g:'کارهای سریع',fa:'بازیابی پشتیبان کامل',en:'Restore full backup',ic:'up',kw:'بازیابی ریستور برگرداندن restore',need:'crsall',t:{page:'set',tab:'data'}}
 ];
 const BYID=new Map(C.map(x=>[x.id,x]));
-const DEF_PINS=['today','plan','dl-up','hab','rem-up','qt-today','ac-learn','cr-list','ac-cards','rep','st-look','st-data'];
+const DEF_PINS=['home','x-p2day','x-p2exp','acts','x-note','dl-up','hab','rem-up','qt-today','ac-learn','rep','st-look','st-data'];
 const avail=x=>!x.need||(x.need==='crs'?have():(typeof H!=='undefined'&&typeof H.crs_allexp==='function'));
 /* ---------- ذخیره ---------- */
 let MEM=null;
@@ -186,7 +186,7 @@ const BOLT=MI.bolt;
 function decorate(tries){
   const nav=document.getElementById('nav');if(!nav)return;
   if(nav.querySelector('.qa-nav'))return decorateSide();
-  const home=nav.querySelector('a[data-p="home"]');if(!home)return;
+  const home=nav.querySelector('a[data-p="home"],a[data-p="day"]');if(!home)return;
   if(!home.querySelector('svg')&&(tries||0)<6){setTimeout(()=>decorate((tries||0)+1),120);return}
   const a=home.cloneNode(true);
   a.className='qa-nav';a.setAttribute('data-a','qa_open');a.removeAttribute('data-p');a.setAttribute('role','button');

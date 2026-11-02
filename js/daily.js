@@ -10,7 +10,9 @@ const T=window.daniT;
 const say=(m,b)=>{try{toast(m,b)}catch(e){}};
 const NV=()=>{const s=db.set;if(!s.nv||typeof s.nv!=='object')s.nv={mode:'classic'};if(s.nv.mode!=='simple')s.nv.mode='classic';return s.nv};
 const simple=()=>true;
-const DY=()=>{const s=db.set;if(!s.dy||typeof s.dy!=='object')s.dy={};const o=s.dy;if(!Array.isArray(o.hide))o.hide=[];if(o.gaps===undefined)o.gaps=1;if(!Array.isArray(o.order))o.order=['sp','pl','tr','tl','ed'];['sp','pl','tr','tl','ed'].forEach(k=>{if(!o.order.includes(k))o.order.push(k)});return o};
+const DY=()=>{const s=db.set;if(!s.dy||typeof s.dy!=='object')s.dy={};const o=s.dy;if(!Array.isArray(o.hide))o.hide=[];if(o.gaps===undefined)o.gaps=1;const ALL=['th','sp','pl','tr','tl','ed','ls','qt','wk','cp','dl','nt'];if(!Array.isArray(o.order))o.order=ALL.slice();if(!Array.isArray(o.seen))o.seen=['sp','pl','tr','tl','ed'];
+  if(o.order.includes('th')===false&&!o.seen.includes('th'))o.order.unshift('th');
+  ALL.forEach(k=>{if(!o.order.includes(k))o.order.push(k);if(!o.seen.includes(k)){o.seen.push(k);if(['wk','cp','dl','nt'].includes(k)&&!o.hide.includes(k))o.hide.push(k)}});return o};
 const nowMin=()=>{const d=new Date();return d.getHours()*60+d.getMinutes()};
 const hh=m=>pad(Math.floor(m/60)%24)+':'+pad(m%60);
 
@@ -110,9 +112,9 @@ function secTrack(){const t=db.timer||{},on=tOn(),ph=pmPh(),pmOn=ph==='work'||ph
   if(TR.mode==='mn'){let f='';try{RM.m='manual';f=window.daniRecRaw()}catch(e){console.error(e)}f=f.replace(/^<div class="c"><h3>[^<]*<\/h3><div class="row seg">[\s\S]*?<\/div>/,'<div>').replace(/<button class="p" data-a="rgo2">/,'<button class="p" data-a="rgo2">✍️ ');return h+'<div style="margin-top:8px">'+f+'</div>'+foot()}
   if(TR.mode==='pm'&&window.daniPomoCard){return h+'<div style="margin-top:8px">'+window.daniPomoCard().replace('<div class="c" id="pmcard">','<div id="pmcard">')+'</div>'+foot()}
   if(TR.mode==='ql'){let q='';try{q=window.daniQuickLog?window.daniQuickLog():''}catch(e){}return h+'<div style="margin-top:8px">'+q+'</div>'+foot()}
-  const pi=(plan(todayISO())||[]).filter(x=>!['done','canceled','carried'].includes(x.status)).map(x=>x.actId),ids=[...new Set(pi.concat(recent(8)))].slice(0,8);
+  const pi=(plan(todayISO())||[]).filter(x=>!['done','canceled','carried'].includes(x.status)).map(x=>x.actId),ids=[...new Set(pi.concat(window.daniQuickActs?window.daniQuickActs():recent(8)))].slice(0,Math.max(+db.set.qan||8,pi.length));
   if(!TR.user||!TR.act||!act(TR.act))TR.act=ids[0]||(db.acts.find(a=>a.active&&!a.arch&&a.cat!=='sleep')||{}).id||'';
-  h+='<div class="m" style="margin-top:8px">'+T('چه کاری؟','What are you doing?')+(pi.length?' <small>('+T('اول: از برنامه‌ی امروز','first: from today\'s plan')+')</small>':'')+'</div><div class="row">'+ids.map(id=>'<button class="chip '+(TR.act===id?'on':'')+'" data-a="dy_pick" data-id="'+id+'">'+(pi.includes(id)?'🎯 ':'')+esc(aN(id))+'</button>').join('')+'<button class="chip" data-a="dy_go" data-p="dash" data-d="acts" title="'+T('فعالیت‌ها و برچسب‌ها','Activities & tags')+'">✏️</button></div>'
+  h+='<div class="m" style="margin-top:8px">'+T('چه کاری؟','What are you doing?')+(pi.length?' <small>('+T('اول: از برنامه‌ی امروز','first: from today\'s plan')+')</small>':'')+'</div><div class="row">'+ids.map(id=>'<button class="chip '+(TR.act===id?'on':'')+'" data-a="dy_pick" data-id="'+id+'">'+(pi.includes(id)?'🎯 ':'')+esc(aN(id))+'</button>').join('')+'<button class="chip" data-a="act_new" title="'+T('فعالیت جدید','New activity')+'">＋</button><button class="chip" data-a="dy_go" data-p="dash" data-d="acts" title="'+T('فعالیت‌ها و برچسب‌ها','Activities & tags')+'">✏️</button></div>'
    +'<div class="row" style="margin-top:4px"><select id="dy-a" data-dya style="flex:1;min-width:0">'+aOpts(TR.act)+'</select>'+(((act(TR.act)||{}).subs||[]).length?'<select id="dy-s" data-dys style="flex:1;min-width:0"><option value="">'+T('— زیرمجموعه —','— sub-item —')+'</option>'+act(TR.act).subs.map(q=>'<option value="'+esc(q.id)+'"'+(TR.sub===q.id?' selected':'')+'>'+esc(q.name)+'</option>').join('')+'</select>':'')+'</div>';
   if(TR.mode==='cd')h+='<div class="row" style="margin-top:6px">'+[15,25,45,60,90].map(n=>'<button class="chip '+(TR.min===n?'on':'')+'" data-a="dy_min" data-n="'+n+'">'+fa(n)+'</button>').join('')+'<input type="number" id="dy-m" min="1" max="600" value="'+TR.min+'" style="width:70px"><span class="m">'+T('دقیقه','min')+'</span></div>';
   h+='<div class="row" style="margin-top:8px"><button class="p" data-a="dy_go2" style="flex:1">'+({sw:'▶ '+T('شروع کرنومتر','Start stopwatch'),cd:'⏳ '+T('شروع شمارش‌معکوس','Start countdown'),pm:'🍅 '+T('شروع پومودورو','Start Pomodoro')}[TR.mode])+'</button></div>'
@@ -144,7 +146,8 @@ function secSetup(){if(DY().setup)return'';return'<details class="c dyc" id="dys
    +SETUP.map((s,i)=>'<button class="chip" style="display:block;width:100%;text-align:start;margin:4px 0" data-a="dy_su" data-i="'+i+'">'+s[0]+' '+s[1]+'</button>').join('')+'<div class="row" style="margin-top:6px"><button class="p" data-a="dy_sudone">✓ '+T('تنظیم شد، جمعش کن','All set — tuck it away')+'</button></div></details>'}
 H.dy_su=e=>{const s=SETUP[+e.dataset.i][2];if(s==='ob'){if(H.ob_open)H.ob_open();return}if(s==='tmrcfg'){window.daniPlanOpen();setTimeout(()=>{const b=document.querySelector('[data-a="tp_cfg"]');if(b)b.click()},50);return}page=s.p;stt=s.s;render()};
 H.dy_sudone=()=>{DY().setup=1;save();render()};
-const SECS={sp:[secSetup,T('راه‌اندازی','Set-up')],pl:[secPlan,T('برنامه‌ی امروز','Today\'s plan')],tr:[secTrack,T('ثبت فعالیت','Track')],tl:[secTl,T('تایم‌لاین','Timeline')],ed:[secEd,T('نتیجه‌ی امروز','Result')]};
+const OPT=['wk','cp','dl','nt'];
+const SECS={th:[()=>homeParts().th,T('تم: سلام، هیرو، گالری','Theme: greeting, hero, gallery')],qt:[()=>homeParts().qt,T('یک اندیشه (جمله‌ی تم)','A thought (theme quote)')],ls:[()=>homeParts().ls,T('درس بعدی (آکادمی)','Next lesson (Academy)')],wk:[()=>weekCard(),T('هفته‌ی من (هدف هفتگی فعالیت‌ها)','My week (weekly activity goals)')],cp:[()=>hCompare(),T('مقایسه‌ی روزها و هفته‌ها','Compare days & weeks')],dl:[()=>hDl(),T('موعد بعدی','Next deadline')],nt:[()=>hNoteDesk(),T('یادداشت امروز (کادر)','Today\'s note box')],sp:[secSetup,T('راه‌اندازی','Set-up')],pl:[secPlan,T('برنامه‌ی امروز','Today\'s plan')],tr:[secTrack,T('ثبت فعالیت','Track')],tl:[secTl,T('تایم‌لاین','Timeline')],ed:[secEd,T('نتیجه‌ی امروز','Result')]};
 H.dy_cfg=()=>{window.__dyCfg=!window.__dyCfg;render()};
 H.dy_sec=e=>{const k=e.dataset.k,h=DY().hide,i=h.indexOf(k);if(i>=0)h.splice(i,1);else h.push(k);save();render()};
 H.dy_mv=e=>{const o=DY().order,i=o.indexOf(e.dataset.k),j=i+(+e.dataset.n);if(i<0||j<0||j>=o.length)return;const t=o[i];o[i]=o[j];o[j]=t;save();render()};
@@ -153,11 +156,11 @@ function cfgPanel(){const o=DY();return'<div class="c dyc">'+daniH('⚙','شخص
    +'<div class="row" style="margin-top:6px"><button class="chip '+(o.gaps?'on':'')+'" data-a="dy_gp">🕳 '+T('نشان‌دادن بازه‌های ثبت‌نشده','Show unlogged gaps')+'</button></div></div>'}
 /* بالای «امروز»: اگر تم بنر/شخصیت اختصاصی دارد (ایتاچی، اِرِن، …) همان نشان داده می‌شود؛ وگرنه نوار تم (pgband) */
 function ownHome(k){try{return!!(PKR.home[k]||/^itu[123]$/.test(k)||(SKINS[k]&&SKINS[k].home==='desk'))}catch(e){return false}}
-function heroTop(){try{const k=(typeof skId==='function')?skId():'';if(typeof deskHTML!=='function')return'';
+function homeParts(){const P={th:'',qt:'',ls:''};try{if(typeof deskHTML!=='function')return P;
   const doc=new DOMParser().parseFromString('<body>'+deskHTML()+'</body>','text/html');
   /* هر چیزی که مالِ خودِ تم است می‌ماند؛ فقط این‌ها که کارشان را کارت‌های ادغام‌شده می‌کنند برداشته می‌شود:
      «بعدی چی؟»، «موعد بعدی»، دکمه‌ی ثبت سریع، «شخصی‌سازی خانه» */
-  const root=doc.body.firstElementChild;if(!root)return'';
+  const root=doc.body.firstElementChild;if(!root)return P;
   doc.body.querySelectorAll('#nxcard,.hcta,.hmgr,.h2cust,[data-a="h2_edit"]').forEach(e=>{if(e!==root)(e.closest('.row')&&e.closest('.row')!==root?e.closest('.row'):e).remove()});
   /* کارت‌های هم‌کارِ خانه‌ی قدیمی که یکی‌شان در «امروز» هست: موعد بعدی، ثبت فعالیت، برنامه‌ی زمانی، هدف امروز، خلاصه‌ی امروز */
   const DUP=/موعد بعدی|Next deadline|^(⏱)?\s*(Activity Log|ثبت فعالیت)|Today's Schedule|برنامه‌ی زمانی امروز|Today's Target|هدف امروز|Today's Summary|خلاصه‌ی عملکرد|Today's Notes|یادداشت امروز|Goal Progress|پیشرفت اهداف|^Compare|مقایسه‌ی روزها|Main Focus|تمرکز اصلی|My week|هفته‌ی من/;
@@ -167,14 +170,23 @@ function heroTop(){try{const k=(typeof skId==='function')?skId():'';if(typeof de
     if(n!==root&&n.parentElement)n.remove()});
   /* سلام + آیکون برنامه + تاریخ در همه‌ی تم‌ها (مثل خانه‌ی قبلی) */
   if(!root.parentNode.querySelector('.deskhead,.h2top'))root.insertAdjacentHTML('afterbegin','<div class="deskhead"><div>'+danGreetHTML()+'<div class="m">'+fmtDL(todayISO())+'</div></div></div>');
-  return doc.body.innerHTML}catch(e){console.error('hero',e);return''}}
+  /* سه تکه: تم (هیرو، سلام، گالری…)، «یک اندیشه»، «درس بعدی» — هر کدام جدا قابل جابه‌جایی/حذف */
+  const B={th:[],qt:[],ls:[]};
+  [...root.children].forEach(e=>{const c=String(e.className||''),h=((e.querySelector('h3,h2,.dh')||{}).textContent||'');
+    if(/deskwide/.test(c)&&/یک اندیشه|A Thought/.test(h))B.qt.push(e);else if(/(^|\s)(aot-x|uch-g2)(\s|$)/.test(c)||/درس بعدی|Next lesson/.test(h))B.ls.push(e);else B.th.push(e)});
+  Object.keys(B).forEach(k=>{if(B[k].length){const r=root.cloneNode(false);B[k].forEach(x=>r.appendChild(x));P[k]=r.outerHTML}});
+  return P}catch(e){console.error('hero',e);return P}}
+const heroTop=()=>homeParts().th;
 const extChips=()=>{try{return MODULES.filter(m=>modOn(m.id)&&!['dl','hab','rem','pj','acd','qt'].includes(m.id)).map(m=>'<button class="chip" data-a="dy_go" data-p="'+esc(m.id)+'">🧩 '+esc(m.name)+'</button>').join('')}catch(e){return''}};
-window.daniDayHero=()=>{try{return!!heroTop()}catch(e){return false}};
-PG.day=function(){const hr=new Date().getHours(),ph=hr<5?T('شب','Night'):hr<12?T('صبح','Morning'):hr<17?T('ظهر','Midday'):hr<20?T('عصر','Evening'):T('شب','Night');
-  let h=heroTop()+'<div class="row" style="align-items:center;margin:2px 0 6px"><span class="sp"></span><button class="chip" data-a="dy_go" data-p="dash" data-d="find" title="'+T('جست‌وجو','Search')+'">🔎</button><button class="chip" data-a="dy_note" title="'+T('یادداشت‌ها','Notes')+'">📝</button><button class="chip" data-a="dy_go" data-p="dash" data-d="acts" title="'+T('فعالیت‌ها و زیرمجموعه‌ها','Activities')+'">🎯</button>'+(modOn('qt')?'<button class="chip" data-a="dy_go" data-p="qt" title="'+T('جملات','Quotes')+'">💬</button>':'')+extChips()+'<button class="chip" data-a="dy_cfg" aria-label="customize">⚙</button></div>';
-  if(window.__dyCfg)h+=cfgPanel();
+window.daniDayHero=()=>{try{return!DY().hide.includes('th')}catch(e){return true}};
+PG.day=function(){
+  const O=DY(),hide=O.hide;
+  const bar='<div class="row" style="align-items:center;margin:2px 0 6px"><span class="sp"></span><button class="chip" data-a="qa_open" title="'+T('دسترسی سریع: جست‌وجو و رفتن به هر جا','Quick access: search & jump anywhere')+'">⚡ '+T('دسترسی سریع','Quick access')+'</button>'+extChips()+'<button class="chip" data-a="dy_cfg" aria-label="customize" title="'+T('شخصی‌سازی خانه','Customize home')+'">⚙ '+T('شخصی‌سازی','Customize')+'</button></div>'+(window.__dyCfg?cfgPanel():'');
+  let h='',barDone=false;
+  if(hide.includes('th')){h+=bar;barDone=true}
   try{h+=secRescue()}catch(e){console.error('rescue',e)}
-  DY().order.forEach(k=>{if(DY().hide.includes(k))return;try{h+=SECS[k][0]()}catch(e){console.error('day '+k,e)}});return h};
+  O.order.forEach(k=>{if(hide.includes(k)||!SECS[k])return;try{h+=SECS[k][0]()}catch(e){console.error('day '+k,e)}if(k==='th'&&!barDone){h+=bar;barDone=true}});
+  return h};
 
 /* ---------- نتیجه‌ی امروز (تب در نتیجه‌گیری) ---------- */
 function eodPage(){const d=todayISO(),I=dayInfo(d),dd=db.days[d]||{},es=E(d)||[],tot=sum(es),t=todayISO();
@@ -220,8 +232,10 @@ try{setInterval(()=>{if(page==='day'&&!tOn()){const c=document.getElementById('c
  const _d=PG.dash;
  PG.dash=function(){const m=MAP[dt];if(m){dt='acts';setTimeout(()=>{if(m[0]==='plan2'&&window.daniP2Go)window.daniP2Go(m[1]);else{page=m[0];render()}},0)}return _d.apply(this,arguments)}}
 
+{const T=window.daniT;
 H.dy_note=()=>modal('<div style="max-width:420px">'+daniH('📝','یادداشت سریع','Quick note')+'<textarea id="qn" rows="5" placeholder="'+T('یادداشت…','Note…')+'" style="width:100%"></textarea><div class="row" style="margin-top:8px"><button class="p" data-a="dy_nsave">'+T('ذخیره','Save')+'</button><button data-a="dy_nall">'+T('همه‌ی یادداشت‌ها','All notes')+'</button></div></div>');
 H.dy_nsave=()=>{const t=((document.getElementById('qn')||{}).value||'').trim();if(!t)return toast(T('متن خالی است','Empty note'),1);db.notes.push({id:uid(),t,a:'',d:todayISO(),at:Date.now()});save();closeM();toast(T('یادداشت ذخیره شد ✓','Note saved ✓'))};
 H.dy_nall=()=>{closeM();page='dash';dt='notes';render()};
 /* مقایسه‌ی روزها و هفته‌ها به «نتیجه ← آمار» رفت */
 {const _s=PX.stats;if(typeof _s==='function'&&typeof hCompare==='function')PX.stats=function(){let c='';try{c=hCompare()}catch(e){}return c+_s.apply(this,arguments)}}
+}

@@ -102,10 +102,10 @@ function rowHTML(r,i){const a=r.actId?act(r.actId):null,subs=a&&a.subs||[];
    +'<span style="flex:1"></span>'+(subs.length?'<select data-tps="'+r.id+'" style="max-width:120px"><option value="">'+T('زیرمجموعه','Sub-item')+'</option>'+subs.map(s=>'<option value="'+s.id+'" '+(s.id===r.subId?'selected':'')+'>'+esc(s.name)+'</option>').join('')+'</select>':'')
    +'<input type="time" value="'+esc(r.start)+'" data-tpt="'+r.id+'" title="'+esc(T('ساعت شروع (اختیاری)','Start time (optional)'))+'"></div></div>'}
 function sugHTML(){let l=[];try{l=(window.daniSuggest?window.daniSuggest():[]).filter(x=>!PLN.rows.some(r=>r.actId===x.a.id))}catch(e){}
-  const rec=[],seen=new Set(PLN.rows.map(r=>r.actId));(db.entries||[]).slice(-80).reverse().forEach(e=>{const a=act(e.actId);if(a&&a.active&&!a.arch&&!seen.has(a.id)&&a.cat!=='sleep'&&a.cat!=='rest'&&rec.length<6){seen.add(a.id);rec.push(a)}});
+  const rec=[],seen=new Set(PLN.rows.map(r=>r.actId));try{(window.daniQuickActs?window.daniQuickActs():[]).forEach(id=>{const a=act(id);if(a&&!seen.has(a.id)&&a.cat!=='rest'&&rec.length<12){seen.add(a.id);rec.push(a)}})}catch(e){}(db.entries||[]).slice(-80).reverse().forEach(e=>{const a=act(e.actId);if(a&&a.active&&!a.arch&&!seen.has(a.id)&&a.cat!=='sleep'&&a.cat!=='rest'&&rec.length<6){seen.add(a.id);rec.push(a)}});
   let h='';
   if(l.length)h+='<div class="m" style="margin-top:8px">'+T('پیشنهاد برای این روز','Suggested for this day')+'</div><div class="row">'+l.map(x=>'<button class="chip" data-a="tp_sug" data-aid="'+x.a.id+'">＋ '+esc(x.a.name)+' · '+mm(x.dur)+' <small class="m">('+esc(x.why)+')</small></button>').join('')+'</div>';
-  if(rec.length)h+='<div class="m" style="margin-top:8px">'+T('اخیراً','Recent')+'</div><div class="row">'+rec.map(a=>'<button class="chip" data-a="tp_rec" data-aid="'+a.id+'">＋ '+esc(a.name)+'</button>').join('')+'</div>';
+  if(rec.length)h+='<div class="m" style="margin-top:8px">'+T('اخیراً','Recent')+'</div><div class="row">'+rec.map(a=>'<button class="chip" data-a="tp_rec" data-aid="'+a.id+'">'+(a.fav?'⭐ ':'＋ ')+esc(a.name)+'</button>').join('')+'<button class="chip" data-a="act_new">＋ '+T('فعالیت جدید','New activity')+'</button><button class="chip" data-a="dy_go" data-p="dash" data-d="acts">✏️</button></div>';
   return h}
 function cfgHTML(){const o=TN(),r=RHs();
   return'<div class="c" style="margin-top:10px">'+daniH('🔔','اعلان و تکرار','Reminder & repeats')
