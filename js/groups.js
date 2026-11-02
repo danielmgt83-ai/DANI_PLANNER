@@ -22,7 +22,7 @@ const DEF={
 function group(html,tab){const defs=DEF[tab];if(!defs||GP().off||typeof html!=='string')return html;
   try{const doc=new DOMParser().parseFromString('<body>'+html+'</body>','text/html'),kids=[...doc.body.children],seen=new Set();
     const head=el=>{const h=el.querySelector('h3,h2,summary');return(el.id||'')+'|'+(h?h.textContent:'')+'|'+[...el.querySelectorAll('[id]')].slice(0,12).map(x=>x.id).join(',')};
-    kids.forEach(c=>{const h=head(c).split('|')[1].trim();if(c.id==='crs-allcard'||(/پشتیبان کامل/.test(h)&&seen.has('crs')))c.remove();if(/پشتیبان کامل/.test(h))seen.add('crs')});
+    kids.forEach(c=>{const h=head(c).split('|')[1].trim();if(c.id==='crs-allcard'||(/پشتیبان کامل/.test(h)&&seen.has('crs')))c.remove();if(/پشتیبان کامل/.test(h))seen.add('crs');if(tab==='data'&&/^(Center DANI\s*)?مرکز DANI\s*$/.test(h.replace(/^Center DANI/,'').trim()))c.remove()});
     defs.forEach(g=>{const mine=[...doc.body.children].filter(c=>{const s=head(c);return g.m.some(x=>s.includes(x))&&!c.classList.contains('bgrp')});if(mine.length<2&&!(g.k==='pl-add'))return;if(!mine.length)return;
       const op=GP().open[g.k]!==undefined?GP().open[g.k]:g.open?1:0;
       const d=doc.createElement('details');d.className='c bgrp';d.setAttribute('data-gk',g.k);if(op)d.setAttribute('open','');

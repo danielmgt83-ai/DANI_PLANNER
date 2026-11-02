@@ -60,6 +60,7 @@ H.dy_gapsave=e=>{let id=e.dataset.id,s=e.dataset.s?hh(+e.dataset.s):'',en=e.data
 /* ---------- کارت برنامه‌ی امروز ---------- */
 function secPlan(){const d=todayISO(),I=dayInfo(d),dd=db.days[d]||{};
   let h='<div class="c dyc">'+daniH('🎯','برنامه‌ی امروز','Today\'s plan')+'<div class="m">'+fmtDL(d)+' · <b id="clk">'+fa(nowHM())+'</b></div>';
+  try{const q=(zDL().items||[]).filter(x=>!x.arch&&!x.done&&x.dt&&x.dt>=d).sort((x,y)=>x.dt<y.dt?-1:1)[0];if(q)h+='<div class="m">⏳ '+T('موعد بعدی: ','Next deadline: ')+'<b>'+esc(q.title)+'</b> · '+fmtDL(q.dt)+'</div>'}catch(e){}
   if(dd.goal||dd.exp)h+='<div class="dyex">'+(dd.goal?'★ <b>'+esc(dd.goal)+'</b>':'')+(dd.exp?'<div class="m">💭 '+esc(dd.exp)+'</div>':'')+'</div>';
   if(!I.rows.length){return h+'<p class="m">'+T('برنامه‌ای برای امروز ثبت نشده.','No plan for today yet.')+'</p><div class="row"><button class="p" data-a="tmr_open" data-d="'+d+'">📝 '+T('برنامه‌ی امروز را بنویس','Write today\'s plan')+'</button></div></div>'}
   h+='<div class="row" style="align-items:baseline"><b style="font-size:1.5em">'+fa(I.pct)+(LANGEN()?'%':'٪')+'</b><span class="m">'+mm(I.got)+' / '+mm(I.need)+'</span></div><div class="bar"><i style="width:'+Math.min(100,I.pct)+'%;background:'+(I.pct>=100?'#22c55e':'var(--ac)')+'"></i></div>'+(I.need>I.got?'<div class="m">⏳ '+T('مانده: ','Left: ')+'<b>'+mm(I.need-I.got)+'</b> '+T('تا توقع امروز','to reach today\'s goal')+'</div>':'<div class="m">✅ '+T('توقع امروز انجام شد','Today\'s goal is done')+'</div>')+(window.daniWeekLines?window.daniWeekLines():'');
@@ -148,8 +149,17 @@ H.dy_gp=()=>{DY().gaps=DY().gaps?0:1;save();render()};
 function cfgPanel(){const o=DY();return'<div class="c dyc">'+daniH('⚙','شخصی‌سازی صفحه‌ی امروز','Customize Today')+o.order.map((k,i)=>'<div class="row" style="margin:3px 0"><button class="chip '+(o.hide.includes(k)?'':'on')+'" data-a="dy_sec" data-k="'+k+'" style="flex:1;text-align:start">'+(o.hide.includes(k)?'☐ ':'☑ ')+SECS[k][1]+'</button><button class="chip" data-a="dy_mv" data-k="'+k+'" data-n="-1" '+(i?'':'disabled')+'>↑</button><button class="chip" data-a="dy_mv" data-k="'+k+'" data-n="1" '+(i<o.length-1?'':'disabled')+'>↓</button></div>').join('')
    +'<div class="row" style="margin-top:6px"><button class="chip '+(o.gaps?'on':'')+'" data-a="dy_gp">🕳 '+T('نشان‌دادن بازه‌های ثبت‌نشده','Show unlogged gaps')+'</button></div></div>'}
 /* بالای «امروز»: اگر تم بنر/شخصیت اختصاصی دارد (ایتاچی، اِرِن، …) همان نشان داده می‌شود؛ وگرنه نوار تم (pgband) */
-function heroTop(){try{const k=(typeof skId==='function')?skId():'';let x='';
-  if(/^itu[123]$/.test(k)&&typeof ituHero==='function')x=ituHero(k);else if(/^(itv|ao|eren)/.test(k)&&typeof ivHead==='function')x=ivHead();return x||''}catch(e){return''}}
+function ownHome(k){try{return!!(PKR.home[k]||/^itu[123]$/.test(k)||(SKINS[k]&&SKINS[k].home==='desk'))}catch(e){return false}}
+function heroTop(){try{const k=(typeof skId==='function')?skId():'';if(!k||!ownHome(k)||typeof deskHTML!=='function')return'';
+  const doc=new DOMParser().parseFromString('<body>'+deskHTML()+'</body>','text/html');
+  /* فقط چیزهای زیبا و یونیکِ تم می‌ماند (هیرو، نوار میان‌بُر، گالری، جمله، درس بعدی…)؛
+     کارت‌های داده‌ای خانه (برنامه، خلاصه، هدف، ثبت، موعد، بعدی‌چی، شخصی‌سازی) تکراریِ کارت‌های ادغام‌شده‌ی «امروز»اند */
+  const root=doc.body.firstElementChild;if(!root)return'';
+  const KEEP=/(hero|tick|strip|chips|(^|\s)ern-ch|gal|scrolls|polar|(^|\s)aot-x|(^|\s)uch-g2|deskhead)/;
+  [...root.children].forEach(e=>{const c=e.className||'',h=((e.querySelector('h3,h2,.dh')||{}).textContent||'');
+    const thought=/deskwide/.test(c)&&/یک اندیشه|A Thought/.test(h);
+    if(!(KEEP.test(c)||thought))e.remove()});
+  return doc.body.innerHTML}catch(e){console.error('hero',e);return''}}
 window.daniDayHero=()=>{try{return!!heroTop()}catch(e){return false}};
 PG.day=function(){const hr=new Date().getHours(),ph=hr<5?T('شب','Night'):hr<12?T('صبح','Morning'):hr<17?T('ظهر','Midday'):hr<20?T('عصر','Evening'):T('شب','Night');
   let h=heroTop()+'<div class="row" style="align-items:center;margin:2px 0 6px"><b style="font-size:1.25em">'+ph+' · '+T('امروز','Today')+'</b><span class="sp"></span><button class="chip" data-a="dy_go" data-p="mx" title="'+T('همه‌ی بخش‌ها','All sections')+'">⋯ '+T('همه‌ی بخش‌ها','All sections')+'</button><button class="chip" data-a="dy_cfg" aria-label="customize">⚙</button></div>';
