@@ -150,7 +150,7 @@ function cfgPanel(){const o=DY();return'<div class="c dyc">'+daniH('⚙','شخص
    +'<div class="row" style="margin-top:6px"><button class="chip '+(o.gaps?'on':'')+'" data-a="dy_gp">🕳 '+T('نشان‌دادن بازه‌های ثبت‌نشده','Show unlogged gaps')+'</button></div></div>'}
 /* بالای «امروز»: اگر تم بنر/شخصیت اختصاصی دارد (ایتاچی، اِرِن، …) همان نشان داده می‌شود؛ وگرنه نوار تم (pgband) */
 function ownHome(k){try{return!!(PKR.home[k]||/^itu[123]$/.test(k)||(SKINS[k]&&SKINS[k].home==='desk'))}catch(e){return false}}
-function heroTop(){try{const k=(typeof skId==='function')?skId():'';if(!k||!ownHome(k)||typeof deskHTML!=='function')return'';
+function heroTop(){try{const k=(typeof skId==='function')?skId():'';if(typeof deskHTML!=='function')return'';
   const doc=new DOMParser().parseFromString('<body>'+deskHTML()+'</body>','text/html');
   /* فقط چیزهای زیبا و یونیکِ تم می‌ماند (هیرو، نوار میان‌بُر، گالری، جمله، درس بعدی…)؛
      کارت‌های داده‌ای خانه (برنامه، خلاصه، هدف، ثبت، موعد، بعدی‌چی، شخصی‌سازی) تکراریِ کارت‌های ادغام‌شده‌ی «امروز»اند */
@@ -159,11 +159,13 @@ function heroTop(){try{const k=(typeof skId==='function')?skId():'';if(!k||!ownH
   [...root.children].forEach(e=>{const c=e.className||'',h=((e.querySelector('h3,h2,.dh')||{}).textContent||'');
     const thought=/deskwide/.test(c)&&/یک اندیشه|A Thought/.test(h);
     if(!(KEEP.test(c)||thought))e.remove()});
+  /* سلام + آیکون برنامه + تاریخ در همه‌ی تم‌ها (مثل خانه‌ی قبلی) */
+  if(!root.parentNode.querySelector('.deskhead,.h2top'))root.insertAdjacentHTML('afterbegin','<div class="deskhead"><div>'+danGreetHTML()+'<div class="m">'+fmtDL(todayISO())+'</div></div></div>');
   return doc.body.innerHTML}catch(e){console.error('hero',e);return''}}
 const extChips=()=>{try{return MODULES.filter(m=>modOn(m.id)&&!['dl','hab','rem','pj','acd','qt'].includes(m.id)).map(m=>'<button class="chip" data-a="dy_go" data-p="'+esc(m.id)+'">🧩 '+esc(m.name)+'</button>').join('')}catch(e){return''}};
 window.daniDayHero=()=>{try{return!!heroTop()}catch(e){return false}};
 PG.day=function(){const hr=new Date().getHours(),ph=hr<5?T('شب','Night'):hr<12?T('صبح','Morning'):hr<17?T('ظهر','Midday'):hr<20?T('عصر','Evening'):T('شب','Night');
-  let h=heroTop()+'<div class="row" style="align-items:center;margin:2px 0 6px"><b style="font-size:1.25em">'+ph+' · '+T('امروز','Today')+'</b><span class="sp"></span><button class="chip" data-a="dy_go" data-p="dash" data-d="find" title="'+T('جست‌وجو','Search')+'">🔎</button><button class="chip" data-a="dy_go" data-p="dash" data-d="notes" title="'+T('یادداشت‌ها','Notes')+'">📝</button><button class="chip" data-a="dy_go" data-p="dash" data-d="acts" title="'+T('فعالیت‌ها و زیرمجموعه‌ها','Activities')+'">🎯</button>'+(modOn('qt')?'<button class="chip" data-a="dy_go" data-p="qt" title="'+T('جملات','Quotes')+'">💬</button>':'')+extChips()+'<button class="chip" data-a="dy_cfg" aria-label="customize">⚙</button></div>';
+  let h=heroTop()+'<div class="row" style="align-items:center;margin:2px 0 6px"><span class="sp"></span><button class="chip" data-a="dy_go" data-p="dash" data-d="find" title="'+T('جست‌وجو','Search')+'">🔎</button><button class="chip" data-a="dy_go" data-p="dash" data-d="notes" title="'+T('یادداشت‌ها','Notes')+'">📝</button><button class="chip" data-a="dy_go" data-p="dash" data-d="acts" title="'+T('فعالیت‌ها و زیرمجموعه‌ها','Activities')+'">🎯</button>'+(modOn('qt')?'<button class="chip" data-a="dy_go" data-p="qt" title="'+T('جملات','Quotes')+'">💬</button>':'')+extChips()+'<button class="chip" data-a="dy_cfg" aria-label="customize">⚙</button></div>';
   if(window.__dyCfg)h+=cfgPanel();
   try{h+=secRescue()}catch(e){console.error('rescue',e)}
   DY().order.forEach(k=>{if(DY().hide.includes(k))return;try{h+=SECS[k][0]()}catch(e){console.error('day '+k,e)}});return h};
