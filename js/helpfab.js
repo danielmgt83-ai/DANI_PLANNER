@@ -39,9 +39,9 @@ function fab(){let b=document.getElementById('hfab');
 function sheet(){
   const it=(a,ic,fa,en,sub)=>'<button class="chip" data-a="'+a+'" style="display:flex;width:100%;text-align:start;gap:10px;align-items:center;margin:6px 0;padding:10px 12px"><span aria-hidden="true" style="font-size:20px">'+ic+'</span><span style="flex:1"><b>'+T(fa,en)+'</b><br><span class="m">'+T(sub[0],sub[1])+'</span></span></button>';
   return '<div style="max-width:420px">'+daniH('✦','راهنما و پشتیبانی','Help & support')
-   +it('hf_guide','🧭','راهنمای شروع و ویژگی‌ها','Guide & features',['تور برنامه، ساخت پروژه، نمونه‌ی هر ویژگی','App tour, project builder, a try-it for each feature'])
+   +(window.daniPageTip?window.daniPageTip():'')
+   +it('hf_guide','🧭','راهنمای شروع (قدم‌به‌قدم)','Start guide (step by step)',['زبان ← تقویم ← پروژه‌ها ← برنامه‌ی من ← توقع‌ها ← ثبت ← نتیجه','Language → calendar → projects → my schedule → expectations → track → results'])
    +it('hf_find','🔎','جست‌وجوی همه‌چیز','Search everything',['ویژگی‌ها، تنظیمات و داده‌های خودت','Features, settings and your own data'])
-   +it('hf_again','🔁','شروع دوباره‌ی راهنما','Restart the tour',['داده‌هایت پاک نمی‌شود','Your data is not deleted'])
    +it('fx_new','🆕','چه چیزی تازه است','What\'s new',['تغییرات اخیر برنامه در یک نگاه','Recent changes at a glance'])
    +((window.daniFx&&window.daniFx.hasSample())?it('fx_smpx','🧹','پاک‌کردن نمونه‌داده','Remove sample data',['فقط داده‌های نمونه پاک می‌شود','Only the sample data is removed']):((window.daniFx&&window.daniFx.few())?it('fx_smp','🧪','بارگذاری نمونه‌داده','Load sample data',['برای دیدن امکانات با داده‌ی نمونه؛ هر وقت خواستی پاک می‌شود','See features with sample data; removable anytime']):''))
    +it('hf_hc','🩺','بررسی سلامت','Health check',['ذخیره‌سازی، پشتیبان، اعلان‌ها، یکپارچگی داده','Storage, backup, notifications, data integrity'])
@@ -57,7 +57,7 @@ H.hf_open=()=>{HF().seen=1;save();fab();modal(sheet())};
 document.addEventListener('input',e=>{const t=e.target;if(!t||!t.dataset||!t.dataset.hfr)return;HF()[t.dataset.hfr]=+t.value;fab()});
 document.addEventListener('change',e=>{const t=e.target;if(t&&t.dataset&&t.dataset.hfr)save()});
 window.addEventListener('resize',()=>{try{fab()}catch(e){}});
-H.hf_guide=()=>{try{closeM()}catch(e){}setTimeout(()=>window.daniOnboard&&window.daniOnboard.hub(),50)};
+H.hf_guide=()=>{try{closeM()}catch(e){}setTimeout(()=>H.ob_open&&H.ob_open(),50)};
 H.hf_find=()=>{try{closeM()}catch(e){}setTimeout(()=>window.daniQuickAccess&&window.daniQuickAccess.open(),50)};
 H.hf_again=()=>{try{closeM()}catch(e){}setTimeout(()=>H.ob_reset&&H.ob_reset(),50)};
 H.hf_err=async()=>{let t='';try{t=window.daniErrText?window.daniErrText():''}catch(e){}
