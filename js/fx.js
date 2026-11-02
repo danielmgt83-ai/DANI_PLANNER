@@ -6,7 +6,7 @@
 (function(){
 const T=window.daniT;
 const FX=()=>{const s=db.set;if(!s.fx||typeof s.fx!=='object')s.fx={};if(s.fx.hap===undefined)s.fx.hap=1;if(s.fx.anim===undefined)s.fx.anim=1;return s.fx};
-const VER='2026.11.21';
+const VER='2026.11.22';
 /* ---------- لرزش و پاپ ---------- */
 const HAP=/^(qk_go|nx_go|nx_sw|pf_add|tp_ap|bin_rs|ex_save|ab_now|ql_|pm_|tm_|tstart|tfinish|hab|ob_log|ob_go|dnd_set|ls_now|dk_)/;
 const reduce=()=>{try{return matchMedia('(prefers-reduced-motion: reduce)').matches}catch(e){return false}};
@@ -19,6 +19,7 @@ st.textContent='@keyframes fxpop{0%{transform:scale(1)}40%{transform:scale(.92)}
 document.head.appendChild(st);
 /* ---------- چه چیزی تازه است ---------- */
 const WN=[
+ ['📈','در «پروژه‌ها» هر پروژه حالا پیش‌بینی دارد: با هفته‌ای X ساعت، روزی/ماهی/تا موعد چقدر می‌شود و بودجه تأمین است یا نه.','Each project now shows a forecast: at X h/week, how much per day/month/until the deadline and whether the budget is covered.'],
  ['📅','تقویم یکپارچه شد: روی ماه نقطه‌های رنگی تعطیلی، مناسبت، موعد، یادآوری، ساعت پر و برنامه را می‌بینی؛ با لمس هر روز جزئیاتش و دکمه‌ی «برنامه‌ریزی این روز» می‌آید.','Unified calendar: coloured dots for holidays, occasions, deadlines, reminders, busy blocks and plans; tap a day for details and “Plan this day”.'],
  ['🗓','«برنامه» ساده‌تر شد: ۴ زبانه (روز، توقع، ساعت‌پر/عادت/یادآور، تقویم و موعد). نوار ۷ روزه، کارهای عقب‌افتاده، یک کارت برای نوشتن و فهرست و جمع، تکرار کنار هر کار. «فعالیت‌ها» یک مدیر کامل با برچسب جدید و تغییر نام شد.','Plan simplified: 4 tabs (Day, Goals, Busy/Habits/Reminders, Calendar & deadlines). 7-day strip, overdue bar, one card to write + list + total, repeat next to each item. Activities is now a full manager with new tags and rename.'],
  ['🛡','یادآوری پشتیبان حالا می‌گوید: تنظیمات ← داده‌ها ← مرکز پشتیبان.','The backup reminder now points to Settings → Data → Backup centre.'],
