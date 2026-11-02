@@ -152,13 +152,16 @@ function cfgPanel(){const o=DY();return'<div class="c dyc">'+daniH('⚙','شخص
 function ownHome(k){try{return!!(PKR.home[k]||/^itu[123]$/.test(k)||(SKINS[k]&&SKINS[k].home==='desk'))}catch(e){return false}}
 function heroTop(){try{const k=(typeof skId==='function')?skId():'';if(typeof deskHTML!=='function')return'';
   const doc=new DOMParser().parseFromString('<body>'+deskHTML()+'</body>','text/html');
-  /* فقط چیزهای زیبا و یونیکِ تم می‌ماند (هیرو، نوار میان‌بُر، گالری، جمله، درس بعدی…)؛
-     کارت‌های داده‌ای خانه (برنامه، خلاصه، هدف، ثبت، موعد، بعدی‌چی، شخصی‌سازی) تکراریِ کارت‌های ادغام‌شده‌ی «امروز»اند */
+  /* هر چیزی که مالِ خودِ تم است می‌ماند؛ فقط این‌ها که کارشان را کارت‌های ادغام‌شده می‌کنند برداشته می‌شود:
+     «بعدی چی؟»، «موعد بعدی»، دکمه‌ی ثبت سریع، «شخصی‌سازی خانه» */
   const root=doc.body.firstElementChild;if(!root)return'';
-  const KEEP=/(hero|tick|strip|chips|(^|\s)ern-ch|gal|scrolls|polar|(^|\s)aot-x|(^|\s)uch-g2|deskhead)/;
-  [...root.children].forEach(e=>{const c=e.className||'',h=((e.querySelector('h3,h2,.dh')||{}).textContent||'');
-    const thought=/deskwide/.test(c)&&/یک اندیشه|A Thought/.test(h);
-    if(!(KEEP.test(c)||thought))e.remove()});
+  doc.body.querySelectorAll('#nxcard,.hcta,.hmgr,.h2cust,[data-a="h2_edit"]').forEach(e=>{if(e!==root)(e.closest('.row')&&e.closest('.row')!==root?e.closest('.row'):e).remove()});
+  /* کارت‌های هم‌کارِ خانه‌ی قدیمی که یکی‌شان در «امروز» هست: موعد بعدی، ثبت فعالیت، برنامه‌ی زمانی، هدف امروز، خلاصه‌ی امروز */
+  const DUP=/موعد بعدی|Next deadline|^(⏱)?\s*(Activity Log|ثبت فعالیت)|Today's Schedule|برنامه‌ی زمانی امروز|Today's Target|هدف امروز|Today's Summary|خلاصه‌ی عملکرد/;
+  const hasH=x=>!!x.querySelector('h3,h2,.dh');
+  [...root.querySelectorAll('h3,h2,.dh')].forEach(h=>{if(!h.isConnected||!DUP.test(h.textContent.replace(/\s+/g,' ').trim()))return;
+    let n=h;while(n.parentElement&&n.parentElement!==root&&![...n.parentElement.children].some(x=>x!==n&&hasH(x)))n=n.parentElement;
+    if(n!==root&&n.parentElement)n.remove()});
   /* سلام + آیکون برنامه + تاریخ در همه‌ی تم‌ها (مثل خانه‌ی قبلی) */
   if(!root.parentNode.querySelector('.deskhead,.h2top'))root.insertAdjacentHTML('afterbegin','<div class="deskhead"><div>'+danGreetHTML()+'<div class="m">'+fmtDL(todayISO())+'</div></div></div>');
   return doc.body.innerHTML}catch(e){console.error('hero',e);return''}}
@@ -207,3 +210,9 @@ try{setInterval(()=>{if(page==='day'&&!tOn()){const c=document.getElementById('c
 /* وقتی تایمر در حال اجراست، tick() لازم است */
 {const _r=render;render=function(){const r=_r.apply(this,arguments);try{if(page==='day'&&tOn())ensureTick()}catch(e){}return r}}
 })();
+
+/* ---------- میزکار قدیمی: زبانه‌های تکراری برداشته شد (کارشان در خانه/برنامه/پروژه‌ها هست) ---------- */
+{const MAP={today:['day'],plan:['plan2','tpl'],tmr:['plan2','day'],cal:['plan2','cal'],goals:['pj']};
+ for(let i=DT.length-1;i>=0;i--)if(MAP[DT[i][0]])DT.splice(i,1);
+ const _d=PG.dash;
+ PG.dash=function(){const m=MAP[dt];if(m){dt='acts';setTimeout(()=>{if(m[0]==='plan2'&&window.daniP2Go)window.daniP2Go(m[1]);else{page=m[0];render()}},0)}return _d.apply(this,arguments)}}
