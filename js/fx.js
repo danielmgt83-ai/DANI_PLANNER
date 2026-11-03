@@ -6,7 +6,7 @@
 (function(){
 const T=window.daniT;
 const FX=()=>{const s=db.set;if(!s.fx||typeof s.fx!=='object')s.fx={};if(s.fx.hap===undefined)s.fx.hap=1;if(s.fx.anim===undefined)s.fx.anim=1;return s.fx};
-const VER='2026.11.27';
+const VER='2026.11.28';
 /* ---------- لرزش و پاپ ---------- */
 const HAP=/^(qk_go|nx_go|nx_sw|pf_add|tp_ap|bin_rs|ex_save|ab_now|ql_|pm_|tm_|tstart|tfinish|hab|ob_log|ob_go|dnd_set|ls_now|dk_)/;
 const reduce=()=>{try{return matchMedia('(prefers-reduced-motion: reduce)').matches}catch(e){return false}};
@@ -19,6 +19,7 @@ st.textContent='@keyframes fxpop{0%{transform:scale(1)}40%{transform:scale(.92)}
 document.head.appendChild(st);
 /* ---------- چه چیزی تازه است ---------- */
 const WN=[
+ ['⏳','یادآوری انتظار باقی‌مانده: در سه ساعت دلخواه می‌گوید امروز چقدر انجام شده و چقدر مانده (تنظیمات ← اعلان‌ها و زمان)','Remaining-goal reminders: at three chosen times it tells you what is done and what is left today (Settings ← Notifications)'],
  ['⭐','بعد از هر ثبت یک پنل کوچک و اختیاری برای امتیاز (انرژی، حس، موفقیت، دقت) می‌آید؛ میانگین‌ها در نتیجه ← آمار و روشن/خاموش‌کردنش در تنظیمات ← اعلان‌ها','After each log a small optional panel lets you rate energy, feeling, success and accuracy; averages in Results ← Stats; toggle in Settings ← Notifications'],
  ['⏳','کارت «موعد بعدی» در خانه چند طرح تازه دارد (کارت اصلی، سه موعد، خط زمان، خط باریک) — با 🎨 عوض کن؛ عادت می‌تواند با فعالیت پیوند شود و خودکار تیک بخورد؛ یادآور سالانه؛ افزودن سریع موعد/یادآور از تقویم','Home deadline card has new styles (hero, next three, timeline, slim) — switch with 🎨; habits can link to an activity and tick automatically; yearly reminders; quick-add deadline/reminder from the calendar'],
  ['⚙','تنظیمات مرتب‌تر شد: «مرکز اعلان» (اجازه و سلامت، صدا، زمان‌ها و تکرار، گروه‌بندی و تاریخچه) یک‌جاست؛ زبان و تقویم و ظاهر کنار هم‌اند.','Settings tidied: one Notification centre (permission & health, sound, times & repeats, grouping & history); language, calendar and look sit together.'],
