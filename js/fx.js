@@ -6,7 +6,7 @@
 (function(){
 const T=window.daniT;
 const FX=()=>{const s=db.set;if(!s.fx||typeof s.fx!=='object')s.fx={};if(s.fx.hap===undefined)s.fx.hap=1;if(s.fx.anim===undefined)s.fx.anim=1;return s.fx};
-const VER='2026.11.23';
+const VER='2026.11.24';
 /* ---------- لرزش و پاپ ---------- */
 const HAP=/^(qk_go|nx_go|nx_sw|pf_add|tp_ap|bin_rs|ex_save|ab_now|ql_|pm_|tm_|tstart|tfinish|hab|ob_log|ob_go|dnd_set|ls_now|dk_)/;
 const reduce=()=>{try{return matchMedia('(prefers-reduced-motion: reduce)').matches}catch(e){return false}};
@@ -19,6 +19,7 @@ st.textContent='@keyframes fxpop{0%{transform:scale(1)}40%{transform:scale(.92)}
 document.head.appendChild(st);
 /* ---------- چه چیزی تازه است ---------- */
 const WN=[
+ ['📊','«نتیجه» حالا ۳ زبانه دارد: نتیجه‌ی امروز، آمار و روند (با گزارش ماهانه، پیش‌بینی و ساعت‌های طلایی)، گزارش و خروجی (با کارت اشتراک). بخش‌های بلند جمع‌شونده‌اند.','Results now has 3 tabs: Today, Stats & trends (with monthly report, forecast and golden hours), Reports & export (with the share card). Long sections are collapsible.'],
  ['🏁','پیش‌بینی پایان پروژه: بگو روزی چند ساعت و هفته‌ای چند روز؛ می‌بینی روزانه/هفتگی/ماهانه/تا موعد چقدر می‌شود و کدام روز به هدف می‌رسی (و چند روز زودتر یا دیرتر از موعد). برای هر بخش هم جدا. در راهنما، خانه، برنامه، تقویم و موعدها هم می‌آید.','Project finish forecast: set hours a day and days a week; see daily/weekly/monthly/until-deadline totals and the date you reach the goal (days early or late). Per part too. Also in the guide, Home, Plan, Calendar and Deadlines.'],
  ['📈','در «پروژه‌ها» هر پروژه حالا پیش‌بینی دارد: با هفته‌ای X ساعت، روزی/ماهی/تا موعد چقدر می‌شود و بودجه تأمین است یا نه.','Each project now shows a forecast: at X h/week, how much per day/month/until the deadline and whether the budget is covered.'],
  ['📅','تقویم یکپارچه شد: روی ماه نقطه‌های رنگی تعطیلی، مناسبت، موعد، یادآوری، ساعت پر و برنامه را می‌بینی؛ با لمس هر روز جزئیاتش و دکمه‌ی «برنامه‌ریزی این روز» می‌آید.','Unified calendar: coloured dots for holidays, occasions, deadlines, reminders, busy blocks and plans; tap a day for details and “Plan this day”.'],

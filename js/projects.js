@@ -128,6 +128,7 @@ document.addEventListener('change',e=>{const t=e.target;if(!t||!t.dataset)return
   save();render()});
 function fcList(){const L=PJ().items.filter(p=>!p.arch&&(due(p)||+p.hrs>0));if(!L.length)return'';
   return'<div class="c">'+daniH('🏁','پیش‌بینی پروژه‌ها','Project forecast')+L.map(p=>'<div style="margin:6px 0"><b>'+esc(p.name)+'</b><div class="m">'+(fcVerdict(fcast(p))||'')+'</div></div>').join('')+'</div>'}
+window.daniFcList=fcList;
 window.daniFcLine=p=>{try{return fcVerdict(fcast(p))}catch(e){return''}};
 window.daniFcForDl=id=>{try{const p=PJ().items.find(q=>!q.arch&&q.dl===id);return p?fcVerdict(fcast(p)):''}catch(e){return''}};
 window.daniFcFinishOn=d=>{try{return PJ().items.filter(p=>!p.arch).filter(p=>{const f=fcast(p);return f.finish===d}).map(p=>p.name)}catch(e){return[]}};
