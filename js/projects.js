@@ -84,6 +84,55 @@ function others(){const A=PJ(),used=new Set(A.items.map(p=>p.dl).filter(Boolean)
 H.pj_fromdl=e=>{const d=(zDL().items||[]).find(x=>x.id===e.dataset.id);if(!d)return;const p={id:'p'+uid(),cr:Date.now(),arch:0,name:d.title.slice(0,80),dl:d.id,due:'',hrs:0,from:todayISO(),parts:[],hb:[],rm:[]};PJ().items.push(p);save();ED=freshED(p);open()};
 H.pj_fromgl=e=>{const g=(db.goals||[])[+e.dataset.i];if(!g)return;const parts=g.actId&&act(g.actId)?[{id:uid(),a:g.actId,s:[],hrs:0}]:[];const p={id:'p'+uid(),cr:Date.now(),arch:0,name:String(g.t).slice(0,80),dl:'',due:g.due||'',hrs:0,from:todayISO(),parts,hb:[],rm:[]};g.pj=p.id;PJ().items.push(p);save();ED=freshED(p);open()};
 
+/* ---------- موتور پیش‌بینی: با این آهنگ کی تمام می‌شود؟ ---------- */
+const nf1=x=>fa(Math.round(x*10)/10);
+const paceW=p=>{let w=+p.wk||0;if(!w)w=(p.parts||[]).reduce((a,x)=>a+(+x.wk||0),0);return w};
+function fcast(p){const t=todayISO(),s=stats(p,'d'),d=s.d,left=d?Math.max(0,dDiff(t,d)):null,w=paceW(p),src=w>0?'plan':'actual';
+  const pace=w>0?w*60/7:mins(p,addD(t,-13),t)/14,bud=s.bud,rem=s.rem;
+  const o={s,pace,src,perDay:pace,perWeek:pace*7,perMonth:pace*30,left,due:d,bud,rem,spent:s.spent};
+  if(bud){if(rem<=0)o.done=true;else if(pace>0){o.days=Math.ceil(rem/pace);o.finish=addD(t,o.days)}}
+  if(left!==null&&pace>0)o.total=pace*left;
+  if(o.finish&&left!==null)o.margin=left-o.days;
+  if(left!==null&&bud&&rem>0&&left>0)o.need=rem/left;
+  o.status=o.done?'done':!bud?(left!==null?'nobud':'free'):!(pace>0)?'nopace':left===null?'open':o.margin>=0?'early':'late';
+  return o}
+function fcVerdict(f){const hh=m=>nf1(m/60)+T(' ساعت',' h');let x='';
+  if(f.status==='done')x='🎉 '+T('به هدف ساعتی رسیده‌ای.','You have reached the hour goal.');
+  else if(f.status==='early')x='✅ '+T('با این آهنگ تا <b>'+fmtD(f.finish)+'</b> تمام می‌شود'+(f.margin>0?'، '+fa(f.margin)+' روز زودتر از موعد.':'، درست روز موعد.'),'At this pace you finish on <b>'+fmtD(f.finish)+'</b>'+(f.margin>0?', '+f.margin+' days before the deadline.':', right on the deadline.'));
+  else if(f.status==='late')x='⚠ '+T('با این آهنگ '+fmtD(f.finish)+' تمام می‌شود، '+fa(-f.margin)+' روز دیرتر از موعد.'+(f.need?' برای رسیدن به موعد روزی <b>'+hh(f.need)+'</b> لازم است.':''),'At this pace you finish on '+fmtD(f.finish)+', '+(-f.margin)+' days after the deadline.'+(f.need?' To make it you need <b>'+hh(f.need)+'</b> per day.':''));
+  else if(f.status==='open')x='🏁 '+T('با این آهنگ تا <b>'+fmtD(f.finish)+'</b> ('+fa(f.days)+' روز دیگر) تمام می‌شود.','At this pace you finish on <b>'+fmtD(f.finish)+'</b> ('+f.days+' days from now).');
+  else if(f.status==='nobud')x='📅 '+T('تا موعد با این آهنگ جمعاً <b>'+hh(f.total||0)+'</b>؛ برای تاریخ پایان، بودجه‌ی ساعت بگذار.','Until the deadline you get <b>'+hh(f.total||0)+'</b> at this pace; add an hour budget for a finish date.');
+  else if(f.status==='nopace')x='✍ '+T('ساعت روزانه یا هفتگی را بنویس تا تاریخ پایان حساب شود.','Type daily or weekly hours to see the finish date.');
+  if(x&&f.src==='actual'&&f.pace>0)x+=' <span class="m">('+T('بر پایه‌ی سرعت واقعی ۱۴ روز اخیر','based on your real pace of the last 14 days')+')</span>';
+  return x}
+window.daniFcast=fcast;window.daniFcVerdict=fcVerdict;
+const fcCol={done:'#10b981',early:'#10b981',late:'#ef4444',open:'#3b82f6',nobud:'#3b82f6',nopace:'#94a3b8',free:'#94a3b8'};
+function fcHTML(p){const f=fcast(p),col=fcCol[f.status]||'#94a3b8',pct=f.bud?Math.min(100,Math.round(f.spent/f.bud*100)):0,R=24,C=Math.round(2*Math.PI*R*10)/10;
+  const w=paceW(p),dpw=+p.dpw||7,pd=+p.pd||(w?Math.round(w/dpw*10)/10:'');
+  let tl='';if(f.pace>0&&(f.finish||f.due)){const end=Math.max(f.due&&f.left!==null?f.left:0,f.days||0,1),pf=f.days?Math.min(100,f.days/end*100):0,pdue=f.left!==null?Math.min(100,f.left/end*100):0;
+    tl='<div class="fct"><i class="fcg" style="width:'+pf+'%;background:'+col+'"></i>'+(f.finish?'<b class="fcm" style="inset-inline-start:'+pf+'%" title="'+esc(fmtD(f.finish))+'">🏁</b>':'')+(f.due?'<b class="fcm" style="inset-inline-start:'+pdue+'%" title="'+esc(fmtD(f.due))+'">⏳</b>':'')+'</div>'
+     +'<div class="row m" style="justify-content:space-between"><span>'+T('امروز','Today')+'</span>'+(f.finish?'<span>🏁 '+fmtD(f.finish)+'</span>':'')+(f.due?'<span>⏳ '+fmtD(f.due)+'</span>':'')+'</div>'}
+  const tile=(a,b)=>'<div class="fck"><b>'+a+'</b><small>'+b+'</small></div>';
+  return'<div class="fcb" style="--fc:'+col+'">'
+   +'<div class="row" style="flex-wrap:nowrap;gap:10px;align-items:center"><svg class="fcr" width="60" height="60" viewBox="0 0 60 60" style="--c:'+C+'"><circle cx="30" cy="30" r="'+R+'" fill="none" stroke="currentColor" opacity=".13" stroke-width="6"/><circle cx="30" cy="30" r="'+R+'" fill="none" stroke="'+col+'" stroke-width="6" stroke-linecap="round" stroke-dasharray="'+C+'" stroke-dashoffset="'+Math.round(C*(1-pct/100)*10)/10+'" transform="rotate(-90 30 30)"/><text x="30" y="34" text-anchor="middle" font-size="13" fill="currentColor" font-weight="700">'+fa(pct)+'٪</text></svg>'
+   +'<div style="flex:1;min-width:0;line-height:1.6">'+(fcVerdict(f)||'<span class="m">'+T('بودجه و آهنگ بگذار تا پیش‌بینی بیاید.','Set a budget and a pace to see the forecast.')+'</span>')+'</div></div>'
+   +tl
+   +'<div class="fck4">'+tile(nf1(f.perDay/60),T('ساعت/روز','h/day'))+tile(nf1(f.perWeek/60),T('ساعت/هفته','h/week'))+tile(nf1(f.perMonth/60),T('ساعت/ماه','h/month'))+(f.total!=null?tile(nf1(f.total/60),T('تا موعد','to deadline')):f.bud?tile(nf1(f.rem/60),T('مانده','left')):'')+'</div>'
+   +'<div class="row" style="gap:6px;align-items:center;margin-top:6px"><span class="m">'+T('اگر روزی','If each day')+'</span><input type="number" min="0" step="0.5" value="'+pd+'" data-fc="pd" data-p="'+esc(p.id)+'" style="width:64px"><span class="m">'+T('ساعت، در','h on')+'</span><input type="number" min="1" max="7" step="1" value="'+dpw+'" data-fc="dpw" data-p="'+esc(p.id)+'" style="width:52px"><span class="m">'+T('روز هفته','days a week')+'</span></div></div>'}
+function partFc(p,x){const t=todayISO(),xw=+x.wk||0,xb=Math.round((+x.hrs||0)*60),sp=mins(p,p.from||t,t,x),rem=Math.max(0,xb-sp);let fin='';
+  if(xb&&xw>0){if(rem<=0)fin='🎉';else{const dd=Math.ceil(rem/(xw*60/7)),dt=addD(t,dd),d=due(p);fin='🏁 '+fmtD(dt)+(d?(dt<=d?' ✅':' ⚠'):'')}}
+  return'<div class="row" style="gap:6px;align-items:center;margin-top:4px"><span class="m">'+T('آهنگ','Pace')+'</span><input type="number" min="0" step="0.5" value="'+(xw||'')+'" data-fcx="'+esc(x.id)+'" data-p="'+esc(p.id)+'" style="width:60px"><span class="m">'+T('ساعت/هفته','h/week')+'</span><span style="flex:1"></span><b class="m">'+fin+'</b></div>'}
+document.addEventListener('change',e=>{const t=e.target;if(!t||!t.dataset)return;const d=t.dataset;if(!d.fc&&!d.fcx)return;const p=PJ().items.find(q=>q.id===d.p);if(!p)return;const v=Math.max(0,+t.value||0);
+  if(d.fc==='pd'){p.pd=v;p.dpw=+p.dpw||7;p.wk=Math.round(v*p.dpw*10)/10}else if(d.fc==='dpw'){p.dpw=Math.max(1,Math.min(7,Math.round(v)||7));const w=paceW(p);p.pd=+p.pd||(w?w/7:0);p.wk=Math.round(p.pd*p.dpw*10)/10}
+  else{const x=(p.parts||[]).find(q=>q.id===d.fcx);if(x){x.wk=v;if(!(+p.pd>0)){const sw=(p.parts||[]).reduce((a,q)=>a+(+q.wk||0),0);p.wk=sw}}}
+  save();render()});
+function fcList(){const L=PJ().items.filter(p=>!p.arch&&(due(p)||+p.hrs>0));if(!L.length)return'';
+  return'<div class="c">'+daniH('🏁','پیش‌بینی پروژه‌ها','Project forecast')+L.map(p=>'<div style="margin:6px 0"><b>'+esc(p.name)+'</b><div class="m">'+(fcVerdict(fcast(p))||'')+'</div></div>').join('')+'</div>'}
+window.daniFcLine=p=>{try{return fcVerdict(fcast(p))}catch(e){return''}};
+window.daniFcForDl=id=>{try{const p=PJ().items.find(q=>!q.arch&&q.dl===id);return p?fcVerdict(fcast(p)):''}catch(e){return''}};
+window.daniFcFinishOn=d=>{try{return PJ().items.filter(p=>!p.arch).filter(p=>{const f=fcast(p);return f.finish===d}).map(p=>p.name)}catch(e){return[]}};
+{const _dl=PG.dl;if(_dl)PG.dl=function(){const h=_dl.apply(this,arguments);try{return typeof h==='string'?fcList()+h:h}catch(e){return h}}}
+try{const st=document.createElement('style');st.textContent='.fcb{border:1px solid color-mix(in srgb,var(--fc) 35%,transparent);background:color-mix(in srgb,var(--fc) 7%,transparent);border-radius:14px;padding:10px;margin:8px 0}.fcr circle:last-of-type{animation:fcring .9s ease-out}@keyframes fcring{from{stroke-dashoffset:var(--c)}}.fct{position:relative;height:8px;border-radius:6px;background:var(--b,#8883);margin:12px 0 4px}.fcg{position:absolute;inset-block:0;inset-inline-start:0;border-radius:6px;animation:fcgrow 1s ease-out}@keyframes fcgrow{from{width:0}}.fcm{position:absolute;top:-9px;transform:translateX(-50%);font-size:13px;font-weight:400;animation:fcpop .6s .5s both}@keyframes fcpop{from{opacity:0;transform:translateX(-50%) scale(.2)}}.fck4{display:grid;grid-template-columns:repeat(auto-fit,minmax(70px,1fr));gap:6px;margin-top:8px}.fck{text-align:center;border-radius:10px;background:var(--b,#8881);padding:6px 2px}.fck b{display:block;font-size:1.1em}.fck small{opacity:.75;font-size:.72em}@media (prefers-reduced-motion:reduce){.fcr circle,.fcg,.fcm{animation:none!important}}';document.head.appendChild(st)}catch(e){}
 /* ---------- صفحه ---------- */
 function projCard(p,v){const s=stats(p,v),ps=parts(p);
   let h='<div class="c pjc" style="margin-top:10px"><div class="row"><b style="flex:1;min-width:0">'+esc(p.name)+'</b>'+(s.st?'<span class="chip on" style="background:'+s.col+'22;color:'+s.col+'">'+s.st+'</span>':'')+'</div>';
@@ -91,14 +140,10 @@ function projCard(p,v){const s=stats(p,v),ps=parts(p);
   if(s.bud)h+=bar(s.spent,s.bud,s.col)+'<div class="m">'+T('انجام‌شده','Done')+' '+mm(s.spent)+' '+T('از','of')+' '+mm(s.bud)+' · '+T('مانده','left')+' '+mm(s.rem)+(s.perDay&&!s.over?' · '+T('آهنگ لازم','pace')+' '+mm(s.perDay)+'/'+T('روز','day'):'')+'</div>';
   else h+='<div class="m">'+T('جمع ثبت‌شده','Logged')+' '+mm(s.spent)+' · '+T('برای نمایش آهنگ، بودجه‌ی ساعت بگذار.','set an hour budget to see the pace.')+'</div>';
   h+='<div class="dyex">'+PN[v]+': '+(s.bud?T('لازم','target')+' <b>'+mm(s.tgt)+'</b> · ':'')+T('انجام','done')+' <b>'+mm(s.done)+'</b>'+(s.bud&&s.tgt?bar(s.done,s.tgt,'#3b82f6'):'')+'</div>';
-  {const w=+p.wk||0,nf=x=>fa(Math.round(x*10)/10),lw=s.left>0?s.left/7:0;let f='';
-   if(w){f='📈 '+T('با هفته‌ای ','At ')+nf(w)+T(' ساعت: روزی ',' h/week: ')+nf(w/7)+T(' ساعت، ماهی ',' h/day, ')+nf(w*30/7)+T(' ساعت',' h/month')+(lw>0?T(' · تا موعد جمعاً ',' · total until the deadline ')+'<b>'+nf(w*lw)+T(' ساعت',' h')+'</b>':'')
-     +(s.bud&&lw>0?(w*lw+s.spent/60>=s.bud/60?' ✅ '+T('بودجه تأمین است','covers the budget'):' ⚠ '+T('برای بودجه باید هفته‌ای ',' to reach the budget you need ')+nf(s.rem/60/lw)+T(' ساعت باشد',' h/week')):'')}
-   else if(s.bud&&lw>0)f='📈 '+T('برای رسیدن به بودجه باید هفته‌ای ','To reach the budget you need ')+'<b>'+nf(s.rem/60/lw)+T(' ساعت',' h')+'</b>'+T(' (روزی ',' per week (')+nf(s.rem/60/s.left)+T(' ساعت) باشد.',' h/day).');
-   if(f)h+='<div class="m" style="margin:4px 0">'+f+'</div>'}
+  h+=fcHTML(p);
   ps.forEach(x=>{const a=act(x.a),tot=mins(p,s.from,todayISO(),x),per=mins(p,s.ra,s.rb,x),bh=Math.round((+x.hrs||0)*60),subs=(a.subs||[]).filter(q=>!(x.s&&x.s.length)||x.s.includes(q.id));
     h+='<div class="dyp" style="display:block"><div class="row"><span style="width:10px;height:10px;border-radius:50%;background:'+esc(a.color||'#3b82f6')+'"></span><b style="flex:1;min-width:0">'+esc(a.name)+'</b><button class="chip" data-a="pj_add" data-p="'+esc(p.id)+'" data-x="'+esc(x.id)+'" title="'+T('به برنامه‌ی فردا','To tomorrow’s plan')+'">＋ '+T('فردا','Tomorrow')+'</button></div>'
-     +'<div class="m">'+PN[v]+' '+mm(per)+' · '+T('کل','total')+' '+mm(tot)+(bh?' / '+mm(bh):'')+'</div>'+(bh?bar(tot,bh,a.color):'')
+     +'<div class="m">'+PN[v]+' '+mm(per)+' · '+T('کل','total')+' '+mm(tot)+(bh?' / '+mm(bh):'')+'</div>'+(bh?bar(tot,bh,a.color):'')+partFc(p,x)
      +(subs.length?'<div class="m" style="margin-top:2px">'+subs.map(q=>{const t1=mins(p,s.from,todayISO(),x,q.id);return esc(q.name)+' '+(t1?mm(t1):'—')}).join(' · ')+'</div>':'')+'</div>'});
   h+=hrBlock(p);
   if(!ps.length)h+='<p class="m">'+T('هنوز بخشی نداری؛ «ویرایش» را بزن و بخش اضافه کن.','No parts yet — tap Edit and add one.')+'</p>';
@@ -155,7 +200,7 @@ H.pj_ts=e=>{pull();const x=ED.parts.find(q=>q.id===e.dataset.x);if(!x)return;x.s
 H.pj_nt=e=>{pull();const x=ED.parts.find(q=>q.id===e.dataset.x),a=x&&act(x.a),el=document.getElementById('pj-nt-'+e.dataset.x),n=el?el.value.trim():'';if(!a||!n)return;
   let s=(a.subs||[]).find(q=>q.name===n);if(!s){s={id:uid(),name:n,goal:0};(a.subs=a.subs||[]).push(s)}if(x.s&&x.s.length&&!x.s.includes(s.id))x.s.push(s.id);save();open()};
 H.pj_save=()=>{pull();const n=(ED.name||'').trim();if(!n)return say(T('نام پروژه را بنویس','Type a project name'),1);
-  const o={name:n.slice(0,80),dl:ED.dl||'',due:ED.dl?'':(ED.due||''),hrs:+ED.hrs>0?+ED.hrs:0,from:ED.from||todayISO(),parts:ED.parts.map(x=>({id:x.id,a:x.a,s:(x.s||[]).slice(),hrs:+x.hrs>0?+x.hrs:0}))};
+  const o={name:n.slice(0,80),dl:ED.dl||'',due:ED.dl?'':(ED.due||''),hrs:+ED.hrs>0?+ED.hrs:0,from:ED.from||todayISO(),parts:ED.parts.map(x=>{const pv=((ED.id&&PJ().items.find(q=>q.id===ED.id))||{parts:[]}).parts.find(q=>q.id===x.id);return{id:x.id,a:x.a,s:(x.s||[]).slice(),hrs:+x.hrs>0?+x.hrs:0,wk:+((pv&&pv.wk)||0)}})};
   const A=PJ();
   /* تاریخ دستی ← یک موعد در بخش «موعدها» هم ساخته/به‌روز می‌شود تا هشدار بگیرد */
   const prev=ED.id?A.items.find(x=>x.id===ED.id):null;
@@ -171,7 +216,7 @@ H.pj_del=()=>{if(!ED||!ED.id)return;if(!confirm(T('این پروژه حذف شو
 /* ---------- کارت کوچک در «امروز» و «برنامه‌ی فردا» ---------- */
 function mini(date,title){const A=PJ();if(!A.today)return'';const it=A.items.filter(p=>!p.arch&&parts(p).length).map(p=>({p,s:stats(p,'d')})).filter(x=>x.s.bud&&!x.s.over&&x.s.rem>0||x.s.d&&!x.s.over&&!x.s.bud);if(!it.length)return'';
   it.sort((a,b)=>(a.s.d||'9')<(b.s.d||'9')?-1:1);
-  return'<div class="c dyc" id="pjmini">'+daniH('🎓',title[0],title[1])+it.slice(0,4).map(x=>{const s=x.s;return'<div class="dyp" style="display:block"><div class="row"><b style="flex:1;min-width:0">'+esc(x.p.name)+'</b><span class="m">'+(s.d?T(fa(s.left)+' روز','d'+s.left)+' · ':'')+(s.bud?T('لازم امروز','need today')+' '+mm(s.perDay)+' · ':'')+T('انجام','done')+' '+mm(mins(x.p,todayISO(),todayISO()))+'</span></div>'+(s.bud?bar(mins(x.p,todayISO(),todayISO()),s.perDay||1,'#3b82f6'):'')+'</div>'}).join('')
+  return'<div class="c dyc" id="pjmini">'+daniH('🎓',title[0],title[1])+it.slice(0,4).map(x=>{const s=x.s;return'<div class="dyp" style="display:block"><div class="row"><b style="flex:1;min-width:0">'+esc(x.p.name)+'</b><span class="m">'+(s.d?T(fa(s.left)+' روز','d'+s.left)+' · ':'')+(s.bud?T('لازم امروز','need today')+' '+mm(s.perDay)+' · ':'')+T('انجام','done')+' '+mm(mins(x.p,todayISO(),todayISO()))+'</span></div>'+(s.bud?bar(mins(x.p,todayISO(),todayISO()),s.perDay||1,'#3b82f6'):'')+(function(){const v=fcVerdict(fcast(x.p));return v?'<div class="m">'+v+'</div>':''})()+'</div>'}).join('')
    +'<button class="chip" data-a="dy_go" data-p="pj">🎓 '+T('همه‌ی پروژه‌ها','All projects')+'</button></div>'}
 {const _d=PG.day;if(_d)PG.day=function(){const h=_d.apply(this,arguments);try{return typeof h==='string'?h+mini(todayISO(),['پروژه‌ها (امروز)','Projects (today)']):h}catch(e){return h}}}
 {const _t=PG.tmr;if(_t)PG.tmr=function(){const h=_t.apply(this,arguments);try{return typeof h==='string'?h+mini(addD(todayISO(),1),['پروژه‌ها (آهنگ لازم)','Projects (needed pace)']):h}catch(e){return h}}}

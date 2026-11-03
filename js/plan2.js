@@ -94,6 +94,7 @@ function expTab(){const t=todayISO(),w0=weekStart(t),[m0,m1]=mRange(),L=PJs();
     h+='<div class="dyp" style="display:block"><div class="row"><b style="flex:1;min-width:0">'+esc(p.name)+'</b></div>'
      +'<div class="row" style="gap:6px"><label class="m">'+T('هفته','Week')+' <input type="number" min="0" step="0.5" value="'+(w||'')+'" data-ex="p" data-p="'+esc(p.id)+'" data-f="wk" style="width:70px"> '+T('ساعت','h')+'</label><label class="m">'+T('ماه','Month')+' <input type="number" min="0" step="1" value="'+(m||'')+'" data-ex="p" data-p="'+esc(p.id)+'" data-f="mo" style="width:70px"> '+T('ساعت','h')+'</label></div>'
      +(w?bar2(dW,w*60,wd/7,T('هفته','Week')):'')+(m?bar2(dM,m*60,md/mt,T('ماه','Month')):'')
+     +(window.daniFcLine&&window.daniFcLine(p)?'<div class="m" style="margin:4px 0">'+window.daniFcLine(p)+'</div>':'')
      +(p.parts||[]).filter(x=>act(x.a)).map(x=>{const xw=+x.wk||0,dX=per(p,w0,t,x);return'<div class="row" style="margin-top:4px;gap:6px"><span style="flex:1;min-width:0">'+esc(aN(x.a))+' <span class="m">'+mm(dX)+'</span></span><input type="number" min="0" step="0.5" value="'+(xw||'')+'" placeholder="'+T('ساعت/هفته','h/week')+'" data-ex="x" data-p="'+esc(p.id)+'" data-x="'+esc(x.id)+'" data-f="wk" style="width:90px"></div>'+(xw?bar2(dX,xw*60,wd/7,''):'')}).join('')+'</div>'});
   h+='</div>';
   if(tw||tmn)h+='<div class="c" style="margin-top:8px">'+daniH('📈','نتیجه','Result')+(tw?verdict(dw,tw,wd/7,T('این هفته','This week')):'')+(tmn?verdict(dmn,tmn,md/mt,T('این ماه','This month')):'')+'</div>';
@@ -121,7 +122,7 @@ function monthOf(base){let st,len,title;
   if(db.set.cal==='g'){const d=P(base);st=iso(new Date(d.getFullYear(),d.getMonth(),1,12));len=new Date(d.getFullYear(),d.getMonth()+1,0).getDate();title=d.toLocaleDateString(LANGEN()?'en-US':'fa-IR',{calendar:'gregory',month:'long',year:'numeric'})}
   else{const[y,m]=J(base),f=j2g(y,m,1);st=iso(new Date(f[0],f[1]-1,f[2],12));len=m<=6?31:m<=11?30:([1,5,9,13,17,22,26,30].includes(y%33)?30:29);title=JM[m-1]+' '+fa(y)}
   return{st,len,title}}
-function marks(d){const o={hol:0,occ:0,dl:0,rm:0,bz:0,pl:0,lg:0};
+function marks(d){const o={hol:0,occ:0,dl:0,rm:0,bz:0,pl:0,lg:0,fin:0};try{o.fin=(window.daniFcFinishOn&&window.daniFcFinishOn(d).length)?1:0}catch(e){}
   try{if(window.daniOccasions)window.daniOccasions(d).forEach(x=>{if(x.wk)return;if(x.h)o.hol=1;else o.occ=1})}catch(e){}
   try{o.dl=(zDL().items||[]).some(x=>!x.arch&&!x.done&&x.dt===d)?1:0}catch(e){}
   try{o.rm=(zRM().items||[]).some(r=>!r.off&&r.date===d)?1:0}catch(e){}
@@ -133,15 +134,16 @@ function calTab(){const t=todayISO();if(!P2.cm)P2.cm=t;if(!P2.cs)P2.cs=t;const M
   const dot=(c,tt)=>'<i title="'+esc(tt)+'" style="background:'+c+'"></i>';
   let g='<div class="p2cal">'+['ش','ی','د','س','چ','پ','ج'].map(x=>'<b class="p2h">'+x+'</b>').join('')+'<span></span>'.repeat(off);
   for(let i=0;i<M.len;i++){const d=addD(M.st,i),k=marks(d);
-    g+='<button class="p2c'+(d===t?' td':'')+(d===P2.cs?' sel':'')+(k.hol?' hol':'')+'" data-a="p2_cd" data-d="'+d+'"><span>'+fa(dnum(d))+'</span><em>'+(k.hol?dot('#ef4444',T('تعطیلی','Holiday')):'')+(k.occ?dot('#a855f7',T('مناسبت','Occasion')):'')+(k.dl?dot('#f59e0b',T('موعد','Deadline')):'')+(k.rm?dot('#3b82f6',T('یادآوری','Reminder')):'')+(k.bz?dot('#94a3b8',T('ساعت پر','Busy')):'')+(k.pl?dot('var(--ac,#22c55e)',T('برنامه','Plan')):'')+'</em></button>'}
+    g+='<button class="p2c'+(d===t?' td':'')+(d===P2.cs?' sel':'')+(k.hol?' hol':'')+'" data-a="p2_cd" data-d="'+d+'"><span>'+fa(dnum(d))+'</span><em>'+(k.hol?dot('#ef4444',T('تعطیلی','Holiday')):'')+(k.occ?dot('#a855f7',T('مناسبت','Occasion')):'')+(k.dl?dot('#f59e0b',T('موعد','Deadline')):'')+(k.fin?dot('#10b981',T('پایان پیش‌بینی‌شده','Forecast finish')):'')+(k.rm?dot('#3b82f6',T('یادآوری','Reminder')):'')+(k.bz?dot('#94a3b8',T('ساعت پر','Busy')):'')+(k.pl?dot('var(--ac,#22c55e)',T('برنامه','Plan')):'')+'</em></button>'}
   g+='</div>';
-  const leg='<p class="m" style="margin:6px 0 0"><span class="p2l" style="background:#ef4444"></span>'+T('تعطیلی','Holiday')+' <span class="p2l" style="background:#a855f7"></span>'+T('مناسبت','Occasion')+' <span class="p2l" style="background:#f59e0b"></span>'+T('موعد','Deadline')+' <span class="p2l" style="background:#3b82f6"></span>'+T('یادآوری','Reminder')+' <span class="p2l" style="background:#94a3b8"></span>'+T('ساعت پر','Busy')+' <span class="p2l" style="background:var(--ac,#22c55e)"></span>'+T('برنامه','Plan')+'</p>';
+  const leg='<p class="m" style="margin:6px 0 0"><span class="p2l" style="background:#ef4444"></span>'+T('تعطیلی','Holiday')+' <span class="p2l" style="background:#a855f7"></span>'+T('مناسبت','Occasion')+' <span class="p2l" style="background:#f59e0b"></span>'+T('موعد','Deadline')+' <span class="p2l" style="background:#10b981"></span>'+T('پایان پیش‌بینی','Forecast end')+' <span class="p2l" style="background:#3b82f6"></span>'+T('یادآوری','Reminder')+' <span class="p2l" style="background:#94a3b8"></span>'+T('ساعت پر','Busy')+' <span class="p2l" style="background:var(--ac,#22c55e)"></span>'+T('برنامه','Plan')+'</p>';
   let h='<div class="c"><div class="row" style="align-items:center"><button class="chip" data-a="p2_cm" data-n="-1" aria-label="prev">‹</button><b style="flex:1;text-align:center">'+M.title+'</b><button class="chip" data-a="p2_cm" data-n="1" aria-label="next">›</button><button class="chip" data-a="p2_cm" data-n="0">'+T('امروز','Today')+'</button></div>'+g+leg+'</div>';
   const d=P2.cs,k=marks(d);let ev=[];try{ev=eventsOf(d)}catch(e){}
   let pl=[];try{pl=(plan(d)||[]).filter(x=>x.actId&&act(x.actId))}catch(e){}
   h+='<div class="c"><b>'+fmtDL(d)+'</b>'
    +(ev.length?'<div class="dyex" style="margin-top:6px">'+ev.join('<br>')+'</div>':'<p class="m">'+T('رویدادی برای این روز نیست (نه تعطیلی، نه موعد، نه یادآوری).','Nothing on this day (no holiday, deadline or reminder).')+'</p>')
    +(pl.length?'<div class="m" style="margin-top:6px">🗓 '+pl.map(x=>esc(aN(x.actId))+' '+mm(+x.goal||0)).join(' · ')+'</div>':'')
+   +(function(){let n=[];try{n=window.daniFcFinishOn?window.daniFcFinishOn(d):[]}catch(e){}return n.length?'<div class="m">🏁 '+T('پایان پیش‌بینی‌شده: ','Forecast finish: ')+esc(n.join('، '))+'</div>':''})()
    +(k.lg?'<div class="m">✅ '+T('ثبت‌شده: ','Logged: ')+mm(k.lg)+'</div>':'')
    +'<div class="row" style="margin-top:8px"><button class="p" data-a="p2_cp">🗓 '+T('برنامه‌ریزی این روز','Plan this day')+'</button><button class="chip" data-a="p2_cr">🔔 '+T('یادآوری','Reminder')+'</button><button class="chip" data-a="p2_cb">⛔ '+T('ساعت پر','Busy')+'</button></div></div>';
   h+='<details class="c"><summary style="cursor:pointer">'+daniH('⏳','موعدها (افزودن و فهرست)','Deadlines (add & list)')+'</summary>'+embed(PG.dl,'deadlines')+'</details>'+legacyCards(['#ocdet']);
