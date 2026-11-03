@@ -486,6 +486,9 @@ DANI Planner: پلنر شخصی فارسی (RTL، با لایه‌ی ترجمه�
 ## v60 — results2.js
 - `RT` = eod|stats|rep. `PG.res` را (آخرین لایه) می‌پیچد: `body(k)` خروجی زبانه‌ی قدیمی را بدون tabBar می‌گیرد، `fold()` کارت‌های بدون‌والد-`.c` با `h3` را به `<details>` تبدیل می‌کند. `OLD` نگاشت mon/gld→stats و shr→rep. اگر زبانه‌ی تازه‌ای به RT اضافه شد، همین‌جا ثبتش کن.
 
+## v63 — rating.js
+- `save` پیچیده می‌شود؛ ثبت‌های تازه (≤۲ تا، غیر csv/import/smp) → `#qrs` (پنل ثابت پایین، ۱۴ ثانیه). `e.rt={en,fe,su,ac}`؛ تنظیم `db.set.qr={on,f[]}`. `PG.res` در `stats` کارت میانگین اضافه می‌کند؛ `render` در Settings/time کارت `#qrc` را بعد از `#ntc` می‌گذارد.
+
 ## v62 — کارت موعد خانه
 - projects.js: `_dlOld` = `dlDashHTML` قدیمی؛ `dlDashHTML/hDl` به `dlHome()` بازتعریف شدند؛ `HSEC.dlc.r=hDl`. طرح‌ها در `DL_STY` (big/ring/bar/mini + hero/stack/line/pill)؛ `H.dl_cyc` طرح بعدی. عادت: `h.act`+`h.min` تیک خودکار؛ یادآور `repeat:'yearly'`؛ تقویم: `H.p2_qa`.
 
