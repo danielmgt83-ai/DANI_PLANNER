@@ -486,6 +486,9 @@ DANI Planner: پلنر شخصی فارسی (RTL، با لایه‌ی ترجمه�
 ## v60 — results2.js
 - `RT` = eod|stats|rep. `PG.res` را (آخرین لایه) می‌پیچد: `body(k)` خروجی زبانه‌ی قدیمی را بدون tabBar می‌گیرد، `fold()` کارت‌های بدون‌والد-`.c` با `h3` را به `<details>` تبدیل می‌کند. `OLD` نگاشت mon/gld→stats و shr→rep. اگر زبانه‌ی تازه‌ای به RT اضافه شد، همین‌جا ثبتش کن.
 
+## v71 — timeline (daily.js)
+- `window.__tld` = روز دیده‌شده؛ `secTl()` فلش‌ها `H.tl_nav`، `H.tl_add`؛ `tlHTML(d,{pastGaps})`؛ بازه‌ی `.eb` دارای `data-a="eedit"`؛ `window.__gapDay` در `dy_gapsave`.
+
 ## v70 — usetime.js
 - `cls(actId)` ← `a.use` یا خودکار؛ `calc(from,to)`/`range('d|w|m')`؛ `slim()`/`full(k)`؛ تزریق بعد از `render` (page `day` زیر کارت Result، `plan2` بعد از `.p2st`) و در `PG.res` برای `eod`/`rep`. فرم فعالیت: `select#fuse` و `H.asave` پیچیده.
 
