@@ -38,26 +38,26 @@ function planRows(d){const items=(plan(d)||[]).slice(),pool={};(E(d)||[]).forEac
 const dayInfo=d=>{const rows=planRows(d),live=rows.filter(r=>r.live),need=live.reduce((s,r)=>s+r.need,0),got=live.reduce((s,r)=>s+r.got,0);return{rows,need,got,pct:need?Math.round(got/need*100):0,open:live.filter(r=>!r.done)}};
 
 /* ---------- تایم‌لاین ---------- */
-function tlHTML(d,opt){opt=opt||{};const es=(E(d)||[]).filter(e=>/^\d\d:\d\d$/.test(e.start||'')).map(e=>({s:tm(e.start),e:Math.min(1440,tm(e.start)+(e.min||0)),id:e.actId})).sort((a,b)=>a.s-b.s),today=d===todayISO(),nm=today?nowMin():null;
+function tlHTML(d,opt){opt=opt||{};const es=(E(d)||[]).filter(e=>/^\d\d:\d\d$/.test(e.start||'')).map(e=>({s:tm(e.start),e:Math.min(1440,tm(e.start)+(e.min||0)),id:e.actId,eid:e.id})).sort((a,b)=>a.s-b.s),today=d===todayISO(),nm=today?nowMin():null;
   const pl=(plan(d)||[]).filter(x=>x.start&&x.end&&!['canceled','carried'].includes(x.status)).map(x=>({s:tm(x.start),e:tm(x.start)+(+x.goal||dur(x.start,x.end)),id:x.actId}));
   const bzs=(window.daniBusy?window.daniBusy(d):[]).map(x=>({s:tm(x.s),e:tm(x.e),t:x.t}));
   let a=360,b=1320;es.concat(pl,bzs).forEach(x=>{a=Math.min(a,Math.floor(x.s/60)*60);b=Math.max(b,Math.ceil(Math.min(x.e,1440)/60)*60)});if(nm!=null)b=Math.max(b,Math.ceil((nm+1)/60)*60);b=Math.min(1440,Math.max(b,a+180));const W=b-a,px=v=>Math.max(0,Math.min(100,(v-a)/W*100)).toFixed(2);
   const seg=(x,cls)=>'<i class="'+cls+'" style="left:'+px(x.s)+'%;width:'+Math.max(.6,(Math.min(x.e,b)-x.s)/W*100).toFixed(2)+'%;background:'+aC(x.id)+'" title="'+esc(aN(x.id)+' · '+hh(x.s)+'–'+hh(x.e%1440))+'"></i>';
-  let gaps=[];if(today&&DY().gaps&&es.length){let cur=es[0].e;es.slice(1).forEach(x=>{if(x.s-cur>=15)gaps.push([cur,x.s]);cur=Math.max(cur,x.e)});if(nm-cur>=15)gaps.push([cur,nm])}
-  let h='<div class="dytl" dir="ltr">'+(bzs.length?'<div class="dytr">'+bzs.map(x=>'<i style="left:'+px(x.s)+'%;width:'+((Math.min(x.e,b)-x.s)/W*100).toFixed(2)+'%;background:rgba(148,163,184,.55)" title="'+esc(T('مشغول: ','Busy: ')+x.t)+'"></i>').join('')+'</div>':'')+'<div class="dytr">'+pl.map(x=>seg(x,'pb')).join('')+'</div><div class="dytr big">'+gaps.map(g=>'<b class="gp" data-a="dy_gap" data-s="'+g[0]+'" data-e="'+g[1]+'" style="left:'+px(g[0])+'%;width:'+((g[1]-g[0])/W*100).toFixed(2)+'%" title="'+esc(T('ثبت این بازه','Fill this gap'))+'"></b>').join('')+es.map(x=>seg(x,'eb')).join('')+(nm!=null&&nm>=a&&nm<=b?'<u class="nw" style="left:'+px(nm)+'%"></u>':'')+'</div>'
+  let gaps=[];if((today||opt.pastGaps)&&DY().gaps&&es.length){let cur=es[0].e;es.slice(1).forEach(x=>{if(x.s-cur>=15)gaps.push([cur,x.s]);cur=Math.max(cur,x.e)});if(today&&nm-cur>=15)gaps.push([cur,nm])}
+  let h='<div class="dytl" dir="ltr">'+(bzs.length?'<div class="dytr">'+bzs.map(x=>'<i style="left:'+px(x.s)+'%;width:'+((Math.min(x.e,b)-x.s)/W*100).toFixed(2)+'%;background:rgba(148,163,184,.55)" title="'+esc(T('مشغول: ','Busy: ')+x.t)+'"></i>').join('')+'</div>':'')+'<div class="dytr">'+pl.map(x=>seg(x,'pb')).join('')+'</div><div class="dytr big">'+gaps.map(g=>'<b class="gp" data-a="dy_gap" data-s="'+g[0]+'" data-e="'+g[1]+'" style="left:'+px(g[0])+'%;width:'+((g[1]-g[0])/W*100).toFixed(2)+'%" title="'+esc(T('ثبت این بازه','Fill this gap'))+'"></b>').join('')+es.map(x=>seg(x,'eb').replace('<i class="eb"','<i class="eb" data-a="eedit" data-id="'+x.eid+'" role="button"')).join('')+(nm!=null&&nm>=a&&nm<=b?'<u class="nw" style="left:'+px(nm)+'%"></u>':'')+'</div>'
    +'<div class="dyax">'+Array.from({length:Math.floor(W/60)+1},(_,i)=>{const t=a+i*60;return(i%(W>720?3:2)===0)?'<span style="left:'+px(t)+'%">'+pad(Math.floor(t/60)%24)+'</span>':''}).join('')+'</div></div>';
   const by={};es.forEach(x=>{by[x.id]=(by[x.id]||0)+(x.e-x.s)});const top=Object.entries(by).sort((p,q)=>q[1]-p[1]).slice(0,5);
   h+='<div class="row" style="gap:10px;margin-top:6px">'+top.map(([id,v])=>'<span class="m"><span style="color:'+aC(id)+'">●</span> '+esc(aN(id))+' '+mm(v)+'</span>').join('')+'</div>';
   if(gaps.length&&!opt.noGapNote){const tot=gaps.reduce((s,g)=>s+g[1]-g[0],0);h+='<div class="m" style="margin-top:4px">🕳 '+T('وقت ثبت‌نشده: '+mm(tot)+' — روی بخش‌های خط‌خطی بزن و بگو چه کردی.','Unlogged: '+mm(tot)+' — tap the hatched parts and tell me what you did.')+'</div>'}
   return h}
-H.dy_gap=e=>{const s=+e.dataset.s,en=+e.dataset.e,r=recent(6);let sel=r[0]||'';
-  modal('<div style="max-width:420px">'+daniH('🕳','این بازه چه کردی؟','What did you do in this gap?')+'<div class="m" dir="ltr">'+hh(s)+' – '+hh(en)+' · '+mm(en-s)+'</div>'
+H.dy_gap=e=>{const s=+e.dataset.s,en=+e.dataset.e,r=recent(6),dd=e.dataset.d||window.__tld||todayISO();window.__gapDay=dd;let sel=r[0]||'';
+  modal('<div style="max-width:420px">'+daniH('🕳','این بازه چه کردی؟','What did you do in this gap?')+'<div class="m">'+(dd!==todayISO()?fmtDL(dd)+' · ':'')+'<bdi dir="ltr">'+hh(s)+' – '+hh(en)+' · '+mm(en-s)+'</bdi></div>'
    +'<div class="row" style="margin:8px 0">'+r.map(id=>'<button class="chip" data-a="dy_gapsave" data-s="'+s+'" data-e="'+en+'" data-id="'+id+'">'+esc(aN(id))+'</button>').join('')+'</div>'
    +'<div class="row"><select id="dg-a" style="flex:1">'+aOpts(sel)+'</select></div><div class="row" style="margin-top:6px"><input type="time" id="dg-s" value="'+hh(s)+'"><span class="m">→</span><input type="time" id="dg-e" value="'+hh(en)+'"></div>'
    +'<div class="row" style="margin-top:10px"><button class="p" data-a="dy_gapsave" data-s="'+s+'" data-e="'+en+'" data-id="">'+T('ثبت','Save')+'</button><button data-a="cl">'+T('انصراف','Cancel')+'</button></div></div>')};
 H.dy_gapsave=e=>{let id=e.dataset.id,s=e.dataset.s?hh(+e.dataset.s):'',en=e.dataset.e?hh(+e.dataset.e):'';if(!id){id=val('dg-a');s=val('dg-s')||s;en=val('dg-e')||en}
   if(!id||!/^\d\d:\d\d$/.test(s)||!/^\d\d:\d\d$/.test(en)||s===en)return say(T('زمان یا فعالیت نامعتبر','Invalid time or activity'),1);
-  db.entries.push({id:uid(),date:todayISO(),actId:id,subId:'',start:s,end:en,min:dur(s,en),note:'',src:'gap'});if(!save())return;closeM();say(T('ثبت شد ✓','Saved ✓'));render()};
+  db.entries.push({id:uid(),date:window.__gapDay||todayISO(),actId:id,subId:'',start:s,end:en,min:dur(s,en),note:'',src:'gap'});if(!save())return;closeM();say(T('ثبت شد ✓','Saved ✓'));render()};
 
 /* ---------- کارت برنامه‌ی امروز ---------- */
 function focusGoal(d){const dd=db.days[d]||{};let h='<input value="'+esc(dd.goal||'')+'" placeholder="★ '+T('مهم‌ترین کار امروز چیست؟','Most important thing today?')+'" style="width:100%;margin:6px 0" data-ch="dgoal">';
@@ -137,7 +137,12 @@ const _rec=recCard;recCard=function(){return lgOn()?secTrack():_rec.apply(this,a
 window.daniLogCard=secTrack;window.daniLogOn=lgOn;
 H.lg_t=()=>{LG().on=LG().on?0:1;save();render()};
 /* ---------- سایر کارت‌ها ---------- */
-function secTl(){const d=todayISO();return'<div class="c dyc">'+daniH('🕒','تایم‌لاین امروز','Today\'s timeline')+tlHTML(d)+'<details style="margin-top:6px"><summary class="m">'+T('فهرست ثبت‌ها','Entries')+'</summary>'+logTL(d)+'</details></div>'}
+function secTl(){const t=todayISO();let d=window.__tld||t;if(d>t)d=t;window.__tld=d;const past=d!==t,es=E(d)||[];
+  const nav='<div class="row dytn" style="align-items:center;gap:6px;margin:4px 0"><button class="chip" data-a="tl_nav" data-v="-1" aria-label="prev">‹</button><b style="flex:1;text-align:center">'+(past?fmtDL(d):T('امروز','Today')+' · '+fmtD(d))+'</b>'+(past?'<button class="chip" data-a="tl_nav" data-v="0">'+T('امروز','Today')+'</button>':'')+'<button class="chip" data-a="tl_nav" data-v="1"'+(past?'':' disabled')+' aria-label="next">›</button><button class="chip on" data-a="tl_add" title="'+esc(T('ثبت فعالیت در این روز','Log an activity on this day'))+'">＋ '+T('ثبت','Log')+'</button></div>';
+  return'<div class="c dyc">'+daniH('🕒','تایم‌لاین','Timeline')+nav+tlHTML(d,{pastGaps:past,noGapNote:1})+(es.length?'<p class="m" style="margin-top:4px">'+T('روی هر بازه بزن تا ویرایش یا حذف شود؛ روی بخش خط‌خطی بزن تا ثبت کنی.','Tap a block to edit or delete; tap a hatched part to log it.')+'</p>':'')+'<details style="margin-top:6px"'+(past?' open':'')+'><summary class="m">'+T('فهرست ثبت‌ها','Entries')+'</summary>'+logTL(d)+'</details></div>'}
+H.tl_nav=e=>{const v=+e.dataset.v,t=todayISO();let d=window.__tld||t;window.__tld=v===0?t:addD(d,v);if(window.__tld>t)window.__tld=t;render()};
+H.tl_add=()=>{const t=todayISO(),d=window.__tld||t;let s,en;if(d===t){const n=nowMin();en=Math.floor(n/5)*5;s=Math.max(0,en-60)}else{s=9*60;en=10*60}H.dy_gap({dataset:{s:String(s),e:String(en),d}})};
+try{const st=document.createElement('style');st.textContent='.dytl .eb,.dytl .gp{cursor:pointer}.dytn .chip[disabled]{opacity:.35;pointer-events:none}';document.head.appendChild(st)}catch(e){}
 function secEd(){const I=dayInfo(todayISO()),mn=sum(E(todayISO())||[]),late=nowMin()>=18*60;
   return'<div class="c dyc">'+daniH('📈','نتیجه‌ی امروز','Today\'s result')+'<div class="row" style="align-items:baseline"><b style="font-size:1.4em">'+mm(mn)+'</b><span class="m">'+T('ثبت‌شده','logged')+(I.need?' · '+fa(I.pct)+(LANGEN()?'%':'٪')+' '+T('برنامه','of plan'):'')+'</span></div>'
    +'<div class="row"><button class="'+(late?'p':'chip')+'" data-a="dy_go" data-p="res" data-r="eod">📈 '+T('نتیجه‌ی کامل','Full result')+'</button><button class="chip" data-a="tmr_open">🌙 '+T('برنامه‌ی فردا','Plan tomorrow')+'</button></div></div>'}
