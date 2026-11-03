@@ -14,13 +14,24 @@ function fold(html,open){const t=document.createElement('div');t.innerHTML=html;
   [...t.querySelectorAll('.c')].forEach(c=>{if(c.parentElement&&c.parentElement.closest('.c'))return;const h=c.querySelector('h3');if(!h)return;const i=n++;
     const d=document.createElement('details');d.className='c';if(i<open)d.open=true;const s=document.createElement('summary');s.style.cursor='pointer';s.innerHTML=h.outerHTML;h.remove();d.appendChild(s);while(c.firstChild)d.appendChild(c.firstChild);c.replaceWith(d)});
   return t.innerHTML}
+/* گروه‌بندی بخش‌های هم‌کار در «آمار» (v66): بخش‌ها کامل می‌مانند و فقط زیر یک تیتر جمع می‌شوند */
+function group(html,GR){const t=document.createElement('div');t.innerHTML=html;
+  GR.forEach(g=>{const hit=[...t.querySelectorAll('details')].filter(d=>!d.parentElement.closest('details')&&d.firstElementChild.tagName==='SUMMARY'&&g.rx.some(r=>r.test(d.firstElementChild.textContent)));if(hit.length<2)return;
+    const o=document.createElement('details');o.className='c';const sm=document.createElement('summary');sm.style.cursor='pointer';sm.innerHTML='<h3>'+g.t+'</h3>';o.appendChild(sm);
+    hit.forEach(d=>{const sub=document.createElement('div');sub.className='sbg';sub.style.cssText='margin-top:12px;padding-top:8px;border-top:1px solid var(--b,#8883)';const hd=d.firstElementChild;const h=document.createElement('div');h.style.cssText='font-weight:700;margin-bottom:6px';h.innerHTML=hd.innerHTML;hd.remove();sub.appendChild(h);while(d.firstChild)sub.appendChild(d.firstChild);o.appendChild(sub)});
+    hit[0].replaceWith(o);hit.slice(1).forEach(d=>d.remove())});
+  const f=t.querySelector('details'),r=[...t.querySelectorAll('.c')].find(c=>c.tagName!=='DETAILS'&&!c.closest('details')&&!c.querySelector('h3')&&c.querySelector('select'));if(f&&r)f.parentNode.insertBefore(r,f);/* انتخاب بازه بالای فهرست */
+  return t.innerHTML}
+const GR=[{t:'⚖️ '+T('مقایسه','Compare'),rx:[/Compare|مقایسه/]},
+ {t:'⏱ '+T('زمان و فعالیت‌ها','Time & activities'),rx:[/Time by Activity|زمان هر فعالیت/,/Essential|ضروری/,/Study This Week|مطالعه در هفته/]},
+ {t:'📈 '+T('روند و بهترین روزها','Trends & best days'),rx:[/Averages|میانگین‌ها/,/Best & Weakest|بهترین و ضعیف/,/Study & Work Trend|روند زمان/]},
+ {t:'🧠 '+T('انرژی و یادگیری','Energy & learning'),rx:[/Energy Meets|انرژی و تمرکز/,/Learning Quality|کیفیت یادگیری/,/Pauses|وقفه/,/Golden hours|ساعت‌های طلایی/]}];
 PG.res=function(){
   if(OLD[rt])rt=OLD[rt];
   const bar=tabBar(RT,rt,'r');
   if(rt==='stats'){let h='';
     h+=fold(body('mon'),2);
-    h+=fold(body('stats'),1);
-    h+=fold(body('gld'),0);
+    h+=group(fold(body('stats'),1)+fold(body('gld'),0),GR);
     return bar+h}
   if(rt==='rep'){return bar+body('rep')+fold(body('shr'),0)}
   if(rt==='eod'){let x=_res.apply(this,arguments);try{if(window.daniFcList)x+=window.daniFcList()}catch(e){}return x}

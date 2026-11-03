@@ -29,8 +29,8 @@ function stats(){const to=todayISO(),from=addD(to,-29),L=db.entries.filter(e=>e.
   const bar=(k,f)=>{const a=avg(k);if(a==null)return'';const mx=k==='ac'?100:5,p=Math.round(a/mx*100);return'<div class="row" style="align-items:center;gap:8px;flex-wrap:nowrap;margin-top:6px"><span style="min-width:74px" class="m">'+f[1]+' '+f[2]+'</span><div class="bar" style="flex:1"><i style="width:'+p+'%"></i></div><b>'+fa(k==='ac'?Math.round(a)+'%':a.toFixed(1))+'</b></div>'};
   const by={};L.forEach(e=>{if(e.rt.su==null)return;const o=by[e.actId]||(by[e.actId]={s:0,n:0,m:0});o.s+=e.rt.su;o.n++;o.m+=e.min});
   const top=Object.entries(by).filter(x=>x[1].n>=2).sort((a,b)=>b[1].s/b[1].n-a[1].s/a[1].n).slice(0,4);
-  return'<div class="c"><h3>'+T('حس و دقت ثبت‌ها (۳۰ روز)','Feeling & accuracy of logs (30 days)')+'</h3>'+FD.map(f=>bar(f[0],f)).join('')+'<p class="m" style="margin-top:6px">'+fa(L.length)+T(' ثبت امتیازدار',' rated logs')+'</p>'
-   +(top.length?'<div class="m" style="margin-top:4px">'+T('بهترین فعالیت‌ها از نظر موفقیت: ','Best activities by success: ')+top.map(x=>esc(aN(x[0]))+' '+fa((x[1].s/x[1].n).toFixed(1))).join(' · ')+'</div>':'')+'</div>'}
+  return'<details class="c"><summary style="cursor:pointer"><h3>'+T('حس و دقت ثبت‌ها (۳۰ روز)','Feeling & accuracy of logs (30 days)')+'</h3></summary>'+FD.map(f=>bar(f[0],f)).join('')+'<p class="m" style="margin-top:6px">'+fa(L.length)+T(' ثبت امتیازدار',' rated logs')+'</p>'
+   +(top.length?'<div class="m" style="margin-top:4px">'+T('بهترین فعالیت‌ها از نظر موفقیت: ','Best activities by success: ')+top.map(x=>esc(aN(x[0]))+' '+fa((x[1].s/x[1].n).toFixed(1))).join(' · ')+'</div>':'')+'</details>'}
 const _res=PG.res;PG.res=function(){let h=_res.apply(this,arguments);try{if(rt==='stats'&&typeof h==='string')h+=stats()}catch(e){console.error('qr',e)}return h};
 /* تنظیمات */
 function card(){if(document.getElementById('qrc'))return;const ntc=document.getElementById('ntc');if(!ntc)return;const q=cfg();

@@ -25,6 +25,10 @@ function lookTab(){if(document.getElementById('lkx'))return;
   const mark=document.createElement('i');mark.id='lkx';mark.hidden=true;document.body.appendChild(mark);
   if(lang&&cal){lang.appendChild(cal);lang.open=true}
   if(themes&&lf){/* کارت‌های داشبورد قدیمی جمع‌شده؛ بقیه‌ی «ظاهر» همان‌جا */
-    themes.appendChild(lf)}}
+    themes.appendChild(lf);
+    const lb=[...lf.children].find(l=>l.tagName==='LABEL'&&!l.querySelector('input')&&/Dashboard cards|کارت‌های داشبورد/.test(l.textContent));
+    if(lb){const dt=document.createElement('details');dt.style.marginTop='10px';const sm=document.createElement('summary');sm.style.cursor='pointer';sm.innerHTML='🧩 '+T('کارت‌های داشبورد (نمایش/پنهان)','Dashboard cards (show/hide)');dt.appendChild(sm);
+      let n=lb;const mv=[];while(n){mv.push(n);n=n.nextSibling}lb.replaceWith(dt);mv.forEach(x=>{if(x!==lb||true)dt.appendChild(x)});
+      const p=document.createElement('p');p.className='m';p.textContent=T('چیدمان خانه را بهتر است از «شخصی‌سازی خانه» تغییر بدهی؛ این‌ها فقط کارت‌های قدیمی داشبورد را نشان یا پنهان می‌کنند.','Arrange Home from “Customize Home”; these only show/hide the old dashboard cards.');dt.insertBefore(p,dt.children[1])}}}
 {const _r=render;render=function(){const r=_r.apply(this,arguments);try{if(page==='set'){const m=document.getElementById('lkx');if(m)m.remove();if(stt==='time')timeTab();else if(stt==='look')lookTab()}}catch(e){console.error('settings2',e)}return r}}
 })();
