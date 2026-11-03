@@ -486,6 +486,9 @@ DANI Planner: پلنر شخصی فارسی (RTL، با لایه‌ی ترجمه�
 ## v60 — results2.js
 - `RT` = eod|stats|rep. `PG.res` را (آخرین لایه) می‌پیچد: `body(k)` خروجی زبانه‌ی قدیمی را بدون tabBar می‌گیرد، `fold()` کارت‌های بدون‌والد-`.c` با `h3` را به `<details>` تبدیل می‌کند. `OLD` نگاشت mon/gld→stats و shr→rep. اگر زبانه‌ی تازه‌ای به RT اضافه شد، همین‌جا ثبتش کن.
 
+## v66 — results2.js group()
+- در `rt==='stats'`: `group(fold(stats)+fold(gld),GR)`؛ GR چهار گروه با regex روی تیتر دوزبانه؛ هر گروه ≥۲ بخش دارد؛ بخش‌ها `div.sbg` می‌شوند. settings2.js `lookTab`: label «کارت‌های داشبورد» و چک‌باکس‌ها داخل `<details>`.
+
 ## v65 — backuppw.js
 - `HTMLAnchorElement.prototype.click` پیچیده می‌شود: دانلود blob با نام `*.dani-all.zip` (غیر از DANI-safety) وقتی `db.set.bkpw` روشن است → `daniCrypt.ask` → `DANIENC1`+it(4)+salt(16)+iv(12)+AES-GCM. ورودی: capture روی `change` فایل `[data-crs-file=all]` به‌طور همگام متوقف می‌شود، اگر سرآیند قفل بود رمز می‌پرسد و فایل رمزگشایی‌شده را با رویداد change دوباره می‌فرستد (`_dn`).
 
