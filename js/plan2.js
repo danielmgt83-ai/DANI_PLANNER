@@ -145,12 +145,19 @@ function calTab(){const t=todayISO();if(!P2.cm)P2.cm=t;if(!P2.cs)P2.cs=t;const M
    +(pl.length?'<div class="m" style="margin-top:6px">🗓 '+pl.map(x=>esc(aN(x.actId))+' '+mm(+x.goal||0)).join(' · ')+'</div>':'')
    +(function(){let n=[];try{n=window.daniFcFinishOn?window.daniFcFinishOn(d):[]}catch(e){}return n.length?'<div class="m">🏁 '+T('پایان پیش‌بینی‌شده: ','Forecast finish: ')+esc(n.join('، '))+'</div>':''})()
    +(k.lg?'<div class="m">✅ '+T('ثبت‌شده: ','Logged: ')+mm(k.lg)+'</div>':'')
-   +'<div class="row" style="margin-top:8px"><button class="p" data-a="p2_cp">🗓 '+T('برنامه‌ریزی این روز','Plan this day')+'</button><button class="chip" data-a="p2_cr">🔔 '+T('یادآوری','Reminder')+'</button><button class="chip" data-a="p2_cb">⛔ '+T('ساعت پر','Busy')+'</button></div></div>';
+   +'<div class="row" style="margin-top:8px"><button class="p" data-a="p2_cp">🗓 '+T('برنامه‌ریزی این روز','Plan this day')+'</button><button class="chip" data-a="p2_cb">⛔ '+T('ساعت پر','Busy')+'</button></div>'
+   +'<div style="border-top:1px solid var(--b,#8883);margin-top:10px;padding-top:8px"><div class="m">'+T('افزودن سریع به این روز','Quick add to this day')+'</div><div class="row" style="margin-top:4px"><input id="p2q-t" dir="auto" placeholder="'+esc(T('عنوان (مثلاً آزمون، تولد مینا)','Title (e.g. exam, Mina’s birthday)'))+'" style="flex:1;min-width:0"><input id="p2q-tm" type="time" value="09:00"></div>'
+   +'<div class="row" style="margin-top:6px"><button class="chip" data-a="p2_qa" data-k="dl">⏳ '+T('موعد','Deadline')+'</button><button class="chip" data-a="p2_qa" data-k="rm">🔔 '+T('یادآوری','Reminder')+'</button><button class="chip" data-a="p2_qa" data-k="yr">🎂 '+T('یادآوری سالانه','Yearly reminder')+'</button></div></div></div>';
   h+='<details class="c"><summary style="cursor:pointer">'+daniH('⏳','موعدها (افزودن و فهرست)','Deadlines (add & list)')+'</summary>'+embed(PG.dl,'deadlines')+'</details>'+legacyCards(['#ocdet']);
   return h}
 H.p2_cd=e=>{P2.cs=e.dataset.d;render()};
 H.p2_cm=e=>{const n=+e.dataset.n,M=monthOf(P2.cm||todayISO());P2.cm=n===0?todayISO():(n>0?addD(M.st,M.len):addD(M.st,-1));if(n===0)P2.cs=todayISO();render()};
 H.p2_cp=()=>{P2.date=P2.cs;P2.tab='day';render();try{window.scrollTo(0,0)}catch(e){}};
+H.p2_qa=e=>{const t=((document.getElementById('p2q-t')||{}).value||'').trim().slice(0,80),tm0=(document.getElementById('p2q-tm')||{}).value||'09:00',k=e.dataset.k,d=P2.cs||todayISO();if(!t)return say(T('عنوان را بنویس','Type a title'),1);
+  if(k==='dl'){zDL().items.push({id:'d'+uid(),title:t,cat:'custom',imp:2,dt:d,tm:tm0,note:'',cr:Date.now(),done:false,arch:false,al:[1440,60]})}
+  else{if(k==='rm'&&new Date(d+'T'+tm0+':00').getTime()<Date.now()-60000)return say(T('زمان یادآوری گذشته است','That time has passed'),1);const R=zRM();if(R.items.length>=200)return say(T('حداکثر ۲۰۰ یادآوری','Up to 200 reminders'),1);
+    R.items.push({id:'r'+uid(),off:false,title:t,date:d,time:tm0,repeat:k==='yr'?'yearly':'none',days:[],steps:[0,60],link:null})}
+  save();say(T('اضافه شد ✓','Added ✓'));render()};
 H.p2_cr=()=>{P2.tab='bh';P2.sub='rem';render();try{window.scrollTo(0,0)}catch(e){}};
 H.p2_cb=()=>{P2.tab='bh';P2.sub='busy';P2.f={k:'d'};render();try{window.scrollTo(0,0)}catch(e){}};
 PG.plan2=function(){

@@ -47,7 +47,10 @@ const WORDER=[6,0,1,2,3,4,5];  /* week starts Saturday for display */
 const hOk=h=>h&&typeof h==='object'&&typeof h.id==='string'&&h.id&&typeof h.name==='string'&&mDate(h.start);
 const hItems=()=>zHB().items.filter(hOk);
 const hExp=(h,d)=>d>=h.start&&(h.type!=='days'||(Array.isArray(h.days)&&h.days.includes(zdow(d))));
-const hSt=(h,d)=>{const L=zHB().log[d];const x=L&&typeof L==='object'?L[h.id]:null;return x&&x.s==='done'?'done':(x&&x.s==='miss'?'miss':null)};
+let hIdx=null,hIdxT=0;
+const hMin=(a,d)=>{const n=Date.now();if(!hIdx||n-hIdxT>2000){hIdx={};(db.entries||[]).forEach(e=>{const k=e.date+'|'+e.actId;hIdx[k]=(hIdx[k]||0)+(e.min||0)});hIdxT=n}return hIdx[d+'|'+a]||0};
+const hSt=(h,d)=>{const L=zHB().log[d];const x=L&&typeof L==='object'?L[h.id]:null;if(x&&x.s==='done')return'done';if(x&&x.s==='miss')return'miss';
+  if(h.act&&d<=todayISO()&&hMin(h.act,d)>=(+h.min||1))return'done';return null};
 function hStats(h){const t=todayISO();let d=h.start;const lim=addD(t,-800);if(d<lim)d=lim;let run=0,best=0;const win=n=>{let e=0,dn=0;for(let i=0;i<n;i++){const x=addD(t,-i);if(!hExp(h,x))continue;const s=hSt(h,x);if(x===t&&!s)continue;e++;if(s==='done')dn++}return{e,dn,p:e?Math.round(dn/e*100):null}};
  for(;d<=t;d=addD(d,1)){if(!hExp(h,d))continue;const s=hSt(h,d);if(d===t&&!s)continue;if(s==='done'){run++;best=Math.max(best,run)}else run=0}
  return{cur:run,best,w:win(7),m:win(30)}}
@@ -57,6 +60,7 @@ function hForm(){const e=zMS.hab.edit,h=e&&hItems().find(x=>x.id===e)||{name:'',
   +'<label>تناوب</label><select id="hf-type"><option value="daily" '+(h.type!=='days'?'selected':'')+'>هر روز</option><option value="days" '+(h.type==='days'?'selected':'')+'>روزهای مشخص هفته</option></select>'
   +'<div class="mrow" style="margin:6px 0">'+WORDER.map(i=>'<label class="chip"><input type="checkbox" class="hf-d" value="'+i+'" '+((h.days||[]).includes(i)?'checked':'')+'>'+WDN[i]+'</label>').join('')+'</div>'
   +'<div class="mrow"><div class="grow"><label>تاریخ شروع</label><input id="hf-start" dir="ltr" inputmode="numeric" value="'+esc(h.start?fmtD(h.start):'')+'" placeholder="'+(db.set.cal==='j'?'۱۴۰۵/۰۷/۱۸':'2026-10-10')+'"></div><div class="grow"><label>رنگ</label><select id="hf-color">'+zCOLORS.map(c=>'<option value="'+c+'" style="color:'+c+'" '+(h.color===c?'selected':'')+'>● '+c+'</option>').join('')+'</select></div></div>'
+  +'<label>🔗 وصل به فعالیت (اختیاری): با ثبت زمان آن فعالیت، عادت همان روز خودکار «انجام‌شده» می‌شود</label><div class="mrow"><select id="hf-act" class="grow"><option value="">—</option>'+db.acts.filter(a=>a.active&&!a.arch).map(a=>'<option value="'+a.id+'" '+(h.act===a.id?'selected':'')+'>'+esc(a.name)+'</option>').join('')+'</select><input id="hf-min" type="number" min="1" value="'+(+h.min||10)+'" style="width:70px"> <span class="m">دقیقه حداقل</span></div>'
   +'<label>یادداشت (اختیاری)</label><input id="hf-note" maxlength="200" value="'+esc(h.note||'')+'" style="width:100%">'
   +'<div class="row" style="margin-top:10px">'+mBtn('hab:save','ذخیره','p')+mBtn('hab:cancel','انصراف','')+'</div></div>'}
 PG.hab=()=>{const t=todayISO(),d=zMS.hab.d||t,items=hItems(),act=items.filter(h=>!h.arch),exp=act.filter(h=>hExp(h,d)),fut=d>t;
@@ -80,7 +84,8 @@ Object.assign(zMA.hab,{
  save(){const H=zHB(),name=S_($('#hf-name').value,60).trim(),type=$('#hf-type').value==='days'?'days':'daily',days=$$('.hf-d').filter(x=>x.checked).map(x=>+x.value),start=readD($('#hf-start').value)||'',color=zCOLORS.includes($('#hf-color').value)?$('#hf-color').value:zCOLORS[0],note=S_($('#hf-note').value,200);
   if(!name)return toast('نام عادت را وارد کنید',1);if(!mDate(start))return toast('تاریخ شروع نامعتبر است',1);if(type==='days'&&!days.length)return toast('حداقل یک روز هفته را انتخاب کنید',1);
   const e=zMS.hab.edit,cur=e&&H.items.find(x=>x.id===e);
-  if(cur)Object.assign(cur,{name,type,days:type==='days'?days:[0,1,2,3,4,5,6],start,color,note});else{if(H.items.length>=100)return toast('حداکثر ۱۰۰ عادت مجاز است',1);H.items.push({id:'h'+uid(),name,type,days:type==='days'?days:[0,1,2,3,4,5,6],start,color,note,arch:false})}
+  const act=($('#hf-act')||{}).value||'',hmin=Math.max(1,+(($('#hf-min')||{}).value)||10);
+  if(cur)Object.assign(cur,{name,type,days:type==='days'?days:[0,1,2,3,4,5,6],start,color,note,act,min:act?hmin:0});else{if(H.items.length>=100)return toast('حداکثر ۱۰۰ عادت مجاز است',1);H.items.push({id:'h'+uid(),name,type,days:type==='days'?days:[0,1,2,3,4,5,6],start,color,note,act,min:act?hmin:0,arch:false})}
   zMS.hab.form=false;zMS.hab.edit=null;zcommit()},
  set(a){const[id,v]=a.split(':'),t=todayISO(),d=zMS.hab.d||t;if(d>t)return;const h=hItems().find(x=>x.id===id);if(!h)return;const L=zobj(zHB().log,d),cur=L[id]&&L[id].s;
   if(cur===v){const n=L[id].n;if(n)L[id]={s:'',n};else delete L[id]}else L[id]=Object.assign({},L[id],{s:v});if(!Object.keys(L).length)delete zHB().log[d];zcommit()},
@@ -91,13 +96,14 @@ Object.assign(zMA.hab,{
 
 /* ===== v15 reminders: in-app alerts, optional system notifications (while the app is open), missed-list on open ===== */
 const RSTEPS=[[0,'در لحظه‌ی یادآوری'],[10,'۱۰ دقیقه قبل'],[30,'۳۰ دقیقه قبل'],[60,'۱ ساعت قبل'],[1440,'۱ روز قبل']];
-const RREP={none:'بدون تکرار',daily:'هر روز',weekly:'هفتگی',monthly:'ماهانه'};
+const RREP={none:'بدون تکرار',daily:'هر روز',weekly:'هفتگی',monthly:'ماهانه',yearly:'سالانه'};
 const rOk=r=>r&&typeof r==='object'&&typeof r.id==='string'&&r.id&&typeof r.title==='string'&&mDate(r.date)&&mTime(r.time)&&r.repeat in RREP;
 const rItems=()=>zRM().items.filter(rOk);
 const rSet=()=>{const s=zRM().set;if(!s.quiet||typeof s.quiet!=='object')s.quiet={on:false,from:'22:00',to:'07:00'};return s};
 function rOcc(r,day){if(day<r.date)return false;if(r.repeat==='none')return day===r.date;if(r.repeat==='daily')return true;
  if(r.repeat==='weekly'){const ds=Array.isArray(r.days)&&r.days.length?r.days:[zdow(r.date)];return ds.includes(zdow(day))}
- if(r.repeat==='monthly'){const dm=+r.date.slice(8),[y,m]=day.split('-').map(Number),last=new Date(y,m,0).getDate();return +day.slice(8)===Math.min(dm,last)}return false}
+ if(r.repeat==='monthly'){const dm=+r.date.slice(8),[y,m]=day.split('-').map(Number),last=new Date(y,m,0).getDate();return +day.slice(8)===Math.min(dm,last)}
+ if(r.repeat==='yearly'){const md=r.date.slice(5),[y]=day.split('-').map(Number),leap=(y%4===0&&y%100!==0)||y%400===0;return day.slice(5)===(md==='02-29'&&!leap?'02-28':md)}return false}
 const rTs=(day,time,off)=>new Date(day+'T'+time+':00').getTime()-off*60000;
 const rSteps=r=>{const s=Array.isArray(r.steps)?r.steps.filter(x=>RSTEPS.some(y=>y[0]===x)):[];return s.length?s:[0]};
 const dayOf=ts=>{const d=new Date(ts);return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())};

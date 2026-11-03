@@ -142,6 +142,10 @@ const I18_EXTRA={
 "زمان‌سنج بر پایه‌ی ساعت واقعی سیستم است و با رفرش یا بسته‌شدن صفحه حفظ می‌شود. اعلان و صدا وقتی مرورگر بسته باشد تضمین‌شده نیست":"The timer is based on the system's real clock and is kept across refresh or closing the page. Notifications and sound are not guaranteed when the browser is closed",
 "برنامه‌ی ایده‌آل جدا از عملکرد واقعی نگه‌داری می‌شود. پیشرفت":"The ideal plan is kept separate from real performance. Progress",
 "برنامه‌ای ثبت نشده است. از فرم زیر اضافه کنید":"No plan is logged. Add one from the form below",
+"سالانه":"Yearly",
+"🔗 وصل به فعالیت (اختیاری): با ثبت زمان آن فعالیت، عادت همان روز خودکار «انجام‌شده» می‌شود":"🔗 Link to an activity (optional): logging time for it ticks the habit automatically that day",
+"دقیقه حداقل":"min at least",
+
 "فعالیت جدید":"New activity",
 "عنوان هدف (مثلاً آزمون":"Goal title (e.g. exam",
 "هدف بدون فعالیت مرتبط؛ پیشرفت دستی ندارد":"A goal with no linked activity; it has no manual progress",
