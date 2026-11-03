@@ -486,6 +486,9 @@ DANI Planner: پلنر شخصی فارسی (RTL، با لایه‌ی ترجمه�
 ## v60 — results2.js
 - `RT` = eod|stats|rep. `PG.res` را (آخرین لایه) می‌پیچد: `body(k)` خروجی زبانه‌ی قدیمی را بدون tabBar می‌گیرد، `fold()` کارت‌های بدون‌والد-`.c` با `h3` را به `<details>` تبدیل می‌کند. `OLD` نگاشت mon/gld→stats و shr→rep. اگر زبانه‌ی تازه‌ای به RT اضافه شد، همین‌جا ثبتش کن.
 
+## v67 — checkin.js
+- `db.set.chk={on:false,ev,from,to}`؛ `daniExtraPlan` کلید `chk-<روز>-<دقیقه>`؛ `route('chk-…')` در tomorrow.js ← `daniCheckin.open()` ← `H.dy_gap({dataset:{s,e}})` با `lastGap()`. وب: `setInterval` ۳۰ثانیه؛ اگر تایمر `running` باشد نمی‌فرستد.
+
 ## v66 — results2.js group()
 - در `rt==='stats'`: `group(fold(stats)+fold(gld),GR)`؛ GR چهار گروه با regex روی تیتر دوزبانه؛ هر گروه ≥۲ بخش دارد؛ بخش‌ها `div.sbg` می‌شوند. settings2.js `lookTab`: label «کارت‌های داشبورد» و چک‌باکس‌ها داخل `<details>`.
 
