@@ -479,3 +479,6 @@ DANI Planner: پلنر شخصی فارسی (RTL، با لایه‌ی ترجمه�
 
 ## v57 — تقویم یکپارچه (plan2.js)
 - `calTab` با `monthOf(base)` (شمسی/میلادی) و `marks(d)`؛ حالت‌ها `P2.cm` (ماه نمایشی) و `P2.cs` (روز انتخابی)؛ دکمه‌ها `p2_cd/p2_cm/p2_cp/p2_cr/p2_cb`. `PX.cal` قدیمی دیگر در برنامه استفاده نمی‌شود (برای میزکار قدیمی می‌ماند).
+
+## v59 — موتور پیش‌بینی (projects.js)
+- `window.daniFcast(p)` → {pace(min/day), perDay/Week/Month, left, due, bud, rem, finish, days, margin, need, total, status}. `daniFcVerdict(f)` متن؛ `daniFcLine(p)`، `daniFcForDl(dlId)`، `daniFcFinishOn(date)`. آهنگ = `p.wk` (یا جمع `x.wk` بخش‌ها؛ اگر خالی: سرعت واقعی ۱۴ روز). ورودی UI: `p.pd`(ساعت/روز) و `p.dpw`(روز/هفته) → `p.wk=pd*dpw`. هر جای تازه‌ای که پروژه/موعد نشان می‌دهد باید از همین موتور استفاده کند، نه محاسبه‌ی جدا. `pj_save` فیلد `x.wk` بخش‌ها را حفظ می‌کند.
