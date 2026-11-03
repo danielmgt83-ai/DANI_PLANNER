@@ -486,6 +486,9 @@ DANI Planner: پلنر شخصی فارسی (RTL، با لایه‌ی ترجمه�
 ## v60 — results2.js
 - `RT` = eod|stats|rep. `PG.res` را (آخرین لایه) می‌پیچد: `body(k)` خروجی زبانه‌ی قدیمی را بدون tabBar می‌گیرد، `fold()` کارت‌های بدون‌والد-`.c` با `h3` را به `<details>` تبدیل می‌کند. `OLD` نگاشت mon/gld→stats و shr→rep. اگر زبانه‌ی تازه‌ای به RT اضافه شد، همین‌جا ثبتش کن.
 
+## v65 — backuppw.js
+- `HTMLAnchorElement.prototype.click` پیچیده می‌شود: دانلود blob با نام `*.dani-all.zip` (غیر از DANI-safety) وقتی `db.set.bkpw` روشن است → `daniCrypt.ask` → `DANIENC1`+it(4)+salt(16)+iv(12)+AES-GCM. ورودی: capture روی `change` فایل `[data-crs-file=all]` به‌طور همگام متوقف می‌شود، اگر سرآیند قفل بود رمز می‌پرسد و فایل رمزگشایی‌شده را با رویداد change دوباره می‌فرستد (`_dn`).
+
 ## v64 — remain.js
 - `db.set.rmn={on,t[],fired}`؛ `daniExtraPlan` کلید `rmn-<روز>-<ساعت>` (فقط امروز، فقط اگر `homeTarget().tgt>0` و `done<tgt`)؛ وب: `setInterval` ۳۰ثانیه با `sysNotify`. کارت `#rmc` بعد از `#qrc`.
 
