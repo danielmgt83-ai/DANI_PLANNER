@@ -482,3 +482,6 @@ DANI Planner: پلنر شخصی فارسی (RTL، با لایه‌ی ترجمه�
 
 ## v59 — موتور پیش‌بینی (projects.js)
 - `window.daniFcast(p)` → {pace(min/day), perDay/Week/Month, left, due, bud, rem, finish, days, margin, need, total, status}. `daniFcVerdict(f)` متن؛ `daniFcLine(p)`، `daniFcForDl(dlId)`، `daniFcFinishOn(date)`. آهنگ = `p.wk` (یا جمع `x.wk` بخش‌ها؛ اگر خالی: سرعت واقعی ۱۴ روز). ورودی UI: `p.pd`(ساعت/روز) و `p.dpw`(روز/هفته) → `p.wk=pd*dpw`. هر جای تازه‌ای که پروژه/موعد نشان می‌دهد باید از همین موتور استفاده کند، نه محاسبه‌ی جدا. `pj_save` فیلد `x.wk` بخش‌ها را حفظ می‌کند.
+
+## v60 — results2.js
+- `RT` = eod|stats|rep. `PG.res` را (آخرین لایه) می‌پیچد: `body(k)` خروجی زبانه‌ی قدیمی را بدون tabBar می‌گیرد، `fold()` کارت‌های بدون‌والد-`.c` با `h3` را به `<details>` تبدیل می‌کند. `OLD` نگاشت mon/gld→stats و shr→rep. اگر زبانه‌ی تازه‌ای به RT اضافه شد، همین‌جا ثبتش کن.
