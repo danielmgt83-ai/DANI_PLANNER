@@ -486,6 +486,9 @@ DANI Planner: پلنر شخصی فارسی (RTL، با لایه‌ی ترجمه�
 ## v60 — results2.js
 - `RT` = eod|stats|rep. `PG.res` را (آخرین لایه) می‌پیچد: `body(k)` خروجی زبانه‌ی قدیمی را بدون tabBar می‌گیرد، `fold()` کارت‌های بدون‌والد-`.c` با `h3` را به `<details>` تبدیل می‌کند. `OLD` نگاشت mon/gld→stats و shr→rep. اگر زبانه‌ی تازه‌ای به RT اضافه شد، همین‌جا ثبتش کن.
 
+## v70 — usetime.js
+- `cls(actId)` ← `a.use` یا خودکار؛ `calc(from,to)`/`range('d|w|m')`؛ `slim()`/`full(k)`؛ تزریق بعد از `render` (page `day` زیر کارت Result، `plan2` بعد از `.p2st`) و در `PG.res` برای `eod`/`rep`. فرم فعالیت: `select#fuse` و `H.asave` پیچیده.
+
 ## v69 — dlcard.js + sentences.js
 - `db.set.dlh={hs,th[3],col,pulse,ph,fc,dir{},phr{}}`؛ `dlDashHTML/hDl` بازتعریف؛ سطح `level(ms)`؛ هر `#dlcard` داخل deskHTML در `homeParts` حذف می‌شود (کارت خانه از بخش‌های خانه می‌آید). sentences.js: `PG.qt` تب‌های set/mine را استاب می‌کند و محتوا را از `_qt` به `details#sntg` در Settings/look می‌برد.
 
