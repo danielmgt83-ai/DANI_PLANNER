@@ -162,6 +162,7 @@ const quiet=at=>{try{return typeof inQuiet==='function'&&inQuiet(at)}catch(e){re
 function route(k){k=String(k||'');
   if(/^(rh-pl-|tp-rep-)/.test(k))window.daniPlanOpen(tmrDate());
   else if(/^eod-/.test(k)){try{page='res';rt='eod';render();window.scrollTo(0,0)}catch(e){}}
+  else if(/^chk-/.test(k)){try{window.daniCheckin&&window.daniCheckin.open()}catch(e){}}
   else if(/^rh-sk-/.test(k)){if((db.set.nv||{}).mode==='simple')page='day';else{page='dash';dt='today'}render()}}
 let lnOk=false;
 function hookLN(){if(lnOk)return;try{const p=window.Capacitor&&Capacitor.Plugins&&Capacitor.Plugins.LocalNotifications;if(!p||!p.addListener)return;lnOk=true;
