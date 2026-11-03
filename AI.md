@@ -486,6 +486,9 @@ DANI Planner: پلنر شخصی فارسی (RTL، با لایه‌ی ترجمه�
 ## v60 — results2.js
 - `RT` = eod|stats|rep. `PG.res` را (آخرین لایه) می‌پیچد: `body(k)` خروجی زبانه‌ی قدیمی را بدون tabBar می‌گیرد، `fold()` کارت‌های بدون‌والد-`.c` با `h3` را به `<details>` تبدیل می‌کند. `OLD` نگاشت mon/gld→stats و shr→rep. اگر زبانه‌ی تازه‌ای به RT اضافه شد، همین‌جا ثبتش کن.
 
+## v69 — dlcard.js + sentences.js
+- `db.set.dlh={hs,th[3],col,pulse,ph,fc,dir{},phr{}}`؛ `dlDashHTML/hDl` بازتعریف؛ سطح `level(ms)`؛ هر `#dlcard` داخل deskHTML در `homeParts` حذف می‌شود (کارت خانه از بخش‌های خانه می‌آید). sentences.js: `PG.qt` تب‌های set/mine را استاب می‌کند و محتوا را از `_qt` به `details#sntg` در Settings/look می‌برد.
+
 ## v68 — calm.js
 - `db.set.dq={on}`؛ `apply()` بعد از هر `render` (و MutationObserver با debounce) کلاس `.dqh` را روی هیرو/گالری/کارت‌های غیر KEEP می‌گذارد؛ CSS `body.dq .dqh{display:none}`؛ `dqall` برای «نمایش همه». افزودن به ⚡ با `QA.catalog.push` (id `x-calm`).
 
