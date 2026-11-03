@@ -162,6 +162,8 @@ function homeParts(){const P={th:'',qt:'',ls:''};try{if(typeof deskHTML!=='funct
      «بعدی چی؟»، «موعد بعدی»، دکمه‌ی ثبت سریع، «شخصی‌سازی خانه» */
   const root=doc.body.firstElementChild;if(!root)return P;
   doc.body.querySelectorAll('#nxcard,.hcta,.hmgr,.h2cust,[data-a="h2_edit"]').forEach(e=>{if(e!==root)(e.closest('.row')&&e.closest('.row')!==root?e.closest('.row'):e).remove()});
+  /* کارت موعد (هر طرحی، با هر عنوانی): نسخه‌ی داخل تم برداشته می‌شود؛ نسخه‌ی بخش‌های خانه می‌ماند */
+  doc.body.querySelectorAll('#dlcard').forEach(e=>{if(e===root)return;const w=e.parentElement;e.remove();if(w&&w!==root&&!w.children.length&&!(w.textContent||'').trim())w.remove()});
   /* کارت‌های هم‌کارِ خانه‌ی قدیمی که یکی‌شان در «امروز» هست: موعد بعدی، ثبت فعالیت، برنامه‌ی زمانی، هدف امروز، خلاصه‌ی امروز */
   const DUP=/موعد بعدی|Next deadline|^(⏱)?\s*(Activity Log|ثبت فعالیت)|Today's Schedule|برنامه‌ی زمانی امروز|Today's Target|هدف امروز|Today's Summary|خلاصه‌ی عملکرد|Today's Notes|یادداشت امروز|Goal Progress|پیشرفت اهداف|^Compare|مقایسه‌ی روزها|Main Focus|تمرکز اصلی|My week|هفته‌ی من/;
   const hasH=x=>!!x.querySelector('h3,h2,.dh');

@@ -1,0 +1,98 @@
+/* کارت «موعد بعدی» در خانه — بازطراحی (v69).
+   سطح‌های هشدار: آرام ← نزدیک ← هشدار ← بحرانی ← گذشته (آستانه‌ها قابل‌تنظیم)؛ هر طرح جهت دلخواه دارد (خالی‌شونده / پُرشونده)؛
+   جمله‌ی هر سطح قابل‌ویرایش؛ همه‌ی تنظیمات در «تنظیمات ← زبان و ظاهر ← کارت موعد خانه». ذخیره: db.set.dlh. بعد از projects.js و settings2.js. */
+(function(){'use strict';
+const T=window.daniT;
+const ST=[['hero',T('کارت','Card')],['ring',T('حلقه','Ring')],['blocks',T('بلوک روزها','Day blocks')],['big',T('ارقام زنده','Live digits')],['stack',T('سه موعد','Next three')],['line',T('خط زمان','Timeline')],['pill',T('خط باریک','Slim')]];
+const GAUGE={hero:'el',ring:'rem',blocks:'rem',pill:'el'};
+const LV=[['calm','🌿',T('آرام','Calm'),'#22a38a'],['watch','⏳',T('نزدیک می‌شود','Approaching'),'#d4a017'],['warn','⚠️',T('هشدار','Warning'),'#f08a1c'],['crit','🔥',T('بحرانی','Critical'),'#ef4444'],['over','⛔',T('گذشته','Overdue'),'#b91c1c']];
+const PH={calm:[['وقت داری؛ آرام و پیوسته جلو برو.','Plenty of time — steady and calm.'],['شروع کن؛ فشاری نیست.','Start now — no pressure.']],
+ watch:[['نزدیک می‌شود؛ برنامه‌ات را دقیق کن.','Getting close — tighten your plan.']],
+ warn:[['هشدار: وقت کم می‌شود؛ اولویت‌ها را مشخص کن.','Warning: time is shrinking — set priorities.']],
+ crit:[['بحرانی! فقط مهم‌ترین کار را انجام بده.','Critical! Do only what matters most.']],
+ over:[['موعد گذشته؛ همین حالا تکلیفش را روشن کن.','Overdue — settle it now.']]};
+const EN=()=>{try{return typeof LANGEN==='function'&&LANGEN()}catch(e){return false}};
+const D=()=>{const o=db.set.dlh||(db.set.dlh={});if(!Array.isArray(o.th)||o.th.length!==3)o.th=[14,7,3];if(o.col===undefined)o.col=true;if(o.pulse===undefined)o.pulse=true;if(o.fc===undefined)o.fc=true;if(o.ph===undefined)o.ph=true;if(!o.dir)o.dir={};if(!o.phr)o.phr={};
+  if(!o.hs){let s='hero';try{const a=zDL().style;if(ST.some(x=>x[0]===a)){s=a}if(!['big','ring','bar','mini'].includes(a)){zDL().style='big'}}catch(e){}o.hs=s}
+  if(o.hs==='bar')o.hs='hero';if(o.hs==='mini')o.hs='pill';if(!ST.some(x=>x[0]===o.hs))o.hs='hero';return o};
+const dirOf=s=>{const o=D();return o.dir[s]||GAUGE[s]||'el'};
+const level=ms=>{if(ms<=0)return 4;const d=ms/864e5,t=D().th;return d<=t[2]?3:d<=t[1]?2:d<=t[0]?1:0};
+const lvCol=i=>D().col?LV[i][3]:'var(--ac,#3b82f6)';
+function phrase(i,x){const o=D(),k=LV[i][0],u=(o.phr[k]||[]).filter(Boolean),L=u.length?u:PH[k].map(p=>EN()?p[1]:p[0]);let h=0;String(x.id||'').split('').forEach(c=>h=(h+c.charCodeAt(0))%97);return L[(Math.floor(Date.now()/864e5)+h)%L.length]}
+function info(x){const now=Date.now(),due=dlTs(x),ms=due-now,cr=+x.cr||due-30*864e5,tot=Math.max(1,due-cr),el=Math.min(1,Math.max(0,(now-cr)/tot)),d=Math.max(0,Math.floor(ms/864e5)),h=Math.max(0,Math.floor(ms%864e5/36e5)),lv=level(ms);return{x,ms,d,h,el,lv,col:lvCol(lv),dd:Math.max(0,ms/864e5)}}
+const val=(i,s)=>dirOf(s)==='rem'?1-i.el:i.el;
+function items(){const A=zDL(),now=Date.now();return A.items.filter(i=>dlOk(i)&&!i.arch&&!i.done&&dlTs(i)>now-864e5*3).sort((a,b)=>dlTs(a)-dlTs(b))}
+const cyc='<button class="chip dlcyc" data-a="dl_cyc" title="'+T('طرح بعدی','Next style')+'" aria-label="style">🎨</button>';
+const goB='<button class="chip" data-a="go" data-p="dl">'+T('موعدها','Deadlines')+'</button>';
+function head(i,pin){const L=LV[i.lv];return'<div class="dlx-h"><span class="dlx-chip"><i>'+L[1]+'</i> '+L[2]+'</span><span class="m dlx-pin">'+(pin?'📌 ':'')+'</span><span style="flex:1"></span>'+cyc+goB+'</div>'}
+function foot(i){const o=D();let h='';if(o.ph)h+='<div class="dlx-ph">'+esc(phrase(i.lv,i.x))+'</div>';if(o.fc&&window.daniFcForDl){try{const f=window.daniFcForDl(i.x.id);if(f)h+='<div class="m dlx-fc">'+f+'</div>'}catch(e){}}return h}
+const numTxt=i=>i.lv===4?'<b>'+T('گذشته','Late')+'</b>':i.d>0?'<b>'+fa(i.d)+'</b><small>'+T('روز','days')+'</small>':'<b>'+fa(i.h)+'</b><small>'+T('ساعت','hours')+'</small>';
+const meta=x=>fmtD(x.dt)+' · '+fa(x.tm);
+const wrap=(i,inner,extra)=>'<div class="c dlx'+(i.lv===3&&D().pulse?' dlx-p':'')+(extra||'')+'" id="dlcard" data-lv="'+LV[i.lv][0]+'" style="--k:'+i.col+'">'+inner+'</div>';
+const tick=i=>{const t=D().th;return t.map(v=>'<i class="dlx-tk" style="inset-inline-start:'+Math.min(98,Math.max(2,100-(v/Math.max(1,(i.ms/864e5+i.el*0)))*0))+'%"></i>').join('')};
+function gauge(i,s,thin){const v=Math.round(val(i,s)*100);return'<div class="dlx-g'+(thin?' thin':'')+'"><i style="width:'+v+'%"></i></div>'}
+function ringSvg(i,s){const R=44,C=2*Math.PI*R,v=val(i,s);return'<svg viewBox="0 0 110 110" width="104" height="104" class="dlx-svg"><circle cx="55" cy="55" r="'+R+'" fill="none" stroke="var(--b,#8883)" stroke-width="9"/><circle class="dlx-arc" cx="55" cy="55" r="'+R+'" fill="none" stroke="var(--k)" stroke-width="9" stroke-linecap="round" stroke-dasharray="'+C.toFixed(1)+'" stroke-dashoffset="'+(C*(1-v)).toFixed(1)+'" style="--c:'+C.toFixed(1)+'" transform="rotate(-90 55 55)"/></svg>'}
+function render1(sty,sample){const its=sample?[{id:'_s',title:T('نمونه: تحویل پروژه','Sample: project handover'),dt:(function(){const d=new Date(Date.now()+9*864e5);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')})(),tm:'18:00',cr:Date.now()-12*864e5}]:items(),A=zDL();
+  const pinX=!sample&&its.find(q=>q.id===A.main),x=pinX||its.find(q=>dlTs(q)>Date.now())||its[0];
+  if(!x)return'<div class="c" id="dlcard"><div class="dlx-h"><h3 style="margin:0">'+BH('Next deadline','موعد بعدی')+'</h3><span style="flex:1"></span>'+goB+'</div><p class="m">'+T('افقی در پیش نیست. یک موعد بگذار تا شمارش و پیش‌بینی شروع شود.','Nothing on the horizon. Add a deadline to start the countdown and forecast.')+'</p></div>';
+  const i=info(x);
+  if(sty==='hero')return wrap(i,head(i,pinX)+'<div class="dlx-main"><div class="dlx-n">'+numTxt(i)+(i.d>0&&i.d<=3&&i.lv<4?'<small>'+fa(i.h)+T(' ساعت',' h')+'</small>':'')+'</div><div class="dlx-tt"><b>'+esc(S_(x.title,80))+'</b><span class="m">'+meta(x)+'</span></div></div>'+gauge(i,'hero')+foot(i));
+  if(sty==='ring')return wrap(i,head(i,pinX)+'<div class="dlx-rw"><div class="dlx-ring">'+ringSvg(i,'ring')+'<div class="dlx-rc">'+numTxt(i)+'</div></div><div class="dlx-tt"><b>'+esc(S_(x.title,80))+'</b><span class="m">'+meta(x)+'</span>'+foot(i)+'</div></div>');
+  if(sty==='blocks'){const W=Math.max(7,Math.min(21,D().th[0])),rem=Math.min(W,Math.ceil(i.dd)),f=dirOf('blocks')==='rem'?rem:W-rem,cells=[];for(let k=0;k<W;k++){const dayLeft=k+1,l=level(dayLeft*864e5-1),on=dirOf('blocks')==='rem'?k<rem:k>=rem;cells.push('<i class="dlx-b'+(on?' on':'')+'" style="--bk:'+lvCol(Math.min(3,l))+';animation-delay:'+(k*35)+'ms"></i>')}
+    return wrap(i,head(i,pinX)+'<div class="dlx-main"><div class="dlx-n">'+numTxt(i)+'</div><div class="dlx-tt"><b>'+esc(S_(x.title,80))+'</b><span class="m">'+meta(x)+'</span></div></div><div class="dlx-bl">'+cells.join('')+'</div><div class="row m" style="justify-content:space-between;margin-top:2px"><span>'+T('نزدیک‌ترین روز','Nearest day')+'</span><span>'+fa(W)+T(' روز',' days')+'</span></div>'+foot(i))}
+  if(sty==='stack'){const L=(pinX?[pinX].concat(its.filter(q=>q.id!==pinX.id)):its).slice(0,3);
+    return wrap(i,'<div class="dlx-h"><h3 style="margin:0">'+BH('Next deadlines','موعدهای بعدی')+'</h3><span style="flex:1"></span>'+cyc+goB+'</div>'+L.map((y,k)=>{const z=info(y);return'<div class="dlx-r'+(k?'':' f')+'" style="--k:'+z.col+'"><span class="dlx-rn">'+(z.lv===4?'<b>⛔</b>':'<b>'+fa(z.d||z.h)+'</b><small>'+(z.d?T('روز','d'):T('ساعت','h'))+'</small>')+'</span><span class="dlx-rt"><b>'+esc(S_(y.title,60))+'</b><small class="m">'+meta(y)+' · '+LV[z.lv][2]+'</small></span></div>'}).join('')+foot(i),' dlx-nolv')}
+  if(sty==='line'){const L=its.filter(q=>dlTs(q)-Date.now()<=60*864e5).slice(0,5),t=D().th,z=v=>(v/60*100).toFixed(1);
+    return wrap(i,'<div class="dlx-h"><h3 style="margin:0">'+BH('Next 60 days','۶۰ روز آینده')+'</h3><span style="flex:1"></span>'+cyc+goB+'</div><div class="dll"><i class="dll-z" style="inset-inline-start:0;width:'+z(t[2])+'%;background:'+lvCol(3)+'"></i><i class="dll-z" style="inset-inline-start:'+z(t[2])+'%;width:'+z(t[1]-t[2])+'%;background:'+lvCol(2)+'"></i><i class="dll-z" style="inset-inline-start:'+z(t[1])+'%;width:'+z(Math.min(60,t[0])-t[1])+'%;background:'+lvCol(1)+'"></i><i class="dll-z" style="inset-inline-start:'+z(Math.min(60,t[0]))+'%;inset-inline-end:0;background:'+lvCol(0)+'"></i>'+L.map(y=>{const q=info(y);return'<b class="dll-d" style="inset-inline-start:'+Math.min(100,q.dd/60*100)+'%" title="'+esc(y.title)+'"></b>'}).join('')+'</div><div class="row m" style="justify-content:space-between"><span>'+T('امروز','Today')+'</span><span>'+fa(60)+T(' روز',' d')+'</span></div>'
+     +(L.length?L.map(y=>{const q=info(y);return'<div class="m" style="margin-top:3px"><span class="dll-dot" style="background:'+q.col+'"></span> <b>'+esc(S_(y.title,50))+'</b> · '+(q.lv===4?T('گذشته','late'):fa(q.d)+T(' روز',' d'))+' · '+fmtD(y.dt)+'</div>'}).join(''):'<p class="m">'+T('در ۶۰ روز آینده موعدی نیست؛ نزدیک‌ترین: ','Nothing in the next 60 days; nearest: ')+esc(S_(x.title,50))+' · '+fa(i.d)+T(' روز',' d')+'</p>')+foot(i),' dlx-nolv')}
+  if(sty==='pill')return wrap(i,'<div class="dlx-pl"><span class="dlx-rn">'+(i.lv===4?'<b>⛔</b>':'<b>'+fa(i.d||i.h)+'</b><small>'+(i.d?T('روز','d'):T('ساعت','h'))+'</small>')+'</span><span style="flex:1;min-width:0"><b class="dlx-pt">'+esc(S_(x.title,50))+'</b>'+gauge(i,'pill',1)+'</span>'+cyc+'</div>',' dlx-slim');
+  /* big: ارقام زنده‌ی قدیمی داخل پوسته‌ی جدید */
+  const ch='<div class="dlx-h"><span class="dlx-chip"><i>'+LV[i.lv][1]+'</i> '+LV[i.lv][2]+'</span><span style="flex:1"></span>'+cyc+goB+'</div>';
+  return wrap(i,ch+'<b>'+esc(S_(x.title,100))+'</b><div class="m">'+meta(x)+'</div><div class="dlcd" data-id="'+esc(x.id)+'" data-big="1">'+(sample?'':(typeof dlCD==='function'?dlCD(x,true):''))+'</div>'+foot(i))}
+const _old=typeof dlDashHTML==='function'?dlDashHTML:null;
+function home(sample){if(!sample&&typeof modOn==='function'&&!modOn('dl'))return'';return render1(D().hs,sample)}
+dlDashHTML=function(){try{return home()}catch(e){console.error('dlcard',e);return _old?_old():''}};
+hDl=function(){let x='';try{x=home()}catch(e){console.error('dlcard',e)}return x||'<div class="c"><h3>'+BH('Next deadline','موعد بعدی')+'</h3><p class="m">بخش موعدها خاموش است؛ از تنظیمات، «ماژول‌ها» روشنش کن.</p></div>'};
+try{if(typeof HSEC!=='undefined'&&HSEC.dlc)HSEC.dlc.r=hDl}catch(e){}
+H.dl_cyc=()=>{const o=D(),i=ST.findIndex(q=>q[0]===o.hs);o.hs=ST[(i+1)%ST.length][0];save();render()};
+setInterval(()=>{try{document.querySelectorAll('#dlcard:not(.dlx-pv)').forEach(c=>{if(c.closest('#dlsx'))return;const h=home();if(h&&c.outerHTML!==h&&/dlx/.test(h)&&c.classList.contains('dlx'))c.outerHTML=h})}catch(e){}},60000);
+/* ---------- تنظیمات ---------- */
+const NUM=(k,v,mn,mx)=>'<input type="number" data-dlx="th'+k+'" min="'+mn+'" max="'+mx+'" value="'+v+'" style="width:64px">';
+function pv(){let h='';try{h=home(1)}catch(e){}return h.replace(' id="dlcard"',' data-pv="1"').replace('class="c dlx','class="c dlx dlx-pv')}
+function group(){const o=D(),t=o.th;
+  const chk=(k,l)=>'<label class="row" style="align-items:center;gap:8px"><input type="checkbox" data-dlx="'+k+'"'+(o[k]?' checked':'')+'> '+l+'</label>';
+  return'<h3>⏳ '+T('کارت موعد در خانه','Home deadline card')+'</h3><p class="m">'+T('همه‌ی تنظیمات این کارت اینجاست؛ پیش‌نمایش زنده همین بالاست.','All settings for this card live here; the live preview is right below.')+'</p><div id="dlpv">'+pv()+'</div>'
+   +'<div class="m" style="margin-top:10px">'+T('طرح','Style')+'</div><div class="row" style="gap:6px;margin-top:4px">'+ST.map(s=>'<button class="chip'+(o.hs===s[0]?' on':'')+'" data-a="dlx_st" data-v="'+s[0]+'">'+s[1]+'</button>').join('')+'</div>'
+   +'<div class="m" style="margin-top:12px">'+T('جهت نشانگر (هر طرح جدا)','Gauge direction (per style)')+'</div>'+Object.keys(GAUGE).map(k=>'<div class="row" style="align-items:center;gap:8px;margin-top:4px"><span style="min-width:90px">'+ST.find(x=>x[0]===k)[1]+'</span><select data-dlx="dir:'+k+'"><option value="rem"'+(dirOf(k)==='rem'?' selected':'')+'>'+T('رو به خالی‌شدن (باقی‌مانده)','Draining (time left)')+'</option><option value="el"'+(dirOf(k)==='el'?' selected':'')+'>'+T('رو به پُرشدن (گذشته)','Filling (time passed)')+'</option></select></div>').join('')
+   +'<div class="m" style="margin-top:12px">'+T('سطح هشدار (به روز مانده)','Warning levels (days left)')+'</div><div class="row" style="align-items:center;gap:6px;margin-top:4px"><span>'+LV[1][1]+'</span>'+NUM(0,t[0],2,60)+'<span>'+LV[2][1]+'</span>'+NUM(1,t[1],1,30)+'<span>'+LV[3][1]+'</span>'+NUM(2,t[2],0,14)+'</div>'
+   +'<div style="margin-top:8px">'+chk('col',T('رنگ هشدار (سبز ← زرد ← نارنجی ← قرمز)','Warning colours (green → yellow → orange → red)'))+chk('pulse',T('تپش آرام در حالت بحرانی','Gentle pulse when critical'))+chk('ph',T('نمایش جمله‌ی هر سطح','Show a sentence per level'))+chk('fc',T('نمایش پیش‌بینی پایان پروژه','Show project forecast'))+'</div>'
+   +'<details style="margin-top:10px"><summary style="cursor:pointer">'+T('جمله‌ی هر سطح (ویرایش و افزودن)','Sentence per level (edit & add)')+'</summary><p class="m">'+T('هر خط یک جمله؛ هر روز یکی نمایش داده می‌شود. خالی بگذاری، جمله‌های پیش‌فرض برمی‌گردد.','One sentence per line; one is shown each day. Leave empty for the defaults.')+'</p>'
+   +LV.map(l=>{const u=o.phr[l[0]],def=PH[l[0]].map(p=>EN()?p[1]:p[0]);return'<div style="margin-top:6px"><span class="dlx-chip" style="--k:'+l[3]+'"><i>'+l[1]+'</i> '+l[2]+'</span><textarea data-dlx="ph:'+l[0]+'" rows="2" style="width:100%;margin-top:4px" placeholder="'+esc(def.join('\n'))+'">'+esc((u||[]).join('\n'))+'</textarea></div>'}).join('')+'</details>'}
+H.dlx_st=e=>{D().hs=e.dataset.v;save();render()};
+document.addEventListener('change',ev=>{const t=ev.target,k=t&&t.dataset&&t.dataset.dlx;if(!k)return;const o=D();
+  if(/^th\d$/.test(k)){const i=+k[2];let n=Math.round(+t.value);if(!isFinite(n))return;o.th[i]=n;const a=o.th.slice().sort((p,q)=>q-p);o.th=a}
+  else if(k.startsWith('dir:'))o.dir[k.slice(4)]=t.value;
+  else if(k.startsWith('ph:'))o.phr[k.slice(3)]=String(t.value).split('\n').map(s=>s.trim().slice(0,140)).filter(Boolean).slice(0,12);
+  else o[k]=!!t.checked;
+  save();render()});
+function card(){if(document.getElementById('dlsx'))return;
+  const g=[...document.querySelectorAll('details.bgrp')].find(d=>/Look & themes|ظاهر و تم/.test(d.querySelector('summary')?d.querySelector('summary').innerText:''));if(!g)return;
+  const b=document.createElement('div');b.className='c';b.id='dlsx';b.innerHTML=group();g.parentNode.insertBefore(Object.assign(document.createElement('details'),{className:'bgrp',id:'dlsxg',innerHTML:'<summary style="cursor:pointer;font-weight:700">⏳ '+T('کارت موعد خانه','Home deadline card')+'</summary>'}),g.nextSibling).appendChild(b);
+  const dg=document.getElementById('dlsxg');if(window.__dlsxOpen)dg.open=true;dg.addEventListener('toggle',()=>{window.__dlsxOpen=dg.open})}
+{const _r=render;render=function(){const r=_r.apply(this,arguments);try{if(page==='set'&&stt==='look')card()}catch(e){console.error('dlcard set',e)}return r}}
+const css=document.createElement('style');
+css.textContent='.dlx{background:linear-gradient(135deg,color-mix(in srgb,var(--k) 15%,transparent),transparent 62%);border:1px solid color-mix(in srgb,var(--k) 36%,var(--b,#8883));border-inline-start:4px solid var(--k)}'
+ +'.dlx-h{display:flex;align-items:center;gap:6px;flex-wrap:nowrap}.dlx-chip{display:inline-flex;align-items:center;gap:4px;padding:2px 10px;border-radius:999px;font-size:.78em;font-weight:700;background:color-mix(in srgb,var(--k) 18%,transparent);color:var(--k)}.dlx-chip i{font-style:normal}'
+ +'.dlx-nolv .dlx-chip{display:none}.dlx-main{display:flex;align-items:flex-end;gap:12px;margin-top:8px}.dlx-n{display:flex;align-items:baseline;gap:5px;color:var(--k)}.dlx-n b{font-size:2.9em;line-height:1;font-variant-numeric:tabular-nums;animation:dlxin .6s ease-out}.dlx-n small{opacity:.85}'
+ +'.dlx-tt{display:flex;flex-direction:column;min-width:0;gap:2px}.dlx-tt b{font-size:1.1em}.dlx-ph{margin-top:8px;font-size:.92em;color:var(--k);font-weight:600}.dlx-fc{margin-top:4px}'
+ +'.dlx-g{height:9px;border-radius:9px;background:var(--b,#8883);margin-top:10px;overflow:hidden}.dlx-g.thin{height:5px;margin-top:6px}.dlx-g i{display:block;height:100%;border-radius:9px;background:linear-gradient(90deg,color-mix(in srgb,var(--k) 70%,#fff),var(--k));animation:dlxgrow .9s ease-out}'
+ +'.dlx-rw{display:flex;align-items:center;gap:12px;margin-top:8px}.dlx-ring{position:relative;flex:none;width:104px;height:104px}.dlx-rc{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--k)}.dlx-rc b{font-size:1.9em;line-height:1}.dlx-rc small{font-size:.72em;opacity:.85}.dlx-arc{animation:dlxarc 1s ease-out}'
+ +'.dlx-bl{display:flex;gap:3px;margin-top:10px}.dlx-b{flex:1;height:22px;border-radius:5px;border:1px solid color-mix(in srgb,var(--bk) 55%,transparent);background:transparent;animation:dlxin .5s ease-out both}.dlx-b.on{background:var(--bk);border-color:var(--bk)}'
+ +'.dlx-r{display:flex;align-items:center;gap:10px;padding:8px;margin-top:6px;border-radius:12px;border:1px solid var(--b,#8883);border-inline-start:4px solid var(--k)}.dlx-r.f{background:color-mix(in srgb,var(--k) 10%,transparent)}.dlx-rn{display:flex;flex-direction:column;align-items:center;min-width:44px;color:var(--k)}.dlx-rn b{font-size:1.5em;line-height:1}.dlx-rn small{font-size:.7em}.dlx-rt{display:flex;flex-direction:column;min-width:0}'
+ +'.dll{position:relative;height:30px;margin:12px 2px 2px;border-radius:8px;overflow:hidden;background:var(--b,#8883)}.dll-z{position:absolute;top:11px;height:8px;opacity:.75}.dll-d{position:absolute;top:5px;width:18px;height:18px;border-radius:50%;background:var(--k);border:2px solid var(--card,#111);transform:translateX(-50%);box-shadow:0 0 0 3px color-mix(in srgb,var(--k) 30%,transparent);animation:dlxin .6s .2s both}[dir=rtl] .dll-d{transform:translateX(50%)}.dll-dot{display:inline-block;width:8px;height:8px;border-radius:50%}'
+ +'.dlx-slim{padding:10px 12px}.dlx-pl{display:flex;align-items:center;gap:10px}.dlx-pt{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}'
+ +'.dlx-p{animation:dlxpulse 2.4s ease-in-out infinite}@keyframes dlxpulse{50%{box-shadow:0 0 0 4px color-mix(in srgb,var(--k) 28%,transparent)}}@keyframes dlxin{from{opacity:0;transform:translateY(6px) scale(.94)}}@keyframes dlxgrow{from{width:0!important}}@keyframes dlxarc{from{stroke-dashoffset:var(--c)}}'
+ +'@media (prefers-reduced-motion:reduce){.dlx-p,.dlx-n b,.dlx-g i,.dlx-arc,.dlx-b,.dll-d{animation:none!important}}';
+document.head.appendChild(css);
+window.daniDlCard={home,level,D};
+})();

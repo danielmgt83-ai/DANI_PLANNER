@@ -6,7 +6,7 @@
 (function(){
 const T=window.daniT;
 const FX=()=>{const s=db.set;if(!s.fx||typeof s.fx!=='object')s.fx={};if(s.fx.hap===undefined)s.fx.hap=1;if(s.fx.anim===undefined)s.fx.anim=1;return s.fx};
-const VER='2026.11.32';
+const VER='2026.11.33';
 /* ---------- لرزش و پاپ ---------- */
 const HAP=/^(qk_go|nx_go|nx_sw|pf_add|tp_ap|bin_rs|ex_save|ab_now|ql_|pm_|tm_|tstart|tfinish|hab|ob_log|ob_go|dnd_set|ls_now|dk_)/;
 const reduce=()=>{try{return matchMedia('(prefers-reduced-motion: reduce)').matches}catch(e){return false}};
@@ -19,6 +19,7 @@ st.textContent='@keyframes fxpop{0%{transform:scale(1)}40%{transform:scale(.92)}
 document.head.appendChild(st);
 /* ---------- چه چیزی تازه است ---------- */
 const WN=[
+ ['⏳','کارت موعد خانه بازطراحی شد: سطح هشدار (آرام ← نزدیک ← هشدار ← بحرانی)، ۷ طرح، جهت پُر/خالی برای هر طرح، جمله‌ی قابل‌ویرایش برای هر سطح؛ باگ دوبار آمدن رفع شد (تنظیمات ← زبان و ظاهر ← کارت موعد خانه). تنظیمات جمله‌ها هم به همان‌جا رفت','Home deadline card redesigned: warning levels, 7 styles, per-style fill/drain direction, editable sentence per level; duplicate-card bug fixed (Settings ← Language & look). Sentence settings moved there too'],
  ['🎯','«نمای آرام» اختیاری: انیمیشن‌ها، دکمه‌های شناور و بخش‌های تزئینی/فرعی خانه را پنهان می‌کند؛ هیچ‌چیز حذف یا عوض نمی‌شود و با «نمایش همه» برمی‌گردد (تنظیمات ← زبان و ظاهر، یا جست‌وجوی ⚡)','Optional “Calm view”: hides animations, floating buttons and decorative/secondary Home sections; nothing is removed or changed and “Show all” brings it back (Settings ← Language & look, or ⚡ search)'],
  ['🕒','اعلان اختیاری «الان چه می‌کنی؟» (هر ۳۰/۶۰/۹۰/۱۲۰ دقیقه): با لمس اعلان، آخرین بازه‌ی ثبت‌نشده را یک‌لمسی ثبت می‌کنی (تنظیمات ← اعلان‌ها و زمان؛ پیش‌فرض خاموش)','Optional “What are you doing?” check-in every 30/60/90/120 min: tap the notification to log the last unlogged span in one tap (Settings ← Notifications; off by default)'],
  ['🧹','نتیجه ← آمار مرتب‌تر شد: ۱۳ بخش در ۴ گروه (مقایسه، زمان و فعالیت‌ها، روند و بهترین روزها، انرژی و یادگیری)؛ کارت‌های قدیمی داشبورد در تنظیمات ← زبان و ظاهر جمع شد؛ هیچ‌چیز حذف نشده','Results ← Stats tidied: 13 sections in 4 groups (Compare, Time & activities, Trends & best days, Energy & learning); old dashboard cards folded in Settings; nothing removed'],
