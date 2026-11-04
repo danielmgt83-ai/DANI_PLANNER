@@ -516,6 +516,9 @@ DANI Planner: پلنر شخصی فارسی (RTL، با لایه‌ی ترجمه�
 ## v63 — rating.js
 - `save` پیچیده می‌شود؛ ثبت‌های تازه (≤۲ تا، غیر csv/import/smp) → `#qrs` (پنل ثابت پایین، ۱۴ ثانیه). `e.rt={en,fe,su,ac}`؛ تنظیم `db.set.qr={on,f[]}`. `PG.res` در `stats` کارت میانگین اضافه می‌کند؛ `render` در Settings/time کارت `#qrc` را بعد از `#ntc` می‌گذارد.
 
+## v74 — calio.js
+- `icsBuild` (dashboard-planner.js) در calio.js پوشانده می‌شود تا VEVENT بلوک‌های `db.set.bz.items` (هفتگی=RRULE BYDAY، یک‌روزه) را اضافه کند. ورود: `H.cio_pick` (input file) → `parse()` → مودال → `H.cio_ok`؛ بلوک‌ها `uid` دارند برای جلوگیری از تکرار. دکمه بعد از `render` داخل کارتی که h3 آن «بلوک‌های مشغول» است تزریق می‌شود.
+
 ## v73 — iconswap.js
 - `db.set.icmap={کلید:نویسه}`؛ `icon(k)` در themes-engine.js آن را (با مستعار day→home, plan2→plan, pj→dl, acd→acts) بر SVG مقدم می‌دارد. `iconStudio` در iconswap.js یک `<details>` اضافه می‌کند؛ `H.ics_pick/ics_set/ics_reset`. تم‌هایی با نوار آیکون اختصاصی (اوچیها) آیکون خود را نگه می‌دارند.
 
