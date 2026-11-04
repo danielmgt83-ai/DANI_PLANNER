@@ -516,6 +516,9 @@ DANI Planner: پلنر شخصی فارسی (RTL، با لایه‌ی ترجمه�
 ## v63 — rating.js
 - `save` پیچیده می‌شود؛ ثبت‌های تازه (≤۲ تا، غیر csv/import/smp) → `#qrs` (پنل ثابت پایین، ۱۴ ثانیه). `e.rt={en,fe,su,ac}`؛ تنظیم `db.set.qr={on,f[]}`. `PG.res` در `stats` کارت میانگین اضافه می‌کند؛ `render` در Settings/time کارت `#qrc` را بعد از `#ntc` می‌گذارد.
 
+## v78 — chkact.js
+- اعلان `chk-<تاریخ>-<دقیقه>` با `actionTypeId:'dani-chk'` (از `daniNoteExtra`)؛ اکشن‌ها `cu/cr/cw` → `daniChkAct.logSlot` آخرین فعالیتِ کلاس u / n,s / w را برای بازه‌ی [پایان آخرین ثبت یا ev دقیقه قبل، دقیقه‌ی اعلان] ثبت می‌کند (`src:'chk'`). `registerActionTypes` همه‌ی نوع‌ها را یک‌جا جایگزین می‌کند، پس نوع تازه فقط در notifier.js اضافه می‌شود.
+
 ## v77 — طرح solid
 - `ICX_SOLID` در themes-engine.js (هر کلید `ICONS` را پوشش می‌دهد؛ `day=home`، `plan2=plan`) داخل `<g fill=currentColor stroke=none>`. `fam:'std'` فقط جایگزین آیکون‌های دست‌نقاشی‌شده‌ی تم‌ها با `ICONS` می‌شود (برای day/plan2/pj تفاوتی ندارد چون تم‌ها آن‌ها را override نمی‌کنند).
 
