@@ -22,7 +22,34 @@ const ICONS={
  data:'<ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v12c0 1.7 3.6 3 8 3s8-1.3 8-3V6M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/>'};
 const ICX_EMO={home:'🏠',day:'🏠',today:'☀️',dl:'⏳',dash:'🧭',res:'📊',rep:'📈',stats:'🧮',set:'⚙️',plan:'🗓️',plan2:'🗓️',acts:'⭐',goals:'🏆',cal:'📅',notes:'📝',look:'🎨',time:'⏰',data:'💾',hab:'🔁',rem:'🔔',qt:'💬',acd:'🎓',cm:'✅',mo:'⋯',tmr:'🌙',pj:'🗂️',mx:'🧩'};
 const ICX_COL={home:'#f59e0b',day:'#f59e0b',today:'#fbbf24',dl:'#ef4444',dash:'#06b6d4',res:'#8b5cf6',rep:'#a855f7',stats:'#6366f1',set:'#94a3b8',plan:'#3b82f6',plan2:'#3b82f6',acts:'#eab308',goals:'#f97316',cal:'#0ea5e9',notes:'#84cc16',look:'#ec4899',time:'#14b8a6',data:'#64748b',hab:'#22c55e',rem:'#f43f5e',qt:'#d946ef',acd:'#2563eb',cm:'#10b981',mo:'#94a3b8',tmr:'#818cf8',pj:'#0d9488',mx:'#a3a3a3'};
-const icon=k=>{const S=(typeof db!=='undefined'&&db.set)||{},im=S.icmap||{},X=S.icx||{},mp=im[k]||im[{day:'home',plan2:'plan',pj:'dl',acd:'acts'}[k]]||(X.fam==='emoji'?ICX_EMO[k]:'');if(mp)return'<span class="ic icem" aria-hidden="true" style="font-style:normal;line-height:1;display:inline-flex;align-items:center;justify-content:center">'+String(mp).replace(/[<>&"]/g,'')+'</span>';const sk=document.documentElement.dataset.skin,p=(X.fam==='std'?ICONS[k]:(((typeof PK_IC!=='undefined'&&PK_IC[sk])||{})[k]||(typeof ITU_IC!=='undefined'&&ITU_IC[sk]&&ITU_IC[sk][k])||ICONS[k]));return p?'<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"'+(X.col==='rb'&&ICX_COL[k]?' style="color:'+ICX_COL[k]+';--icc:'+ICX_COL[k]+'"':'')+'>'+p+'</svg>':''};
+const ICX_SOLID={
+home:'<path d="M12 3l9 8h-2.5v9h-5v-6h-3v6h-5v-9H3z"/>',
+today:'<circle cx="12" cy="12" r="4.5"/><path d="M11 1.5h2v3h-2zM11 19.5h2v3h-2zM1.5 11h3v2h-3zM19.5 11h3v2h-3z"/>',
+plan:'<path fill-rule="evenodd" d="M7 2h2v2h6V2h2v2h2a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V6a2 2 0 012-2h2zM5 9v11h14V9z"/>',
+cal:'<path fill-rule="evenodd" d="M7 2h2v2h6V2h2v2h2a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V6a2 2 0 012-2h2zM5 9v11h14V9zm2 2.5h3v3H7zm5 0h3v3h-3z"/>',
+dl:'<path d="M6 2h12v4.5L13.5 12 18 17.5V22H6v-4.5L10.5 12 6 6.5z"/>',
+dash:'<rect x="3" y="3" width="8" height="8" rx="2"/><rect x="13" y="3" width="8" height="8" rx="2"/><rect x="3" y="13" width="8" height="8" rx="2"/><rect x="13" y="13" width="8" height="8" rx="2"/>',
+res:'<rect x="3" y="12" width="4.5" height="9" rx="1.2"/><rect x="9.8" y="3" width="4.5" height="18" rx="1.2"/><rect x="16.5" y="8" width="4.5" height="13" rx="1.2"/>',
+rep:'<path fill-rule="evenodd" d="M6 2h8l6 6v12a2 2 0 01-2 2H6a2 2 0 01-2-2V4a2 2 0 012-2zm7 1.8V9h5.2zM7 13h10v1.7H7zm0 3.6h10v1.7H7z"/>',
+stats:'<path d="M11 3a9 9 0 109 9h-9z"/><path d="M13 2.1V11h8.9A9 9 0 0013 2.1z"/>',
+set:'<path fill-rule="evenodd" d="M10.3 2h3.4l.5 2.6 1.6.7 2.2-1.5 2.4 2.4-1.5 2.2.7 1.6 2.6.5v3.4l-2.6.5-.7 1.6 1.5 2.2-2.4 2.4-2.2-1.5-1.6.7-.5 2.6h-3.4l-.5-2.6-1.6-.7-2.2 1.5-2.4-2.4 1.5-2.2-.7-1.6L2 13.7v-3.4l2.6-.5.7-1.6-1.5-2.2 2.4-2.4 2.2 1.5 1.6-.7zM12 8.5a3.5 3.5 0 100 7 3.5 3.5 0 000-7z"/>',
+acts:'<path d="M12 2l3 6.5 7 .9-5.1 4.9 1.3 7-6.2-3.5-6.2 3.5 1.3-7L2 9.4l7-.9z"/>',
+goals:'<path d="M7 3h10v5a5 5 0 01-10 0zM3 4h3v3a2 2 0 002 2H6a3 3 0 01-3-3zm15 0h3v2a3 3 0 01-3 3h-2a2 2 0 002-2zM11 13h2v4h3v2H8v-2h3z"/><rect x="7" y="19" width="10" height="2.5" rx="1"/>',
+notes:'<path fill-rule="evenodd" d="M5 3h14a2 2 0 012 2v10l-6 6H5a2 2 0 01-2-2V5a2 2 0 012-2zm9 17l5-5h-5zM7 8h10v1.7H7zm0 4h6v1.7H7z"/>',
+look:'<path fill-rule="evenodd" d="M12 2a10 10 0 100 20c1.6 0 2-1.2 1.4-2.1-.7-1.1 0-2.4 1.4-2.4H17a5 5 0 005-5C22 7 17.5 2 12 2zM7.5 12.2a1.4 1.4 0 110-2.8 1.4 1.4 0 010 2.8zm3-4a1.4 1.4 0 110-2.8 1.4 1.4 0 010 2.8zm4.5 0a1.4 1.4 0 110-2.8 1.4 1.4 0 010 2.8z"/>',
+time:'<path fill-rule="evenodd" d="M12 2a10 10 0 100 20 10 10 0 000-20zm1 5h-2v6l4.5 2.7 1-1.6-3.5-2.1z"/>',
+data:'<ellipse cx="12" cy="5.5" rx="8" ry="3"/><path d="M4 8.5c0 1.7 3.6 3 8 3s8-1.3 8-3V12c0 1.7-3.6 3-8 3s-8-1.3-8-3zm0 6c0 1.7 3.6 3 8 3s8-1.3 8-3V18.5c0 1.7-3.6 3-8 3s-8-1.3-8-3z"/>',
+hab:'<path d="M17 2l4 4-4 4V7H6v3H4V6a2 2 0 012-2h11zM7 22l-4-4 4-4v3h11v-3h2v4a2 2 0 01-2 2z"/>',
+rem:'<path d="M12 2a6 6 0 016 6v4l2 3H4l2-3V8a6 6 0 016-6zM9.5 18h5a2.5 2.5 0 01-5 0z"/>',
+qt:'<path d="M4 3h16a2 2 0 012 2v10a2 2 0 01-2 2H11l-5 4v-4H4a2 2 0 01-2-2V5a2 2 0 012-2z"/>',
+acd:'<path d="M12 3L1 9l11 6 9-4.9V16h2V9zM5 13.5V17c0 1.7 3.1 3 7 3s7-1.3 7-3v-3.5l-7 3.8z"/>',
+pj:'<path d="M3 5a2 2 0 012-2h4.5l2 2.5H19a2 2 0 012 2V18a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>',
+cm:'<path fill-rule="evenodd" d="M12 2a10 10 0 100 20 10 10 0 000-20zm-1.5 14.5L6 12l1.4-1.4 3.1 3.1 6.1-6.1L18 9z"/>',
+mo:'<circle cx="5.5" cy="12" r="2.2"/><circle cx="12" cy="12" r="2.2"/><circle cx="18.5" cy="12" r="2.2"/>',
+tmr:'<path d="M20.5 14.5A8.5 8.5 0 119.5 3.5a7 7 0 0011 11z"/>',
+mx:'<rect x="3" y="3" width="8" height="8" rx="2"/><rect x="13" y="3" width="8" height="8" rx="2"/><rect x="3" y="13" width="8" height="8" rx="2"/><rect x="13" y="13" width="8" height="8" rx="2"/>'};
+ICX_SOLID.day=ICX_SOLID.home;ICX_SOLID.plan2=ICX_SOLID.plan;
+const icon=k=>{const S=(typeof db!=='undefined'&&db.set)||{},im=S.icmap||{},X=S.icx||{},mp=im[k]||im[{day:'home',plan2:'plan',pj:'dl',acd:'acts'}[k]]||(X.fam==='emoji'?ICX_EMO[k]:'');if(mp)return'<span class="ic icem" aria-hidden="true" style="font-style:normal;line-height:1;display:inline-flex;align-items:center;justify-content:center">'+String(mp).replace(/[<>&"]/g,'')+'</span>';const sk=document.documentElement.dataset.skin,sd=X.fam==='solid'&&ICX_SOLID[k],p=sd?'<g fill="currentColor" stroke="none">'+sd+'</g>':(X.fam==='std'?ICONS[k]:(((typeof PK_IC!=='undefined'&&PK_IC[sk])||{})[k]||(typeof ITU_IC!=='undefined'&&ITU_IC[sk]&&ITU_IC[sk][k])||ICONS[k]));return p?'<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"'+(X.col==='rb'&&ICX_COL[k]?' style="color:'+ICX_COL[k]+';--icc:'+ICX_COL[k]+'"':'')+'>'+p+'</svg>':''};
 const SK_DEF={desc:'',lay:'side',dark:false,card:'default',rad:16,btn:'round',font:'sans',ic:'line',tag:'',vars:null,bgGradient:null,hero:null,imgs:[],emblem:null,wm:false,favicon:null,custom:false};
 const SK_BTN={round:10,pill:99,sharp:3},SK_ICW={line:1.7,bold:2.3,duo:1.7};
 /* built-in skins use exactly the same schema as importable theme files */

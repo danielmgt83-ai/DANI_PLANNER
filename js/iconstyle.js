@@ -3,7 +3,7 @@
 (function(){'use strict';
 if(typeof iconStudio!=='function')return;
 const T=window.daniT,X=()=>db.set.icx||(db.set.icx={});
-const FAM=[['','مطابق تم','Match theme'],['std','یکسان و خطی','Uniform line'],['emoji','ایموجی رنگی','Colour emoji']];
+const FAM=[['','مطابق تم','Match theme'],['std','خطی یکسان','Uniform line'],['solid','توپُر','Solid'],['emoji','ایموجی رنگی','Colour emoji']];
 const FRM=[['','بدون قاب','None'],['circle','دایره','Circle'],['squircle','گرد','Rounded'],['hex','شش‌ضلعی','Hexagon'],['tile','کاشی رنگی','Colour tile']];
 const COL=[['','مطابق تم','Match theme'],['ac','رنگ اصلی','Accent'],['rb','رنگارنگ','Colourful']];
 const css=document.createElement('style');css.id='icx-css';css.textContent=`
