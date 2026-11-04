@@ -516,6 +516,9 @@ DANI Planner: پلنر شخصی فارسی (RTL، با لایه‌ی ترجمه�
 ## v63 — rating.js
 - `save` پیچیده می‌شود؛ ثبت‌های تازه (≤۲ تا، غیر csv/import/smp) → `#qrs` (پنل ثابت پایین، ۱۴ ثانیه). `e.rt={en,fe,su,ac}`؛ تنظیم `db.set.qr={on,f[]}`. `PG.res` در `stats` کارت میانگین اضافه می‌کند؛ `render` در Settings/time کارت `#qrc` را بعد از `#ntc` می‌گذارد.
 
+## v73 — iconswap.js
+- `db.set.icmap={کلید:نویسه}`؛ `icon(k)` در themes-engine.js آن را (با مستعار day→home, plan2→plan, pj→dl, acd→acts) بر SVG مقدم می‌دارد. `iconStudio` در iconswap.js یک `<details>` اضافه می‌کند؛ `H.ics_pick/ics_set/ics_reset`. تم‌هایی با نوار آیکون اختصاصی (اوچیها) آیکون خود را نگه می‌دارند.
+
 ## v62 — کارت موعد خانه
 - projects.js: `_dlOld` = `dlDashHTML` قدیمی؛ `dlDashHTML/hDl` به `dlHome()` بازتعریف شدند؛ `HSEC.dlc.r=hDl`. طرح‌ها در `DL_STY` (big/ring/bar/mini + hero/stack/line/pill)؛ `H.dl_cyc` طرح بعدی. عادت: `h.act`+`h.min` تیک خودکار؛ یادآور `repeat:'yearly'`؛ تقویم: `H.p2_qa`.
 
