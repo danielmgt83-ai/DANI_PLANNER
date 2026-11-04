@@ -6,7 +6,7 @@
 (function(){
 const T=window.daniT;
 const FX=()=>{const s=db.set;if(!s.fx||typeof s.fx!=='object')s.fx={};if(s.fx.hap===undefined)s.fx.hap=1;if(s.fx.anim===undefined)s.fx.anim=1;return s.fx};
-const VER='2026.11.38';
+const VER='2026.11.39';
 /* ---------- لرزش و پاپ ---------- */
 const HAP=/^(qk_go|nx_go|nx_sw|pf_add|tp_ap|bin_rs|ex_save|ab_now|ql_|pm_|tm_|tstart|tfinish|hab|ob_log|ob_go|dnd_set|ls_now|dk_)/;
 const reduce=()=>{try{return matchMedia('(prefers-reduced-motion: reduce)').matches}catch(e){return false}};
@@ -19,6 +19,7 @@ st.textContent='@keyframes fxpop{0%{transform:scale(1)}40%{transform:scale(.92)}
 document.head.appendChild(st);
 /* ---------- چه چیزی تازه است ---------- */
 const WN=[
+ ['📓','دفترچه‌ی خطای آکادمی: همه‌ی اشتباهات یک‌جا، یا به‌تفکیک درس یا مبحث (با نشان دادن منبع)، و «خودآزمایی» بدون نام مبحث برای سنجش اینکه سؤال را تشخیص می‌دهی.','Academy error notebook: all mistakes in one place, or by lesson / topic (with the source shown), plus a topic-free self-test to check whether you recognise the question.'],
  ['📥','تقویم گوشی: رویدادهای فایل تقویم (.ics) را به «ساعت پر» وارد کن (با پیش‌نمایش)؛ ساعت‌های پر هم در خروجی تقویم می‌آیند.','Phone calendar: import events from a calendar file (.ics) into Busy blocks (with preview); busy blocks are also included in the calendar export.'],
  ['🧩','تعویض آیکون‌ها: در تنظیمات ← ظاهر ← استودیوی آیکون، هر یک از ۱۶ آیکون اصلی را با ایموجی دلخواه عوض کن (بازنشانی هم هست).','Swap icons: in Settings → Look → Icon studio, replace any of the 16 main icons with your own emoji (reset available).'],
  ['🧭','راهنمای شروع اگر نیمه‌کاره بماند: در پنل «؟» می‌نویسد «ادامه‌ی راهنما (مرحله‌ی X از ۸)» و بالای خانه یک نوار نازکِ بسته‌شدنی دارد','If the start guide is left unfinished: the “?” panel says “Continue the start guide (step X of 8)” and Home shows a thin dismissible bar'],

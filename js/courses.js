@@ -626,14 +626,38 @@ function vStudy(){
   h+='<div class="row">'+(i>0?'<button data-a="crs_open" data-c="'+E_(c.id)+'" data-l="'+E_(L[i-1].id)+'">‹ درس قبلی</button>':'')+'<span class="sp"></span>'+(i<L.length-1?'<button class="p" data-a="crs_open" data-c="'+E_(c.id)+'" data-l="'+E_(L[i+1].id)+'">درس بعدی ›</button>':'')+'</div>';
   return h;
 }
+const TT=(f,e)=>typeof window.daniT==='function'?window.daniT(f,e):f;
+CR.ev=CR.ev||'all';
+function errSrc(q,e){const ls=(q.lessonIds||[]).map(id=>CR.ix.lessons.get(id)).filter(Boolean).map(l=>l.title);const d=e.lastAt?new Date(e.lastAt).toLocaleDateString('fa-IR'):'';
+  return TT('از: ','From: ')+(ls.length?E_(ls.slice(0,2).join('، ')):TT('بدون درس مشخص','no specific lesson'))+(d?' · '+d:'')}
+function errCard(e,q,grp){const causes=['ندانستن مفهوم','اشتباه محاسباتی','بی‌دقتی در خواندن','کمبود زمان','حدس زدن','اشتباه در روش'];
+  return '<div class="c" style="'+(e.resolved?'opacity:.6':'')+'"><div class="m">'+(grp==='topic'?'':E_(topicName(q.courseId,(q.topicIds||[])[0]||''))+' · ')+TT('دشواری ','Difficulty ')+faN(q.difficulty)+' · '+faN(e.count||1)+TT(' بار اشتباه',' mistakes')+'</div><div class="m">'+errSrc(q,e)+'</div><details><summary dir="auto">'+(typeof q.stem==='string'?inl(q.stem).slice(0,200):TT('مشاهده‌ی سؤال','View question'))+'</summary><div class="crs-lesson" data-nobi style="--crs-mz:'+CR.mz+'">'+stemHTML(q)+'<div class="crs-ans"><b>'+TT('پاسخ صحیح:','Correct answer:')+'</b> '+correctText(q)+'</div>'+(q.solution?'<div class="crs-sol"><b>'+TT('راه‌حل:','Solution:')+'</b>'+blocks(q.solution)+'</div>':'')+'</div></details><div class="row" style="margin-top:6px"><select data-crs-cause="'+E_(e.id)+'"><option value="">'+TT('علت اشتباه…','Cause…')+'</option>'+causes.map(x=>'<option '+(e.cause===x?'selected':'')+'>'+x+'</option>').join('')+'</select><input data-crs-enote="'+E_(e.id)+'" value="'+E_(e.note||'')+'" placeholder="'+TT('یادداشت','Note')+'" style="flex:1;min-width:120px"><button data-a="crs_erres" data-id="'+E_(e.id)+'">'+(e.resolved?'↩ '+TT('بازگشایی','Reopen'):'✓ '+TT('حل شد','Solved'))+'</button></div></div>'}
+function errSelf(l){const open=l.filter(e=>!e.resolved&&CR.ix.questions.get(e.qid));
+  const done=l.reduce((n,e)=>n+(e.selfN||0),0),ok=l.reduce((n,e)=>n+(e.selfK||0),0);
+  let h='<div class="c"><h3>🎯 '+TT('خودآزمایی بدون مبحث','Self-test without topics')+'</h3><p class="m">'+TT('فقط خود سؤال را می‌بینی، بدون نام درس و مبحث. اول فکر کن، بعد پاسخ را ببین و صادقانه بگو آیا سؤال را تشخیص دادی و می‌توانستی حلش کنی.','You see only the question — no lesson or topic name. Think first, then reveal the answer and honestly say whether you recognised it and could solve it.')+'</p>'+(done?'<div class="m">'+TT('تشخیص دادم: ','Recognised: ')+faN(ok)+' / '+faN(done)+' ('+faN(Math.round(ok/done*100))+'٪)</div>':'')+'</div>';
+  if(!open.length)return h+'<div class="c"><p class="m">'+TT('اشتباه بازی نداری.','No open mistakes.')+'</p></div>';
+  let e=open.find(x=>x.id===CR.es)||open[Math.floor(Math.random()*open.length)];CR.es=e.id;const q=CR.ix.questions.get(e.qid);
+  return h+'<div class="c"><div class="crs-lesson" data-nobi style="--crs-mz:'+CR.mz+'">'+stemHTML(q)+'</div><details style="margin-top:8px"><summary>'+TT('نمایش پاسخ','Show answer')+'</summary><div class="crs-lesson" data-nobi style="--crs-mz:'+CR.mz+'"><div class="crs-ans"><b>'+TT('پاسخ صحیح:','Correct answer:')+'</b> '+correctText(q)+'</div>'+(q.solution?'<div class="crs-sol">'+blocks(q.solution)+'</div>':'')+'</div></details><div class="row" style="margin-top:10px"><button class="p" data-a="crs_esres" data-k="1">✅ '+TT('تشخیص دادم و می‌توانستم','I recognised it & could solve it')+'</button><button data-a="crs_esres" data-k="0">❌ '+TT('نه هنوز','Not yet')+'</button><button data-a="crs_esres" data-k="">⏭ '+TT('بعدی','Next')+'</button></div></div>'}
 function vErrors(){
   const l=CR.cache.errors.slice().sort((a,b)=>b.lastAt-a.lastAt);
-  if(!l.length)return'<div class="c"><h3>دفترچه‌ی خطا</h3><p class="m">هنوز اشتباهی ثبت نشده است. اشتباه‌های آزمون‌ها به‌صورت خودکار اینجا جمع می‌شوند.</p></div>';
-  const causes=['ندانستن مفهوم','اشتباه محاسباتی','بی‌دقتی در خواندن','کمبود زمان','حدس زدن','اشتباه در روش'];
+  if(!l.length)return'<div class="c"><h3>'+TT('دفترچه‌ی خطا','Error notebook')+'</h3><p class="m">هنوز اشتباهی ثبت نشده است. اشتباه‌های آزمون‌ها به‌صورت خودکار اینجا جمع می‌شوند.</p></div>';
   const cnt={};l.forEach(e=>{if(e.cause)cnt[e.cause]=(cnt[e.cause]||0)+1});
-  let h='<div class="c"><div class="row"><h3 class="sp">دفترچه‌ی خطا ('+faN(unresolved())+' باز از '+faN(l.length)+')</h3>'+(unresolved()?'<button class="p" data-a="crs_errprac">تمرین مجدد اشتباهات باز</button>':'')+'</div>'+(Object.keys(cnt).length?'<div class="m">علت‌ها: '+Object.entries(cnt).map(([k,v])=>E_(k)+' ×'+faN(v)).join(' · ')+'</div>':'')+'</div>';
-  l.forEach(e=>{const q=CR.ix.questions.get(e.qid);if(!q){h+='<div class="c" style="opacity:.6">سؤال حذف‌شده یا هنوز نصب‌نشده: '+E_(e.qid)+'</div>';return}
-    h+='<div class="c" style="'+(e.resolved?'opacity:.6':'')+'"><div class="m">'+E_(topicName(q.courseId,(q.topicIds||[])[0]||''))+' · دشواری '+faN(q.difficulty)+' · '+faN(e.count||1)+' بار اشتباه</div><details><summary dir="auto">'+(typeof q.stem==='string'?inl(q.stem).slice(0,200):'مشاهده‌ی سؤال')+'</summary><div class="crs-lesson" data-nobi style="--crs-mz:'+CR.mz+'">'+stemHTML(q)+'<div class="crs-ans"><b>پاسخ صحیح:</b> '+correctText(q)+'</div>'+(q.solution?'<div class="crs-sol"><b>راه‌حل:</b>'+blocks(q.solution)+'</div>':'')+'</div></details><div class="row" style="margin-top:6px"><select data-crs-cause="'+E_(e.id)+'"><option value="">علت اشتباه…</option>'+causes.map(x=>'<option '+(e.cause===x?'selected':'')+'>'+x+'</option>').join('')+'</select><input data-crs-enote="'+E_(e.id)+'" value="'+E_(e.note||'')+'" placeholder="یادداشت" style="flex:1;min-width:120px"><button data-a="crs_erres" data-id="'+E_(e.id)+'">'+(e.resolved?'↩ بازگشایی':'✓ حل شد')+'</button></div></div>'});
+  const V=[['all','همه‌ی اشتباهات','All mistakes'],['lesson','به‌تفکیک درس','By lesson'],['topic','به‌تفکیک مبحث','By topic'],['self','خودآزمایی','Self-test']];
+  let h='<div class="c"><div class="row"><h3 class="sp">'+TT('دفترچه‌ی خطا','Error notebook')+' ('+faN(unresolved())+TT(' باز از ',' open of ')+faN(l.length)+')</h3>'+(unresolved()?'<button class="p" data-a="crs_errprac">'+TT('تمرین مجدد اشتباهات باز','Practise open mistakes')+'</button>':'')+'</div>'+(Object.keys(cnt).length?'<div class="m">علت‌ها: '+Object.entries(cnt).map(([k,v])=>E_(k)+' ×'+faN(v)).join(' · ')+'</div>':'')
+   +'<div class="row" style="margin-top:8px">'+V.map(v=>'<button class="chip '+(CR.ev===v[0]?'on':'')+'" data-a="crs_ev" data-k="'+v[0]+'">'+TT(v[1],v[2])+'</button>').join('')+'</div></div>';
+  if(CR.ev==='self')return h+errSelf(l);
+  const rows=l.map(e=>({e,q:CR.ix.questions.get(e.qid)}));
+  const gone=rows.filter(r=>!r.q);rows.filter(r=>!r.q).forEach(()=>{});
+  const ok=rows.filter(r=>r.q);
+  if(CR.ev==='all'){ok.forEach(r=>{h+=errCard(r.e,r.q)});gone.forEach(r=>{h+='<div class="c" style="opacity:.6">سؤال حذف‌شده یا هنوز نصب‌نشده: '+E_(r.e.qid)+'</div>'});return h}
+  const G=new Map();
+  ok.forEach(r=>{let key,title,sub='';
+   if(CR.ev==='lesson'){const id=(r.q.lessonIds||[])[0],ls=id&&CR.ix.lessons.get(id);key=ls?ls.id:'-';title=ls?ls.title:TT('بدون درس مشخص','No specific lesson');if(ls)sub='<button class="chip" data-a="crs_open" data-c="'+E_(ls.courseId||r.q.courseId)+'" data-l="'+E_(ls.id)+'">📖 '+TT('باز کردن درس','Open lesson')+'</button>'}
+   else{const id=(r.q.topicIds||[])[0];key=id||'-';title=id?topicName(r.q.courseId,id):TT('بدون مبحث','No topic')}
+   if(!G.has(key))G.set(key,{title,sub,items:[]});G.get(key).items.push(r)});
+  [...G.values()].sort((a,b)=>b.items.filter(x=>!x.e.resolved).length-a.items.filter(x=>!x.e.resolved).length).forEach(g=>{const o=g.items.filter(x=>!x.e.resolved).length;
+   const srcs=CR.ev==='topic'?[...new Set(g.items.map(x=>(x.q.lessonIds||[]).map(id=>CR.ix.lessons.get(id)).filter(Boolean).map(z=>z.title)[0]).filter(Boolean))].slice(0,3):[];
+   h+='<details class="c"'+(o?' open':'')+'><summary><b dir="auto">'+E_(g.title)+'</b> <span class="m">· '+faN(o)+TT(' باز از ',' open of ')+faN(g.items.length)+'</span></summary>'+(srcs.length?'<div class="m" style="margin:4px 0">'+TT('منبع: ','Source: ')+E_(srcs.join('، '))+'</div>':'')+(g.sub?'<div class="row" style="margin:6px 0">'+g.sub+'</div>':'')+g.items.map(r=>errCard(r.e,r.q,CR.ev)).join('')+'</details>'});
   return h;
 }
 function vReview(){
@@ -898,6 +922,8 @@ hh('resume',el=>resumeQuiz(el.dataset.id));
 hh('abandon',el=>{if(confirm('این آزمون نیمه‌تمام حذف شود؟'))return delUser('attempts',el.dataset.id).then(rerender)});
 hh('errprac',()=>{const cs=[...new Set(CR.cache.errors.filter(e=>!e.resolved).map(e=>e.courseId))];if(!cs.length){toast('اشتباه بازی نیست');return}return startQuiz({courseId:cs[0],scope:'wrong',mode:'practice',diffs:[1,2,3],count:0})});
 hh('flagprac',()=>{const f=new Set();CR.cache.attempts.forEach(a=>Object.entries(a.items||{}).forEach(([q,i])=>{if(i.flag)f.add(q)}));const q=CR.ix.questions.get([...f][0]);if(!q)return;return startQuiz({courseId:q.courseId,scope:'flagged',mode:'practice',diffs:[1,2,3],count:0})});
+hh('ev',el=>{CR.ev=el.dataset.k;rerender()});
+hh('esres',el=>{const e=CR.ix.errors.get(CR.es),k=el.dataset.k;if(e&&k!==''){const ok=k==='1';CR.es='';return putUser('errors',{...e,selfN:(e.selfN||0)+1,selfK:(e.selfK||0)+(ok?1:0),correctStreak:ok?(e.correctStreak||0)+1:0}).then(rerender)}CR.es='';rerender()});
 hh('erres',el=>{const e=CR.ix.errors.get(el.dataset.id);return putUser('errors',{...e,resolved:!e.resolved}).then(rerender)});
 hh('key',el=>{CR.keyId=el.dataset.id;CR.tab='quiz';return crAssets(CR.ix.attempts.get(el.dataset.id).courseId).then(()=>{rerender();window.scrollTo(0,0)})});
 hh('qnew',()=>{CR.keyId='';rerender()});
