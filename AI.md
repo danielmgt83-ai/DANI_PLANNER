@@ -516,6 +516,9 @@ DANI Planner: پلنر شخصی فارسی (RTL، با لایه‌ی ترجمه�
 ## v63 — rating.js
 - `save` پیچیده می‌شود؛ ثبت‌های تازه (≤۲ تا، غیر csv/import/smp) → `#qrs` (پنل ثابت پایین، ۱۴ ثانیه). `e.rt={en,fe,su,ac}`؛ تنظیم `db.set.qr={on,f[]}`. `PG.res` در `stats` کارت میانگین اضافه می‌کند؛ `render` در Settings/time کارت `#qrc` را بعد از `#ntc` می‌گذارد.
 
+## v76 — iconstyle.js
+- `db.set.icx={fam:''|'std'|'emoji',frame,col:''|'ac'|'rb',soft}`. `icon(k)` (themes-engine.js): ایموجی از `ICX_EMO`، `std` = فقط `ICONS` (نادیده‌گرفتن `PK_IC/ITU_IC`)، `rb` = رنگ از `ICX_COL` با `--icc`. قاب/رنگ/نرمی فقط با CSS و صفت‌های `html[data-icf|iccol|icsoft]` (در `apply()`). نوارهای اختصاصی تم (itu-strip، iv-chips، ern) قاب جدا نمی‌گیرند. پیش‌نمایش شش آیکون منو.
+
 ## v75 — دفترچه‌ی خطا (courses.js)
 - `CR.ev` نمای جاری (all/lesson/topic/self). گروه‌بندی با `q.lessonIds[0]`/`q.topicIds[0]`؛ منبع = عنوان درس‌ها. خودآزمایی فقط متن سؤال را نشان می‌دهد؛ `crs_esres` شمارنده‌های `selfN/selfK` و `correctStreak` را به‌روز می‌کند. رشته‌های تازه با `TT()` (روی `daniT`).
 
