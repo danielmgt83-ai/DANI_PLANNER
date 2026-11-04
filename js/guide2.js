@@ -135,6 +135,13 @@ const TIPS={
  acd:[['🎓','آکادمی','Academy'],[['درس‌ها، فلش‌کارت‌ها، آزمون‌ها و دوره‌های آفلاین.','Lessons, flashcards, tests and offline courses.']]],
  dash:[['🎯','فعالیت‌ها','Activities'],[['⭐ = فعالیت ضروری (دکمه‌ی سریع).','⭐ = essential activity (quick button).'],['اسم، رنگ، برچسب، زیرمجموعه و هدف را همین‌جا عوض کن.','Rename, recolor, tag, add sub-items and goals here.']]]};
 window.daniPageTip=()=>{const t=TIPS[page];if(!t)return'';return'<div class="c" style="margin:8px 0">'+daniH(t[0][0],'درباره‌ی این صفحه: '+t[0][1],'About this page: '+t[0][2])+t[1].map(x=>'<div class="m" style="margin:3px 0">• '+T(x[0],x[1])+'</div>').join('')+'</div>'};
+/* پیشرفت راهنما: «ادامه‌ی راهنما» در پنل «؟» و یک نوار نازکِ بسته‌شدنی بالای خانه (فقط وقتی شروع شده و تمام نشده) */
+window.daniGuideProgress=()=>{try{const g=GD(),n=Object.keys(g.done||{}).length;return g.fin?null:(n||(g.i|0)>0)?{i:I()+1,n:STEPS.length}:null}catch(e){return null}};
+H.gd_hint_x=()=>{GD().hint=1;save();const b=document.getElementById('gdbar');if(b)b.remove()};
+{const _r=render;render=function(){const r=_r.apply(this,arguments);try{const p=window.daniGuideProgress();const old=document.getElementById('gdbar');if(old)old.remove();
+  if(p&&!GD().hint&&page==='day'&&!document.getElementById('gd2')){const home=document.querySelector('.home'),T=window.daniT;if(home){const b=document.createElement('div');b.id='gdbar';b.style.cssText='display:flex;align-items:center;gap:8px;padding:6px 10px;margin:6px 0;border:1px dashed var(--b,#8886);border-radius:12px;font-size:.85em';
+    b.innerHTML='<span style="flex:1">🧭 '+T('راهنمای شروع نیمه‌کاره است','The start guide is unfinished')+' · '+fa(p.i)+'/'+fa(p.n)+'</span><button class="chip" data-a="ob_open">'+T('ادامه','Continue')+'</button><button class="chip" data-a="gd_hint_x" aria-label="close">✕</button>';
+    const f=home.querySelector('.deskhead');if(f&&f.nextSibling)home.insertBefore(b,f.nextSibling);else home.insertBefore(b,home.firstChild)}}}catch(e){}return r}}
 /* بار اول (هیچ داده‌ای نیست): خودکار باز شود، یک‌بار */
 try{if(!localStorage.getItem('dani_ob_seen'))localStorage.setItem('dani_ob_seen','1')}catch(e){}
 setTimeout(()=>{try{const g=GD();if(!g.fin&&!g.auto&&db.entries.length<=14&&!PJs().length){g.auto=1;const o=db.set.ob||(db.set.ob={});o.opened=1;save();draw()}}catch(e){}},1500);
