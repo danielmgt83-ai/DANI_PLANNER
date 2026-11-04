@@ -42,7 +42,7 @@ const Notifier=(()=>{
   const isHabRem=x=>{try{const rid=String(x.key||'').split('|')[0],r=rItems().concat(typeof dlRems==='function'?dlRems():[]).find(z=>z.id===rid);return !!(r&&r.link&&r.link.type==='habit'&&hItems().some(h=>h.id===r.link.id))}catch(e){return false}};
   let actReg=false;
   async function setupActions(){const p=LN();if(!p||actReg)return;actReg=true;
-    try{if(p.registerActionTypes)await p.registerActionTypes({types:[{id:'dani-rem',actions:[{id:'done',title:L('انجام شد','Done')},{id:'snz',title:L('۱۰ دقیقه بعد','Snooze 10 min')}]},{id:'dani-hab',actions:[{id:'hdone',title:L('✓ انجام شد (عادت تیک بخورد)','✓ Done (tick habit)')},{id:'snz',title:L('۱۰ دقیقه بعد','Snooze 10 min')}]}]})}catch(e){}
+    try{if(p.registerActionTypes)await p.registerActionTypes({types:[{id:'dani-rem',actions:[{id:'done',title:L('انجام شد','Done')},{id:'snz',title:L('۱۰ دقیقه بعد','Snooze 10 min')}]},{id:'dani-hab',actions:[{id:'hdone',title:L('✓ انجام شد (عادت تیک بخورد)','✓ Done (tick habit)')},{id:'snz',title:L('۱۰ دقیقه بعد','Snooze 10 min')}]},{id:'dani-chk',actions:[{id:'cu',title:L('📚 مفید','📚 Useful')},{id:'cr',title:L('☕ استراحت','☕ Rest')},{id:'cw',title:L('📵 تلف شد','📵 Wasted')}]}]})}catch(e){}
     try{if(p.addListener)p.addListener('localNotificationActionPerformed',ev=>{try{
       const k=ev&&ev.notification&&ev.notification.extra&&ev.notification.extra.k;if(!k||(ev.actionId!=='done'&&ev.actionId!=='snz'&&ev.actionId!=='hdone'))return;
       const rid=String(k).split('|')[0];const r=(typeof rItems==='function'?rItems().concat(typeof dlRems==='function'?dlRems():[]):[]).find(x=>x.id===rid);if(!r)return;

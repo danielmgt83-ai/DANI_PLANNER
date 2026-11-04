@@ -15,6 +15,8 @@ const CATS=[
  {k:'alarm',n:['زنگ و تایمر (پایان تایمر/پومودورو)','Alarm & timer (timer / Pomodoro end)'],ty:4},
  {k:'rem',n:['یادآورها و موعدها','Reminders & deadlines'],ty:2},
  {k:'habit',n:['یادآور عادت‌ها','Habit reminders'],ty:2},
+ {k:'chk',n:['چک‌این ساعتی («الان چه می‌کنی؟»)','Hourly check-in (“what are you doing?”)'],ty:2},
+ {k:'rmn',n:['یادآور باقی‌مانده‌ی هدف امروز','Remaining-goal reminder'],ty:2},
  {k:'gen',n:['اعلان‌های هوشمند (بعدی چی؟، چرخه، برنامه‌ی فردا)','Smart notifications (next, rhythm, plan tomorrow)'],ty:2}];
 const S2=()=>{const s=db.set;if(!s.snd2||typeof s.snd2!=='object')s.snd2={};return s.snd2};
 const CH=()=>{const s=db.set;if(!s.sndCh||typeof s.sndCh!=='object')s.sndCh={};return s.sndCh};
@@ -28,6 +30,8 @@ window.daniChFor=function(x){try{
   if(!x||x.ch==='dani-alarm-v2'||x.ch==='dani-pin-v1')return null;
   const key=String(x.key||'');let cat='gen';
   if(key==='timer-pre')cat='rem';
+  else if(/^chk-/.test(key))cat='chk';
+  else if(/^rmn-/.test(key))cat='rmn';
   else if(key.split('|').length===3){cat='rem';try{const r=(typeof rItems==='function'?rItems().concat(typeof dlRems==='function'?dlRems():[]):[]).find(z=>z.id===key.split('|')[0]);if(r&&r.link&&r.link.type==='habit')cat='habit'}catch(e){}}
   return window.daniChIds[cat]||null}catch(e){return null}};
 async function applyCat(k){const D=DN(),s=S2()[k],old=CH()[k];
