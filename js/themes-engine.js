@@ -20,7 +20,7 @@ const ICONS={
  look:'<path d="M12 3a9 9 0 100 18c1.5 0 2-1 1.5-2-.5-1 0-2 1.2-2H17a4 4 0 004-4c0-5-4-10-9-10z"/><circle cx="8" cy="11" r="1"/><circle cx="12" cy="7.5" r="1"/><circle cx="16" cy="11" r="1"/>',
  time:'<path d="M6 16V11a6 6 0 1112 0v5l2 2H4z"/><path d="M10 21h4"/>',
  data:'<ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v12c0 1.7 3.6 3 8 3s8-1.3 8-3V6M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/>'};
-const icon=k=>{const sk=document.documentElement.dataset.skin,p=((typeof PK_IC!=='undefined'&&PK_IC[sk])||{})[k]||(typeof ITU_IC!=='undefined'&&ITU_IC[sk]&&ITU_IC[sk][k])||ICONS[k];return p?'<svg class="ic" viewBox="0 0 24 24" aria-hidden="true">'+p+'</svg>':''};
+const icon=k=>{const im=(typeof db!=='undefined'&&db.set&&db.set.icmap)||{},mp=im[k]||im[{day:'home',plan2:'plan',pj:'dl',acd:'acts'}[k]];if(mp)return'<span class="ic icem" aria-hidden="true" style="font-style:normal;line-height:1;display:inline-flex;align-items:center;justify-content:center">'+String(mp).replace(/[<>&"]/g,'')+'</span>';const sk=document.documentElement.dataset.skin,p=((typeof PK_IC!=='undefined'&&PK_IC[sk])||{})[k]||(typeof ITU_IC!=='undefined'&&ITU_IC[sk]&&ITU_IC[sk][k])||ICONS[k];return p?'<svg class="ic" viewBox="0 0 24 24" aria-hidden="true">'+p+'</svg>':''};
 const SK_DEF={desc:'',lay:'side',dark:false,card:'default',rad:16,btn:'round',font:'sans',ic:'line',tag:'',vars:null,bgGradient:null,hero:null,imgs:[],emblem:null,wm:false,favicon:null,custom:false};
 const SK_BTN={round:10,pill:99,sharp:3},SK_ICW={line:1.7,bold:2.3,duo:1.7};
 /* built-in skins use exactly the same schema as importable theme files */
