@@ -6,7 +6,7 @@
 (function(){
 const T=window.daniT;
 const FX=()=>{const s=db.set;if(!s.fx||typeof s.fx!=='object')s.fx={};if(s.fx.hap===undefined)s.fx.hap=1;if(s.fx.anim===undefined)s.fx.anim=1;return s.fx};
-const VER='2026.11.44';
+const VER='2026.11.45';
 /* ---------- لرزش و پاپ ---------- */
 const HAP=/^(qk_go|nx_go|nx_sw|pf_add|tp_ap|bin_rs|ex_save|ab_now|ql_|pm_|tm_|tstart|tfinish|hab|ob_log|ob_go|dnd_set|ls_now|dk_)/;
 const reduce=()=>{try{return matchMedia('(prefers-reduced-motion: reduce)').matches}catch(e){return false}};
@@ -19,6 +19,7 @@ st.textContent='@keyframes fxpop{0%{transform:scale(1)}40%{transform:scale(.92)}
 document.head.appendChild(st);
 /* ---------- چه چیزی تازه است ---------- */
 const WN=[
+ ['📈','جبران و تأخیر پروژه: «باید تا امروز اینجا می‌بودی»، سهمیه‌ی تطبیقی امروز، تاریخ پایان طبق برنامه در برابر ریتم واقعی، اثر هر روزِ ۷ روز اخیر و هزینه‌ی وقت تلف‌شده.','Project catch-up & delay: where you should be today, adaptive share for today, plan vs real finish date, effect of each of the last 7 days and the cost of wasted time.'],
  ['❓','دکمه‌های اعلان چک‌این حالا می‌پرسند دقیقاً چه کاری بود (چند فعالیت پیشنهادی + «فعالیت دیگر»)؛ اگر خواستی می‌توانی «حدس بزن» را روشن کنی.','Check-in notification buttons now ask exactly what you did (a few suggested activities + “other”); you can switch on “guess” mode if you prefer.'],
  ['⚡','ثبت سریع از اعلان دقیق‌تر شد: متن اعلان می‌گوید هر دکمه چه فعالیتی ثبت می‌کند، ثبت‌ها «تأییدنشده» می‌مانند و روی خانه می‌توانی تأیید یا اصلاحشان کنی.','Quick log from notifications is clearer: the notification says which activity each button logs, logs stay “unconfirmed” until you confirm or fix them on Home.'],
  ['🔔','اعلان چک‌این ساعتی حالا سه دکمه دارد: «مفید / استراحت / تلف شد» (یک لمس، همان ساعت ثبت می‌شود). صدای جدا هم برای چک‌این و یادآور باقی‌مانده انتخاب می‌شود.','The hourly check-in notification now has three buttons: Useful / Rest / Wasted (one tap logs that hour). Check-in and remaining-goal reminders also get their own sound.'],

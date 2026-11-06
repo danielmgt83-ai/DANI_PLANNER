@@ -89,7 +89,7 @@ const nf1=x=>fa(Math.round(x*10)/10);
 const paceW=p=>{let w=+p.wk||0;if(!w)w=(p.parts||[]).reduce((a,x)=>a+(+x.wk||0),0);return w};
 function fcast(p){const t=todayISO(),s=stats(p,'d'),d=s.d,left=d?Math.max(0,dDiff(t,d)):null,w=paceW(p),src=w>0?'plan':'actual';
   const pace=w>0?w*60/7:mins(p,addD(t,-13),t)/14,bud=s.bud,rem=s.rem;
-  const o={s,pace,src,perDay:pace,perWeek:pace*7,perMonth:pace*30,left,due:d,bud,rem,spent:s.spent};
+  const o={p,s,pace,src,perDay:pace,perWeek:pace*7,perMonth:pace*30,left,due:d,bud,rem,spent:s.spent};
   if(bud){if(rem<=0)o.done=true;else if(pace>0){o.days=Math.ceil(rem/pace);o.finish=addD(t,o.days)}}
   if(left!==null&&pace>0)o.total=pace*left;
   if(o.finish&&left!==null)o.margin=left-o.days;
@@ -104,6 +104,7 @@ function fcVerdict(f){const hh=m=>nf1(m/60)+T(' ساعت',' h');let x='';
   else if(f.status==='nobud')x='📅 '+T('تا موعد با این آهنگ جمعاً <b>'+hh(f.total||0)+'</b>؛ برای تاریخ پایان، بودجه‌ی ساعت بگذار.','Until the deadline you get <b>'+hh(f.total||0)+'</b> at this pace; add an hour budget for a finish date.');
   else if(f.status==='nopace')x='✍ '+T('ساعت روزانه یا هفتگی را بنویس تا تاریخ پایان حساب شود.','Type daily or weekly hours to see the finish date.');
   if(x&&f.src==='actual'&&f.pace>0)x+=' <span class="m">('+T('بر پایه‌ی سرعت واقعی ۱۴ روز اخیر','based on your real pace of the last 14 days')+')</span>';
+  try{if(f.p&&window.daniPaceLine){const l=window.daniPaceLine(f.p);if(l)x+=(x?'<br>':'')+l}}catch(e){}
   return x}
 window.daniFcast=fcast;window.daniFcVerdict=fcVerdict;
 const fcCol={done:'#10b981',early:'#10b981',late:'#ef4444',open:'#3b82f6',nobud:'#3b82f6',nopace:'#94a3b8',free:'#94a3b8'};
@@ -228,4 +229,5 @@ try{Object.assign(ICONS,{pj:'<path d="M3 7h18v12H3z"/><path d="M9 7V5h6v2M3 12h1
 {const _s=syncNav;syncNav=function(){_s.apply(this,arguments);try{if(!NAV.some(n=>n[0]==='pj')&&(db.set.nv||{}).mode==='classic'){const i=NAV.findIndex(n=>n[0]==='dl'||n[0]==='cm');NAV.splice(i>=0?i+1:NAV.length,0,['pj','پروژه‌ها'])}}catch(e){}}}
 {const _m=PG.mx;if(_m)PG.mx=function(){const h=_m.apply(this,arguments);return typeof h==='string'?h+'<div class="c">'+daniH('🎓','پروژه‌ها','Projects')+'<button class="chip on" data-a="dy_go" data-p="pj" style="margin:3px">🎓 '+T('پروژه‌ها (بخش، نوع کار، موعد)','Projects (parts, work types, deadlines)')+'</button></div>':h}}
 window.daniProjects={stats:p=>stats(p,'d'),list:()=>PJ().items.slice()};
+window.daniPjX={mins,due,dDiff,paceW,fcast,stats};
 })();
