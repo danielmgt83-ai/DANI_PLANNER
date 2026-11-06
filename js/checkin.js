@@ -12,7 +12,7 @@ const quiet=at=>{try{return typeof inQuiet==='function'&&inQuiet(at)}catch(e){re
 const busy=(d,m)=>{try{return(window.daniBusy?window.daniBusy(d):[]).some(x=>m>=mn(x.s)&&m<mn(x.e))}catch(e){return false}};
 function slots(d){const q=cfg(),a=mn(q.from),b=mn(q.to),out=[];for(let m=a+q.ev;m<=b;m+=q.ev)out.push(m);return out}
 (window.daniExtraPlan=window.daniExtraPlan||[]).push(now=>{const q=cfg(),out=[];if(!q.on)return out;const t0=todayISO();
-  [t0,addD(t0,1)].forEach(d=>slots(d).forEach(m=>{const at=atOf(d,m);if(at>now+2000&&!quiet(at)&&!busy(d,m))out.push({id:hs('chk'+d+m),at,title:'DANI 🕒',body:T('الان چه می‌کنی؟ یک لمس برای ثبت همین ساعت.','What are you doing now? One tap to log this hour.'),ch:'dani-remind-v2',key:'chk-'+d+'-'+m})}));return out.slice(0,40)});
+  [t0,addD(t0,1)].forEach(d=>slots(d).forEach(m=>{const at=atOf(d,m);if(at>now+2000&&!quiet(at)&&!busy(d,m))out.push({id:hs('chk'+d+m),at,title:'DANI 🕒',body:T('الان چه می‌کنی؟ 📚 مفید · ☕ استراحت · 📵 تلف شد — با لمس، فعالیتت را انتخاب می‌کنی.','What are you doing? 📚 Useful · ☕ Rest · 📵 Wasted — tap, then pick the exact activity.'),ch:'dani-remind-v2',key:'chk-'+d+'-'+m})}));return out.slice(0,40)});
 /* آخرین بازه‌ی ثبت‌نشده امروز */
 function lastGap(){const q=cfg(),t=todayISO(),n=new Date(),nm=Math.floor((n.getHours()*60+n.getMinutes())/5)*5;let from=Math.max(0,nm-q.ev);
   (E(t)||[]).forEach(e=>{if(!ok(e.start))return;const en=mn(e.start)+(e.min||0);if(en<=nm&&en>from)from=en});
