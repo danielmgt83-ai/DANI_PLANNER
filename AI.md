@@ -516,6 +516,12 @@ DANI Planner: پلنر شخصی فارسی (RTL، با لایه‌ی ترجمه�
 ## v63 — rating.js
 - `save` پیچیده می‌شود؛ ثبت‌های تازه (≤۲ تا، غیر csv/import/smp) → `#qrs` (پنل ثابت پایین، ۱۴ ثانیه). `e.rt={en,fe,su,ac}`؛ تنظیم `db.set.qr={on,f[]}`. `PG.res` در `stats` کارت میانگین اضافه می‌کند؛ `render` در Settings/time کارت `#qrc` را بعد از `#ntc` می‌گذارد.
 
+## v80 — ثبت سریع با انتخاب
+- `logSlot` به‌طور پیش‌فرض مودال انتخاب (`ckc_pick/ckc_other/ckc_quick`) نشان می‌دهد؛ فقط اگر `db.set.chk.quick` باشد حدس می‌زند (`est:1`). `slotOf/put/cands` در chkact.js.
+
+## v79 — تست و ثبت سریع قابل‌اعتماد
+- `tests/run.mjs` (Playwright؛ سرور ایستا؛ نسخه‌ی `VER` را از fx.js می‌خواند) — قبل از هر تحویل اجرا شود؛ تست XSS با تزریق در نام فعالیت/یادداشت/پروژه و رندر همه‌ی `PG`. CI: `.github/workflows/tests.yml`. ثبت‌های `src:'chk'` فیلد `est` دارند (1=تأییدنشده)؛ `daniChkAct.names/pick`. `extensions.js` پیش از `extInstall` برای کد اجرایی `confirm` می‌گیرد.
+
 ## v78 — chkact.js
 - اعلان `chk-<تاریخ>-<دقیقه>` با `actionTypeId:'dani-chk'` (از `daniNoteExtra`)؛ اکشن‌ها `cu/cr/cw` → `daniChkAct.logSlot` آخرین فعالیتِ کلاس u / n,s / w را برای بازه‌ی [پایان آخرین ثبت یا ev دقیقه قبل، دقیقه‌ی اعلان] ثبت می‌کند (`src:'chk'`). `registerActionTypes` همه‌ی نوع‌ها را یک‌جا جایگزین می‌کند، پس نوع تازه فقط در notifier.js اضافه می‌شود.
 
