@@ -1,0 +1,1 @@
+{"name":"dani-tests","private":true,"type":"module","scripts":{"test":"node run.mjs"},"devDependencies":{"playwright":"1.49.1"}}
