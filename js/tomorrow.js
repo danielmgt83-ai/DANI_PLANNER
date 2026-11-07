@@ -159,14 +159,14 @@ const quiet=at=>{try{return typeof inQuiet==='function'&&inQuiet(at)}catch(e){re
   return out});
 
 /* ضربه روی اعلان → صفحه‌ی درست */
-function route(k){k=String(k||'');
+function route(k,n){k=String(k||'');try{if(window.daniNotifRoute&&window.daniNotifRoute(k,n))return}catch(e){console.error('nrouter',e)}
   if(/^(rh-pl-|tp-rep-)/.test(k))window.daniPlanOpen(tmrDate());
   else if(/^eod-/.test(k)){try{page='res';rt='eod';render();window.scrollTo(0,0)}catch(e){}}
   else if(/^chk-/.test(k)){try{window.daniCheckin&&window.daniCheckin.open()}catch(e){}}
   else if(/^rh-sk-/.test(k)){if((db.set.nv||{}).mode==='simple')page='day';else{page='dash';dt='today'}render()}}
 let lnOk=false;
 function hookLN(){if(lnOk)return;try{const p=window.Capacitor&&Capacitor.Plugins&&Capacitor.Plugins.LocalNotifications;if(!p||!p.addListener)return;lnOk=true;
-  p.addListener('localNotificationActionPerformed',ev=>{try{if(ev&&(ev.actionId==='tap'||!ev.actionId))route(ev.notification&&ev.notification.extra&&ev.notification.extra.k)}catch(e){console.error('tap route',e)}})}catch(e){}}
+  p.addListener('localNotificationActionPerformed',ev=>{try{if(ev&&(ev.actionId==='tap'||!ev.actionId))route(ev.notification&&ev.notification.extra&&ev.notification.extra.k,ev.notification)}catch(e){console.error('tap route',e)}})}catch(e){}}
 setInterval(hookLN,1500);setTimeout(hookLN,300);
 if('serviceWorker' in navigator)navigator.serviceWorker.addEventListener('message',e=>{try{if(e.data&&e.data.type==='dani-notif-click')route(e.data.tag)}catch(_){}});
 /* دکمه‌ی «برنامه‌ی فردا» در چرخه و جاهای قدیمی به همین صفحه برود */

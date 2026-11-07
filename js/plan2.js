@@ -10,6 +10,7 @@ const say=(m,b)=>{try{toast(m,b)}catch(e){}};
 const P2={tab:'day',date:'',f:null,sub:'busy'};
 const TABS=[['day','🗓',['برنامه‌ی روز','Day plan']],['exp','🎯',['توقع هفته و ماه','Week & month goals']],['bh','⛔',['ساعت پر · عادت · یادآور','Busy · Habits · Reminders']],['cal','📅',['تقویم و موعدها','Calendar & deadlines']]];
 const OLD={busy:['bh','busy'],hab:['bh','hab'],rem:['bh','rem'],dl:['cal'],tpl:['day']};
+window.daniP2Sel=d=>{P2.cm=d;P2.cs=d};
 window.daniP2Go=(tab,date)=>{tab=tab||'day';if(OLD[tab]){if(OLD[tab][1])P2.sub=OLD[tab][1];tab=OLD[tab][0]}P2.tab=tab;if(date)P2.date=date;page='plan2';render();try{window.scrollTo(0,0)}catch(e){}};
 H.p2_t=e=>{P2.tab=e.dataset.k;render()};
 const BZ=()=>{const s=db.set;if(!s.bz||typeof s.bz!=='object')s.bz={};if(!Array.isArray(s.bz.items))s.bz.items=[];return s.bz};
