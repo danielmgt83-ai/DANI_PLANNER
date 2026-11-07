@@ -160,11 +160,12 @@ const quiet=at=>{try{return typeof inQuiet==='function'&&inQuiet(at)}catch(e){re
 
 /* ضربه روی اعلان → صفحه‌ی درست */
 function route(k,n){if(!window.__daniBooted){const g=()=>setTimeout(()=>route(k,n),350);document.addEventListener('dani-booted',g,{once:true});return}
-  k=String(k||'');try{if(window.daniNotifRoute&&window.daniNotifRoute(k,n))return}catch(e){console.error('nrouter',e)}
+  k=String(k||'');if(k&&k===window.__lastRk&&Date.now()-window.__lastRt<15000)return;window.__lastRk=k;window.__lastRt=Date.now();try{if(window.daniNotifRoute&&window.daniNotifRoute(k,n))return}catch(e){console.error('nrouter',e)}
   if(/^(rh-pl-|tp-rep-)/.test(k))window.daniPlanOpen(tmrDate());
   else if(/^eod-/.test(k)){try{page='res';rt='eod';render();window.scrollTo(0,0)}catch(e){}}
   else if(/^chk-/.test(k)){try{window.daniCheckin&&window.daniCheckin.open()}catch(e){}}
   else if(/^rh-sk-/.test(k)){if((db.set.nv||{}).mode==='simple')page='day';else{page='dash';dt='today'}render()}}
+window.daniTapRoute=route;
 let lnOk=false;
 function hookLN(){if(lnOk)return;try{const p=window.Capacitor&&Capacitor.Plugins&&Capacitor.Plugins.LocalNotifications;if(!p||!p.addListener)return;lnOk=true;
   p.addListener('localNotificationActionPerformed',ev=>{try{if(ev&&(ev.actionId==='tap'||!ev.actionId))route(ev.notification&&ev.notification.extra&&ev.notification.extra.k,ev.notification)}catch(e){console.error('tap route',e)}})}catch(e){}}

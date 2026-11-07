@@ -6,7 +6,7 @@
 (function(){
 const T=window.daniT;
 const FX=()=>{const s=db.set;if(!s.fx||typeof s.fx!=='object')s.fx={};if(s.fx.hap===undefined)s.fx.hap=1;if(s.fx.anim===undefined)s.fx.anim=1;return s.fx};
-const VER='2026.11.48';
+const VER='2026.11.49';
 /* ---------- لرزش و پاپ ---------- */
 const HAP=/^(qk_go|nx_go|nx_sw|pf_add|tp_ap|bin_rs|ex_save|ab_now|ql_|pm_|tm_|tstart|tfinish|hab|ob_log|ob_go|dnd_set|ls_now|dk_)/;
 const reduce=()=>{try{return matchMedia('(prefers-reduced-motion: reduce)').matches}catch(e){return false}};
@@ -19,6 +19,7 @@ st.textContent='@keyframes fxpop{0%{transform:scale(1)}40%{transform:scale(.92)}
 document.head.appendChild(st);
 /* ---------- چه چیزی تازه است ---------- */
 const WN=[
+ ['🌙','شروع بدون پرش: صفحه‌ی آماده‌سازی تا آماده‌شدن کامل برنامه؛ لمس اعلان با برنامه‌ی بسته (APK نو) و کارت موعد فقط یک دکمه','Jump-free start: a short splash until the app is fully ready; notification tap from a closed app (new APK); deadline card has a single button'],
  ['⚙','تنظیمات موعد یک‌جا شد (موعدها ← ⚙): طرح، رنگ و سطح، جمله‌ها، یادآوری پیش‌فرض (تا ۱ هفته قبل)، طرح جدا برای هر موعد و هشدار هوشمند','Deadline settings in one place (Deadlines → ⚙): look, colours & levels, sentences, default reminders (up to 1 week), per-deadline look and a smart alert'],
 ['⚡','شروع تمیز: دیگر اول صفحه‌ی قدیمی دیده نمی‌شود؛ اعلانِ برنامه‌ی بسته هم دقیق به آیتم می‌رود','Clean start: no more old-home flash; tapping a notification with the app closed now lands on the exact item'],
  ['🎯','لمس اعلان حالا دقیقاً همان آیتم را باز می‌کند و برجسته می‌کند (یادآوری، عادت، موعد، تایمر، برنامه‌ی فردا، گزارش)؛ یک نوار کوچک می‌ماند تا هر وقت خواستی ببندی یا جای دیگر بروی.','Tapping a notification now opens and highlights the exact item (reminder, habit, deadline, timer, tomorrow’s plan, report); a small bar stays so you can close it or go elsewhere.'],

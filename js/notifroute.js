@@ -32,9 +32,13 @@ function R(k,n){k=String(k||'');const title=n&&(n.body||n.title)?String(n.body||
   else if(/^rh-sk-/.test(k)){toHome(firstCard)}
   else if(/^bk-nag-/.test(k)){page='set';try{stt='data'}catch(e){}render();flash(()=>document.querySelector('#pg details[id*="bk"]')||firstCard())}
   else if(/^nx-/.test(k)){toHome('#dytr')}
-  else if(/^rmn-/.test(k)){toHome(firstCard)}
+  else if(/^rmn-/.test(k)){toHome('#dytr')}
   else if(/^(timer|pomo)/.test(k)){toHome('#dytr')}
   else ok=false;
   if(ok)bar(title);return ok}
 window.daniNotifRoute=R;
+/* شروع سرد (v85): اگر برنامه با لمس اعلان از حالت بسته باز شد، کلید را از بخش بومی می‌گیریم و همان مسیر را می‌رویم (نیاز به APK نو؛ بدون آن اثری ندارد). */
+function cold(){try{const dn=window.Capacitor&&Capacitor.Plugins&&Capacitor.Plugins.DaniNative;if(!dn||!dn.getLaunchNotif)return;
+  dn.getLaunchNotif().then(r=>{if(r&&r.k&&window.daniTapRoute)window.daniTapRoute(r.k)}).catch(()=>{})}catch(e){}}
+if(window.__daniBooted)setTimeout(cold,700);else document.addEventListener('dani-booted',()=>setTimeout(cold,700),{once:true});
 })();

@@ -22,7 +22,7 @@ function phrase(i,x){const o=D(),k=LV[i][0],u=(o.phr[k]||[]).filter(Boolean),L=u
 function info(x){const now=Date.now(),due=dlTs(x),ms=due-now,cr=+x.cr||due-30*864e5,tot=Math.max(1,due-cr),el=Math.min(1,Math.max(0,(now-cr)/tot)),d=Math.max(0,Math.floor(ms/864e5)),h=Math.max(0,Math.floor(ms%864e5/36e5)),lv=level(ms);return{x,ms,d,h,el,lv,col:lvCol(lv),dd:Math.max(0,ms/864e5)}}
 const val=(i,s)=>dirOf(s)==='rem'?1-i.el:i.el;
 function items(){const A=zDL(),now=Date.now();return A.items.filter(i=>dlOk(i)&&!i.arch&&!i.done&&dlTs(i)>now-864e5*3).sort((a,b)=>dlTs(a)-dlTs(b))}
-const cyc='<button class="chip dlcyc" data-a="dl_cyc" title="'+T('طرح بعدی','Next style')+'" aria-label="style">🎨</button><button class="chip dlcyc" data-a="dl_hub" title="'+T('تنظیمات موعد','Deadline settings')+'" aria-label="settings">⚙</button>';
+const cyc='';
 const goB='<button class="chip" data-a="go" data-p="dl">'+T('موعدها','Deadlines')+'</button>';
 function head(i,pin){const L=LV[i.lv];return'<div class="dlx-h"><span class="dlx-chip"><i>'+L[1]+'</i> '+L[2]+'</span><span class="m dlx-pin">'+(pin?'📌 ':'')+'</span><span style="flex:1"></span>'+cyc+goB+'</div>'}
 function foot(i){const o=D();let h='';if(o.ph)h+='<div class="dlx-ph">'+esc(phrase(i.lv,i.x))+'</div>';if(o.fc&&window.daniFcForDl){try{const f=window.daniFcForDl(i.x.id);if(f)h+='<div class="m dlx-fc">'+f+'</div>'}catch(e){}}if(o.lost&&window.daniPaceForDl){try{const f=window.daniPaceForDl(i.x.id);if(f)h+='<div class="dlx-fc">'+f+'</div>'}catch(e){}}return h}
