@@ -551,3 +551,6 @@ DANI Planner: پلنر شخصی فارسی (RTL، با لایه‌ی ترجمه�
 
 ## v61 — settings2.js
 - بعد از هر `render` اگر `page==='set'`: `stt==='time'` ← `timeTab()` کارت‌های اعلان را (با regex روی h3 دوزبانه) در `#ntc` جمع می‌کند؛ `stt==='look'` ← `lookTab()`. کارت تازه‌ی اعلان اضافه کردی: regex را در `timeTab` ثبت کن.
+
+
+> v83: `boot.js` باید **آخرین** `<script>` در index.html بماند (اولین render و `window.__daniBooted`/رویداد `dani-booted`). هر کدی که به شروع سرد وابسته است (مثل `route` اعلان) تا `__daniBooted` صبر کند.
