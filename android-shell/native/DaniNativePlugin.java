@@ -109,6 +109,15 @@ public class DaniNativePlugin extends Plugin {
     }
 
     @PluginMethod
+    public void getLaunchNotif(PluginCall call) {
+        JSObject r = new JSObject();
+        String k = MainActivity.launchK;
+        MainActivity.launchK = null;
+        if (k != null) r.put("k", k);
+        call.resolve(r);
+    }
+
+    @PluginMethod
     public void saveFromCache(PluginCall call) {
         try {
             File src = new File(getContext().getCacheDir(), call.getString("path", ""));
