@@ -554,3 +554,5 @@ DANI Planner: پلنر شخصی فارسی (RTL، با لایه‌ی ترجمه�
 
 
 > v83: `boot.js` باید **آخرین** `<script>` در index.html بماند (اولین render و `window.__daniBooted`/رویداد `dani-booted`). هر کدی که به شروع سرد وابسته است (مثل `route` اعلان) تا `__daniBooted` صبر کند.
+
+> v84: تنظیمات موعد فقط در `js/dlcard.js` (`group()`+`extra()`، hub `#dlhub` در صفحه‌ی موعدها) است؛ تنظیمات تازه‌ی موعد را همان‌جا اضافه کن، نه جای دیگر. ذخیره: `db.set.dlh` (+`x.hs` هر موعد). هشدار هوشمند: `js/dlnag.js`.
