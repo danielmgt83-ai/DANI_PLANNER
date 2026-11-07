@@ -28,6 +28,7 @@ function R(k,n){k=String(k||'');const title=n&&(n.body||n.title)?String(n.body||
   else if(/^eod-/.test(k)){page='res';rt='eod';render();try{window.scrollTo(0,0)}catch(e){}}
   else if(/^chk-/.test(k)){try{daniCheckin.open()}catch(e){}ok=true}
   else if(/^(rh-wk-|wk-sum-)/.test(k)){page='res';rt='rep';render();try{window.scrollTo(0,0)}catch(e){}flash(firstCard)}
+  else if(/^dlw-/.test(k)){page='dl';render();flash(()=>document.querySelector('#pg .dlrow')||firstCard())}
   else if(/^rh-sk-/.test(k)){toHome(firstCard)}
   else if(/^bk-nag-/.test(k)){page='set';try{stt='data'}catch(e){}render();flash(()=>document.querySelector('#pg details[id*="bk"]')||firstCard())}
   else if(/^nx-/.test(k)){toHome('#dytr')}

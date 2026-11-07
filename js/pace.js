@@ -17,6 +17,7 @@ function pace(p){const x=X();if(!x||!p)return null;const t=todayISO(),f=x.fcast(
  const todayMin=x.mins(p,t,t),target=left>0&&need>0?need:base;
  return{lateDue,base,kind,start,planned,spent,gap,gapDays:gap/base,need,rem,left,Fnow,Fplan,PF,delay,led,w7,wDays:w7/base,todayMin,target,extra:Math.max(0,target-base),bud,done:rem<=0,due:d}}
 window.daniPace=pace;
+window.daniPaceForDl=id=>{try{const L=window.daniProjects&&daniProjects.list?daniProjects.list():[];const p=L.find(q=>!q.arch&&q.dl===id);return p?window.daniPaceLine(p):''}catch(e){return''}};
 function head(q){if(q.done)return'';const g=q.gap;if(Math.abs(g)<5)return'✅ '+T('دقیقاً طبق برنامه','Right on plan');
  return g>0?'🔻 '+T(hrs(g)+' عقب‌تر از برنامه (≈ '+dys(q.gapDays)+')',hrs(g)+' behind plan (≈ '+dys(q.gapDays)+')'):'🔺 '+T(hrs(g)+' جلوتر از برنامه (≈ '+dys(q.gapDays)+')',hrs(g)+' ahead of plan (≈ '+dys(q.gapDays)+')')}
 window.daniPaceLine=p=>{try{const q=pace(p);if(!q||q.done)return'';let l='<span class="m">'+head(q);if(q.lateDue>0&&q.left>0)l+=' · ⚠ '+T('با ریتم واقعی ۱۴ روز اخیر '+dys(q.lateDue)+' بعد از موعد','at your real 14-day pace '+dys(q.lateDue)+' after the deadline');if(q.extra>5&&q.left>0)l+=' · '+T('سهمیه‌ی امروز '+hrs(q.target)+' (+'+hrs(q.extra)+' جبران)','today’s share '+hrs(q.target)+' (+'+hrs(q.extra)+' catch-up)');return l+'</span>'}catch(e){return''}};

@@ -95,7 +95,7 @@ Object.assign(zMA.hab,{
 
 
 /* ===== v15 reminders: in-app alerts, optional system notifications (while the app is open), missed-list on open ===== */
-const RSTEPS=[[0,'در لحظه‌ی یادآوری'],[10,'۱۰ دقیقه قبل'],[30,'۳۰ دقیقه قبل'],[60,'۱ ساعت قبل'],[1440,'۱ روز قبل']];
+const RSTEPS=[[0,'در لحظه‌ی یادآوری'],[10,'۱۰ دقیقه قبل'],[30,'۳۰ دقیقه قبل'],[60,'۱ ساعت قبل'],[180,'۳ ساعت قبل'],[720,'۱۲ ساعت قبل'],[1440,'۱ روز قبل'],[4320,'۳ روز قبل'],[10080,'۱ هفته قبل']];
 const RREP={none:'بدون تکرار',daily:'هر روز',weekly:'هفتگی',monthly:'ماهانه',yearly:'سالانه'};
 const rOk=r=>r&&typeof r==='object'&&typeof r.id==='string'&&r.id&&typeof r.title==='string'&&mDate(r.date)&&mTime(r.time)&&r.repeat in RREP;
 const rItems=()=>zRM().items.filter(rOk);

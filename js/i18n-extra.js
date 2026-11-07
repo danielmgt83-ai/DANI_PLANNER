@@ -911,7 +911,7 @@ const I18_EXTRA={
 "متن یادداشت از بین می‌رود)":"the note text is lost)",
 "خانه به چیدمان پیش‌فرض برگردد؟ یادداشت‌های سفارشی حذف می‌شوند":"Reset Home to the default layout? Custom notes will be deleted",
 "بازبینی ذخیره شد":"Review saved",
-"در حال آماده‌سازی…":"Preparing…",
+"۳ ساعت قبل":"3 hours before","۱۲ ساعت قبل":"12 hours before","۳ روز قبل":"3 days before","۱ هفته قبل":"1 week before","در حال آماده‌سازی…":"Preparing…",
 "تایمر در حال اجراست":"Timer is running",
 "تایمر متوقف است":"Timer is paused",
 "رفتن به تایمر":"Go to timer",

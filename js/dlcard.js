@@ -12,7 +12,7 @@ const PH={calm:[['وقت داری؛ آرام و پیوسته جلو برو.','Pl
  crit:[['بحرانی! فقط مهم‌ترین کار را انجام بده.','Critical! Do only what matters most.']],
  over:[['موعد گذشته؛ همین حالا تکلیفش را روشن کن.','Overdue — settle it now.']]};
 const EN=()=>{try{return typeof LANGEN==='function'&&LANGEN()}catch(e){return false}};
-const D=()=>{const o=db.set.dlh||(db.set.dlh={});if(!Array.isArray(o.th)||o.th.length!==3)o.th=[14,7,3];if(o.col===undefined)o.col=true;if(o.pulse===undefined)o.pulse=true;if(o.fc===undefined)o.fc=true;if(o.ph===undefined)o.ph=true;if(!o.dir)o.dir={};if(!o.phr)o.phr={};
+const D=()=>{const o=db.set.dlh||(db.set.dlh={});if(!Array.isArray(o.th)||o.th.length!==3)o.th=[14,7,3];if(o.col===undefined)o.col=true;if(o.pulse===undefined)o.pulse=true;if(o.fc===undefined)o.fc=true;if(o.ph===undefined)o.ph=true;if(o.lost===undefined)o.lost=true;if(!Array.isArray(o.rs))o.rs=[1440,60];if(o.nag===undefined)o.nag=false;if(!/^\d\d:\d\d$/.test(o.nagT||''))o.nagT='20:00';if(!o.dir)o.dir={};if(!o.phr)o.phr={};
   if(!o.hs){let s='hero';try{const a=zDL().style;if(ST.some(x=>x[0]===a)){s=a}if(!['big','ring','bar','mini'].includes(a)){zDL().style='big'}}catch(e){}o.hs=s}
   if(o.hs==='bar')o.hs='hero';if(o.hs==='mini')o.hs='pill';if(!ST.some(x=>x[0]===o.hs))o.hs='hero';return o};
 const dirOf=s=>{const o=D();return o.dir[s]||GAUGE[s]||'el'};
@@ -22,10 +22,10 @@ function phrase(i,x){const o=D(),k=LV[i][0],u=(o.phr[k]||[]).filter(Boolean),L=u
 function info(x){const now=Date.now(),due=dlTs(x),ms=due-now,cr=+x.cr||due-30*864e5,tot=Math.max(1,due-cr),el=Math.min(1,Math.max(0,(now-cr)/tot)),d=Math.max(0,Math.floor(ms/864e5)),h=Math.max(0,Math.floor(ms%864e5/36e5)),lv=level(ms);return{x,ms,d,h,el,lv,col:lvCol(lv),dd:Math.max(0,ms/864e5)}}
 const val=(i,s)=>dirOf(s)==='rem'?1-i.el:i.el;
 function items(){const A=zDL(),now=Date.now();return A.items.filter(i=>dlOk(i)&&!i.arch&&!i.done&&dlTs(i)>now-864e5*3).sort((a,b)=>dlTs(a)-dlTs(b))}
-const cyc='<button class="chip dlcyc" data-a="dl_cyc" title="'+T('طرح بعدی','Next style')+'" aria-label="style">🎨</button>';
+const cyc='<button class="chip dlcyc" data-a="dl_cyc" title="'+T('طرح بعدی','Next style')+'" aria-label="style">🎨</button><button class="chip dlcyc" data-a="dl_hub" title="'+T('تنظیمات موعد','Deadline settings')+'" aria-label="settings">⚙</button>';
 const goB='<button class="chip" data-a="go" data-p="dl">'+T('موعدها','Deadlines')+'</button>';
 function head(i,pin){const L=LV[i.lv];return'<div class="dlx-h"><span class="dlx-chip"><i>'+L[1]+'</i> '+L[2]+'</span><span class="m dlx-pin">'+(pin?'📌 ':'')+'</span><span style="flex:1"></span>'+cyc+goB+'</div>'}
-function foot(i){const o=D();let h='';if(o.ph)h+='<div class="dlx-ph">'+esc(phrase(i.lv,i.x))+'</div>';if(o.fc&&window.daniFcForDl){try{const f=window.daniFcForDl(i.x.id);if(f)h+='<div class="m dlx-fc">'+f+'</div>'}catch(e){}}return h}
+function foot(i){const o=D();let h='';if(o.ph)h+='<div class="dlx-ph">'+esc(phrase(i.lv,i.x))+'</div>';if(o.fc&&window.daniFcForDl){try{const f=window.daniFcForDl(i.x.id);if(f)h+='<div class="m dlx-fc">'+f+'</div>'}catch(e){}}if(o.lost&&window.daniPaceForDl){try{const f=window.daniPaceForDl(i.x.id);if(f)h+='<div class="dlx-fc">'+f+'</div>'}catch(e){}}return h}
 const numTxt=i=>i.lv===4?'<b>'+T('گذشته','Late')+'</b>':i.d>0?'<b>'+fa(i.d)+'</b><small>'+T('روز','days')+'</small>':'<b>'+fa(i.h)+'</b><small>'+T('ساعت','hours')+'</small>';
 const meta=x=>fmtD(x.dt)+' · '+fa(x.tm);
 const wrap=(i,inner,extra)=>'<div class="c dlx'+(i.lv===3&&D().pulse?' dlx-p':'')+(extra||'')+'" id="dlcard" data-lv="'+LV[i.lv][0]+'" style="--k:'+i.col+'">'+inner+'</div>';
@@ -35,7 +35,7 @@ function ringSvg(i,s){const R=44,C=2*Math.PI*R,v=val(i,s);return'<svg viewBox="0
 function render1(sty,sample){const its=sample?[{id:'_s',title:T('نمونه: تحویل پروژه','Sample: project handover'),dt:(function(){const d=new Date(Date.now()+9*864e5);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')})(),tm:'18:00',cr:Date.now()-12*864e5}]:items(),A=zDL();
   const pinX=!sample&&its.find(q=>q.id===A.main),x=pinX||its.find(q=>dlTs(q)>Date.now())||its[0];
   if(!x)return'<div class="c" id="dlcard"><div class="dlx-h"><h3 style="margin:0">'+BH('Next deadline','موعد بعدی')+'</h3><span style="flex:1"></span>'+goB+'</div><p class="m">'+T('افقی در پیش نیست. یک موعد بگذار تا شمارش و پیش‌بینی شروع شود.','Nothing on the horizon. Add a deadline to start the countdown and forecast.')+'</p></div>';
-  const i=info(x);
+  const i=info(x);if(!sample&&x.hs&&ST.some(q=>q[0]===x.hs)&&x.hs!=='stack'&&x.hs!=='line')sty=x.hs;
   if(sty==='hero')return wrap(i,head(i,pinX)+'<div class="dlx-main"><div class="dlx-n">'+numTxt(i)+(i.d>0&&i.d<=3&&i.lv<4?'<small>'+fa(i.h)+T(' ساعت',' h')+'</small>':'')+'</div><div class="dlx-tt"><b>'+esc(S_(x.title,80))+'</b><span class="m">'+meta(x)+'</span></div></div>'+gauge(i,'hero')+foot(i));
   if(sty==='ring')return wrap(i,head(i,pinX)+'<div class="dlx-rw"><div class="dlx-ring">'+ringSvg(i,'ring')+'<div class="dlx-rc">'+numTxt(i)+'</div></div><div class="dlx-tt"><b>'+esc(S_(x.title,80))+'</b><span class="m">'+meta(x)+'</span>'+foot(i)+'</div></div>');
   if(sty==='blocks'){const W=Math.max(7,Math.min(21,D().th[0])),rem=Math.min(W,Math.ceil(i.dd)),f=dirOf('blocks')==='rem'?rem:W-rem,cells=[];for(let k=0;k<W;k++){const dayLeft=k+1,l=level(dayLeft*864e5-1),on=dirOf('blocks')==='rem'?k<rem:k>=rem;cells.push('<i class="dlx-b'+(on?' on':'')+'" style="--bk:'+lvCol(Math.min(3,l))+';animation-delay:'+(k*35)+'ms"></i>')}
@@ -68,18 +68,31 @@ function group(){const o=D(),t=o.th;
    +'<div style="margin-top:8px">'+chk('col',T('رنگ هشدار (سبز ← زرد ← نارنجی ← قرمز)','Warning colours (green → yellow → orange → red)'))+chk('pulse',T('تپش آرام در حالت بحرانی','Gentle pulse when critical'))+chk('ph',T('نمایش جمله‌ی هر سطح','Show a sentence per level'))+chk('fc',T('نمایش پیش‌بینی پایان پروژه','Show project forecast'))+'</div>'
    +'<details style="margin-top:10px"><summary style="cursor:pointer">'+T('جمله‌ی هر سطح (ویرایش و افزودن)','Sentence per level (edit & add)')+'</summary><p class="m">'+T('هر خط یک جمله؛ هر روز یکی نمایش داده می‌شود. خالی بگذاری، جمله‌های پیش‌فرض برمی‌گردد.','One sentence per line; one is shown each day. Leave empty for the defaults.')+'</p>'
    +LV.map(l=>{const u=o.phr[l[0]],def=PH[l[0]].map(p=>EN()?p[1]:p[0]);return'<div style="margin-top:6px"><span class="dlx-chip" style="--k:'+l[3]+'"><i>'+l[1]+'</i> '+l[2]+'</span><textarea data-dlx="ph:'+l[0]+'" rows="2" style="width:100%;margin-top:4px" placeholder="'+esc(def.join('\n'))+'">'+esc((u||[]).join('\n'))+'</textarea></div>'}).join('')+'</details>'}
+function extra(){const o=D(),RS=(typeof RSTEPS!=='undefined'?RSTEPS:[]).slice().sort((a,b)=>a[0]-b[0]);
+  return'<div class="m" style="margin-top:14px"><b>'+T('یادآوری پیش‌فرض موعد جدید','Default reminders for a new deadline')+'</b></div><div class="row" style="gap:6px;margin-top:4px">'+RS.map(z=>'<label class="chip"><input type="checkbox" data-dlx="rs:'+z[0]+'"'+(o.rs.includes(z[0])?' checked':'')+'> '+(EN()?(window.I18_EN&&I18_EN[z[1]])||z[1]:z[1])+'</label>').join('')+'</div>'
+   +'<div class="row" style="margin-top:6px"><button class="chip" data-a="dlx_apply">'+T('اعمال روی همه‌ی موعدهای پیش‌رو','Apply to all upcoming deadlines')+'</button></div>'
+   +'<div style="margin-top:12px"><label class="row" style="align-items:center;gap:8px"><input type="checkbox" data-dlx="lost"'+(o.lost?' checked':'')+'> '+T('نمایش «چقدر عقب‌ام / چقدر جلوام» زیر کارت (برای موعدهای دارای پروژه)','Show “how far behind / ahead” under the card (deadlines with a project)')+'</label>'
+   +'<label class="row" style="align-items:center;gap:8px;margin-top:6px"><input type="checkbox" data-dlx="nag"'+(o.nag?' checked':'')+'> '+T('هشدار هوشمند: اگر با ریتم واقعی دیرتر از موعد می‌رسم، هر روز یک اعلان بده','Smart alert: if my real pace misses the deadline, send one notification a day')+'</label>'
+   +'<div class="row" style="align-items:center;gap:8px;margin-top:4px"><span class="m">'+T('ساعت اعلان','Alert time')+'</span><input type="time" data-dlx="nagT" value="'+o.nagT+'"></div></div>'
+   +'<p class="m" style="margin-top:8px">'+T('هر موعد را هم می‌توانی در فرم خودش طرح و یادآوری جدا بدهی؛ آنجا خالی بگذاری، همین تنظیم کلی اجرا می‌شود.','Each deadline can also have its own look and reminders in its form; leave it empty to follow these settings.')+'</p>'}
+H.dlx_apply=()=>{if(!confirm(T('یادآوری همه‌ی موعدهای پیش‌رو با این پیش‌فرض جایگزین شود؟','Replace the reminders of all upcoming deadlines with these defaults?')))return;const o=D();zDL().items.forEach(x=>{if(!x.done&&!x.arch)x.al=o.rs.slice()});save();try{Notifier.sync()}catch(e){}render();toast(T('اعمال شد','Applied'))};
+H.dl_hub=()=>{window.__dlHubOpen=true;page='dl';render();setTimeout(()=>{const g=document.getElementById('dlhub');if(g){g.open=true;g.scrollIntoView({block:'start'})}},120)};
+function hub(){if(document.getElementById('dlhub'))return;const pg=document.getElementById('pg'),first=pg&&pg.querySelector('.c');if(!first)return;
+  const g=document.createElement('details');g.className='bgrp';g.id='dlhub';g.innerHTML='<summary style="cursor:pointer;font-weight:700">⚙ '+T('تنظیمات موعد (همه‌ی تنظیمات یک‌جا)','Deadline settings (everything in one place)')+'</summary><div class="c" id="dlsx">'+group()+extra()+'</div>';
+  first.parentNode.insertBefore(g,first.nextSibling);if(window.__dlHubOpen)g.open=true;g.addEventListener('toggle',()=>{window.__dlHubOpen=g.open})}
 H.dlx_st=e=>{D().hs=e.dataset.v;save();render()};
 document.addEventListener('change',ev=>{const t=ev.target,k=t&&t.dataset&&t.dataset.dlx;if(!k)return;const o=D();
   if(/^th\d$/.test(k)){const i=+k[2];let n=Math.round(+t.value);if(!isFinite(n))return;o.th[i]=n;const a=o.th.slice().sort((p,q)=>q-p);o.th=a}
+  else if(k.startsWith('rs:')){const m=+k.slice(3);o.rs=o.rs.filter(v=>v!==m);if(t.checked)o.rs.push(m);o.rs.sort((a,b)=>b-a)}
+  else if(k==='nagT'){if(/^\d\d:\d\d$/.test(t.value))o.nagT=t.value}
   else if(k.startsWith('dir:'))o.dir[k.slice(4)]=t.value;
   else if(k.startsWith('ph:'))o.phr[k.slice(3)]=String(t.value).split('\n').map(s=>s.trim().slice(0,140)).filter(Boolean).slice(0,12);
   else o[k]=!!t.checked;
   save();render()});
-function card(){if(document.getElementById('dlsx'))return;
+function card(){if(document.getElementById('dlsxg'))return;
   const g=[...document.querySelectorAll('details.bgrp')].find(d=>/Look & themes|ظاهر و تم/.test(d.querySelector('summary')?d.querySelector('summary').innerText:''));if(!g)return;
-  const b=document.createElement('div');b.className='c';b.id='dlsx';b.innerHTML=group();g.parentNode.insertBefore(Object.assign(document.createElement('details'),{className:'bgrp',id:'dlsxg',innerHTML:'<summary style="cursor:pointer;font-weight:700">⏳ '+T('کارت موعد خانه','Home deadline card')+'</summary>'}),g.nextSibling).appendChild(b);
-  const dg=document.getElementById('dlsxg');if(window.__dlsxOpen)dg.open=true;dg.addEventListener('toggle',()=>{window.__dlsxOpen=dg.open})}
-{const _r=render;render=function(){const r=_r.apply(this,arguments);try{if(page==='set'&&stt==='look')card()}catch(e){console.error('dlcard set',e)}return r}}
+  const b=document.createElement('div');b.className='c';b.id='dlsxg';b.innerHTML='<h3>⏳ '+T('تنظیمات موعد','Deadline settings')+'</h3><p class="m">'+T('همه‌ی تنظیمات موعد (طرح کارت، رنگ و سطح هشدار، جمله‌ها، یادآوری‌ها، هشدار هوشمند) حالا یک‌جا و کنار خود موعدهاست.','All deadline settings (card look, colours & levels, sentences, reminders, smart alert) now live in one place, next to the deadlines.')+'</p><button class="p" data-a="dl_hub">'+T('باز کردن تنظیمات موعد','Open deadline settings')+'</button>';g.parentNode.insertBefore(b,g.nextSibling)}
+{const _r=render;render=function(){const r=_r.apply(this,arguments);try{if(page==='set'&&stt==='look')card();if(page==='dl')hub()}catch(e){console.error('dlcard set',e)}return r}}
 const css=document.createElement('style');
 css.textContent='.dlx{background:linear-gradient(135deg,color-mix(in srgb,var(--k) 15%,transparent),transparent 62%);border:1px solid color-mix(in srgb,var(--k) 36%,var(--b,#8883));border-inline-start:4px solid var(--k)}'
  +'.dlx-h{display:flex;align-items:center;gap:6px;flex-wrap:nowrap}.dlx-chip{display:inline-flex;align-items:center;gap:4px;padding:2px 10px;border-radius:999px;font-size:.78em;font-weight:700;background:color-mix(in srgb,var(--k) 18%,transparent);color:var(--k)}.dlx-chip i{font-style:normal}'
@@ -94,5 +107,5 @@ css.textContent='.dlx{background:linear-gradient(135deg,color-mix(in srgb,var(--
  +'.dlx-p{animation:dlxpulse 2.4s ease-in-out infinite}@keyframes dlxpulse{50%{box-shadow:0 0 0 4px color-mix(in srgb,var(--k) 28%,transparent)}}@keyframes dlxin{from{opacity:0;transform:translateY(6px) scale(.94)}}@keyframes dlxgrow{from{width:0!important}}@keyframes dlxarc{from{stroke-dashoffset:var(--c)}}'
  +'@media (prefers-reduced-motion:reduce){.dlx-p,.dlx-n b,.dlx-g i,.dlx-arc,.dlx-b,.dll-d{animation:none!important}}';
 document.head.appendChild(css);
-window.daniDlCard={home,level,D};
+window.daniDlStyles=ST;window.daniDlCard={home,level,D};
 })();
