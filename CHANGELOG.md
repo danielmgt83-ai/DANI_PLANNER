@@ -2,6 +2,9 @@
 
 > هر تحویل یک خط در اینجا. جدیدترین بالا. (هوش مصنوعی‌ها: هر بار که فایلی را عوض می‌کنید، این‌جا یک خط بنویسید.)
 
+## (۸۳) v85 — شروع بدون پرش + لمس اعلان در شروع سرد
+- علت پرش: ۸ اسکریپت (sound-notify-backup، quotes-data، home-desk، theme-eren، pomodoro…) هنگام بارگذاری خودشان `render()` می‌زدند؛ پس چند «خانه‌ی نیمه‌کاره» پشت‌سرهم دیده می‌شد. حالا یک صفحه‌ی آماده‌سازی (`#bootv`) تا پایان `boot.js` روی همه‌چیز است. شروع سرد اعلان: `MainActivity.launchK` + `DaniNative.getLaunchNotif` (نیاز به APK نو) و `notifroute.js` بعد از آماده‌شدن مسیر را می‌رود؛ `route` تکراری را ۱۵ ثانیه نادیده می‌گیرد. اعلان «باقی‌مانده‌ی هدف» (`rmn-`) به کارت ثبت می‌رود. کارت موعد خانه: فقط دکمه‌ی «موعدها» (🎨 و ⚙ برداشته شد؛ طرح در تنظیمات موعد است). تغییر: `index.html`، `js/boot.js`، `js/tomorrow.js`، `js/notifroute.js`، `js/dlcard.js`، `js/fx.js`، `sw.js`، `AI.md`، `CHANGELOG.md`، `android-shell/native/MainActivity.java`، `android-shell/native/DaniNativePlugin.java`.
+
 ## (۸۲) v84 — تنظیمات موعد در یک جا
 - تنظیمات موعد که در سه جا پخش بود (انتخاب‌گر ۴ حالت قدیمی صفحه‌ی موعدها، کارت تنظیمات ظاهر، مراحل یادآوری) حالا در «موعدها ← ⚙ تنظیمات موعد» است (دکمه‌ی ⚙ روی کارت خانه هم همان‌جا می‌برد). هر ۴ حالت قدیمی در ۷ طرح جدید هست (نوار=کارت، مینی=خط باریک). تازه: ظاهر کارت جدا برای هر موعد (`x.hs`)، یادآوری پیش‌فرض و تا «۳ ساعت/۱۲ ساعت/۳ روز/۱ هفته قبل» (`RSTEPS`)، دکمه‌ی اعمال روی همه، نمایش عقب/جلو بودن (`daniPaceForDl`)، هشدار هوشمند اختیاری (`js/dlnag.js`، کلید `dlw-`). افزوده: `js/dlnag.js`. تغییر: `js/dlcard.js`، `js/modules-deadlines.js`، `js/modules-habits-reminders-quotes.js`، `js/pace.js`، `js/notifroute.js`، `js/i18n-extra.js`، `index.html`، `js/fx.js`، `sw.js`، `AI.md`، `CHANGELOG.md`. APK لازم نیست.
 
