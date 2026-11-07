@@ -39,6 +39,13 @@ await test('جبران و تأخیر پروژه: عقب‌ماندگی، سهم�
 await test('اعلان‌ها دقیقاً به آیتم می‌روند و آیتم برجسته می‌شود',async pg=>{await pg.evaluate(()=>{const t=todayISO();const R=zmg('rem',()=>({}));R.items=R.items||[];R.items.push({id:'rA',title:'تماس با دکتر',date:t,time:'23:00',repeat:'none',steps:[0],link:null},{id:'rB',title:'ورزش',date:t,time:'22:00',repeat:'daily',days:[],steps:[0],link:{type:'habit',id:'hX'}});const H2=zmg('hab',()=>({}));H2.items=H2.items||[];H2.items.push({id:'hX',name:'ورزش',days:[0,1,2,3,4,5,6],start:t});const D=zmg('dl',()=>({v:1}));D.items=D.items||[];D.items.push({id:'dX',title:'پروژه X',dt:addD(t,5),tm:'09:00',al:[0],cat:''});save()});
  for(const [k,p] of [['rA|T|0','plan2'],['rB|T|0','plan2'],['dl_dX|T|0','plan2'],['timer-end','day'],['rh-wk-T','res']]){const kk=await pg.evaluate(k=>k.replace('T',todayISO()),k);await pg.evaluate(k=>{page='set';render();daniNotifRoute(k,{body:'x'})},kk);await pg.waitForTimeout(1500);
   const r=await pg.evaluate(()=>[page,document.querySelectorAll('.nrfx').length,!!document.getElementById('nrbar')]);ok(r[0]===p&&r[1]===1&&r[2],k+' → '+r)}});
+await test('تنظیمات یکپارچه‌ی موعد: hub، طرح جدا برای هر موعد، یادآوری تا یک هفته، هشدار هوشمند',async pg=>{const r=await pg.evaluate(()=>{const t=todayISO();const D=zmg('dl',()=>({v:1}));D.items=D.items||[];D.items.push({id:'dQ',title:'موعد Q',dt:addD(t,9),tm:'09:00',al:[10080,4320],cat:'',hs:'ring',cr:Date.now()-3*864e5});save();
+  page='dl';render();const hub=!!document.getElementById('dlhub'),old=!document.querySelector('[data-mc="dl:style:big"]'),sel=!!document.getElementById('df-hs');
+  db.set.dlh=Object.assign(db.set.dlh||{},{hs:'hero'});const ring=/dlx-ring/.test(daniDlCard.home());
+  const steps=RSTEPS.some(z=>z[0]===10080)&&rSteps({steps:[10080]}).includes(10080);
+  db.set.dlh.nag=true;let nag=true;try{Notifier.sync&&Notifier.sync()}catch(e){nag=false}
+  page='set';stt='look';render();const link=!!document.querySelector('[data-a="dl_hub"]');return [hub,old,sel,ring,steps,nag,link]});
+ ok(r.every(Boolean),'نتیجه '+r)});
 await test('امنیت: XSS در نام‌ها و یادداشت‌ها اجرا نمی‌شود',async pg=>{
  const P='<img src=x onerror="window.__xss=1">',P2='"><svg onload="window.__xss=1">';
  await pg.evaluate(([P,P2])=>{window.__xss=0;db.acts.forEach(a=>{a.name=P;});const t=todayISO();db.entries.push({id:uid(),date:t,actId:db.acts[0].id,subId:'',start:'05:00',end:'06:00',min:60,note:P2});
