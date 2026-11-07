@@ -6,3 +6,6 @@ try{const q=new URLSearchParams(location.search).get('go');if(q==='log'){page='d
 try{extLoadAll()}catch(e){console.error('ext',e)}
 i18Apply();render();
 try{if('serviceWorker' in navigator)navigator.serviceWorker.addEventListener('message',e=>{if(e.data&&e.data.type==='dani-update')toast(LANGEN()?'A new version is ready; close and reopen the app once':'نسخه‌ی تازه آماده است؛ یک‌بار برنامه را ببند و دوباره باز کن')})}catch(e){}
+
+/* v83: boot.js حالا آخرین اسکریپت است؛ اولین رسم فقط یک‌بار و بعد از آماده‌شدن همه‌ی ویژگی‌ها انجام می‌شود. */
+window.__daniBooted=1;try{document.dispatchEvent(new Event('dani-booted'))}catch(e){}

@@ -159,7 +159,8 @@ const quiet=at=>{try{return typeof inQuiet==='function'&&inQuiet(at)}catch(e){re
   return out});
 
 /* ضربه روی اعلان → صفحه‌ی درست */
-function route(k,n){k=String(k||'');try{if(window.daniNotifRoute&&window.daniNotifRoute(k,n))return}catch(e){console.error('nrouter',e)}
+function route(k,n){if(!window.__daniBooted){const g=()=>setTimeout(()=>route(k,n),350);document.addEventListener('dani-booted',g,{once:true});return}
+  k=String(k||'');try{if(window.daniNotifRoute&&window.daniNotifRoute(k,n))return}catch(e){console.error('nrouter',e)}
   if(/^(rh-pl-|tp-rep-)/.test(k))window.daniPlanOpen(tmrDate());
   else if(/^eod-/.test(k)){try{page='res';rt='eod';render();window.scrollTo(0,0)}catch(e){}}
   else if(/^chk-/.test(k)){try{window.daniCheckin&&window.daniCheckin.open()}catch(e){}}

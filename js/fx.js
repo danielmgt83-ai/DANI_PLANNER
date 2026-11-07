@@ -6,7 +6,7 @@
 (function(){
 const T=window.daniT;
 const FX=()=>{const s=db.set;if(!s.fx||typeof s.fx!=='object')s.fx={};if(s.fx.hap===undefined)s.fx.hap=1;if(s.fx.anim===undefined)s.fx.anim=1;return s.fx};
-const VER='2026.11.46';
+const VER='2026.11.47';
 /* ---------- لرزش و پاپ ---------- */
 const HAP=/^(qk_go|nx_go|nx_sw|pf_add|tp_ap|bin_rs|ex_save|ab_now|ql_|pm_|tm_|tstart|tfinish|hab|ob_log|ob_go|dnd_set|ls_now|dk_)/;
 const reduce=()=>{try{return matchMedia('(prefers-reduced-motion: reduce)').matches}catch(e){return false}};
@@ -19,6 +19,7 @@ st.textContent='@keyframes fxpop{0%{transform:scale(1)}40%{transform:scale(.92)}
 document.head.appendChild(st);
 /* ---------- چه چیزی تازه است ---------- */
 const WN=[
+['⚡','شروع تمیز: دیگر اول صفحه‌ی قدیمی دیده نمی‌شود؛ اعلانِ برنامه‌ی بسته هم دقیق به آیتم می‌رود','Clean start: no more old-home flash; tapping a notification with the app closed now lands on the exact item'],
  ['🎯','لمس اعلان حالا دقیقاً همان آیتم را باز می‌کند و برجسته می‌کند (یادآوری، عادت، موعد، تایمر، برنامه‌ی فردا، گزارش)؛ یک نوار کوچک می‌ماند تا هر وقت خواستی ببندی یا جای دیگر بروی.','Tapping a notification now opens and highlights the exact item (reminder, habit, deadline, timer, tomorrow’s plan, report); a small bar stays so you can close it or go elsewhere.'],
  ['📈','جبران و تأخیر پروژه: «باید تا امروز اینجا می‌بودی»، سهمیه‌ی تطبیقی امروز، تاریخ پایان طبق برنامه در برابر ریتم واقعی، اثر هر روزِ ۷ روز اخیر و هزینه‌ی وقت تلف‌شده.','Project catch-up & delay: where you should be today, adaptive share for today, plan vs real finish date, effect of each of the last 7 days and the cost of wasted time.'],
  ['❓','دکمه‌های اعلان چک‌این حالا می‌پرسند دقیقاً چه کاری بود (چند فعالیت پیشنهادی + «فعالیت دیگر»)؛ اگر خواستی می‌توانی «حدس بزن» را روشن کنی.','Check-in notification buttons now ask exactly what you did (a few suggested activities + “other”); you can switch on “guess” mode if you prefer.'],
