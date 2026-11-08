@@ -108,6 +108,21 @@ public class DaniNativePlugin extends Plugin {
         return r;
     }
 
+    /* پنل سریع پین‌شده: روشن/خاموش و فهرست فعالیت‌ها برای پنجره‌ی انتخاب */
+    @PluginMethod
+    public void pinSet(PluginCall call) {
+        try {
+            android.content.SharedPreferences.Editor e = DaniPin.sp(getContext()).edit();
+            e.putBoolean("on", call.getBoolean("on", false));
+            e.putString("acts", call.getString("acts", "[]"));
+            e.apply();
+            DaniPin.show(getContext());
+            call.resolve();
+        } catch (Exception e) {
+            call.reject(String.valueOf(e.getMessage()), e);
+        }
+    }
+
     @PluginMethod
     public void getLaunchNotif(PluginCall call) {
         JSObject r = new JSObject();
