@@ -41,7 +41,7 @@ function liveSync(){
 }
 
 /* ---------- (۲) ویجت ---------- */
-let wsig='';const LVC_=i=>['#22a38a','#d4a017','#f08a1c','#ef4444','#b91c1c'][i]||'#8AB4FF';
+let wsig='',psig='';const PIN=()=>(db.set.pin=db.set.pin||{});const LVC_=i=>['#22a38a','#d4a017','#f08a1c','#ef4444','#b91c1c'][i]||'#8AB4FF';
 function widgetSync(){
   const D=DN();if(!native()||!D||!D.widgetSet)return;
   let l1='DANI',l2='',l3='',hb='[]';
@@ -65,6 +65,11 @@ function widgetSync(){
   const sig=l1+'|'+l2+'|'+l3+'|'+hb+'|'+dn+du+dt+dc+qt+qp;if(sig===wsig)return;wsig=sig;
   try{D.widgetSet({l1,l2,l3,hb,dn,du,dt,dc,qt,qp})}catch(e){}
 }
+/* پنل سریع پین‌شده (v92): روشن/خاموش + فهرست فعالیت‌ها برای پنجره‌ی انتخاب (اخیرها اول) */
+function pinSync(){const D=DN();if(!native()||!D||!D.pinSet)return;
+  try{const last={};db.entries.forEach(e=>{const k=(e.date||'')+(e.start||'');if(!last[e.actId]||k>last[e.actId])last[e.actId]=k});
+    const arr=db.acts.filter(a=>a.active!==false&&!a.arch&&a.cat!=='sleep').sort((a,b)=>(last[b.id]||'').localeCompare(last[a.id]||'')).slice(0,14).map(a=>({id:a.id,n:String(a.name).slice(0,30)}));
+    const on=!!PIN().on,js=JSON.stringify(arr),sig=on+'|'+js;if(sig===psig)return;psig=sig;D.pinSet({on,acts:js})}catch(e){}}
 /* دکمه‌های ویجت: صفِ عمل‌هایی که بدون باز کردن برنامه زده شده‌اند را اعمال کن */
 function widgetPop(){const D=DN();if(!native()||!D||!D.widgetPop)return;
   try{Promise.resolve(D.widgetPop()).then(r=>{let q=[];try{q=JSON.parse((r&&r.q)||'[]')}catch(e){}if(!Array.isArray(q)||!q.length)return;let ch=0;
@@ -72,6 +77,11 @@ function widgetPop(){const D=DN();if(!native()||!D||!D.widgetPop)return;
       if(p[0]==='hab'&&p[1]){const t0=todayISO(),h=hItems().find(k=>k.id===p[1]);if(h){const want=p[2]==='1'?'done':null,cur=hSt(h,t0);if((cur==='done')!==(want==='done')){const d0=zMS.hab.d;zMS.hab.d=null;try{zMA.hab.set(h.id+':done')}finally{zMS.hab.d=d0}ch++}}}
       else if(p[0]==='log'){const m=Math.min(240,Math.max(1,+p[1]||15)),c=window.daniNextTop&&window.daniNextTop(),aid=c&&c.a;
         if(aid&&db.acts.some(a=>a.id===aid)){const n=new Date(),en=pad(n.getHours())+':'+pad(n.getMinutes()),st=hm(Math.max(0,tm(en)-m));db.entries.push({id:uid(),date:todayISO(),actId:aid,subId:'',start:st,end:en,min:m,note:'',src:'widget'});ch++}}
+      else if(p[0]==='tlog'&&p[1]){const aid=p[1],t0=+p[2],m=Math.min(720,Math.max(1,+p[3]||1));
+        if(db.acts.some(a=>a.id===aid)&&t0>0){const a0=new Date(t0),a1=new Date(t0+m*60000),iso=d=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate()),st=pad(a0.getHours())+':'+pad(a0.getMinutes());
+          let en=pad(a1.getHours())+':'+pad(a1.getMinutes()),mn=m;if(iso(a0)!==iso(a1)){en='23:59';mn=Math.max(1,tm('23:59')-tm(st))}
+          db.entries.push({id:uid(),date:iso(a0),actId:aid,subId:'',start:st,end:en,min:mn,note:'',src:'pin'});ch++}}
+      else if(p[0]==='note'){const t=String(x).slice(5).trim().slice(0,500);if(t){db.notes.push({id:uid(),t,a:'',d:todayISO(),at:Date.now()});ch++}}
     }catch(e){}});
     if(ch){save();wsig='';widgetSync();try{render()}catch(e){}try{toast(T('از ویجت اعمال شد: ','From widget: ')+ch)}catch(e){}}}).catch(()=>{})}catch(e){}}
 let lAct=false;
@@ -79,7 +89,7 @@ function actListen(){const D=DN();if(lAct||!native()||!D||!D.addListener)return;
   try{D.addListener('liveAction',ev=>{const a=ev&&ev.action;try{
     if(a==='start'){try{page='dash';dt='today'}catch(e){}}else if(a==='pause')TM.pause();else if(a==='resume')TM.resume();else if(a==='stop'){TM.finish()}
     lsig='';liveSync();try{render()}catch(e){}}catch(e){console.error('liveAction',e)}})}catch(e){lAct=false}}
-setInterval(()=>{actListen();liveSync();widgetSync();widgetPop()},3000);setTimeout(actListen,800);document.addEventListener('visibilitychange',()=>{if(!document.hidden)widgetPop()});
+setInterval(()=>{actListen();liveSync();widgetSync();pinSync();widgetPop()},3000);setTimeout(actListen,800);document.addEventListener('visibilitychange',()=>{if(!document.hidden)widgetPop()});
 setTimeout(()=>{liveSync();widgetSync()},2500);
 {const _s=save;save=function(){const r=_s.apply(this,arguments);try{if(!busy)sl(DIRTY_K,'1');setTimeout(()=>{liveSync();widgetSync()},0);schedSync()}catch(e){}return r}}
 
@@ -155,6 +165,7 @@ H.ls_auto=()=>{sl(AUTO_K,gl(AUTO_K)==='1'?'':'1');render()};
 H.ls_off=()=>{if(!confirm(T('اتصال به فایل همگام‌سازی قطع شود؟ خودِ فایل پاک نمی‌شود.','Disconnect the sync file? The file itself is not deleted.')))return;sl(URI_K,'');sl(AUTO_K,'');sl(LAST_K,'');sl(RV_K,'');sl(DIRTY_K,'');setSt('');msg='';render()};
 H.ls_lv=()=>{LV().on=LV().on?0:1;save();lsig='';liveSync();render()};
 H.ls_wd=e=>{const k=e&&e.dataset?e.dataset.k:e;if(k!=='dl'&&k!=='qt')return;WG()[k]=WG()[k]===0?1:0;save();wsig='';widgetSync();render()};
+H.ls_pin=()=>{PIN().on=PIN().on?0:1;save();psig='';pinSync();render()};
 H.ls_wg=()=>{WG().on=WG().on?0:1;save();wsig='';widgetSync();render()};
 H.ls_mk=()=>{try{dl('dani-sync-'+todayISO()+'.json','application/json',payload())}catch(e){say(String(e&&e.message||e),1)}};
 document.addEventListener('change',ev=>{const t=ev.target;if(!t||!t.matches||!t.matches('[data-ls-file]'))return;const f=t.files&&t.files[0];t.value='';if(!f)return;
@@ -172,7 +183,7 @@ function card(){
   else if(native()) h+='<div class="m">'+T('برای همگام‌سازی خودکار، APK یک‌بار از نو ساخته شود.','Rebuild the APK once for automatic sync.')+'</div>';
   h+='<div class="m" style="margin-top:8px">'+T('روش دستی (وب، PWA یا هر دستگاه):','Manual way (web, PWA or any device):')+'</div><div class="row"><button class="chip" data-a="ls_mk">⬇ '+T('ساخت فایل همگام‌سازی','Make sync file')+'</button><label class="chip" style="cursor:pointer">📥 '+T('ادغام یک فایل','Merge a file')+'<input type="file" accept=".json,application/json" data-ls-file hidden></label></div>';
   if(native()){
-    h+='<div class="row" style="margin-top:10px"><button class="chip '+(LV().on?'on':'')+'" data-a="ls_lv">⏱ '+T('تایمر زنده در اعلان','Live timer in notification')+'</button><button class="chip '+(WG().on?'on':'')+'" data-a="ls_wg">🧩 '+T('محتوای ویجت','Widget content')+'</button></div>'
+    h+='<div class="row" style="margin-top:10px"><button class="chip '+(LV().on?'on':'')+'" data-a="ls_lv">⏱ '+T('تایمر زنده در اعلان','Live timer in notification')+'</button><button class="chip '+(WG().on?'on':'')+'" data-a="ls_wg">🧩 '+T('محتوای ویجت','Widget content')+'</button><button class="chip '+(PIN().on?'on':'')+'" data-a="ls_pin">📌 '+T('پنل سریع در اعلان‌ها','Pinned quick panel')+'</button></div>'+(PIN().on?'<div class="m">'+T('در پرده‌ی اعلان: ⏱ شروع (انتخاب فعالیت در پنجره‌ی شناور و شمارش از همان‌جا با مکث/پایان)، ⚡ +۱۵ دقیقه و 📝 یادداشت سریع؛ همه بدون باز کردن برنامه. نتیجه دفعه‌ی بعد که برنامه را باز کنی ثبت می‌شود.','In the notification shade: ⏱ Start (pick an activity in a floating window, then count with pause/stop right there), ⚡ +15 min and 📝 quick note; all without opening the app. Results are saved next time you open the app.')+'</div>':'')
      +(WG().on?'<div class="row" style="margin-top:6px;gap:6px"><button class="chip '+(WG().dl!==0?'on':'')+'" data-a="ls_wd" data-k="dl">⏳ '+T('شمارنده‌ی موعد','Deadline counter')+'</button><button class="chip '+(WG().qt!==0?'on':'')+'" data-a="ls_wd" data-k="qt">📊 '+T('سهمیه‌ی امروز','Today quota')+'</button></div>':'')
       +'<div class="m">'+T('ویجت: روی صفحه‌ی خانه‌ی گوشی نگه دار ← ویجت‌ها ← DANI. (نیازمند APK جدید)','Widget: long-press home screen → Widgets → DANI. (needs the new APK)')+'</div>'}
   return h+'</div>'}
