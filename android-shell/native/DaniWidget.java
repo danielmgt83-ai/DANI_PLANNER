@@ -7,6 +7,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.view.View;
@@ -47,8 +48,31 @@ public class DaniWidget extends AppWidgetProvider {
         String l1 = sp.getString("l1", ""), l2 = sp.getString("l2", ""), l3 = sp.getString("l3", "");
         if (l1.isEmpty()) l1 = "DANI";
         txt(c, v, "dw_l1", l1, false);
+        /* v86: شمارنده‌ی موعد + سهمیه‌ی امروز */
+        String dn = sp.getString("dn", ""), du = sp.getString("du", ""), dt = sp.getString("dt", "");
+        String qt = sp.getString("qt", "");
+        int qp = sp.getInt("qp", -1);
+        boolean hasD = !dn.isEmpty();
+        int col = Color.parseColor("#8AB4FF");
+        try { col = Color.parseColor(sp.getString("dc", "#8AB4FF")); } catch (Exception ignored) { }
+        txt(c, v, "dw_dn", dn, true);
+        txt(c, v, "dw_du", du, true);
+        txt(c, v, "dw_dt", dt, true);
+        int dnId = rid(c, "dw_dn", "id");
+        if (dnId != 0) v.setTextColor(dnId, col);
         if (type >= 1) {
-            txt(c, v, "dw_l2", l2, true);
+            int box = rid(c, "dw_dbox", "id");
+            if (box != 0) v.setViewVisibility(box, hasD ? View.VISIBLE : View.GONE);
+            if (hasD) l1 = l1.replace("🎯 ", "");
+            txt(c, v, "dw_l1", l1, false);
+            boolean hasQ = qp >= 0 && !qt.isEmpty();
+            int qb = rid(c, "dw_qb", "id");
+            if (qb != 0) {
+                v.setViewVisibility(qb, hasQ ? View.VISIBLE : View.GONE);
+                if (hasQ) v.setProgressBar(qb, 100, Math.min(100, qp), false);
+            }
+            txt(c, v, "dw_qt", hasQ ? qt : "", true);
+            txt(c, v, "dw_l2", hasQ ? "" : l2, true);
             txt(c, v, "dw_l3", l3, true);
         }
         Intent li = c.getPackageManager().getLaunchIntentForPackage(c.getPackageName());

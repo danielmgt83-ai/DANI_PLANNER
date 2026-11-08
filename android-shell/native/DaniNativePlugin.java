@@ -581,6 +581,12 @@ public class DaniNativePlugin extends Plugin {
                     .putString("l2", call.getString("l2", ""))
                     .putString("l3", call.getString("l3", ""))
                     .putString("hb", call.getString("hb", "[]"))
+                    .putString("dn", call.getString("dn", ""))
+                    .putString("du", call.getString("du", ""))
+                    .putString("dt", call.getString("dt", ""))
+                    .putString("dc", call.getString("dc", "#8AB4FF"))
+                    .putString("qt", call.getString("qt", ""))
+                    .putInt("qp", call.getInt("qp", -1))
                     .apply();
             DaniWidget.refresh(c);
             call.resolve();
