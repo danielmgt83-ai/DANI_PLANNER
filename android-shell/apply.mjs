@@ -59,7 +59,7 @@ function android() {
   const cfg = JSON.parse(fs.readFileSync(path.join(here, 'capacitor.config.json'), 'utf8'));
   const javaDir = path.join(app, 'java', ...String(cfg.appId).split('.'));
   fs.mkdirSync(javaDir, { recursive: true });
-  for (const f of ['MainActivity.java', 'DaniNativePlugin.java', 'DaniWidget.java', 'DaniWidgetSmall.java', 'DaniWidgetLarge.java', 'DaniWidgetAction.java']) {
+  for (const f of ['MainActivity.java', 'DaniNativePlugin.java', 'DaniWidget.java', 'DaniWidgetSmall.java', 'DaniWidgetLarge.java', 'DaniWidgetAction.java', 'DaniPin.java', 'DaniPinAction.java', 'DaniQuickActivity.java']) {
     let src = fs.readFileSync(path.join(here, 'native', f), 'utf8');
     src = src.replace(/^package\s+[\w.]+;/m, 'package ' + cfg.appId + ';');
     fs.writeFileSync(path.join(javaDir, f), src);
@@ -90,6 +90,15 @@ function android() {
     const rec = mk('DaniWidgetSmall', 'dani_widget_small_info') + mk('DaniWidgetLarge', 'dani_widget_large_info') +
       '        <receiver android:name=".DaniWidgetAction" android:exported="false" />\n';
     x = x.replace('</application>', rec + '    </application>');
+    fs.writeFileSync(mf, x);
+  }
+  // پنل سریع پین‌شده (v92): گیرنده‌ی دکمه‌ها و پنجره‌ی انتخاب فعالیت
+  x = fs.readFileSync(mf, 'utf8');
+  if (!x.includes('.DaniPinAction')) {
+    x = x.replace('</application>',
+      '        <receiver android:name=".DaniPinAction" android:exported="false" />\n' +
+      '        <activity android:name=".DaniQuickActivity" android:exported="false" android:excludeFromRecents="true" android:taskAffinity="" android:theme="@android:style/Theme.DeviceDefault.Dialog.NoActionBar" />\n' +
+      '    </application>');
     fs.writeFileSync(mf, x);
   }
   console.log('مجوزها:', add ? 'اضافه شد' : 'از قبل بود', '| res کپی شد | افزونه‌ی DaniNative اضافه شد');
