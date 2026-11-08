@@ -2,6 +2,9 @@
 
 > هر تحویل یک خط در اینجا. جدیدترین بالا. (هوش مصنوعی‌ها: هر بار که فایلی را عوض می‌کنید، این‌جا یک خط بنویسید.)
 
+## (۸۴) v86 — ویجت: شمارنده‌ی موعد + سهمیه‌ی امروز
+- ویجت هر سه اندازه: عدد بزرگ «روز/ساعت مانده تا نزدیک‌ترین موعد» با رنگ سطح هشدار، عنوان موعد، نوار سهمیه‌ی امروز (`homeTarget`) و متن «۱:۴۰ / ۳:۰۰»؛ دکمه‌ها و عادت‌های قبلی همان‌اند. تنظیم: «همگام‌سازی و ویجت»، دو دکمه‌ی ⏳ موعد و 📊 سهمیه (`db.set.wg.dl/qt`). بومی: `DaniNativePlugin.widgetSet` کلیدهای dn/du/dt/dc/qt/qp، `DaniWidget.build`، سه layout. JS: `livesync.js`، `dlcard.js` (`daniDlCard.nearest`). نیاز به APK نو (هم‌زمان با اصلاح اعلان v85). تغییر: `android-shell/res/layout/dani_widget*.xml`، `android-shell/native/DaniWidget.java`، `android-shell/native/DaniNativePlugin.java`، `js/livesync.js`، `js/dlcard.js`، `index.html`، `js/fx.js`، `sw.js`، `AI.md`، `CHANGELOG.md`.
+
 ## (۸۳) v85 — شروع بدون پرش + لمس اعلان در شروع سرد
 - علت پرش: ۸ اسکریپت (sound-notify-backup، quotes-data، home-desk، theme-eren، pomodoro…) هنگام بارگذاری خودشان `render()` می‌زدند؛ پس چند «خانه‌ی نیمه‌کاره» پشت‌سرهم دیده می‌شد. حالا یک صفحه‌ی آماده‌سازی (`#bootv`) تا پایان `boot.js` روی همه‌چیز است. شروع سرد اعلان: `MainActivity.launchK` + `DaniNative.getLaunchNotif` (نیاز به APK نو) و `notifroute.js` بعد از آماده‌شدن مسیر را می‌رود؛ `route` تکراری را ۱۵ ثانیه نادیده می‌گیرد. اعلان «باقی‌مانده‌ی هدف» (`rmn-`) به کارت ثبت می‌رود. کارت موعد خانه: فقط دکمه‌ی «موعدها» (🎨 و ⚙ برداشته شد؛ طرح در تنظیمات موعد است). تغییر: `index.html`، `js/boot.js`، `js/tomorrow.js`، `js/notifroute.js`، `js/dlcard.js`، `js/fx.js`، `sw.js`، `AI.md`، `CHANGELOG.md`، `android-shell/native/MainActivity.java`، `android-shell/native/DaniNativePlugin.java`.
 

@@ -558,3 +558,5 @@ DANI Planner: پلنر شخصی فارسی (RTL، با لایه‌ی ترجمه�
 > v84: تنظیمات موعد فقط در `js/dlcard.js` (`group()`+`extra()`، hub `#dlhub` در صفحه‌ی موعدها) است؛ تنظیمات تازه‌ی موعد را همان‌جا اضافه کن، نه جای دیگر. ذخیره: `db.set.dlh` (+`x.hs` هر موعد). هشدار هوشمند: `js/dlnag.js`.
 
 > v85: اسکریپتی که هنگام بارگذاری `render()` بزند اشکالی ندارد (صفحه‌ی `#bootv` پوشانده)، ولی `boot.js` باید آخرین اسکریپت بماند. اعلان در شروع سرد: بخش بومی `getLaunchNotif`.
+
+> v86: ویجت = `widgetSync()` در livesync.js → `widgetSet({l1,l2,l3,hb,dn,du,dt,dc,qt,qp})` → `DaniWidget.build`. کلید جدید ویجت را هر سه جا (JS، افزونه، build) و layoutها اضافه کن.
