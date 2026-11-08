@@ -107,5 +107,5 @@ css.textContent='.dlx{background:linear-gradient(135deg,color-mix(in srgb,var(--
  +'.dlx-p{animation:dlxpulse 2.4s ease-in-out infinite}@keyframes dlxpulse{50%{box-shadow:0 0 0 4px color-mix(in srgb,var(--k) 28%,transparent)}}@keyframes dlxin{from{opacity:0;transform:translateY(6px) scale(.94)}}@keyframes dlxgrow{from{width:0!important}}@keyframes dlxarc{from{stroke-dashoffset:var(--c)}}'
  +'@media (prefers-reduced-motion:reduce){.dlx-p,.dlx-n b,.dlx-g i,.dlx-arc,.dlx-b,.dll-d{animation:none!important}}';
 document.head.appendChild(css);
-window.daniDlStyles=ST;window.daniDlCard={home,level,D};
+window.daniDlStyles=ST;window.daniDlCard={home,level,D,nearest:()=>{const a=items();return a.length?info(a[0]):null}};
 })();

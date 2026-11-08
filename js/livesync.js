@@ -41,7 +41,7 @@ function liveSync(){
 }
 
 /* ---------- (۲) ویجت ---------- */
-let wsig='';
+let wsig='';const LVC_=i=>['#22a38a','#d4a017','#f08a1c','#ef4444','#b91c1c'][i]||'#8AB4FF';
 function widgetSync(){
   const D=DN();if(!native()||!D||!D.widgetSet)return;
   let l1='DANI',l2='',l3='',hb='[]';
@@ -56,8 +56,14 @@ function widgetSync(){
       if(t.state==='running'||t.state==='paused')l3='⏱ '+((typeof aN==='function'?aN(t.actId):'')||'')+(t.state==='paused'?' ⏸':'');
     }
   }catch(e){}
-  const sig=l1+'|'+l2+'|'+l3+'|'+hb;if(sig===wsig)return;wsig=sig;
-  try{D.widgetSet({l1,l2,l3,hb})}catch(e){}
+  /* v86: شمارنده‌ی موعد نزدیک + سهمیه‌ی امروز (هر کدام جدا قابل خاموش‌شدن) */
+  let dn='',du='',dt='',dc='#8AB4FF',qt='',qp=-1;
+  try{if(WG().on&&WG().dl!==0){const f=window.daniDlCard&&window.daniDlCard.nearest&&window.daniDlCard.nearest();
+      if(f){if(f.ms<=0){dn='!';du=T('گذشته','overdue')}else if(f.d>=1){dn=fa(String(f.d));du=T('روز مانده','days left')}else{dn=fa(String(f.h));du=T('ساعت مانده','hours left')}
+       dt=String(f.x.title||'').slice(0,28);if(/^#[0-9a-fA-F]{6}$/.test(f.col))dc=f.col;else{const m=(LVC_(f.lv));dc=m}}}
+    if(WG().on&&WG().qt!==0){const h=homeTarget();if(h&&h.tgt){qp=Math.min(100,Math.round(h.done/h.tgt*100));qt=fa(mm(h.done))+' / '+fa(mm(h.tgt))}}}catch(e){}
+  const sig=l1+'|'+l2+'|'+l3+'|'+hb+'|'+dn+du+dt+dc+qt+qp;if(sig===wsig)return;wsig=sig;
+  try{D.widgetSet({l1,l2,l3,hb,dn,du,dt,dc,qt,qp})}catch(e){}
 }
 /* دکمه‌های ویجت: صفِ عمل‌هایی که بدون باز کردن برنامه زده شده‌اند را اعمال کن */
 function widgetPop(){const D=DN();if(!native()||!D||!D.widgetPop)return;
@@ -148,6 +154,7 @@ H.ls_now=()=>doSync(true);
 H.ls_auto=()=>{sl(AUTO_K,gl(AUTO_K)==='1'?'':'1');render()};
 H.ls_off=()=>{if(!confirm(T('اتصال به فایل همگام‌سازی قطع شود؟ خودِ فایل پاک نمی‌شود.','Disconnect the sync file? The file itself is not deleted.')))return;sl(URI_K,'');sl(AUTO_K,'');sl(LAST_K,'');sl(RV_K,'');sl(DIRTY_K,'');setSt('');msg='';render()};
 H.ls_lv=()=>{LV().on=LV().on?0:1;save();lsig='';liveSync();render()};
+H.ls_wd=e=>{const k=e&&e.dataset?e.dataset.k:e;if(k!=='dl'&&k!=='qt')return;WG()[k]=WG()[k]===0?1:0;save();wsig='';widgetSync();render()};
 H.ls_wg=()=>{WG().on=WG().on?0:1;save();wsig='';widgetSync();render()};
 H.ls_mk=()=>{try{dl('dani-sync-'+todayISO()+'.json','application/json',payload())}catch(e){say(String(e&&e.message||e),1)}};
 document.addEventListener('change',ev=>{const t=ev.target;if(!t||!t.matches||!t.matches('[data-ls-file]'))return;const f=t.files&&t.files[0];t.value='';if(!f)return;
@@ -166,6 +173,7 @@ function card(){
   h+='<div class="m" style="margin-top:8px">'+T('روش دستی (وب، PWA یا هر دستگاه):','Manual way (web, PWA or any device):')+'</div><div class="row"><button class="chip" data-a="ls_mk">⬇ '+T('ساخت فایل همگام‌سازی','Make sync file')+'</button><label class="chip" style="cursor:pointer">📥 '+T('ادغام یک فایل','Merge a file')+'<input type="file" accept=".json,application/json" data-ls-file hidden></label></div>';
   if(native()){
     h+='<div class="row" style="margin-top:10px"><button class="chip '+(LV().on?'on':'')+'" data-a="ls_lv">⏱ '+T('تایمر زنده در اعلان','Live timer in notification')+'</button><button class="chip '+(WG().on?'on':'')+'" data-a="ls_wg">🧩 '+T('محتوای ویجت','Widget content')+'</button></div>'
+     +(WG().on?'<div class="row" style="margin-top:6px;gap:6px"><button class="chip '+(WG().dl!==0?'on':'')+'" data-a="ls_wd" data-k="dl">⏳ '+T('شمارنده‌ی موعد','Deadline counter')+'</button><button class="chip '+(WG().qt!==0?'on':'')+'" data-a="ls_wd" data-k="qt">📊 '+T('سهمیه‌ی امروز','Today quota')+'</button></div>':'')
       +'<div class="m">'+T('ویجت: روی صفحه‌ی خانه‌ی گوشی نگه دار ← ویجت‌ها ← DANI. (نیازمند APK جدید)','Widget: long-press home screen → Widgets → DANI. (needs the new APK)')+'</div>'}
   return h+'</div>'}
 {const _sp=setPage;setPage=function(){const h=_sp.apply(this,arguments);return(typeof h==='string'&&typeof stt!=='undefined'&&stt==='time')?h+card():h}}
