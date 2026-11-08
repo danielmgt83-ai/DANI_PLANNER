@@ -6,7 +6,7 @@
 (function(){
 const T=window.daniT;
 const FX=()=>{const s=db.set;if(!s.fx||typeof s.fx!=='object')s.fx={};if(s.fx.hap===undefined)s.fx.hap=1;if(s.fx.anim===undefined)s.fx.anim=1;return s.fx};
-const VER='2026.11.54';
+const VER='2026.11.55';
 /* ---------- لرزش و پاپ ---------- */
 const HAP=/^(qk_go|nx_go|nx_sw|pf_add|tp_ap|bin_rs|ex_save|ab_now|ql_|pm_|tm_|tstart|tfinish|hab|ob_log|ob_go|dnd_set|ls_now|dk_)/;
 const reduce=()=>{try{return matchMedia('(prefers-reduced-motion: reduce)').matches}catch(e){return false}};
@@ -19,6 +19,7 @@ st.textContent='@keyframes fxpop{0%{transform:scale(1)}40%{transform:scale(.92)}
 document.head.appendChild(st);
 /* ---------- چه چیزی تازه است ---------- */
 const WN=[
+ ['📚','تب «دوره‌ها»ی آکادمی برگشت (با شروع تمیز پنهان شده بود؛ داده‌ها هیچ‌وقت پاک نشده بودند)','The Academy “Courses” tab is back (the clean-start change had hidden it; your data was never deleted)'],
  ['🌐','زبان و تقویم در یک کارت (تنظیمات ← ظاهر)','Language and calendar in one card (Settings → Look)'],
  ['💾','همه‌ی کارهای پشتیبان در یک کارت «مرکز پشتیبان»: پشتیبان کامل، فایل ساده، ارسال، نسخه‌های خودکار، رمز، یادآوری و حذف داده‌ها؛ تکراری‌ها نمانده‌اند','All backup jobs in one “Backup centre” card: full backup, simple file, send, snapshots, password, reminder, delete data; duplicates gone'],
  ['▣','موعد مرحله‌دار (مثلاً پیش‌نویس ← بازبینی ← تحویل) با پیشرفت روی کارت؛ نقطه‌ی موعد در تقویم به رنگ فوریت','Deadlines with steps (draft → review → submit) and progress on the card; calendar deadline dots now show urgency colour'],
