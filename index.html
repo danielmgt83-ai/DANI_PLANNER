@@ -8,7 +8,14 @@
 <link rel="stylesheet" href="themes-itachi.css?v=3">
 <link rel="stylesheet" href="themes-eren.css?v=3">
 <link rel="stylesheet" href="themes-aot.css?v=4">
-</head><body><div id="bootv" aria-hidden="true" style="position:fixed;inset:0;z-index:2147483000;display:grid;place-items:center;background:Canvas;color:CanvasText;font:600 1em system-ui,sans-serif"><div style="text-align:center"><div style="font-size:2.6em">🌙</div><div style="opacity:.65;margin-top:6px;letter-spacing:.2em">DANI</div></div></div><script>setTimeout(function(){var e=document.getElementById("bootv");if(e)e.remove()},9000)</script>
+</head><body><div id="bootv" aria-hidden="true" style="position:fixed;inset:0;z-index:2147483000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;background:radial-gradient(ellipse at 50% 38%,#1c2a63 0%,#0b1230 55%,#05081a 100%);color:#e9e4d0;font:600 1em system-ui,sans-serif"><style>#bootv .mn{animation:bvf 2.6s ease-in-out infinite}@keyframes bvf{0%,100%{transform:scale(1);filter:drop-shadow(0 0 18px rgba(255,233,168,.35))}50%{transform:scale(1.04);filter:drop-shadow(0 0 30px rgba(255,233,168,.6))}}#bootv i{position:absolute;width:2px;height:2px;border-radius:50%;background:#fff;opacity:.7}@media (prefers-reduced-motion:reduce){#bootv .mn{animation:none}}</style><i style="top:12%;left:18%"></i><i style="top:22%;left:78%;opacity:.5"></i><i style="top:70%;left:12%;opacity:.5"></i><i style="top:82%;left:70%"></i><i style="top:35%;left:90%;opacity:.4"></i><i style="top:58%;left:30%;opacity:.4"></i><div class="mn"><svg viewBox="-100 -100 200 200" width="200" height="200" aria-hidden="true"><defs>
+<radialGradient id="gS" cx="-.3" cy="-.35" r="1.1"><stop offset="0" stop-color="#fffdf2"/><stop offset=".55" stop-color="#fbf5e1"/><stop offset="1" stop-color="#dcd3b6"/></radialGradient>
+<radialGradient id="hS"><stop offset=".55" stop-color="#ffe9a8" stop-opacity=".7"/><stop offset="1" stop-color="#ffe9a8" stop-opacity="0"/></radialGradient>
+<filter id="bS"><feGaussianBlur stdDeviation="2.2"/></filter></defs>
+<circle r="98" fill="url(#hS)"/>
+<circle r="64" fill="url(#gS)"/>
+<g filter="url(#bS)"><circle cx="-22" cy="-16" r="15" fill="#b3a98a" opacity="0.5"/><circle cx="14" cy="-26" r="10" fill="#b3a98a" opacity="0.42"/><circle cx="24" cy="6" r="13" fill="#b3a98a" opacity="0.46"/><circle cx="-6" cy="12" r="18" fill="#b3a98a" opacity="0.4"/><circle cx="-30" cy="14" r="8" fill="#b3a98a" opacity="0.36"/><circle cx="6" cy="32" r="9" fill="#b3a98a" opacity="0.38"/><circle cx="34" cy="-12" r="6" fill="#b3a98a" opacity="0.34"/><circle cx="-12" cy="-34" r="7" fill="#b3a98a" opacity="0.34"/></g>
+<circle r="64" fill="none" stroke="#fff6d6" stroke-opacity=".5" stroke-width="1.2"/></svg></div><div style="letter-spacing:.35em;font-size:1.05em;opacity:.8;margin-top:-6px">DANI</div></div><script>setTimeout(function(){var e=document.getElementById("bootv");if(e)e.remove()},9000)</script>
 <div class="app"><nav id="nav"></nav><main><button id="mb" class="np" onclick="$('#nav').classList.toggle('o')">☰ منو</button><div id="pg"><div style="display:grid;place-items:center;height:55vh;font:700 26px sans-serif;letter-spacing:.35em;opacity:.55">DANI</div></div></main></div>
 <div id="toast"></div><div id="ovl"></div>
 <script src="js/data/du.js?v=3"></script>
@@ -29,7 +36,7 @@
 <script src="js/theme-studio-export.js?v=3"></script>
 <script src="js/extensions.js?v=3x"></script>
 <script src="js/home-desk.js?v=3"></script>
-<script src="js/notifier.js?v=14"></script>
+<script src="js/notifier.js?v=15"></script>
 <script src="js/native-save.js?v=2"></script>
 <script src="js/native-extras.js?v=2"></script>
 <script>window.daniT=window.daniT||function(a,b){return(typeof LANGEN==="function"&&LANGEN())?b:a};window.daniH=window.daniH||function(i,a,b,t){t=t||"h3";return"<"+t+">"+(i?i+" ":"")+window.daniT(a,b)+"</"+t+">"}</script>
@@ -79,7 +86,7 @@
 <script src="js/chkact.js?v=3"></script>
 <script src="js/notifroute.js?v=3"></script>
 <script src="js/calm.js?v=1"></script>
-<script src="js/dlcard.js?v=4"></script>
+<script src="js/dlcard.js?v=5"></script>
 <script src="js/sentences.js?v=1"></script>
 <script src="js/usetime.js?v=1"></script>
 <script src="js/pace.js?v=2"></script>
@@ -92,5 +99,5 @@
 <script src="js/onboard.js?v=2"></script>
 <script src="js/guide2.js?v=4"></script>
 <script src="js/i18n-late.js?v=6"></script>
-<script src="js/boot.js?v=6"></script>
+<script src="js/boot.js?v=7"></script>
 </body></html>

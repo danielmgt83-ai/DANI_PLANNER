@@ -560,3 +560,5 @@ DANI Planner: پلنر شخصی فارسی (RTL، با لایه‌ی ترجمه�
 > v85: اسکریپتی که هنگام بارگذاری `render()` بزند اشکالی ندارد (صفحه‌ی `#bootv` پوشانده)، ولی `boot.js` باید آخرین اسکریپت بماند. اعلان در شروع سرد: بخش بومی `getLaunchNotif`.
 
 > v86: ویجت = `widgetSync()` در livesync.js → `widgetSet({l1,l2,l3,hb,dn,du,dt,dc,qt,qp})` → `DaniWidget.build`. کلید جدید ویجت را هر سه جا (JS، افزونه، build) و layoutها اضافه کن.
+
+> v87: ماه برنامه (آرم اعلان، صفحه‌ی آماده‌سازی) با یک SVG یکسان ساخته شده؛ برای تغییرش هر دو (`index.html#bootv` و PNGهای `android-shell/res`) را هم‌سبک نگه دار.

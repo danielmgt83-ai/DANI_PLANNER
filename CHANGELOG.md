@@ -2,6 +2,9 @@
 
 > هر تحویل یک خط در اینجا. جدیدترین بالا. (هوش مصنوعی‌ها: هر بار که فایلی را عوض می‌کنید، این‌جا یک خط بنویسید.)
 
+## (۸۵) v87 — ماه کامل + دکمه‌ی روشن‌تر موعد
+- ماه کامل (گرادیان گرم، دهانه‌های نرم، هاله) هم‌سبک آیکون برنامه: صفحه‌ی آماده‌سازی `#bootv` (SVG درون index.html، پس‌زمینه‌ی شب ستاره‌دار، تپش ملایم)، آرم رنگی اعلان `largeIcon:'dani_large'` (`res/drawable-*/dani_large.png`) و نماد تک‌رنگ نوار بالا `ic_stat_dani` (ماه کامل با دهانه). کارت موعد خانه: دکمه‌ی «⚙ موعدها و تنظیمات» (مستقیم صفحه‌ی موعدها با تنظیمات باز)؛ نوار تنظیمات صفحه‌ی موعدها پررنگ‌تر با فلش. نیاز به APK نو برای آیکون‌های اعلان. تغییر: `index.html`، `js/notifier.js`، `js/dlcard.js`، `js/boot.js`(برچسب)، `js/fx.js`، `sw.js`، `AI.md`، `CHANGELOG.md`، `android-shell/res/drawable-*/ic_stat_dani.png`، افزوده: `android-shell/res/drawable-*/dani_large.png`.
+
 ## (۸۴) v86 — ویجت: شمارنده‌ی موعد + سهمیه‌ی امروز
 - ویجت هر سه اندازه: عدد بزرگ «روز/ساعت مانده تا نزدیک‌ترین موعد» با رنگ سطح هشدار، عنوان موعد، نوار سهمیه‌ی امروز (`homeTarget`) و متن «۱:۴۰ / ۳:۰۰»؛ دکمه‌ها و عادت‌های قبلی همان‌اند. تنظیم: «همگام‌سازی و ویجت»، دو دکمه‌ی ⏳ موعد و 📊 سهمیه (`db.set.wg.dl/qt`). بومی: `DaniNativePlugin.widgetSet` کلیدهای dn/du/dt/dc/qt/qp، `DaniWidget.build`، سه layout. JS: `livesync.js`، `dlcard.js` (`daniDlCard.nearest`). نیاز به APK نو (هم‌زمان با اصلاح اعلان v85). تغییر: `android-shell/res/layout/dani_widget*.xml`، `android-shell/native/DaniWidget.java`، `android-shell/native/DaniNativePlugin.java`، `js/livesync.js`، `js/dlcard.js`، `index.html`، `js/fx.js`، `sw.js`، `AI.md`، `CHANGELOG.md`.
 
