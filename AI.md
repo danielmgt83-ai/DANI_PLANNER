@@ -570,3 +570,5 @@ DANI Planner: پلنر شخصی فارسی (RTL، با لایه‌ی ترجمه�
 > v90: ادغام‌های کوچک بعد از رسم در `js/tidy.js`؛ کارت زبان+تقویم `#langcard`.
 
 > v91: ترتیب بوت: `boot0.js` (extLoadAll) باید قبل از `courses.js` باشد؛ `boot.js` (render و آماده‌شدن) آخرین اسکریپت. این دو را جابه‌جا نکن.
+
+> v92: پنل سریع = `DaniPin` (بومی) + `pinSync()` در livesync.js؛ دکمه‌ی تازه‌ی پنل را هم‌زمان در `DaniPin.show` و `DaniPinAction` اضافه کن. صف: `tlog:<act>:<startMs>:<min>`، `note:<text>`، `log:<min>`.

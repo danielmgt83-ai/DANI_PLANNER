@@ -2,6 +2,9 @@
 
 > هر تحویل یک خط در اینجا. جدیدترین بالا. (هوش مصنوعی‌ها: هر بار که فایلی را عوض می‌کنید، این‌جا یک خط بنویسید.)
 
+## (۹۰) v92 — پنل سریع پین‌شده + ماه سفیدتر
+- پنل سریع پین‌شده (اختیاری، خاموش پیش‌فرض؛ تنظیمات ← همگام‌سازی و ویجت ← 📌): اعلان ثابت با ⏱ شروع (پنجره‌ی شناور `DaniQuickActivity` برای انتخاب فعالیت؛ شمارش با Chronometer اندروید؛ ⏸ مکث/▶ ادامه، ⏹ پایان و ثبت، ✖ لغو)، ⚡ +۱۵ و 📝 یادداشت سریع (RemoteInput). بومی: `DaniPin.java`، `DaniPinAction.java`، `DaniQuickActivity.java`، `pinSet`، `apply.mjs` (مانیفست). نتیجه در صف `dani_widget.q` (`tlog:`/`note:`/`log:`) و `widgetPop` آن را اعمال می‌کند. ماه سفیدتر با دهانه‌های ظریف: صفحه‌ی آماده‌سازی (ستاره‌ها، شیمر)، `dani_large.png`، `ic_stat_dani.png`. نیاز به APK نو. تغییر: `index.html`، `js/livesync.js`، `js/fx.js`، `tests/run.mjs`، `sw.js`، `AI.md`، `CHANGELOG.md`، `android-shell/*`.
+
 ## (۸۹) v91 — برگشت تب «دوره‌ها»
 - خطای v83: با آخرین‌کردن `boot.js`، افزونه‌ی «درس‌های آکادمی» (که با `extLoadAll` بارگذاری می‌شود) بعد از `courses.js` اجرا شد و تب «دوره‌ها» را از آکادمی پوشاند. راه‌حل: `boot0.js` (صفحه از ?go= و `extLoadAll`) سر جای قدیمی قبل از `courses.js`؛ `boot.js` فقط اولین render و آماده‌شدن. داده‌ی دوره‌ها در IndexedDB (`dani_academy`) هیچ‌وقت لمس نشده بود. تست تازه برای تب. تغییر: `js/boot0.js`(جدید)، `js/boot.js`، `index.html`، `tests/run.mjs`، `js/fx.js`، `sw.js`، `AI.md`، `CHANGELOG.md`. APK لازم نیست.
 
