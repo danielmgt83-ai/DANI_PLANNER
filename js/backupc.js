@@ -23,5 +23,25 @@ function card(){
 H.bk_pw=()=>{const g=document.getElementById('lkcard');if(g){let p=g.closest('details');if(p)p.open=true;g.scrollIntoView({block:'center'})}else toast(T('کارت «قفل و رمز» پایین همین صفحه است','See the “App lock” card below'))};
 const ren=()=>{try{if(typeof ST!=='undefined')ST.forEach(x=>{if(x[0]==='uch'&&x[1]==='مرکز DANI')x[1]='افزونه‌ها و گزارش'})}catch(e){}};
 {const _sp=setPage;setPage=function(){ren();const h=_sp.apply(this,arguments);return(typeof h==='string'&&typeof stt!=='undefined'&&stt==='data')?card()+h:h}}
-{const _r=render;render=function(){const r=_r.apply(this,arguments);try{const c=document.getElementById('bkc'),pg=c&&c.parentElement;if(pg&&pg.firstElementChild!==c)pg.insertBefore(c,pg.firstElementChild)}catch(e){}return r}}
+/* v89: همه‌ی کارهای پشتیبان در همین یک کارت؛ کارت‌های جدا بعد از رسم به بخش‌های تاشو منتقل می‌شوند (دکمه‌ها همان‌اند، فقط جابه‌جا شده‌اند) */
+const sec=(ic,fa_,en_)=>{const d=document.createElement('details');d.className='bkx';d.innerHTML='<summary>'+ic+' '+T(fa_,en_)+'</summary>';return d};
+function merge(){
+  const pg=document.getElementById('pg'),b=document.getElementById('bkc');if(!pg||!b)return;
+  const all=[...pg.querySelectorAll('.c')],byA=a=>all.find(c=>c.querySelector('[data-a="'+a+'"]')&&c.id!=='bkc'&&!c.classList.contains('bgrp')&&!c.contains(b));
+  const dc=byA('xjson'),sh=byA('xshare'),cr=document.getElementById('crs-allcard'),ab=document.getElementById('abcard');
+  if(!b.dataset.mg&&dc&&cr){
+    /* گزینه‌های حجم زیر دکمه‌های اصلی */
+    const opt=cr.querySelector('details');if(opt){const o=sec('⚙️','گزینه‌های حجم فایل','File-size options');[...opt.childNodes].forEach((n,i)=>{if(i>0||n.tagName!=='SUMMARY')o.appendChild(n)});{const sl=b.querySelector('select[data-f="bk"]'),lb=sl&&sl.previousElementSibling;if(lb)b.insertBefore(o,lb);else b.appendChild(o)}}
+    /* فایل ساده */
+    const row=dc.querySelector('.row'),st=dc.querySelector('p.m'),ls=[...dc.querySelectorAll('p.m')].pop(),dn=dc.querySelectorAll('.row')[1];
+    const f=sec('🗂','فایل ساده (فقط پلنر: JSON / CSV)','Simple file (planner only: JSON / CSV)');if(st)f.appendChild(st);if(row)f.appendChild(row);if(ls&&ls!==st)f.appendChild(ls);b.appendChild(f);
+    if(sh){const x=sec('📤','ارسال پشتیبان (ایمیل / تلگرام / Drive)','Send a backup (email / Telegram / Drive)');[...sh.children].forEach(n=>{if(n.tagName!=='H3')x.appendChild(n)});b.appendChild(x)}
+    if(ab){const x=sec('🗄','نسخه‌های خودکار داخل برنامه','Automatic snapshots inside the app');[...ab.children].forEach(n=>{if(n.tagName!=='H3')x.appendChild(n)});b.appendChild(x)}
+    if(dn){const x=sec('⚠️','حذف داده‌ها','Delete data');x.appendChild(dn);b.appendChild(x)}
+    [dc.parentElement&&dc.parentElement.classList.contains('g2')?dc.parentElement:dc,sh,cr,ab].forEach(e=>{if(e)e.remove()});
+    const w=document.getElementById('crs-set');if(w&&!w.querySelector('.c'))w.remove();b.dataset.mg='1'}
+  const first=pg.querySelector('details.bgrp');if(first&&b.nextElementSibling!==first&&b.previousElementSibling!==pg.querySelector('#sqbox'))pg.insertBefore(b,first);
+  pg.querySelectorAll('details[data-gk="dt-bk"]').forEach(g=>{const n=g.children.length-1;const c=g.querySelector('summary .m');if(c)c.textContent='· '+fa(n);if(n<1)g.remove()})}
+{const _r=render;render=function(){const r=_r.apply(this,arguments);try{if(page==='set'&&typeof stt!=='undefined'&&stt==='data')merge()}catch(e){console.error('backupc merge',e)}return r}}
+const css=document.createElement('style');css.textContent='.bkx{margin-top:10px;border:1px solid var(--b,#8883);border-radius:12px;padding:8px 12px}.bkx>summary{cursor:pointer;font-weight:700}.bkx[open]>summary{margin-bottom:8px}';document.head.appendChild(css);
 })();

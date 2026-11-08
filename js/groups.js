@@ -14,7 +14,7 @@ const DEF={
  time:[{k:'tm-note',i:'🔔',t:['اعلان‌ها و صدا','Notifications & sound'],m:['زمان و اعلان','صدای هشدار','اعلان مرورگر','اعلان‌ها و صدا','اعلان و زنگ','سکوت','سلامت اعلان','اعلان‌های گروهی','ntcard','ntgrp','qhcard','nthealth','nhcard'],open:1},
   {k:'tm-sync',i:'🔄',t:['همگام‌سازی، ویجت و راهنما','Sync, widget & help'],m:['همگام‌سازی','دکمه‌ی راهنما','devcard','lscard','hfcard']},
   {k:'tm-exam',i:'🎓',t:['حالت امتحان','Exam mode'],m:['حالت امتحان','excard']}],
- data:[{k:'dt-bk',i:'💾',t:['پشتیبان‌گیری و انتقال','Backup & transfer'],m:['داده‌ها و پشتیبان','ارسال پشتیبان','مرکز DANI','نسخه‌های خودکار','پشتیبان کامل','راستی‌آزمایی','سطل بازیافت','ورود CSV','abcard','bincard','csvcard','crs-set','crs-allcard'],open:1},
+ data:[{k:'dt-bk',i:'💾',t:['بازیافت و ورود داده','Recycle bin & import'],m:['داده‌ها و پشتیبان','ارسال پشتیبان','مرکز DANI','نسخه‌های خودکار','پشتیبان کامل','راستی‌آزمایی','سطل بازیافت','ورود CSV','abcard','bincard','csvcard','crs-set','crs-allcard'],open:1},
   {k:'dt-sec',i:'🔒',t:['امنیت','Security'],m:['قفل برنامه','lkcard']},
   {k:'dt-adv',i:'🧰',t:['پیشرفته','Advanced'],m:['گزارش خطا','افزونه‌ها','errcard','extcard']}],
  plan:[{k:'pl-add',i:'＋',t:['افزودن کار به برنامه','Add to plan'],m:['افزودن سریع با یک جمله','افزودن به برنامه','qncard'],open:1,first:1},
