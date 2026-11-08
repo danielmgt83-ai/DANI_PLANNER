@@ -59,6 +59,12 @@ await test('مرکز پشتیبان یکپارچه: همه‌ی دکمه‌ها 
   return [one,rest,rem,inside,!!document.getElementById('bincard'),!!document.getElementById('csvcard')]});ok(r.every(Boolean),'نتیجه '+r)});
 await test('زبان و تقویم در یک کارت',async pg=>{const r=await pg.evaluate(()=>{page='set';stt='look';render();const l=document.getElementById('langcard');return [!!l,!!(l&&l.querySelector('select[data-f="cal"]')),!!(l&&l.querySelector('[data-i18]')),document.querySelectorAll('select[data-f="cal"]').length===1]});ok(r.every(Boolean),'نتیجه '+r)});
 await test('آکادمی: تب «دوره‌ها» هست (ترتیب بارگذاری افزونه‌ها و courses.js)',async pg=>{const r=await pg.evaluate(()=>{page='acd';render();return [document.getElementById('pg').innerHTML.includes('acd:tab:courses'),!!window.daniCourses]});ok(r.every(Boolean),'نتیجه '+r)});
+await test('پنل سریع پین‌شده: صف تایمر و یادداشت از اعلان اعمال می‌شود و pinSet فراخوانی می‌شود',async pg=>{const r=await pg.evaluate(async()=>{const a=db.acts[0];if(!a)return[false];const t0=Date.now()-30*60000;const calls=[];
+  window.Capacitor={isNativePlatform:()=>true,Plugins:{DaniNative:{widgetPop:()=>Promise.resolve({q:JSON.stringify(['tlog:'+a.id+':'+t0+':25','note:یادداشت: با دونقطه'])}),pinSet:o=>{calls.push(o);return Promise.resolve()},widgetSet:()=>Promise.resolve(),liveStart:()=>Promise.resolve(),liveStop:()=>Promise.resolve()}}};
+  const e0=db.entries.length,n0=db.notes.length;db.set.pin={on:1};
+  await new Promise(r=>setTimeout(r,3600));
+  const en=db.entries.slice(e0).find(e=>e.src==='pin'),nt=db.notes.slice(n0).find(n=>n.t==='یادداشت: با دونقطه');
+  return [!!en&&en.min===25&&en.actId===a.id,!!nt,calls.some(c=>c.on===true&&JSON.parse(c.acts).length>0)]});ok(r.every(Boolean),'نتیجه '+r)});
 await test('امنیت: XSS در نام‌ها و یادداشت‌ها اجرا نمی‌شود',async pg=>{
  const P='<img src=x onerror="window.__xss=1">',P2='"><svg onload="window.__xss=1">';
  await pg.evaluate(([P,P2])=>{window.__xss=0;db.acts.forEach(a=>{a.name=P;});const t=todayISO();db.entries.push({id:uid(),date:t,actId:db.acts[0].id,subId:'',start:'05:00',end:'06:00',min:60,note:P2});
