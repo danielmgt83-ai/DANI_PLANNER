@@ -46,6 +46,13 @@ await test('تنظیمات یکپارچه‌ی موعد: hub، طرح جدا ب�
   db.set.dlh.nag=true;let nag=true;try{Notifier.sync&&Notifier.sync()}catch(e){nag=false}
   page='set';stt='look';render();const link=!!document.querySelector('[data-a="dl_hub"]');return [hub,old,sel,ring,steps,nag,link]});
  ok(r.every(Boolean),'نتیجه '+r)});
+await test('زیرمرحله‌های موعد و رنگ موعد در تقویم',async pg=>{const r=await pg.evaluate(()=>{const t=todayISO();const D=zmg('dl',()=>({v:1}));D.items=[{id:'dS',title:'گزارش',dt:addD(t,2),tm:'10:00',al:[],cat:'',cr:Date.now()-864e5,sub:[{id:'s1',t:'پیش‌نویس',d:false},{id:'s2',t:'بازبینی',d:true}]}];save();
+  zMA.dl.sub('dS:s1');const x=D.items[0];const n=x.sub.filter(z=>z.d).length;
+  page='dl';render();const row=/▣/.test(document.getElementById('pg').innerHTML);
+  const card=/2\/2|۲\/۲/.test(daniDlCard.home());
+  const col=daniDlCard.colOf(2*864e5);const mk=typeof col==='string'&&/^#/.test(col);
+  page='plan2';render();daniP2Go('cal',addD(todayISO(),0));const dots=document.querySelectorAll('.p2c em i[style*="background:#"]').length>0;
+  return [n===2,row,card,mk,dots]});ok(r.every(Boolean),'نتیجه '+r)});
 await test('امنیت: XSS در نام‌ها و یادداشت‌ها اجرا نمی‌شود',async pg=>{
  const P='<img src=x onerror="window.__xss=1">',P2='"><svg onload="window.__xss=1">';
  await pg.evaluate(([P,P2])=>{window.__xss=0;db.acts.forEach(a=>{a.name=P;});const t=todayISO();db.entries.push({id:uid(),date:t,actId:db.acts[0].id,subId:'',start:'05:00',end:'06:00',min:60,note:P2});
