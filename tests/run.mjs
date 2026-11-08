@@ -53,6 +53,10 @@ await test('زیرمرحله‌های موعد و رنگ موعد در تقوی�
   const col=daniDlCard.colOf(2*864e5);const mk=typeof col==='string'&&/^#/.test(col);
   page='plan2';render();daniP2Go('cal',addD(todayISO(),0));const dots=document.querySelectorAll('.p2c em i[style*="background:#"]').length>0;
   return [n===2,row,card,mk,dots]});ok(r.every(Boolean),'نتیجه '+r)});
+await test('مرکز پشتیبان یکپارچه: همه‌ی دکمه‌ها هستند و تکراری نیستند',async pg=>{const r=await pg.evaluate(()=>{page='set';stt='data';render();const q=a=>document.querySelectorAll('[data-a="'+a+'"]').length;const one=['xjson','xcsv2','xshare','delr','delall','crs_allexp'].every(a=>q(a)===1);
+  const rest=document.querySelectorAll('[data-ch="rest"]').length===1&&document.querySelectorAll('[data-crs-file="all"]').length===1;const rem=document.querySelectorAll('[data-f="bk"]').length===1;
+  const inside=['xjson','xshare','delr','crs_allexp'].every(a=>document.querySelector('#bkc [data-a="'+a+'"]'));
+  return [one,rest,rem,inside,!!document.getElementById('bincard'),!!document.getElementById('csvcard')]});ok(r.every(Boolean),'نتیجه '+r)});
 await test('امنیت: XSS در نام‌ها و یادداشت‌ها اجرا نمی‌شود',async pg=>{
  const P='<img src=x onerror="window.__xss=1">',P2='"><svg onload="window.__xss=1">';
  await pg.evaluate(([P,P2])=>{window.__xss=0;db.acts.forEach(a=>{a.name=P;});const t=todayISO();db.entries.push({id:uid(),date:t,actId:db.acts[0].id,subId:'',start:'05:00',end:'06:00',min:60,note:P2});
