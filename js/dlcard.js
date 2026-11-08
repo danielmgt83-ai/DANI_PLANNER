@@ -25,7 +25,7 @@ function items(){const A=zDL(),now=Date.now();return A.items.filter(i=>dlOk(i)&&
 const cyc='';
 const goB='<button class="chip dlx-set" data-a="dl_hub">⚙ '+T('موعدها و تنظیمات','Deadlines & settings')+'</button>';
 function head(i,pin){const L=LV[i.lv];return'<div class="dlx-h"><span class="dlx-chip"><i>'+L[1]+'</i> '+L[2]+'</span><span class="m dlx-pin">'+(pin?'📌 ':'')+'</span><span style="flex:1"></span>'+cyc+goB+'</div>'}
-function foot(i){const o=D();let h='';if(o.ph)h+='<div class="dlx-ph">'+esc(phrase(i.lv,i.x))+'</div>';if(o.fc&&window.daniFcForDl){try{const f=window.daniFcForDl(i.x.id);if(f)h+='<div class="m dlx-fc">'+f+'</div>'}catch(e){}}if(o.lost&&window.daniPaceForDl){try{const f=window.daniPaceForDl(i.x.id);if(f)h+='<div class="dlx-fc">'+f+'</div>'}catch(e){}}return h}
+function foot(i){const o=D();let h='';const sb=i.x.sub;if(Array.isArray(sb)&&sb.length){const dn=sb.filter(z=>z.d).length,nx=sb.find(z=>!z.d);h+='<div class="m dlx-st">▣ '+fa(dn)+'/'+fa(sb.length)+' '+T('مرحله','steps')+(nx?' · '+T('بعدی: ','next: ')+esc(nx.t.slice(0,30)):' ✓')+'</div>'}if(o.ph)h+='<div class="dlx-ph">'+esc(phrase(i.lv,i.x))+'</div>';if(o.fc&&window.daniFcForDl){try{const f=window.daniFcForDl(i.x.id);if(f)h+='<div class="m dlx-fc">'+f+'</div>'}catch(e){}}if(o.lost&&window.daniPaceForDl){try{const f=window.daniPaceForDl(i.x.id);if(f)h+='<div class="dlx-fc">'+f+'</div>'}catch(e){}}return h}
 const numTxt=i=>i.lv===4?'<b>'+T('گذشته','Late')+'</b>':i.d>0?'<b>'+fa(i.d)+'</b><small>'+T('روز','days')+'</small>':'<b>'+fa(i.h)+'</b><small>'+T('ساعت','hours')+'</small>';
 const meta=x=>fmtD(x.dt)+' · '+fa(x.tm);
 const wrap=(i,inner,extra)=>'<div class="c dlx'+(i.lv===3&&D().pulse?' dlx-p':'')+(extra||'')+'" id="dlcard" data-lv="'+LV[i.lv][0]+'" style="--k:'+i.col+'">'+inner+'</div>';
@@ -107,5 +107,5 @@ css.textContent='#dlhub>summary{list-style:none;cursor:pointer;font-weight:700;p
  +'.dlx-p{animation:dlxpulse 2.4s ease-in-out infinite}@keyframes dlxpulse{50%{box-shadow:0 0 0 4px color-mix(in srgb,var(--k) 28%,transparent)}}@keyframes dlxin{from{opacity:0;transform:translateY(6px) scale(.94)}}@keyframes dlxgrow{from{width:0!important}}@keyframes dlxarc{from{stroke-dashoffset:var(--c)}}'
  +'@media (prefers-reduced-motion:reduce){.dlx-p,.dlx-n b,.dlx-g i,.dlx-arc,.dlx-b,.dll-d{animation:none!important}}';
 document.head.appendChild(css);
-window.daniDlStyles=ST;window.daniDlCard={home,level,D,nearest:()=>{const a=items();return a.length?info(a[0]):null}};
+window.daniDlStyles=ST;window.daniDlCard={home,level,D,colOf:ms=>LV[level(ms)][3],nearest:()=>{const a=items();return a.length?info(a[0]):null}};
 })();

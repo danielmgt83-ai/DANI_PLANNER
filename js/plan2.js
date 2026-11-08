@@ -125,7 +125,7 @@ function monthOf(base){let st,len,title;
   return{st,len,title}}
 function marks(d){const o={hol:0,occ:0,dl:0,rm:0,bz:0,pl:0,lg:0,fin:0};try{o.fin=(window.daniFcFinishOn&&window.daniFcFinishOn(d).length)?1:0}catch(e){}
   try{if(window.daniOccasions)window.daniOccasions(d).forEach(x=>{if(x.wk)return;if(x.h)o.hol=1;else o.occ=1})}catch(e){}
-  try{o.dl=(zDL().items||[]).some(x=>!x.arch&&!x.done&&x.dt===d)?1:0}catch(e){}
+  try{const L=(zDL().items||[]).filter(x=>!x.arch&&!x.done&&x.dt===d);o.dl=L.length?1:0;if(L.length){const c=window.daniDlCard;o.dlc=c&&c.colOf?c.colOf(Math.min.apply(null,L.map(x=>dlTs(x)))-Date.now()):''}}catch(e){}
   try{o.rm=(zRM().items||[]).some(r=>!r.off&&r.date===d)?1:0}catch(e){}
   try{o.bz=busyOn(d).length?1:0}catch(e){}
   try{o.pl=(plan(d)||[]).filter(x=>x.status!=='carried'&&x.status!=='canceled').length}catch(e){}
@@ -135,9 +135,9 @@ function calTab(){const t=todayISO();if(!P2.cm)P2.cm=t;if(!P2.cs)P2.cs=t;const M
   const dot=(c,tt)=>'<i title="'+esc(tt)+'" style="background:'+c+'"></i>';
   let g='<div class="p2cal">'+['ش','ی','د','س','چ','پ','ج'].map(x=>'<b class="p2h">'+x+'</b>').join('')+'<span></span>'.repeat(off);
   for(let i=0;i<M.len;i++){const d=addD(M.st,i),k=marks(d);
-    g+='<button class="p2c'+(d===t?' td':'')+(d===P2.cs?' sel':'')+(k.hol?' hol':'')+'" data-a="p2_cd" data-d="'+d+'"><span>'+fa(dnum(d))+'</span><em>'+(k.hol?dot('#ef4444',T('تعطیلی','Holiday')):'')+(k.occ?dot('#a855f7',T('مناسبت','Occasion')):'')+(k.dl?dot('#f59e0b',T('موعد','Deadline')):'')+(k.fin?dot('#10b981',T('پایان پیش‌بینی‌شده','Forecast finish')):'')+(k.rm?dot('#3b82f6',T('یادآوری','Reminder')):'')+(k.bz?dot('#94a3b8',T('ساعت پر','Busy')):'')+(k.pl?dot('var(--ac,#22c55e)',T('برنامه','Plan')):'')+'</em></button>'}
+    g+='<button class="p2c'+(d===t?' td':'')+(d===P2.cs?' sel':'')+(k.hol?' hol':'')+'" data-a="p2_cd" data-d="'+d+'"><span>'+fa(dnum(d))+'</span><em>'+(k.hol?dot('#ef4444',T('تعطیلی','Holiday')):'')+(k.occ?dot('#a855f7',T('مناسبت','Occasion')):'')+(k.dl?dot(k.dlc||'#f59e0b',T('موعد','Deadline')):'')+(k.fin?dot('#10b981',T('پایان پیش‌بینی‌شده','Forecast finish')):'')+(k.rm?dot('#3b82f6',T('یادآوری','Reminder')):'')+(k.bz?dot('#94a3b8',T('ساعت پر','Busy')):'')+(k.pl?dot('var(--ac,#22c55e)',T('برنامه','Plan')):'')+'</em></button>'}
   g+='</div>';
-  const leg='<p class="m" style="margin:6px 0 0"><span class="p2l" style="background:#ef4444"></span>'+T('تعطیلی','Holiday')+' <span class="p2l" style="background:#a855f7"></span>'+T('مناسبت','Occasion')+' <span class="p2l" style="background:#f59e0b"></span>'+T('موعد','Deadline')+' <span class="p2l" style="background:#10b981"></span>'+T('پایان پیش‌بینی','Forecast end')+' <span class="p2l" style="background:#3b82f6"></span>'+T('یادآوری','Reminder')+' <span class="p2l" style="background:#94a3b8"></span>'+T('ساعت پر','Busy')+' <span class="p2l" style="background:var(--ac,#22c55e)"></span>'+T('برنامه','Plan')+'</p>';
+  const leg='<p class="m" style="margin:6px 0 0"><span class="p2l" style="background:#ef4444"></span>'+T('تعطیلی','Holiday')+' <span class="p2l" style="background:#a855f7"></span>'+T('مناسبت','Occasion')+' <span class="p2l" style="background:linear-gradient(90deg,#22a38a,#f08a1c,#ef4444)"></span>'+T('موعد (رنگ = فوریت)','Deadline (colour = urgency)')+' <span class="p2l" style="background:#10b981"></span>'+T('پایان پیش‌بینی','Forecast end')+' <span class="p2l" style="background:#3b82f6"></span>'+T('یادآوری','Reminder')+' <span class="p2l" style="background:#94a3b8"></span>'+T('ساعت پر','Busy')+' <span class="p2l" style="background:var(--ac,#22c55e)"></span>'+T('برنامه','Plan')+'</p>';
   let h='<div class="c"><div class="row" style="align-items:center"><button class="chip" data-a="p2_cm" data-n="-1" aria-label="prev">‹</button><b style="flex:1;text-align:center">'+M.title+'</b><button class="chip" data-a="p2_cm" data-n="1" aria-label="next">›</button><button class="chip" data-a="p2_cm" data-n="0">'+T('امروز','Today')+'</button></div>'+g+leg+'</div>';
   const d=P2.cs,k=marks(d);let ev=[];try{ev=eventsOf(d)}catch(e){}
   let pl=[];try{pl=(plan(d)||[]).filter(x=>x.actId&&act(x.actId))}catch(e){}
