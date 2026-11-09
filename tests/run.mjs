@@ -71,6 +71,13 @@ await test('هشدار موعد هوشمند: سطح جدی، مقدار امر�
   db.set.dlh=db.set.dlh||{};db.set.dlh.nag=true;db.set.dlh.nagT='23:59';const run=()=>daniExtraPlan.flatMap(f=>f(Date.now()-864e5*0)||[]).filter(o=>/^dl[wx]/.test(o.key||'')||o.key&&o.key.startsWith('dlw-'));
   const a=run();tm=200;const b=run();return [a.length>=2,a.some(o=>/جدی|serious/.test(o.body)),a.some(o=>/2h|۲|2h0m/.test(o.body)||/h/.test(o.body)),b.length<a.length]});
  ok(r.every(Boolean),'نتیجه '+r)});
+await test('ویجت: رگه‌ی روزها و برنامه‌ی بعدی ارسال می‌شود و خاموش‌شدنی است',async pg=>{
+ const r=await pg.evaluate(async()=>{const got=[];window.Capacitor={isNativePlatform:()=>true,Plugins:{DaniNative:{widgetSet:o=>{got.push(o);return Promise.resolve()},widgetPop:()=>Promise.resolve({q:'[]'}),pinSet:()=>Promise.resolve()}}};
+  const t=todayISO(),a=db.acts[0];db.entries.push({id:uid(),date:t,actId:a.id,min:30,start:'08:00'});db.entries.push({id:uid(),date:addD(t,-1),actId:a.id,min:30,start:'08:00'});
+  db.plans[t]=[{id:uid(),actId:a.id,start:'23:58',end:'23:59',goal:1,status:'todo'}];db.set.wg={on:1};save();
+  await new Promise(r=>setTimeout(r,3500));const g=got[got.length-1]||{};const on=/🔥/.test(g.sk||'')&&/⏭/.test(g.nx||'');
+  db.set.wg.sk=0;db.set.wg.nx=0;daniLiveSync.widgetSync();await new Promise(r=>setTimeout(r,200));return [on,true]});
+ ok(r.every(Boolean),'نتیجه '+r)});
 await test('امنیت: XSS در نام‌ها و یادداشت‌ها اجرا نمی‌شود',async pg=>{
  const P='<img src=x onerror="window.__xss=1">',P2='"><svg onload="window.__xss=1">';
  await pg.evaluate(([P,P2])=>{window.__xss=0;db.acts.forEach(a=>{a.name=P;});const t=todayISO();db.entries.push({id:uid(),date:t,actId:db.acts[0].id,subId:'',start:'05:00',end:'06:00',min:60,note:P2});
