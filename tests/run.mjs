@@ -84,6 +84,11 @@ await test('یادآوری پشتیبان: طبق بازه‌ی تنظیمات،
   db.set.bk=7;db.set.lastBk=Date.now()-10*864e5;const a1=f();db.set.lastBk=Date.now()-3*864e5;const a2=f();db.set.lastBk=Date.now()-10*864e5;db.set.bk=0;const a3=f();
   return [a1.length===1&&/۱۰|10/.test(a1[0].body),a2.length===0,a3.length===0]});
  ok(r.every(Boolean),'نتیجه '+r)});
+await test('هفته‌ی اول ساده: پنهان‌کردن اختیاری، برگشت کامل، نوار بعد از ۷ روز',async pg=>{
+ const r=await pg.evaluate(()=>{db.set.modOff=['dl'];H.g2_fw();const a=['hab','rem','qt','acd'].every(m=>db.set.modOff.includes(m))&&db.set.modOff.includes('dl')&&!modOn('hab');
+  db.set.fw.start=addD(todayISO(),-8);page='day';render();const bar=!!document.getElementById('fwbar');
+  H.g2_fw();const b=modOn('hab')&&modOn('acd')&&!modOn('dl')&&!db.set.fw.on;render();return [a,bar,b,!document.getElementById('fwbar')]});
+ ok(r.every(Boolean),'نتیجه '+r)});
 await test('امنیت: XSS در نام‌ها و یادداشت‌ها اجرا نمی‌شود',async pg=>{
  const P='<img src=x onerror="window.__xss=1">',P2='"><svg onload="window.__xss=1">';
  await pg.evaluate(([P,P2])=>{window.__xss=0;db.acts.forEach(a=>{a.name=P;});const t=todayISO();db.entries.push({id:uid(),date:t,actId:db.acts[0].id,subId:'',start:'05:00',end:'06:00',min:60,note:P2});
