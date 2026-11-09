@@ -1,0 +1,20 @@
+name: DANI tests
+# با هر آپلود/تغییر خودکار اجرا می‌شود. در تب Actions نتیجه‌ی سبز یا قرمز را می‌بینی.
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install
+        working-directory: tests
+        run: npm install && npx playwright install --with-deps chromium
+      - name: Run tests
+        working-directory: tests
+        run: node run.mjs
