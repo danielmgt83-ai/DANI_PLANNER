@@ -6,7 +6,7 @@
 (function(){
 const T=window.daniT;
 const FX=()=>{const s=db.set;if(!s.fx||typeof s.fx!=='object')s.fx={};if(s.fx.hap===undefined)s.fx.hap=1;if(s.fx.anim===undefined)s.fx.anim=1;return s.fx};
-const VER='2026.11.57';
+const VER='2026.11.58';
 /* ---------- لرزش و پاپ ---------- */
 const HAP=/^(qk_go|nx_go|nx_sw|pf_add|tp_ap|bin_rs|ex_save|ab_now|ql_|pm_|tm_|tstart|tfinish|hab|ob_log|ob_go|dnd_set|ls_now|dk_)/;
 const reduce=()=>{try{return matchMedia('(prefers-reduced-motion: reduce)').matches}catch(e){return false}};
@@ -19,6 +19,7 @@ st.textContent='@keyframes fxpop{0%{transform:scale(1)}40%{transform:scale(.92)}
 document.head.appendChild(st);
 /* ---------- چه چیزی تازه است ---------- */
 const WN=[
+ ['🧩','ویجت: دو خط تازه — ⏭ برنامه‌ی بعدیِ امروز و 🔥 رگه‌ی روزها (تنظیمات ← همگام‌سازی و ویجت؛ هرکدام قابل خاموش‌شدن؛ APK نو)','Widget: two new lines — ⏭ next plan today and 🔥 day streak (Settings → Sync & widget; each can be switched off; new APK)'],
  ['⏳','هشدار موعد هوشمندتر: هرچه عقب‌تر یا نزدیک‌تر، لحن جدی‌تر؛ مقدار کار لازم برای امروز در متن می‌آید؛ اگر امروز به اندازه‌ی کافی کار کرده‌ای ساکت می‌ماند؛ در حالت خیلی جدی یک یادآوری ۴ ساعت زودتر هم می‌آید (موعدها ← ⚙)','Smarter deadline alert: tone gets firmer the further behind / closer you are; today’s needed work is in the text; silent if you already worked enough today; in the serious level an extra reminder 4h earlier (Deadlines → ⚙)'],
  ['📌','پنل سریع پین‌شده در اعلان‌ها: ⏱ شروع (پنجره‌ی شناور انتخاب فعالیت + شمارش با مکث/پایان)، ⚡ +۱۵ و 📝 یادداشت سریع بدون باز کردن برنامه (APK نو). ماه سفیدتر و صفحه‌ی آماده‌سازی زیباتر','Pinned quick panel in notifications: ⏱ Start (floating activity picker, count with pause/stop), ⚡ +15 and 📝 quick note without opening the app (new APK). Whiter moon and a prettier start screen'],
  ['📚','تب «دوره‌ها»ی آکادمی برگشت (با شروع تمیز پنهان شده بود؛ داده‌ها هیچ‌وقت پاک نشده بودند)','The Academy “Courses” tab is back (the clean-start change had hidden it; your data was never deleted)'],

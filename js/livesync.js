@@ -62,8 +62,15 @@ function widgetSync(){
       if(f){if(f.ms<=0){dn='!';du=T('گذشته','overdue')}else if(f.d>=1){dn=fa(String(f.d));du=T('روز مانده','days left')}else{dn=fa(String(f.h));du=T('ساعت مانده','hours left')}
        dt=String(f.x.title||'').slice(0,28);if(/^#[0-9a-fA-F]{6}$/.test(f.col))dc=f.col;else{const m=(LVC_(f.lv));dc=m}}}
     if(WG().on&&WG().qt!==0){const h=homeTarget();if(h&&h.tgt){qp=Math.min(100,Math.round(h.done/h.tgt*100));qt=fa(mm(h.done))+' / '+fa(mm(h.tgt))}}}catch(e){}
-  const sig=l1+'|'+l2+'|'+l3+'|'+hb+'|'+dn+du+dt+dc+qt+qp;if(sig===wsig)return;wsig=sig;
-  try{D.widgetSet({l1,l2,l3,hb,dn,du,dt,dc,qt,qp})}catch(e){}
+  /* v94: برنامه‌ی بعدیِ امروز + رگه‌ی روزها (هر کدام جدا قابل خاموش‌شدن) */
+  let nx='',sk='';
+  try{if(WG().on&&WG().nx!==0){const t0=todayISO(),hm=new Date().toTimeString().slice(0,5);
+      const q=(db.plans[t0]||[]).filter(p=>p.status==='todo'&&p.start&&p.start>=hm).sort((a,b)=>a.start<b.start?-1:1)[0];
+      if(q)nx='⏭ '+fa(q.start)+' · '+String((typeof aN==='function'?aN(q.actId):'')||'').slice(0,22)}
+    if(WG().on&&WG().sk!==0){const has=d=>(E(d)||[]).length>0,t=todayISO();let d=has(t)?t:addD(t,-1),n=0;while(n<800&&has(d)){n++;d=addD(d,-1)}
+      if(n>0)sk='🔥 '+fa(String(n))+' '+T('روز پیاپی','day streak')}}catch(e){}
+  const sig=l1+'|'+l2+'|'+l3+'|'+hb+'|'+dn+du+dt+dc+qt+qp+nx+sk;if(sig===wsig)return;wsig=sig;
+  try{D.widgetSet({l1,l2,l3,hb,dn,du,dt,dc,qt,qp,nx,sk})}catch(e){}
 }
 /* پنل سریع پین‌شده (v92): روشن/خاموش + فهرست فعالیت‌ها برای پنجره‌ی انتخاب (اخیرها اول) */
 function pinSync(){const D=DN();if(!native()||!D||!D.pinSet)return;
@@ -164,7 +171,7 @@ H.ls_now=()=>doSync(true);
 H.ls_auto=()=>{sl(AUTO_K,gl(AUTO_K)==='1'?'':'1');render()};
 H.ls_off=()=>{if(!confirm(T('اتصال به فایل همگام‌سازی قطع شود؟ خودِ فایل پاک نمی‌شود.','Disconnect the sync file? The file itself is not deleted.')))return;sl(URI_K,'');sl(AUTO_K,'');sl(LAST_K,'');sl(RV_K,'');sl(DIRTY_K,'');setSt('');msg='';render()};
 H.ls_lv=()=>{LV().on=LV().on?0:1;save();lsig='';liveSync();render()};
-H.ls_wd=e=>{const k=e&&e.dataset?e.dataset.k:e;if(k!=='dl'&&k!=='qt')return;WG()[k]=WG()[k]===0?1:0;save();wsig='';widgetSync();render()};
+H.ls_wd=e=>{const k=e&&e.dataset?e.dataset.k:e;if(k!=='dl'&&k!=='qt'&&k!=='nx'&&k!=='sk')return;WG()[k]=WG()[k]===0?1:0;save();wsig='';widgetSync();render()};
 H.ls_pin=()=>{PIN().on=PIN().on?0:1;save();psig='';pinSync();render()};
 H.ls_wg=()=>{WG().on=WG().on?0:1;save();wsig='';widgetSync();render()};
 H.ls_mk=()=>{try{dl('dani-sync-'+todayISO()+'.json','application/json',payload())}catch(e){say(String(e&&e.message||e),1)}};
@@ -184,7 +191,7 @@ function card(){
   h+='<div class="m" style="margin-top:8px">'+T('روش دستی (وب، PWA یا هر دستگاه):','Manual way (web, PWA or any device):')+'</div><div class="row"><button class="chip" data-a="ls_mk">⬇ '+T('ساخت فایل همگام‌سازی','Make sync file')+'</button><label class="chip" style="cursor:pointer">📥 '+T('ادغام یک فایل','Merge a file')+'<input type="file" accept=".json,application/json" data-ls-file hidden></label></div>';
   if(native()){
     h+='<div class="row" style="margin-top:10px"><button class="chip '+(LV().on?'on':'')+'" data-a="ls_lv">⏱ '+T('تایمر زنده در اعلان','Live timer in notification')+'</button><button class="chip '+(WG().on?'on':'')+'" data-a="ls_wg">🧩 '+T('محتوای ویجت','Widget content')+'</button><button class="chip '+(PIN().on?'on':'')+'" data-a="ls_pin">📌 '+T('پنل سریع در اعلان‌ها','Pinned quick panel')+'</button></div>'+(PIN().on?'<div class="m">'+T('در پرده‌ی اعلان: ⏱ شروع (انتخاب فعالیت در پنجره‌ی شناور و شمارش از همان‌جا با مکث/پایان)، ⚡ +۱۵ دقیقه و 📝 یادداشت سریع؛ همه بدون باز کردن برنامه. نتیجه دفعه‌ی بعد که برنامه را باز کنی ثبت می‌شود.','In the notification shade: ⏱ Start (pick an activity in a floating window, then count with pause/stop right there), ⚡ +15 min and 📝 quick note; all without opening the app. Results are saved next time you open the app.')+'</div>':'')
-     +(WG().on?'<div class="row" style="margin-top:6px;gap:6px"><button class="chip '+(WG().dl!==0?'on':'')+'" data-a="ls_wd" data-k="dl">⏳ '+T('شمارنده‌ی موعد','Deadline counter')+'</button><button class="chip '+(WG().qt!==0?'on':'')+'" data-a="ls_wd" data-k="qt">📊 '+T('سهمیه‌ی امروز','Today quota')+'</button></div>':'')
+     +(WG().on?'<div class="row" style="margin-top:6px;gap:6px"><button class="chip '+(WG().dl!==0?'on':'')+'" data-a="ls_wd" data-k="dl">⏳ '+T('شمارنده‌ی موعد','Deadline counter')+'</button><button class="chip '+(WG().qt!==0?'on':'')+'" data-a="ls_wd" data-k="qt">📊 '+T('سهمیه‌ی امروز','Today quota')+'</button><button class="chip '+(WG().nx!==0?'on':'')+'" data-a="ls_wd" data-k="nx">⏭ '+T('برنامه‌ی بعدی','Next plan')+'</button><button class="chip '+(WG().sk!==0?'on':'')+'" data-a="ls_wd" data-k="sk">🔥 '+T('رگه‌ی روزها','Streak')+'</button></div>':'')
       +'<div class="m">'+T('ویجت: روی صفحه‌ی خانه‌ی گوشی نگه دار ← ویجت‌ها ← DANI. (نیازمند APK جدید)','Widget: long-press home screen → Widgets → DANI. (needs the new APK)')+'</div>'}
   return h+'</div>'}
 {const _sp=setPage;setPage=function(){const h=_sp.apply(this,arguments);return(typeof h==='string'&&typeof stt!=='undefined'&&stt==='time')?h+card():h}}
