@@ -103,6 +103,24 @@
         android:maxLines="1"
         android:ellipsize="end" />
     <TextView
+        android:id="@+id/dw_nx"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="2dp"
+        android:textColor="#FFFFFF"
+        android:textSize="12sp"
+        android:maxLines="1"
+        android:ellipsize="end" />
+    <TextView
+        android:id="@+id/dw_sk"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="2dp"
+        android:textColor="#FFD479"
+        android:textSize="12sp"
+        android:maxLines="1"
+        android:ellipsize="end" />
+    <TextView
         android:id="@+id/dw_h1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
