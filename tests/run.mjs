@@ -78,6 +78,12 @@ await test('ویجت: رگه‌ی روزها و برنامه‌ی بعدی ار�
   await new Promise(r=>setTimeout(r,3500));const g=got[got.length-1]||{};const on=/🔥/.test(g.sk||'')&&/⏭/.test(g.nx||'');
   db.set.wg.sk=0;db.set.wg.nx=0;daniLiveSync.widgetSync();await new Promise(r=>setTimeout(r,200));return [on,true]});
  ok(r.every(Boolean),'نتیجه '+r)});
+await test('یادآوری پشتیبان: طبق بازه‌ی تنظیمات، با متن روز و خاموش با ۰',async pg=>{
+ const r=await pg.evaluate(()=>{const a=db.acts[0];for(let i=0;i<8;i++)db.entries.push({id:uid(),date:todayISO(),actId:a.id,min:5,start:'08:00'});
+  localStorage.removeItem('dani_sync_last');const f=()=>daniExtraPlan.flatMap(x=>x(Date.now())||[]).filter(o=>(o.key||'').startsWith('bk-nag-'));
+  db.set.bk=7;db.set.lastBk=Date.now()-10*864e5;const a1=f();db.set.lastBk=Date.now()-3*864e5;const a2=f();db.set.lastBk=Date.now()-10*864e5;db.set.bk=0;const a3=f();
+  return [a1.length===1&&/۱۰|10/.test(a1[0].body),a2.length===0,a3.length===0]});
+ ok(r.every(Boolean),'نتیجه '+r)});
 await test('امنیت: XSS در نام‌ها و یادداشت‌ها اجرا نمی‌شود',async pg=>{
  const P='<img src=x onerror="window.__xss=1">',P2='"><svg onload="window.__xss=1">';
  await pg.evaluate(([P,P2])=>{window.__xss=0;db.acts.forEach(a=>{a.name=P;});const t=todayISO();db.entries.push({id:uid(),date:t,actId:db.acts[0].id,subId:'',start:'05:00',end:'06:00',min:60,note:P2});
