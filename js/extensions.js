@@ -32,9 +32,9 @@ async function daniImport(text,hint){text=String(text||'').replace(/^\uFEFF/,'')
  else if(obj&&obj.format==='dani-pack'&&Array.isArray(obj.items)){if(obj.items.length>60)throw new Error('بسته بیش از حد بزرگ است');for(const it of obj.items){if(!it||typeof it!=='object')continue;
    if(it.type==='theme'&&it.theme)out.push('تم «'+await themeAdd(it.theme)+'»');
    else if(it.type==='cards'){const n=daniApi('pack').addCards(S_(it.deck||obj.name||'بسته',40),it.cards);out.push(fa(n)+' فلش‌کارت در «'+S_(it.deck||obj.name,40)+'»')}
-   else if(it.type==='ext'&&it.code){const r=extInstall(it.code,it.id);extLoadOne(r.id);out.push('افزونه «'+r.name+'»')}}}
+   else if(it.type==='ext'&&it.code){if(!confirm((window.daniT||((a,b)=>a))('این بسته افزونه‌ای با کد اجرایی دارد. فقط اگر به منبعش اعتماد داری نصب کن. ادامه؟','This pack contains an extension with executable code. Install only if you trust the source. Continue?')))continue;const r=extInstall(it.code,it.id);extLoadOne(r.id);out.push('افزونه «'+r.name+'»')}}}
  else if(obj)throw new Error('قالب فایل شناخته نشد (format باید hamrah-theme یا dani-pack باشد)');
- else{const r=extInstall(text,hint);extLoadOne(r.id);out.push('افزونه «'+r.name+'»')}
+ else{if(!confirm((window.daniT||((a,b)=>a))('افزونه کد اجرا می‌کند و به داده‌های برنامه دسترسی دارد. فقط اگر به منبعش اعتماد داری ادامه بده. نصب شود؟','An extension runs code with access to your app data. Continue only if you trust the source. Install?')))throw new Error('لغو شد');const r=extInstall(text,hint);extLoadOne(r.id);out.push('افزونه «'+r.name+'»')}
  save();return out}
 function extLoadOne(id){const code=localStorage.getItem(EXT_K+id);if(code)extRun({id,code})}
 function extCard(){const l=extIndex();return'<div class="c" id="extcard"><h3>'+BH('Extensions & Packs','افزونه‌ها و بسته‌ها')+'</h3><p class="m">هر قابلیت یا محتوای تازه را می‌شود به‌صورت یک فایل کوچک ساخت و اینجا چسباند: افزونه (‎.dani.js)، بسته (‎.dani.json: تم، فلش‌کارت)، یا تم. ⚠ افزونه به داده‌های برنامه دسترسی دارد؛ فقط فایلی را اضافه کن که از منبع مطمئن گرفته‌ای.</p>'
