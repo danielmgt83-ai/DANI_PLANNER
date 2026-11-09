@@ -571,7 +571,6 @@ DANI Planner: پلنر شخصی فارسی (RTL، با لایه‌ی ترجمه�
 
 > v91: ترتیب بوت: `boot0.js` (extLoadAll) باید قبل از `courses.js` باشد؛ `boot.js` (render و آماده‌شدن) آخرین اسکریپت. این دو را جابه‌جا نکن.
 
-> v96: اعلان پشتیبان در safety.js از `db.set.bk` پیروی می‌کند؛ مسیر `bk-nag-` → `#bkc`.
 > v95: امضای ثابت: `android-shell/dani-debug.keystore` (alias androiddebugkey، رمز android) در workflow کپی می‌شود. کلید Play باید جدا و خصوصی باشد؛ این را عوض نکن مگر کاربر بخواهد.
 > v94: ویجت `nx`/`sk` (livesync.js widgetSync → widgetSet → DaniWidget.build، فقط type≥1؛ id‌ها dw_nx/dw_sk).
 > v93: dlnag.js سطح‌بندی لحن (lvl 1-3) از `lateDue` و روزهای مانده؛ `active` اگر `todayMin`≥سهمیه پیام امروز حذف می‌شود.
