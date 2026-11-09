@@ -74,6 +74,8 @@ public class DaniWidget extends AppWidgetProvider {
             txt(c, v, "dw_qt", hasQ ? qt : "", true);
             txt(c, v, "dw_l2", hasQ ? "" : l2, true);
             txt(c, v, "dw_l3", l3, true);
+            txt(c, v, "dw_nx", sp.getString("nx", ""), true);
+            txt(c, v, "dw_sk", sp.getString("sk", ""), true);
         }
         Intent li = c.getPackageManager().getLaunchIntentForPackage(c.getPackageName());
         if (li != null) {
