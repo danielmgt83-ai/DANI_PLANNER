@@ -29,8 +29,9 @@ const hr=h=>fa(h)+T(' ساعت',' h');
   try{const z=FZ(),t=db.timer;if(z.on&&t&&t.state==='running'&&t.mode!=='cd'){const left=z.h*3600000-el();
       if(left>2000)out.push({id:7002,at:now+left,title:'DANI ⏱',body:T('تایمر «'+aN(t.actId)+'» حدود '+hr(z.h)+' است روشن مانده — هنوز کار می‌کنی؟','Timer “'+aN(t.actId)+'” has been running ~'+z.h+' h — still working?'),ch:'dani-remind-v2',key:'timer-forgot'})}}catch(e){}
   try{const last=Math.max(db.set.lastBk||0,+localStorage.getItem('dani_sync_last')||0);
-      if(db.entries&&db.entries.length>5&&now-last>14*864e5){const a=new Date(now);a.setHours(20,0,0,0);if(a.getTime()<=now+2000)a.setDate(a.getDate()+1);
-        out.push({id:7003,at:a.getTime(),title:'DANI 🛡',body:T('بیش از ۱۴ روز است پشتیبان بیرونی نگرفته‌ای (یا همگام‌سازی نشده).','No external backup or sync for over 14 days.'),ch:'dani-remind-v2',key:'bk-nag-'+todayISO()})}}catch(e){}
+      const bk=+db.set.bk>0?+db.set.bk:0,age=last?Math.floor((now-last)/864e5):null;
+      if(bk&&db.entries&&db.entries.length>5&&(last===0||now-last>bk*864e5)){const a=new Date(now);a.setHours(20,0,0,0);if(a.getTime()<=now+2000)a.setDate(a.getDate()+1);
+        out.push({id:7003,at:a.getTime(),title:'DANI 🛡',body:age===null?T('هنوز پشتیبانی نگرفته‌ای. با یک لمس پشتیبان بگیر و در Drive یا تلگرام نگه دار.','No backup yet. One tap to take one and keep it in Drive or Telegram.'):T(fa(String(age))+' روز است پشتیبان نگرفته‌ای. با یک لمس بگیر و در Drive یا تلگرام نگه دار.',age+' days since your last backup. One tap to take one and keep it in Drive or Telegram.'),ch:'dani-remind-v2',key:'bk-nag-'+todayISO()})}}catch(e){}
   return out});
 /* ---------- مزاحم نشو ---------- */
 H.dnd_set=e=>{const h=+e.dataset.h,d=DND();d.until=h>0?Date.now()+h*3600000:0;save();sync();try{toast(h>0?T('مزاحم نشو تا '+fa(nowHM2(d.until)),'Do not disturb until '+nowHM2(d.until)):T('مزاحم نشو خاموش شد','Do not disturb off'))}catch(x){}render();try{H.hf_open&&document.querySelector('#ovl .ov')&&H.hf_open()}catch(x){}};
