@@ -571,6 +571,7 @@ DANI Planner: پلنر شخصی فارسی (RTL، با لایه‌ی ترجمه�
 
 > v91: ترتیب بوت: `boot0.js` (extLoadAll) باید قبل از `courses.js` باشد؛ `boot.js` (render و آماده‌شدن) آخرین اسکریپت. این دو را جابه‌جا نکن.
 
+> v95: امضای ثابت: `android-shell/dani-debug.keystore` (alias androiddebugkey، رمز android) در workflow کپی می‌شود. کلید Play باید جدا و خصوصی باشد؛ این را عوض نکن مگر کاربر بخواهد.
 > v94: ویجت `nx`/`sk` (livesync.js widgetSync → widgetSet → DaniWidget.build، فقط type≥1؛ id‌ها dw_nx/dw_sk).
 > v93: dlnag.js سطح‌بندی لحن (lvl 1-3) از `lateDue` و روزهای مانده؛ `active` اگر `todayMin`≥سهمیه پیام امروز حذف می‌شود.
 > v92: پنل سریع = `DaniPin` (بومی) + `pinSync()` در livesync.js؛ دکمه‌ی تازه‌ی پنل را هم‌زمان در `DaniPin.show` و `DaniPinAction` اضافه کن. صف: `tlog:<act>:<startMs>:<min>`، `note:<text>`، `log:<min>`.

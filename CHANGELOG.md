@@ -2,6 +2,9 @@
 
 > هر تحویل یک خط در اینجا. جدیدترین بالا. (هوش مصنوعی‌ها: هر بار که فایلی را عوض می‌کنید، این‌جا یک خط بنویسید.)
 
+## (۹۳) v95 — امضای ثابت APK
+- `android-shell/dani-debug.keystore` (کلید debug ثابت) + مرحله‌ی جدید در `.github/workflows/build-android.yml` که قبل از ساخت آن را در `~/.android/debug.keystore` می‌گذارد. قبلاً هر ساخت کلید تازه‌ی تصادفی داشت و اندروید نصب روی نسخه‌ی قبلی را رد می‌کرد. تغییر: همین‌ها + `README.md`، `js/fx.js`، `sw.js`، `AI.md`، `CHANGELOG.md`. ساخت روی GitHub هنوز امتحان نشده. APK لازم است.
+
 ## (۹۲) v94 — ویجت: برنامه‌ی بعدی و رگه‌ی روزها
 - ویجت متوسط/بزرگ دو خط تازه گرفت: ⏭ نزدیک‌ترین برنامه‌ی «انجام‌نشده»ی امروز (ساعت · فعالیت) و 🔥 رگه‌ی روزهای پیاپی ثبت. فیلدهای `nx`/`sk` در `widgetSet`، چیپ‌های جدا در تنظیمات ← همگام‌سازی و ویجت. «تیک کار» اضافه نشد چون برنامه فهرست کار جدا ندارد (تیک عادت‌ها از قبل هست). تغییر: `js/livesync.js`، `DaniWidget.java`، `DaniNativePlugin.java`، `res/layout/dani_widget.xml`، `dani_widget_large.xml`، `index.html`، `js/fx.js`، `sw.js`، `tests/run.mjs`، `AI.md`، `CHANGELOG.md`. APK لازم است.
 
