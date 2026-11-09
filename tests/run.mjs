@@ -65,6 +65,12 @@ await test('پنل سریع پین‌شده: صف تایمر و یادداشت �
   await new Promise(r=>setTimeout(r,3600));
   const en=db.entries.slice(e0).find(e=>e.src==='pin'),nt=db.notes.slice(n0).find(n=>n.t==='یادداشت: با دونقطه');
   return [!!en&&en.min===25&&en.actId===a.id,!!nt,calls.some(c=>c.on===true&&JSON.parse(c.acts).length>0)]});ok(r.every(Boolean),'نتیجه '+r)});
+await test('هشدار موعد هوشمند: سطح جدی، مقدار امروز، سکوت وقتی کافی کار شده',async pg=>{
+ const r=await pg.evaluate(()=>{const t=todayISO(),dt=addD(t,2),x={id:'dlT',title:'آزمون',dt,tm:'12:00'};zDL().items.push(x);
+  window.daniProjects={list:()=>[{id:'pT',dl:'dlT'}]};let tm=0;window.daniPace=()=>({done:false,left:100,lateDue:8,target:120,base:60,todayMin:tm});
+  db.set.dlh=db.set.dlh||{};db.set.dlh.nag=true;db.set.dlh.nagT='23:59';const run=()=>daniExtraPlan.flatMap(f=>f(Date.now()-864e5*0)||[]).filter(o=>/^dl[wx]/.test(o.key||'')||o.key&&o.key.startsWith('dlw-'));
+  const a=run();tm=200;const b=run();return [a.length>=2,a.some(o=>/جدی|serious/.test(o.body)),a.some(o=>/2h|۲|2h0m/.test(o.body)||/h/.test(o.body)),b.length<a.length]});
+ ok(r.every(Boolean),'نتیجه '+r)});
 await test('امنیت: XSS در نام‌ها و یادداشت‌ها اجرا نمی‌شود',async pg=>{
  const P='<img src=x onerror="window.__xss=1">',P2='"><svg onload="window.__xss=1">';
  await pg.evaluate(([P,P2])=>{window.__xss=0;db.acts.forEach(a=>{a.name=P;});const t=todayISO();db.entries.push({id:uid(),date:t,actId:db.acts[0].id,subId:'',start:'05:00',end:'06:00',min:60,note:P2});
