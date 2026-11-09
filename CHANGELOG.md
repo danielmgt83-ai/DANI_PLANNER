@@ -2,6 +2,9 @@
 
 > هر تحویل یک خط در اینجا. جدیدترین بالا. (هوش مصنوعی‌ها: هر بار که فایلی را عوض می‌کنید، این‌جا یک خط بنویسید.)
 
+## (۹۴) v96 — یادآوری پشتیبان با اعلان
+- اعلان `bk-nag-` در `js/safety.js` به‌جای ۱۴ روز ثابت از بازه‌ی `db.set.bk` پیروی می‌کند (۰ = خاموش)، تعداد روز را می‌گوید، ساعت ۲۰:۰۰؛ لمس آن به `#bkc` می‌رود (`js/notifroute.js`). بدون حساب گوگل. تغییر: `js/safety.js`، `js/notifroute.js`، `index.html`، `js/fx.js`، `sw.js`، `tests/run.mjs`، `AI.md`، `CHANGELOG.md`. APK لازم نیست.
+
 ## (۹۳) v95 — امضای ثابت APK
 - `android-shell/dani-debug.keystore` (کلید debug ثابت) + مرحله‌ی جدید در `.github/workflows/build-android.yml` که قبل از ساخت آن را در `~/.android/debug.keystore` می‌گذارد. قبلاً هر ساخت کلید تازه‌ی تصادفی داشت و اندروید نصب روی نسخه‌ی قبلی را رد می‌کرد. تغییر: همین‌ها + `README.md`، `js/fx.js`، `sw.js`، `AI.md`، `CHANGELOG.md`. ساخت روی GitHub هنوز امتحان نشده. APK لازم است.
 
