@@ -73,9 +73,16 @@ function widgetSync(){
   try{D.widgetSet({l1,l2,l3,hb,dn,du,dt,dc,qt,qp,nx,sk})}catch(e){}
 }
 /* پنل سریع پین‌شده (v92): روشن/خاموش + فهرست فعالیت‌ها برای پنجره‌ی انتخاب (اخیرها اول) */
+function pinActs(){const P=PIN(),m=P.m||'auto',ok=a=>a.active!==false&&!a.arch&&a.cat!=='sleep';
+  const last={};db.entries.forEach(e=>{const k=(e.date||'')+(e.start||'');if(!last[e.actId]||k>last[e.actId])last[e.actId]=k});
+  const rec=db.acts.filter(ok).sort((a,b)=>(last[b.id]||'').localeCompare(last[a.id]||''));
+  const sel=(P.sel||[]).map(id=>db.acts.find(a=>a.id===id)).filter(a=>a&&ok(a));
+  let L=m==='man'?sel:m==='mix'?sel.concat(rec.filter(a=>!sel.includes(a))):rec;
+  return L.slice(0,4)}
+window.daniPinActs=pinActs;window.daniPinSync=()=>{psig='';pinSync()};
 function pinSync(){const D=DN();if(!native()||!D||!D.pinSet)return;
-  try{const last={};db.entries.forEach(e=>{const k=(e.date||'')+(e.start||'');if(!last[e.actId]||k>last[e.actId])last[e.actId]=k});
-    const arr=db.acts.filter(a=>a.active!==false&&!a.arch&&a.cat!=='sleep').sort((a,b)=>(last[b.id]||'').localeCompare(last[a.id]||'')).slice(0,14).map(a=>({id:a.id,n:String(a.name).slice(0,30)}));
+  try{const EM={learn:'📖',work:'💼',personal:'⭐',rest:'☕'};
+    const arr=pinActs().map(a=>({id:a.id,n:String(a.name).slice(0,14),e:EM[a.cat]||'⏱',c:a.color||(CATS[a.cat]&&CATS[a.cat][1])||'#438DF5'}));
     const on=!!PIN().on,js=JSON.stringify(arr),sig=on+'|'+js;if(sig===psig)return;psig=sig;D.pinSet({on,acts:js})}catch(e){}}
 /* دکمه‌های ویجت: صفِ عمل‌هایی که بدون باز کردن برنامه زده شده‌اند را اعمال کن */
 function widgetPop(){const D=DN();if(!native()||!D||!D.widgetPop)return;
@@ -173,6 +180,8 @@ H.ls_off=()=>{if(!confirm(T('اتصال به فایل همگام‌سازی قط
 H.ls_lv=()=>{LV().on=LV().on?0:1;save();lsig='';liveSync();render()};
 H.ls_wd=e=>{const k=e&&e.dataset?e.dataset.k:e;if(k!=='dl'&&k!=='qt'&&k!=='nx'&&k!=='sk')return;WG()[k]=WG()[k]===0?1:0;save();wsig='';widgetSync();render()};
 H.ls_pin=()=>{PIN().on=PIN().on?0:1;save();psig='';pinSync();render()};
+H.ls_pinm=e=>{PIN().m=e.dataset.v;save();psig='';pinSync();render()};
+H.ls_pina=e=>{const P=PIN(),sel=(P.sel||[]).slice(),id=e.dataset.id,i=sel.indexOf(id);if(i>=0)sel.splice(i,1);else if(sel.length<4)sel.push(id);else{try{toast(T('حداکثر ۴ فعالیت','At most 4 activities'))}catch(x){}}P.sel=sel;save();psig='';pinSync();render()};
 H.ls_wg=()=>{WG().on=WG().on?0:1;save();wsig='';widgetSync();render()};
 H.ls_mk=()=>{try{dl('dani-sync-'+todayISO()+'.json','application/json',payload())}catch(e){say(String(e&&e.message||e),1)}};
 document.addEventListener('change',ev=>{const t=ev.target;if(!t||!t.matches||!t.matches('[data-ls-file]'))return;const f=t.files&&t.files[0];t.value='';if(!f)return;
@@ -190,7 +199,7 @@ function card(){
   else if(native()) h+='<div class="m">'+T('برای همگام‌سازی خودکار، APK یک‌بار از نو ساخته شود.','Rebuild the APK once for automatic sync.')+'</div>';
   h+='<div class="m" style="margin-top:8px">'+T('روش دستی (وب، PWA یا هر دستگاه):','Manual way (web, PWA or any device):')+'</div><div class="row"><button class="chip" data-a="ls_mk">⬇ '+T('ساخت فایل همگام‌سازی','Make sync file')+'</button><label class="chip" style="cursor:pointer">📥 '+T('ادغام یک فایل','Merge a file')+'<input type="file" accept=".json,application/json" data-ls-file hidden></label></div>';
   if(native()){
-    h+='<div class="row" style="margin-top:10px"><button class="chip '+(LV().on?'on':'')+'" data-a="ls_lv">⏱ '+T('تایمر زنده در اعلان','Live timer in notification')+'</button><button class="chip '+(WG().on?'on':'')+'" data-a="ls_wg">🧩 '+T('محتوای ویجت','Widget content')+'</button><button class="chip '+(PIN().on?'on':'')+'" data-a="ls_pin">📌 '+T('پنل سریع در اعلان‌ها','Pinned quick panel')+'</button></div>'+(PIN().on?'<div class="m">'+T('در پرده‌ی اعلان: ⏱ شروع (انتخاب فعالیت در پنجره‌ی شناور و شمارش از همان‌جا با مکث/پایان)، ⚡ +۱۵ دقیقه و 📝 یادداشت سریع؛ همه بدون باز کردن برنامه. نتیجه دفعه‌ی بعد که برنامه را باز کنی ثبت می‌شود.','In the notification shade: ⏱ Start (pick an activity in a floating window, then count with pause/stop right there), ⚡ +15 min and 📝 quick note; all without opening the app. Results are saved next time you open the app.')+'</div>':'')
+    h+='<div class="row" style="margin-top:10px"><button class="chip '+(LV().on?'on':'')+'" data-a="ls_lv">⏱ '+T('تایمر زنده در اعلان','Live timer in notification')+'</button><button class="chip '+(WG().on?'on':'')+'" data-a="ls_wg">🧩 '+T('محتوای ویجت','Widget content')+'</button><button class="chip '+(PIN().on?'on':'')+'" data-a="ls_pin">📌 '+T('پنل سریع در اعلان‌ها','Pinned quick panel')+'</button></div>'+(PIN().on?'<div class="m">'+T('در پرده‌ی اعلان: دکمه‌های آیکون‌دار؛ یک لمس روی فعالیت = شروع شمارش (با مکث، پایان و ثبت، لغو)، 📝 یادداشت سریع و 🏠 باز کردن؛ همه بدون باز کردن برنامه. نتیجه دفعه‌ی بعد که برنامه را باز کنی ثبت می‌شود.','In the notification shade: icon buttons; one tap on an activity starts counting (pause, stop & save, cancel), 📝 quick note and 🏠 open; all without opening the app. Results are saved next time you open the app.')+'</div><div class="row" style="margin-top:8px">'+[['auto',T('خودکار (اخیرها)','Auto (recent)')],['man',T('دستی','Manual')],['mix',T('ترکیبی','Mixed')]].map(x=>'<button class="chip '+((PIN().m||'auto')===x[0]?'on':'')+'" data-a="ls_pinm" data-v="'+x[0]+'">'+x[1]+'</button>').join('')+'</div>'+((PIN().m||'auto')!=='auto'?'<div class="m" style="margin-top:6px">'+T('فعالیت‌های پنل (تا ۴ مورد):','Panel activities (up to 4):')+'</div><div class="row">'+db.acts.filter(a=>a.active!==false&&!a.arch&&a.cat!=='sleep').map(a=>'<button class="chip '+((PIN().sel||[]).includes(a.id)?'on':'')+'" data-a="ls_pina" data-id="'+esc(a.id)+'">'+esc(a.name)+'</button>').join('')+'</div>'+((PIN().m||'auto')==='mix'?'<div class="m">'+T('ترکیبی: انتخاب‌های تو اول می‌آیند و جاهای خالی خودکار با فعالیت‌های اخیر پر می‌شود.','Mixed: your picks come first, empty spots are filled with recent activities.')+'</div>':''):'<div class="m">'+T('خودکار: ۴ فعالیتی که اخیراً بیشتر استفاده کرده‌ای.','Auto: the 4 activities you used most recently.')+'</div>'):'')
      +(WG().on?'<div class="row" style="margin-top:6px;gap:6px"><button class="chip '+(WG().dl!==0?'on':'')+'" data-a="ls_wd" data-k="dl">⏳ '+T('شمارنده‌ی موعد','Deadline counter')+'</button><button class="chip '+(WG().qt!==0?'on':'')+'" data-a="ls_wd" data-k="qt">📊 '+T('سهمیه‌ی امروز','Today quota')+'</button><button class="chip '+(WG().nx!==0?'on':'')+'" data-a="ls_wd" data-k="nx">⏭ '+T('برنامه‌ی بعدی','Next plan')+'</button><button class="chip '+(WG().sk!==0?'on':'')+'" data-a="ls_wd" data-k="sk">🔥 '+T('رگه‌ی روزها','Streak')+'</button></div>':'')
       +'<div class="m">'+T('ویجت: روی صفحه‌ی خانه‌ی گوشی نگه دار ← ویجت‌ها ← DANI. (نیازمند APK جدید)','Widget: long-press home screen → Widgets → DANI. (needs the new APK)')+'</div>'}
   return h+'</div>'}
