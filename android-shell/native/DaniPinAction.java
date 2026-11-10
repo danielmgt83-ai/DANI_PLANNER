@@ -1,33 +1,28 @@
 package app.dani.planner;
 
-import android.app.RemoteInput;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Bundle;
+import android.widget.Toast;
 
-/* دکمه‌های پنل سریع پین‌شده (بدون باز شدن برنامه) */
+/* دکمه‌های پنل سریع پین‌شده (بدون باز شدن برنامه). بازخورد فقط Toast کوتاه است. */
 public class DaniPinAction extends BroadcastReceiver {
     @Override
     public void onReceive(Context c, Intent i) {
         String a = i.getAction();
         if (a == null) return;
-        if (a.equals("dani.pin.pause")) DaniPin.pause(c);
-        else if (a.equals("dani.pin.resume")) DaniPin.resume(c);
-        else if (a.equals("dani.pin.stop")) DaniPin.stop(c);
-        else if (a.equals("dani.pin.cancel")) DaniPin.cancelRun(c);
-        else if (a.equals("dani.pin.log15")) {
-            DaniPin.queue(c, "log:15");
-            DaniPin.sp(c).edit().putString("last", "⚡ +۱۵ دقیقه (در برنامه ثبت می‌شود)").apply();
-            DaniPin.show(c);
-        } else if (a.equals("dani.pin.note")) {
-            Bundle r = RemoteInput.getResultsFromIntent(i);
-            CharSequence t = r == null ? null : r.getCharSequence("note");
-            if (t != null && t.toString().trim().length() > 0) {
-                DaniPin.queue(c, "note:" + t.toString().trim());
-                DaniPin.sp(c).edit().putString("last", "📝 یادداشت ذخیره شد").apply();
+        if (a.equals("dani.pin.start")) {
+            String id = i.getStringExtra("id");
+            String n = i.getStringExtra("n");
+            if (id != null && !id.isEmpty()) {
+                DaniPin.start(c, id, n == null ? "" : n);
+                Toast.makeText(c, "⏱ " + (n == null ? "" : n), Toast.LENGTH_SHORT).show();
             }
-            DaniPin.show(c);
-        }
+        } else if (a.equals("dani.pin.pause")) DaniPin.pause(c);
+        else if (a.equals("dani.pin.resume")) DaniPin.resume(c);
+        else if (a.equals("dani.pin.stop")) {
+            String m = DaniPin.stop(c);
+            if (!m.isEmpty()) Toast.makeText(c, m, Toast.LENGTH_SHORT).show();
+        } else if (a.equals("dani.pin.cancel")) DaniPin.cancelRun(c);
     }
 }
