@@ -134,6 +134,11 @@ await test('منو و بخش‌ها / نمایش خانه: همه‌ی کنتر�
   const A={cm_mg:1,cm_mo:1,cm_ws:1,cm_fd:1,cm_fdr:1,lg_t:1,bd_all:1,bd_q:1,bd_pg:4,dk_on:1,dk_c:1};const bad=Object.keys(A).filter(a=>document.querySelectorAll('[data-a="'+a+'"]').length!==A[a]);
   const q=(c,s)=>!!document.querySelector(c+' '+s);return JSON.stringify({bad,u:[document.querySelectorAll('#menux').length,document.querySelectorAll('#homex').length],m:q('#menux','#modcard'),d:q('#homex','#dqc'),b:q('#sntg','[data-a="bd_q"]')})});
  const o=JSON.parse(r);ok(!o.bad.length&&o.u.join()==='1,1'&&o.m&&o.d&&o.b,'نتیجه '+r)});
+await test('داده‌ها: محتوای تب افزونه‌ها داخل تب داده‌ها؛ تحلیل گزارش یک کارت',async pg=>{const r=await pg.evaluate(async()=>{db.set.lang='fa';page='set';stt='data';render();await new Promise(r=>setTimeout(r,400));render();await new Promise(r=>setTimeout(r,300));
+  const b=document.getElementById('uchx');const A=['uchpaste','ufull','ufshare','uchcopy'];const o={n:document.querySelectorAll('#uchx').length,secs:b?b.querySelectorAll(':scope>details').length:0,btn:A.map(a=>document.querySelectorAll('[data-a="'+a+'"]').length).join(),add:!!document.querySelector('[data-uchadd]'),full:!!document.querySelector('[data-uchfull]'),tab:ST.some(x=>x[0]==='uch')};
+  stt='uch';render();await new Promise(r=>setTimeout(r,300));o.redir=stt;
+  page='res';rt='rep';render();await new Promise(r=>setTimeout(r,300));const d=[...document.querySelectorAll('details.c')].find(x=>/تحلیل گزارش|Report analysis/.test(x.firstElementChild.textContent));o.an=d?d.querySelectorAll(':scope>details.sbg').length:0;return JSON.stringify(o)});
+ const o=JSON.parse(r);ok(o.n===1&&o.secs===4&&o.btn==='1,1,1,1'&&o.add&&o.full&&!o.tab&&o.redir==='data'&&o.an===5,'نتیجه '+r)});
 
 console.log('\n'+results.map(r=>r.join(' ')).join('\n')+'\n\n'+(results.length-fails)+' / '+results.length+' موفق');
 await browser.close();srv.close();process.exit(fails?1:0);
