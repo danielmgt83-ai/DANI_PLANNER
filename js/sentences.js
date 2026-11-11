@@ -5,7 +5,10 @@
 if(typeof PG==='undefined'||!PG.qt||typeof zMS==='undefined')return;
 const T=window.daniT;
 const _qt=PG.qt;
-function part(tab){const o=zMS.qt.tab;try{zMS.qt.tab=tab;const h=_qt.call(PG);return typeof h==='string'?h.replace(/<div class="mtabs">.*?<\/div>/,''):''}finally{zMS.qt.tab=o}}
+function part(tab){const o=zMS.qt.tab;try{zMS.qt.tab=tab;let h=_qt.call(PG);if(typeof h!=='string')return'';h=h.replace(/<div class="mtabs">.*?<\/div>/,'');
+  /* v101: کارت «نمایش جمله‌ها در صفحه‌ی اصلی» هم در «نمایش و چرخش» و هم در «جمله‌های من» می‌آمد؛ فقط یک‌بار (در «نمایش و چرخش») نگه داشته می‌شود */
+  if(tab==='mine'){try{const d=new DOMParser().parseFromString('<body>'+h+'</body>','text/html');[...d.body.querySelectorAll('.c')].forEach(c=>{const t=c.querySelector('h3');if(t&&/نمایش جمله‌ها در صفحه‌ی اصلی/.test(t.textContent))c.remove()});h=d.body.innerHTML}catch(e){}}
+  return h}finally{zMS.qt.tab=o}}
 PG.qt=function(){const tab=zMS.qt.tab;
   if(tab==='set'||tab==='mine'){return mTabs('qt',tab,[['today','امروز'],['all','همه'],['fav','علاقه‌مندی‌ها'],['mine','جمله‌های من'],['hist','قبلی‌ها'],['set','تنظیمات']])
     +'<div class="c"><h3>'+T('جمله‌ها و تنظیماتشان به «تنظیمات» رفت','Sentences & their settings moved to Settings')+'</h3><p class="m">'+T('افزودن/ویرایش جمله‌ی شخصی، چرخش، نمایش روزانه و جمله‌های پنهان‌شده حالا یک‌جا در تنظیمات ← زبان و ظاهر ← «جمله‌ها» است.','Adding/editing your own sentences, rotation, daily display and hidden sentences now live in one place: Settings ← Language & look ← “Sentences”.')+'</p><button class="p" data-a="snt_go">'+T('رفتن به تنظیمات جمله‌ها','Open sentence settings')+'</button></div>'}

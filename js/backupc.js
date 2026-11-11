@@ -40,6 +40,8 @@ function merge(){
     if(dn){const x=sec('⚠️','حذف داده‌ها','Delete data');x.appendChild(dn);b.appendChild(x)}
     [dc.parentElement&&dc.parentElement.classList.contains('g2')?dc.parentElement:dc,sh,cr,ab].forEach(e=>{if(e)e.remove()});
     const w=document.getElementById('crs-set');if(w&&!w.querySelector('.c'))w.remove();b.dataset.mg='1'}
+  const ls=document.getElementById('lscard');
+  if(ls&&!b.contains(ls)&&!b.querySelector('details.bkx[data-ls]')){const x=sec('🔄','همگام‌سازی خودکار (Drive / فایل)','Auto sync (Drive / file)');x.dataset.ls='1';x.open=true;[...ls.children].forEach(n=>{if(n.tagName!=='H3')x.appendChild(n)});b.insertBefore(x,b.querySelector('details.bkx')||null);ls.remove()}
   const first=pg.querySelector('details.bgrp');if(first&&b.nextElementSibling!==first&&b.previousElementSibling!==pg.querySelector('#sqbox'))pg.insertBefore(b,first);
   pg.querySelectorAll('details[data-gk="dt-bk"]').forEach(g=>{const n=g.children.length-1;const c=g.querySelector('summary .m');if(c)c.textContent='· '+fa(n);if(n<1)g.remove()})}
 {const _r=render;render=function(){const r=_r.apply(this,arguments);try{if(page==='set'&&typeof stt!=='undefined'&&stt==='data')merge()}catch(e){console.error('backupc merge',e)}return r}}

@@ -77,7 +77,7 @@ function pack(){if(page!=='set'||typeof stt==='undefined'||stt!=='time')return;c
     d.innerHTML='<summary style="cursor:pointer;list-style:none">'+daniH(ico,fa,en)+'<span class="m">'+T(sub[0],sub[1])+'</span></summary>';
     ids[0].before(d);ids.forEach(c=>d.appendChild(c));d.addEventListener('toggle',()=>{HF()[flag]=d.open?1:0;try{save()}catch(e){}})};
   grp('ntgrp','🔔','اعلان‌ها و صدا','Notifications & sounds',['اجازه‌ها، زنگ آزمایشی، صدای هر دسته','Permissions, test alarm, per-category sounds'],['ntcard','sccard','qhcard'],'dv1');
-  grp('devcard','🧰','همگام‌سازی، ویجت و راهنما','Sync, widget & help',['فایل همگام‌سازی، تایمر زنده، ویجت، دکمه‌ی راهنما','Sync file, live timer, widget, help button'],['lscard','hfcard'],'dv')}
+  grp('devcard','🧰','ویجت، اعلان زنده و راهنما','Widget, live notification & help',['تایمر زنده، ویجت، پنل سریع، دکمه‌ی راهنما','Live timer, widget, quick panel, help button'],['ntvcard','hfcard'],'dv')}
 {const _r=render;render=function(){const r=_r.apply(this,arguments);try{pack()}catch(e){console.error('pack',e)}return r}}
 if(document.body)fab();else document.addEventListener('DOMContentLoaded',fab);
 setTimeout(fab,1500);document.addEventListener('dani-sync',()=>{try{fab()}catch(e){}});{const _r=render;render=function(){const r=_r.apply(this,arguments);try{const b=document.getElementById('hfab');if(b)tone(b)}catch(e){}return r}}
