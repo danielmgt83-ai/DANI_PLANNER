@@ -20,7 +20,7 @@ function prepare() {
   const cfg = JSON.parse(fs.readFileSync(cfgPath, 'utf8'));
   cfg.server = cfg.server || {};
   if (mode === 'bundled') {
-    const items = ['index.html', 'manifest.webmanifest', 'sw.js', 'dani.css', 'skins.css', 'themes-itachi.css', 'themes-eren.css', 'themes-aot.css', 'js', 'img', 'audio', 'icons'];
+    const items = ['index.html', 'manifest.webmanifest', 'aot-quotes.json', 'sw.js', 'dani.css', 'skins.css', 'themes-itachi.css', 'themes-eren.css', 'themes-aot.css', 'js', 'img', 'audio', 'icons'];
     for (const it of items) {
       const src = path.join(root, it);
       if (fs.existsSync(src)) fs.cpSync(src, path.join(www, it), { recursive: true });
