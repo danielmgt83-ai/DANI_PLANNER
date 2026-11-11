@@ -130,6 +130,10 @@ await test('مرکز اعلان: همه‌ی کارت‌ها در ۵ بخش و �
 await test('استودیو و بسته‌های تم: یک کارت، واردکردن/خروجی و بسته‌ها سر جا',async pg=>{const r=await pg.evaluate(async()=>{page='set';stt='look';render();await new Promise(r=>setTimeout(r,300));render();await new Promise(r=>setTimeout(r,200));
   const b=document.getElementById('thmx');if(!b)return 'no';return JSON.stringify([document.querySelectorAll('#thmx').length,!!b.querySelector('[data-skthemefile]'),!!b.querySelector('[data-skexp]'),!!b.querySelector('#studiocard'),!!b.querySelector('details[data-tk] #pkcard'),!document.querySelector('#skincard [data-skthemefile]')])});
  ok(r==='[1,true,true,true,true,true]','نتیجه '+r)});
+await test('منو و بخش‌ها / نمایش خانه: همه‌ی کنترل‌ها هست و هرکدام یک‌بار',async pg=>{const r=await pg.evaluate(async()=>{page='set';stt='look';render();await new Promise(r=>setTimeout(r,300));render();await new Promise(r=>setTimeout(r,200));
+  const A={cm_mg:1,cm_mo:1,cm_ws:1,cm_fd:1,cm_fdr:1,lg_t:1,bd_all:1,bd_q:1,bd_pg:4,dk_on:1,dk_c:1};const bad=Object.keys(A).filter(a=>document.querySelectorAll('[data-a="'+a+'"]').length!==A[a]);
+  const q=(c,s)=>!!document.querySelector(c+' '+s);return JSON.stringify({bad,u:[document.querySelectorAll('#menux').length,document.querySelectorAll('#homex').length],m:q('#menux','#modcard'),d:q('#homex','#dqc'),b:q('#sntg','[data-a="bd_q"]')})});
+ const o=JSON.parse(r);ok(!o.bad.length&&o.u.join()==='1,1'&&o.m&&o.d&&o.b,'نتیجه '+r)});
 
 console.log('\n'+results.map(r=>r.join(' ')).join('\n')+'\n\n'+(results.length-fails)+' / '+results.length+' موفق');
 await browser.close();srv.close();process.exit(fails?1:0);
