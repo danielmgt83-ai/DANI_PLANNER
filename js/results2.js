@@ -26,6 +26,14 @@ const GR=[{t:'⚖️ '+T('مقایسه','Compare'),rx:[/Compare|مقایسه/]},
  {t:'⏱ '+T('زمان و فعالیت‌ها','Time & activities'),rx:[/Time by Activity|زمان هر فعالیت/,/Essential|ضروری/,/Study This Week|مطالعه در هفته/]},
  {t:'📈 '+T('روند و بهترین روزها','Trends & best days'),rx:[/Averages|میانگین‌ها/,/Best & Weakest|بهترین و ضعیف/,/Study & Work Trend|روند زمان/]},
  {t:'🧠 '+T('انرژی و یادگیری','Energy & learning'),rx:[/Energy Meets|انرژی و تمرکز/,/Learning Quality|کیفیت یادگیری/,/Pauses|وقفه/,/Golden hours|ساعت‌های طلایی/]}];
+/* تحلیل گزارش (v105): ۵ کارت توضیحیِ گزارش → یک کارت با ۵ بخش جمع‌شونده؛ متن و دکمه‌ها همان می‌مانند */
+const AN=[/Executive summary|خلاصه اجرایی/,/Recorded facts|واقعیت‌های ثبت/,/Possible|برداشت‌های احتمالی/,/Suggest|پیشنهادهای اصلاحی/,/Data integrity|صحت داده/];
+function analysis(html){const t=document.createElement('div');t.innerHTML=html;
+  const hit=AN.map(r=>[...t.querySelectorAll('.c')].find(c=>!c.parentElement.closest('.c')&&c.querySelector(':scope>h3')&&r.test(c.querySelector(':scope>h3').textContent))).filter(Boolean);
+  if(hit.length<2)return html;
+  const o=document.createElement('details');o.className='c';o.open=true;const sm=document.createElement('summary');sm.style.cursor='pointer';sm.innerHTML='<h3>📝 '+T('تحلیل گزارش','Report analysis')+'</h3>';o.appendChild(sm);
+  hit.forEach((d,i)=>{const sub=document.createElement('details');sub.className='sbg';sub.style.cssText='margin-top:10px;padding-top:8px;border-top:1px solid var(--b,#8883)';if(i===0)sub.open=true;const h=d.querySelector(':scope>h3'),s2=document.createElement('summary');s2.style.cssText='cursor:pointer;font-weight:700';s2.innerHTML=h.innerHTML;h.remove();sub.appendChild(s2);while(d.firstChild)sub.appendChild(d.firstChild);d.remove();o.appendChild(sub)});
+  const f=hit[0];t.appendChild(o);return t.innerHTML}
 PG.res=function(){
   if(OLD[rt])rt=OLD[rt];
   const bar=tabBar(RT,rt,'r');
@@ -33,7 +41,7 @@ PG.res=function(){
     h+=fold(body('mon'),2);
     h+=group(fold(body('stats'),1)+fold(body('gld'),0),GR);
     return bar+h}
-  if(rt==='rep'){return bar+body('rep')+fold(body('shr'),0)}
+  if(rt==='rep'){return bar+analysis(body('rep'))+fold(body('shr'),0)}
   if(rt==='eod'){let x=_res.apply(this,arguments);try{if(window.daniFcList)x+=window.daniFcList()}catch(e){}return x}
   return _res.apply(this,arguments)};
 })();

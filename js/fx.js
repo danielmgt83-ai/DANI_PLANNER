@@ -6,7 +6,7 @@
 (function(){
 const T=window.daniT;
 const FX=()=>{const s=db.set;if(!s.fx||typeof s.fx!=='object')s.fx={};if(s.fx.hap===undefined)s.fx.hap=1;if(s.fx.anim===undefined)s.fx.anim=1;return s.fx};
-const VER='2026.11.65';
+const VER='2026.11.66';
 /* ---------- لرزش و پاپ ---------- */
 const HAP=/^(qk_go|nx_go|nx_sw|pf_add|tp_ap|bin_rs|ex_save|ab_now|ql_|pm_|tm_|tstart|tfinish|hab|ob_log|ob_go|dnd_set|ls_now|dk_)/;
 const reduce=()=>{try{return matchMedia('(prefers-reduced-motion: reduce)').matches}catch(e){return false}};
@@ -19,6 +19,7 @@ st.textContent='@keyframes fxpop{0%{transform:scale(1)}40%{transform:scale(.92)}
 document.head.appendChild(st);
 /* ---------- چه چیزی تازه است ---------- */
 const WN=[
+ ['🧩','تب «افزونه‌ها و گزارش» رفت داخل «داده‌ها»: افزودن تغییر، پشتیبان کامل، نصب‌شده‌ها و گزارش داده‌ها یک‌جا؛ تحلیل گزارش در نتیجه یک کارت با ۵ بخش شد. هیچ قابلیتی حذف نشد.','The “Extensions & report” tab moved into Data (add change, full backup, installed, data report); report analysis is one card with 5 sections. Nothing removed.'],
  ['🧭','تنظیمات ظاهر مرتب‌تر شد: «منو و بخش‌ها» و «نمایش خانه» دو کارت یکپارچه‌اند و «جمله‌ی تم» کنار بقیه‌ی تنظیم‌های جمله‌ها آمد؛ هیچ تنظیمی حذف نشد.','Look settings tidied: “Menu & sections” and “Home display” are now two cards, and the theme quote toggle sits with the other quote settings; nothing removed.'],
  ['🎨','«استودیو و بسته‌های تم» یک کارت شد: واردکردن و خروجی تم، استودیو و بسته‌های تم (بخش پیشرفته)؛ هیچ قابلیتی حذف نشد.','Theme studio & packs is now one card: import/export, studio and packs (advanced); nothing removed.'],
  ['🔔','«مرکز اعلان» کامل شد: همه‌ی تنظیم‌های اعلان در یک کارت با ۵ بخش (اجازه و سلامت، صدا، زمان‌ها، اعلان‌های تکمیلی، گروه‌بندی)؛ دکمه‌ی تکراریِ «درخواست اجازه» برداشته شد؛ هیچ تنظیمی حذف نشد.','Notification centre completed: every notification setting in one card with 5 sections; the duplicate “allow notifications” button is gone; no setting removed.'],
