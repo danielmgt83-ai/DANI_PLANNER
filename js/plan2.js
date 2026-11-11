@@ -12,6 +12,7 @@ const TABS=[['day','🗓',['برنامه‌ی روز','Day plan']],['exp','🎯'
 const OLD={busy:['bh','busy'],hab:['bh','hab'],rem:['bh','rem'],dl:['cal'],tpl:['day']};
 window.daniP2Sel=d=>{P2.cm=d;P2.cs=d};
 window.daniP2Go=(tab,date)=>{tab=tab||'day';if(OLD[tab]){if(OLD[tab][1])P2.sub=OLD[tab][1];tab=OLD[tab][0]}P2.tab=tab;if(date)P2.date=date;page='plan2';render();try{window.scrollTo(0,0)}catch(e){}};
+H.p2_pj=()=>{page='pj';render();try{window.scrollTo(0,0)}catch(e){};setTimeout(()=>{const d=document.getElementById('dlmv');if(d){d.open=true;d.scrollIntoView({block:'start'})}},60)};
 H.p2_t=e=>{P2.tab=e.dataset.k;render()};
 const BZ=()=>{const s=db.set;if(!s.bz||typeof s.bz!=='object')s.bz={};if(!Array.isArray(s.bz.items))s.bz.items=[];return s.bz};
 const hh=m=>pad(Math.floor(m/60)%24)+':'+pad(m%60);
@@ -149,7 +150,7 @@ function calTab(){const t=todayISO();if(!P2.cm)P2.cm=t;if(!P2.cs)P2.cs=t;const M
    +'<div class="row" style="margin-top:8px"><button class="p" data-a="p2_cp">🗓 '+T('برنامه‌ریزی این روز','Plan this day')+'</button><button class="chip" data-a="p2_cb">⛔ '+T('ساعت پر','Busy')+'</button></div>'
    +'<div style="border-top:1px solid var(--b,#8883);margin-top:10px;padding-top:8px"><div class="m">'+T('افزودن سریع به این روز','Quick add to this day')+'</div><div class="row" style="margin-top:4px"><input id="p2q-t" dir="auto" placeholder="'+esc(T('عنوان (مثلاً آزمون، تولد مینا)','Title (e.g. exam, Mina’s birthday)'))+'" style="flex:1;min-width:0"><input id="p2q-tm" type="time" value="09:00"></div>'
    +'<div class="row" style="margin-top:6px"><button class="chip" data-a="p2_qa" data-k="dl">⏳ '+T('موعد','Deadline')+'</button><button class="chip" data-a="p2_qa" data-k="rm">🔔 '+T('یادآوری','Reminder')+'</button><button class="chip" data-a="p2_qa" data-k="yr">🎂 '+T('یادآوری سالانه','Yearly reminder')+'</button></div></div></div>';
-  h+='<details class="c"><summary style="cursor:pointer">'+daniH('⏳','موعدها (افزودن و فهرست)','Deadlines (add & list)')+'</summary>'+embed(PG.dl,'deadlines')+'</details>'+legacyCards(['#ocdet']);
+  h+='<div class="c"><p class="m">'+T('موعدها (افزودن، فهرست، هشدارها و دسته‌ها) حالا در «پروژه‌ها» یک‌جاست؛ اینجا روی تقویم نقطه‌ی رنگی‌شان را می‌بینی.','Deadlines (add, list, alerts & categories) now live in “Projects”; here you see them as coloured dots on the calendar.')+'</p><div class="row"><button class="chip" data-a="p2_pj">⏳ '+T('رفتن به موعدها در پروژه‌ها','Open deadlines in Projects')+'</button></div></div>'+legacyCards(['#ocdet']);
   return h}
 H.p2_cd=e=>{P2.cs=e.dataset.d;render()};
 H.p2_cm=e=>{const n=+e.dataset.n,M=monthOf(P2.cm||todayISO());P2.cm=n===0?todayISO():(n>0?addD(M.st,M.len):addD(M.st,-1));if(n===0)P2.cs=todayISO();render()};
