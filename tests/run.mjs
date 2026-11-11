@@ -122,6 +122,11 @@ await test('امنیت: XSS در نام‌ها و یادداشت‌ها اجرا
   try{(db.projects=db.projects||[]).push({id:'p1',name:P,title:P,parts:[]})}catch(e){}try{db.set.quote=P}catch(e){}save()},[P,P2]);
  const pages=await pg.evaluate(()=>Object.keys(PG));for(const p of pages){await pg.evaluate(p=>{try{page=p;render()}catch(e){}},p);await pg.waitForTimeout(40)}
  const x=await pg.evaluate(()=>window.__xss);ok(x===0,'کد تزریق‌شده اجرا شد (XSS)')});
+await test('مرکز اعلان: همه‌ی کارت‌ها در ۵ بخش و یک دکمه‌ی اجازه',async pg=>{const r=await pg.evaluate(async()=>{page='set';stt='time';render();await new Promise(r=>setTimeout(r,300));render();await new Promise(r=>setTimeout(r,200));
+  const b=document.getElementById('ntc');if(!b)return 'no ntc';const ids=['ntcard','qhcard','qrc','rmc','chc','nhcard','nthealth'].filter(i=>!b.querySelector('#'+i));
+  const secs=b.querySelectorAll(':scope>details[data-nk]').length;const perm=b.querySelectorAll('[data-a="notif"],[data-a="nt_perm"]').length;
+  return JSON.stringify({ids,secs,perm,dup:document.querySelectorAll('#ntc').length})});
+ const o=JSON.parse(r);ok(o.ids.length===0&&o.secs===5&&o.perm<=1&&o.dup===1,'نتیجه '+r)});
 
 console.log('\n'+results.map(r=>r.join(' ')).join('\n')+'\n\n'+(results.length-fails)+' / '+results.length+' موفق');
 await browser.close();srv.close();process.exit(fails?1:0);
