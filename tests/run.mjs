@@ -100,6 +100,22 @@ await test('پنل سریع: سه حالت خودکار/دستی/ترکیبی و
 await test('به‌روزرسانی از اینترنت (OTA) در حالت داخل-برنامه: فیلتر رد، آفلاین باز، نسخه‌ی تازه جایگزین',async()=>{
  const {spawnSync}=await import('node:child_process'),{fileURLToPath:F}=await import('node:url');const r=spawnSync(process.execPath,[F(import.meta.url).replace(/run\.mjs$/,'sw-ota.mjs')],{encoding:'utf8'});
  ok(r.status===0,'خروجی: '+(r.stdout||'').split('\n').filter(l=>l.startsWith('❌')).join(' | ')+(r.stderr||'').slice(0,200))});
+await test('همگام‌سازی: داخل مرکز پشتیبان؛ ویجت و اعلان زنده جدا در تب زمان؛ هیچ دکمه‌ای گم نشده',async pg=>{
+ const r=await pg.evaluate(async()=>{window.Capacitor={isNativePlatform:()=>true,Plugins:{DaniNative:{syncPick:()=>Promise.resolve({}),widgetSet:()=>Promise.resolve(),pinSet:()=>Promise.resolve(),widgetPop:()=>Promise.resolve({q:'[]'}),addListener:()=>{}}}};
+  page='set';stt='data';render();await new Promise(r=>setTimeout(r,300));
+  const b=document.getElementById('bkc'),x=b&&b.querySelector('details.bkx[data-ls]');
+  const inBk=!!x&&!!x.querySelector('[data-a="ls_mk"]')&&!!x.querySelector('[data-ls-file]')&&!!x.querySelector('[data-a="ls_pick"]');
+  const none=!document.querySelector('#pg > #lscard')&&document.querySelectorAll('#lscard').length===0;
+  stt='time';render();await new Promise(r=>setTimeout(r,300));
+  const nv=document.getElementById('ntvcard'),ok2=!!nv&&!!nv.querySelector('[data-a="ls_pin"]')&&!!nv.querySelector('[data-a="ls_lv"]')&&!!nv.querySelector('[data-a="ls_wg"]')&&!document.getElementById('lscard');
+  return [inBk,none,ok2]});
+ ok(r.every(Boolean),'نتیجه '+r)});
+await test('جمله‌ها: کارت «نمایش جمله‌ها در صفحه‌ی اصلی» فقط یک‌بار و همه‌ی کارت‌های دیگر سر جایشان',async pg=>{
+ const r=await pg.evaluate(async()=>{page='set';stt='look';render();await new Promise(r=>setTimeout(r,500));const g=document.getElementById('sntg');
+  const hs=[...g.querySelectorAll('h3')].map(x=>x.textContent);const home=hs.filter(x=>/نمایش جمله‌ها در صفحه‌ی اصلی/.test(x)).length;
+  const need=['تنظیمات جمله‌ها','چرخش جمله‌ها','بسته‌های جملات','جمله‌ی بنر تم','افزودن جمله‌ی شخصی','جمله‌های من'].every(n=>hs.some(x=>x.includes(n)));
+  return [home===1,need]});
+ ok(r.every(Boolean),'نتیجه '+r)});
 await test('امنیت: XSS در نام‌ها و یادداشت‌ها اجرا نمی‌شود',async pg=>{
  const P='<img src=x onerror="window.__xss=1">',P2='"><svg onload="window.__xss=1">';
  await pg.evaluate(([P,P2])=>{window.__xss=0;db.acts.forEach(a=>{a.name=P;});const t=todayISO();db.entries.push({id:uid(),date:t,actId:db.acts[0].id,subId:'',start:'05:00',end:'06:00',min:60,note:P2});
