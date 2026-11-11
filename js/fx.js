@@ -6,7 +6,7 @@
 (function(){
 const T=window.daniT;
 const FX=()=>{const s=db.set;if(!s.fx||typeof s.fx!=='object')s.fx={};if(s.fx.hap===undefined)s.fx.hap=1;if(s.fx.anim===undefined)s.fx.anim=1;return s.fx};
-const VER='2026.11.63';
+const VER='2026.11.64';
 /* ---------- لرزش و پاپ ---------- */
 const HAP=/^(qk_go|nx_go|nx_sw|pf_add|tp_ap|bin_rs|ex_save|ab_now|ql_|pm_|tm_|tstart|tfinish|hab|ob_log|ob_go|dnd_set|ls_now|dk_)/;
 const reduce=()=>{try{return matchMedia('(prefers-reduced-motion: reduce)').matches}catch(e){return false}};
@@ -19,6 +19,7 @@ st.textContent='@keyframes fxpop{0%{transform:scale(1)}40%{transform:scale(.92)}
 document.head.appendChild(st);
 /* ---------- چه چیزی تازه است ---------- */
 const WN=[
+ ['🎨','«استودیو و بسته‌های تم» یک کارت شد: واردکردن و خروجی تم، استودیو و بسته‌های تم (بخش پیشرفته)؛ هیچ قابلیتی حذف نشد.','Theme studio & packs is now one card: import/export, studio and packs (advanced); nothing removed.'],
  ['🔔','«مرکز اعلان» کامل شد: همه‌ی تنظیم‌های اعلان در یک کارت با ۵ بخش (اجازه و سلامت، صدا، زمان‌ها، اعلان‌های تکمیلی، گروه‌بندی)؛ دکمه‌ی تکراریِ «درخواست اجازه» برداشته شد؛ هیچ تنظیمی حذف نشد.','Notification centre completed: every notification setting in one card with 5 sections; the duplicate “allow notifications” button is gone; no setting removed.'],
  ['🧹','مرتب‌سازی: همگام‌سازی خودکار (Drive یا هر پوشه) حالا داخل «مرکز پشتیبان» است با توضیح کوتاه؛ «ویجت و اعلان زنده» کارت جدا شد؛ کارت تکراریِ «نمایش جمله‌ها در صفحه‌ی اصلی» یک‌بار نشان داده می‌شود. هیچ قابلیتی حذف نشد','Tidy-up: auto sync (Drive or any folder) now lives inside the Backup centre with a short explanation; “Widget & live notification” is its own card; the duplicate “Quotes on the home screen” card shows once. No feature removed'],
  ['📶','برنامه‌ی اندروید حالا فایل‌ها را داخل خودش دارد: با وای‌فای فیلترشده یا بدون اینترنت هم باز می‌شود (صفحه‌ی سفید نمی‌ماند)؛ هر وقت اینترنتِ رسیده به GitHub باشد خودش نسخه‌ی تازه را می‌گیرد و خبر می‌دهد؛ نصب دوباره فقط برای تغییر بخش بومی لازم است (APK نو، حالت bundled)','The Android app now carries its files: it opens on filtered Wi-Fi or offline (no white screen); whenever GitHub is reachable it fetches the new version itself and tells you; reinstall is only needed for native changes (new APK, bundled mode)'],
