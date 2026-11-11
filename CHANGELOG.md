@@ -2,6 +2,11 @@
 
 > هر تحویل یک خط در اینجا. جدیدترین بالا. (هوش مصنوعی‌ها: هر بار که فایلی را عوض می‌کنید، این‌جا یک خط بنویسید.)
 
+## (۹۸) v100 — برنامه با اینترنت فیلتر هم باز شود (OTA)
+- مشکل: حالت live هر بار صفحه را از github.io می‌گرفت؛ با وای‌فای فیلترشده صفحه‌ی سفید می‌ماند. حالا پیش‌فرض ساخت APK حالت **bundled** است (فایل‌ها داخل APK)، و `sw.js` در آن حالت (`https://localhost` بدون پورت) به‌روزرسانی از GitHub Pages را در پس‌زمینه انجام می‌دهد: `index.html` و فایل‌های بدون `?v=` با مقایسه‌ی متن جایگزین می‌شوند و پیام «نسخه‌ی تازه» می‌آید؛ فایل‌های `.js/.css` نسخه‌دار (`?v=`) اگر در حافظه نبودند اول از GitHub (۸ ثانیه) و بعد از داخل APK گرفته می‌شوند؛ جواب مشکوک (صفحه‌ی فیلتر/HTML به‌جای js، `index.html` بدون `js/boot.js`، json نامعتبر) رد می‌شود؛ بدون اینترنت از داخل APK. بازبینی هر ۳۰ دقیقه برای هر آدرس. `aot-quotes.json` به فهرست bundled اضافه شد، `tests/` از PRECACHE بیرون رفت.
+- نکته‌ها: اطلاعات حالت bundled (origin=localhost) جدا از live (github.io) است؛ یک‌بار پشتیبان/بازیابی. تغییرات بومی (ویجت، پنل، آرم) همچنان APK نو می‌خواهند. روی گوشی تست نشده؛ منطق SW با شبیه‌ساز Node تست شد (`tests/sw-ota.mjs`).
+- تغییر: `sw.js`، `android-shell/apply.mjs`، `.github/workflows/build-android.yml`، `tools/update-sw.py`، `tests/sw-ota.mjs`، `tests/run.mjs`، `js/fx.js`، `index.html`، `AI.md`، `CHANGELOG.md`. APK لازم است (حالت bundled).
+
 ## (۹۷) v99 — پنل سریع اعلان: طرح تازه
 - اعلان اختصاصی (RemoteViews، `DecoratedCustomViewStyle`) با دکمه‌های «آیکون بالا، نام پایین»: حالت آماده = تا ۴ فعالیت (لمس = شروع شمارش بی‌پنجره) + 📝 + 🏠؛ حالت شمارش = شمارنده‌ی بزرگ + ⏸/▶، ⏹ پایان و ثبت، ✖ لغو، 🏠. حذف: ⚡ +۱۵ و پنجره‌ی انتخاب فعالیت و متن ماندگار «در برنامه ثبت می‌شود» (بازخورد فقط Toast). 📝 پنجره‌ی کوچک ورود متن (`DaniQuickActivity`). حالت‌های فعالیت‌ها در تنظیمات: خودکار / دستی / ترکیبی (`db.set.pin{m,sel}`، `pinActs()`). کانال تازه `dani-pin-v2`. اصلاح اشتباه v92: متن آخرین عمل در اعلان می‌ماند.
 - تغییر: `DaniPin.java`، `DaniPinAction.java`، `DaniQuickActivity.java`، `res/layout/dani_pin.xml`، `res/drawable/dani_pin_circle.xml`، `js/livesync.js`، `js/fx.js`، `index.html`، `sw.js`، `tests/run.mjs`، `AI.md`، `CHANGELOG.md`. APK لازم است. روی گوشی تست نشده (ظاهر اعلان اختصاصی بین سامسونگ/شیائومی/پیکسل فرق می‌کند).

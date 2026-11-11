@@ -571,6 +571,7 @@ DANI Planner: پلنر شخصی فارسی (RTL، با لایه‌ی ترجمه�
 
 > v91: ترتیب بوت: `boot0.js` (extLoadAll) باید قبل از `courses.js` باشد؛ `boot.js` (render و آماده‌شدن) آخرین اسکریپت. این دو را جابه‌جا نکن.
 
+> v100: APK پیش‌فرض bundled؛ sw.js حالت OTA دارد (OTA = hostname localhost بدون port). index.html/بدون-v با مقایسه‌ی متن، js/css نسخه‌دار immutable. هر فایل متنی تازه باید ?v= بخورد وگرنه فقط با مقایسه‌ی متن در index/بدون-v به‌روز می‌شود. live برای کسی که فیلتر ندارد هنوز هست. تست: tests/sw-ota.mjs.
 > v99: پنل پین = اعلان اختصاصی RemoteViews (layout dani_pin.xml، ۶ اسلات)؛ فعالیت‌ها از `pinActs()` (db.set.pin.m = auto|man|mix، sel ≤۴) به `pinSet({acts})` با فیلدهای id/n/e/c. بدون متن ماندگار؛ Toast. ⚡+۱۵ حذف (کاربر نخواست؛ برنگردان).
 > v98: آرم اعلان به طرح v92 برگشت؛ طرح «آدم تنها روی قله» رد شد، دوباره پیشنهاد نده مگر کاربر بخواهد.
 > v97: هفته‌ی اول ساده = `db.set.fw{on,start,added[]}` در guide2.js (`H.g2_fw`)؛ فقط modOff را عوض می‌کند.
