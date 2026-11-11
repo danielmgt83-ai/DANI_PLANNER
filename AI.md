@@ -571,6 +571,7 @@ DANI Planner: پلنر شخصی فارسی (RTL، با لایه‌ی ترجمه�
 
 > v91: ترتیب بوت: `boot0.js` (extLoadAll) باید قبل از `courses.js` باشد؛ `boot.js` (render و آماده‌شدن) آخرین اسکریپت. این دو را جابه‌جا نکن.
 
+> v106: مرجع موعدها = صفحه‌ی pj (`#dlmv` از `js/dlmove.js` که `PG.dl()` را جاسازی می‌کند). تب cal در plan2 دیگر `PG.dl` را جاسازی نمی‌کند؛ `H.p2_pj` به pj می‌رود.
 > v105: `js/datamerge.js` — تب `uch` پنهان؛ محتوای `center()` (baked.js) در `#uchx` تب data. `results2.js` `analysis()` برای تب rep. دو نوع پشتیبان کامل متفاوت‌اند: `crs_allexp` (مرکز پشتیبان) و `ufull` (قالب dani-fullbackup).
 > v104: `js/homemerge.js` (باید بعد از calm.js و sentences.js باشد) — `#menux` و `#homex` در تب look؛ `bd_q` داخل `#sntg`؛ `#cmcard` برداشته می‌شود.
 > v103: `js/lookmerge.js` — تب look: `#thmx` شامل `#thmio` (import/export از skincard)، `#studiocard`، و `details[data-tk=pk]>#pkcard`. idempotent.
