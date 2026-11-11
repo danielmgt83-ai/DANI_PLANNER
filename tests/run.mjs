@@ -127,6 +127,9 @@ await test('مرکز اعلان: همه‌ی کارت‌ها در ۵ بخش و �
   const secs=b.querySelectorAll(':scope>details[data-nk]').length;const perm=b.querySelectorAll('[data-a="notif"],[data-a="nt_perm"]').length;
   return JSON.stringify({ids,secs,perm,dup:document.querySelectorAll('#ntc').length})});
  const o=JSON.parse(r);ok(o.ids.length===0&&o.secs===5&&o.perm<=1&&o.dup===1,'نتیجه '+r)});
+await test('استودیو و بسته‌های تم: یک کارت، واردکردن/خروجی و بسته‌ها سر جا',async pg=>{const r=await pg.evaluate(async()=>{page='set';stt='look';render();await new Promise(r=>setTimeout(r,300));render();await new Promise(r=>setTimeout(r,200));
+  const b=document.getElementById('thmx');if(!b)return 'no';return JSON.stringify([document.querySelectorAll('#thmx').length,!!b.querySelector('[data-skthemefile]'),!!b.querySelector('[data-skexp]'),!!b.querySelector('#studiocard'),!!b.querySelector('details[data-tk] #pkcard'),!document.querySelector('#skincard [data-skthemefile]')])});
+ ok(r==='[1,true,true,true,true,true]','نتیجه '+r)});
 
 console.log('\n'+results.map(r=>r.join(' ')).join('\n')+'\n\n'+(results.length-fails)+' / '+results.length+' موفق');
 await browser.close();srv.close();process.exit(fails?1:0);
