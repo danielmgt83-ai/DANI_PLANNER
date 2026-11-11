@@ -571,6 +571,7 @@ DANI Planner: پلنر شخصی فارسی (RTL، با لایه‌ی ترجمه�
 
 > v91: ترتیب بوت: `boot0.js` (extLoadAll) باید قبل از `courses.js` باشد؛ `boot.js` (render و آماده‌شدن) آخرین اسکریپت. این دو را جابه‌جا نکن.
 
+> v105: `js/datamerge.js` — تب `uch` پنهان؛ محتوای `center()` (baked.js) در `#uchx` تب data. `results2.js` `analysis()` برای تب rep. دو نوع پشتیبان کامل متفاوت‌اند: `crs_allexp` (مرکز پشتیبان) و `ufull` (قالب dani-fullbackup).
 > v104: `js/homemerge.js` (باید بعد از calm.js و sentences.js باشد) — `#menux` و `#homex` در تب look؛ `bd_q` داخل `#sntg`؛ `#cmcard` برداشته می‌شود.
 > v103: `js/lookmerge.js` — تب look: `#thmx` شامل `#thmio` (import/export از skincard)، `#studiocard`، و `details[data-tk=pk]>#pkcard`. idempotent.
 > v102: `js/notifcentre.js` — بعد از هر رندر تب time، کارت‌های `ntcard/qhcard/qrc/rmc/chc` را داخل بخش‌های `#ntc` (data-nk=p/s/t/x/g) می‌برد؛ idempotent؛ دکمه‌ی `nt_perm` اگر `notif` هست حذف می‌شود.
