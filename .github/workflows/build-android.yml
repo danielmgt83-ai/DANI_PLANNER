@@ -5,9 +5,9 @@ on:
   workflow_dispatch:
     inputs:
       mode:
-        description: "live = سایت GitHub Pages را باز می‌کند و خودکار به‌روز می‌شود (پیشنهادی) | bundled = فایل‌ها داخل برنامه‌اند"
+        description: "bundled = فایل‌ها داخل برنامه‌اند، با هر اینترنتی (حتی فیلتر) باز می‌شود و هر وقت GitHub در دسترس باشد خودش به‌روز می‌شود (پیشنهادی از v100) | live = هر بار سایت GitHub Pages را باز می‌کند (با اینترنت فیلتر سفید می‌ماند)"
         type: choice
-        default: live
+        default: bundled
         options: [live, bundled]
 
 permissions:
