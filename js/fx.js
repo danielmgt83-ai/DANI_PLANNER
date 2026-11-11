@@ -6,7 +6,7 @@
 (function(){
 const T=window.daniT;
 const FX=()=>{const s=db.set;if(!s.fx||typeof s.fx!=='object')s.fx={};if(s.fx.hap===undefined)s.fx.hap=1;if(s.fx.anim===undefined)s.fx.anim=1;return s.fx};
-const VER='2026.11.67';
+const VER='2026.11.68';
 /* ---------- لرزش و پاپ ---------- */
 const HAP=/^(qk_go|nx_go|nx_sw|pf_add|tp_ap|bin_rs|ex_save|ab_now|ql_|pm_|tm_|tstart|tfinish|hab|ob_log|ob_go|dnd_set|ls_now|dk_)/;
 const reduce=()=>{try{return matchMedia('(prefers-reduced-motion: reduce)').matches}catch(e){return false}};
@@ -19,6 +19,7 @@ st.textContent='@keyframes fxpop{0%{transform:scale(1)}40%{transform:scale(.92)}
 document.head.appendChild(st);
 /* ---------- چه چیزی تازه است ---------- */
 const WN=[
+ ['🔁','پیام «نسخه‌ی تازه آماده است» حالا فقط وقتی می‌آید که واقعاً نسخه‌ی تازه‌تری از آنچه اجراست روی سایت باشد؛ شماره‌ی نسخه هم در پیام نوشته می‌شود و تکرار بی‌دلیل ندارد.','The “new version ready” notice now appears only when the site really has a newer version than the one running; the version numbers are shown and it no longer repeats.'],
  ['⏳','موعدها (افزودن، فهرست، هشدارها، دسته‌ها) حالا فقط در «پروژه‌ها» هستند؛ تقویمِ برنامه فقط نقطه‌های رنگی و یک دکمه‌ی رفتن دارد. هیچ قابلیتی حذف نشد.','Deadlines (add, list, alerts, categories) now live only in “Projects”; the plan calendar keeps the coloured dots and a shortcut. Nothing removed.'],
  ['🧩','تب «افزونه‌ها و گزارش» رفت داخل «داده‌ها»: افزودن تغییر، پشتیبان کامل، نصب‌شده‌ها و گزارش داده‌ها یک‌جا؛ تحلیل گزارش در نتیجه یک کارت با ۵ بخش شد. هیچ قابلیتی حذف نشد.','The “Extensions & report” tab moved into Data (add change, full backup, installed, data report); report analysis is one card with 5 sections. Nothing removed.'],
  ['🧭','تنظیمات ظاهر مرتب‌تر شد: «منو و بخش‌ها» و «نمایش خانه» دو کارت یکپارچه‌اند و «جمله‌ی تم» کنار بقیه‌ی تنظیم‌های جمله‌ها آمد؛ هیچ تنظیمی حذف نشد.','Look settings tidied: “Menu & sections” and “Home display” are now two cards, and the theme quote toggle sits with the other quote settings; nothing removed.'],
