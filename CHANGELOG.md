@@ -2,6 +2,9 @@
 
 > هر تحویل یک خط در اینجا. جدیدترین بالا. (هوش مصنوعی‌ها: هر بار که فایلی را عوض می‌کنید، این‌جا یک خط بنویسید.)
 
+## (۱۰۲) v104 — منو و بخش‌ها / نمایش خانه (بدون حذف تنظیم)
+- افزوده: `js/homemerge.js` (درست قبل از fx.js). تغییر: `index.html`، `js/fx.js`، `tests/run.mjs`، `sw.js`، `AI.md`، `CHANGELOG.md`. تب look: `#menux` (ماژول‌ها، `cm_mg`/`cm_mo`، نوار پایین) و `#homex` (جمع‌وجور `cm_ws`/`cm_fd`، `#lgcard`، `#bdcard`، `#dqc`). دکمه‌ی `bd_q` به `#sntg` رفت. `#cmcard` خالی حذف می‌شود. APK لازم نیست.
+
 ## (۱۰۱) v103 — استودیو و بسته‌های تم یک‌جا (بدون حذف قابلیت)
 - افزوده: `js/lookmerge.js` (بعد از notifcentre.js). تغییر: `index.html`، `js/fx.js`، `tests/run.mjs`، `sw.js`، `AI.md`، `CHANGELOG.md`. کارت `#thmx`: واردکردن/خروجی تم (از `#skincard`)، `#studiocard`، و `#pkcard` در بخش «پیشرفته». فقط DOM؛ هندلرها document-level‌اند. APK لازم نیست.
 
