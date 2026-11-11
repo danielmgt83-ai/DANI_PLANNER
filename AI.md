@@ -571,6 +571,7 @@ DANI Planner: پلنر شخصی فارسی (RTL، با لایه‌ی ترجمه�
 
 > v91: ترتیب بوت: `boot0.js` (extLoadAll) باید قبل از `courses.js` باشد؛ `boot.js` (render و آماده‌شدن) آخرین اسکریپت. این دو را جابه‌جا نکن.
 
+> v102: `js/notifcentre.js` — بعد از هر رندر تب time، کارت‌های `ntcard/qhcard/qrc/rmc/chc` را داخل بخش‌های `#ntc` (data-nk=p/s/t/x/g) می‌برد؛ idempotent؛ دکمه‌ی `nt_perm` اگر `notif` هست حذف می‌شود.
 > v101: همگام‌سازی (`#lscard`) در تب data و داخل `#bkc` (backupc.merge)؛ `#ntvcard` (ویجت/تایمر زنده/پین) در تب time. کارت تکراریِ «نمایش جمله‌ها در صفحه‌ی اصلی» در sentences.js part('mine') حذف می‌شود (نسخه‌ی part('set') می‌ماند). همپوشانی‌های دیگر: فقط لیست شده، منتظر تأیید کاربر.
 > v100: APK پیش‌فرض bundled؛ sw.js حالت OTA دارد (OTA = hostname localhost بدون port). index.html/بدون-v با مقایسه‌ی متن، js/css نسخه‌دار immutable. هر فایل متنی تازه باید ?v= بخورد وگرنه فقط با مقایسه‌ی متن در index/بدون-v به‌روز می‌شود. live برای کسی که فیلتر ندارد هنوز هست. تست: tests/sw-ota.mjs.
 > v99: پنل پین = اعلان اختصاصی RemoteViews (layout dani_pin.xml، ۶ اسلات)؛ فعالیت‌ها از `pinActs()` (db.set.pin.m = auto|man|mix، sel ≤۴) به `pinSet({acts})` با فیلدهای id/n/e/c. بدون متن ماندگار؛ Toast. ⚡+۱۵ حذف (کاربر نخواست؛ برنگردان).
