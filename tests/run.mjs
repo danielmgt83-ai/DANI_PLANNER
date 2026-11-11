@@ -139,6 +139,9 @@ await test('داده‌ها: محتوای تب افزونه‌ها داخل تب
   stt='uch';render();await new Promise(r=>setTimeout(r,300));o.redir=stt;
   page='res';rt='rep';render();await new Promise(r=>setTimeout(r,300));const d=[...document.querySelectorAll('details.c')].find(x=>/تحلیل گزارش|Report analysis/.test(x.firstElementChild.textContent));o.an=d?d.querySelectorAll(':scope>details.sbg').length:0;return JSON.stringify(o)});
  const o=JSON.parse(r);ok(o.n===1&&o.secs===4&&o.btn==='1,1,1,1'&&o.add&&o.full&&!o.tab&&o.redir==='data'&&o.an===5,'نتیجه '+r)});
+await test('موعدها فقط در پروژه‌ها؛ تقویم برنامه دکمه‌ی رفتن دارد',async pg=>{const r=await pg.evaluate(async()=>{db.set.lang='fa';page='pj';render();await new Promise(r=>setTimeout(r,300));const a=!!document.getElementById('dlmv')&&!!document.querySelector('#dlmv [data-a="ics"]');
+  daniP2Go('cal');await new Promise(r=>setTimeout(r,300));const b=![...document.querySelectorAll('summary')].find(s=>/موعدها \(افزودن/.test(s.textContent))&&!!document.querySelector('[data-a="p2_pj"]')&&!!document.getElementById('ocdet');
+  H.p2_pj();await new Promise(r=>setTimeout(r,300));return [a,b,page==='pj']});ok(r.every(Boolean),'نتیجه '+r)});
 
 console.log('\n'+results.map(r=>r.join(' ')).join('\n')+'\n\n'+(results.length-fails)+' / '+results.length+' موفق');
 await browser.close();srv.close();process.exit(fails?1:0);
