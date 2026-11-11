@@ -97,6 +97,9 @@ await test('پنل سریع: سه حالت خودکار/دستی/ترکیبی و
   H.ls_pina({dataset:{id:A[0].id}});const sel2=db.set.pin.sel.length===2;
   daniPinSync();const o=got[got.length-1];const js=o&&JSON.parse(o.acts);return [au,man,mix,sel2,!!js&&js.length>=1&&!!js[0].e&&!!js[0].c]});
  ok(r.every(Boolean),'نتیجه '+r)});
+await test('به‌روزرسانی از اینترنت (OTA) در حالت داخل-برنامه: فیلتر رد، آفلاین باز، نسخه‌ی تازه جایگزین',async()=>{
+ const {spawnSync}=await import('node:child_process'),{fileURLToPath:F}=await import('node:url');const r=spawnSync(process.execPath,[F(import.meta.url).replace(/run\.mjs$/,'sw-ota.mjs')],{encoding:'utf8'});
+ ok(r.status===0,'خروجی: '+(r.stdout||'').split('\n').filter(l=>l.startsWith('❌')).join(' | ')+(r.stderr||'').slice(0,200))});
 await test('امنیت: XSS در نام‌ها و یادداشت‌ها اجرا نمی‌شود',async pg=>{
  const P='<img src=x onerror="window.__xss=1">',P2='"><svg onload="window.__xss=1">';
  await pg.evaluate(([P,P2])=>{window.__xss=0;db.acts.forEach(a=>{a.name=P;});const t=todayISO();db.entries.push({id:uid(),date:t,actId:db.acts[0].id,subId:'',start:'05:00',end:'06:00',min:60,note:P2});
