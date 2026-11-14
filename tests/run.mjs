@@ -143,5 +143,9 @@ await test('موعدها فقط در پروژه‌ها؛ تقویم برنامه
   daniP2Go('cal');await new Promise(r=>setTimeout(r,300));const b=![...document.querySelectorAll('summary')].find(s=>/موعدها \(افزودن/.test(s.textContent))&&!!document.querySelector('[data-a="p2_pj"]')&&!!document.getElementById('ocdet');
   H.p2_pj();await new Promise(r=>setTimeout(r,300));return [a,b,page==='pj']});ok(r.every(Boolean),'نتیجه '+r)});
 
+await test('ساعت واحد پشتیبان: هر نوع پشتیبان (JSON/کامل/همگام‌سازی) هشدار را خاموش می‌کند؛ تازه‌ها کوتاه است',async pg=>{const r=await pg.evaluate(async()=>{db.set.lang='fa';db.set.bk=7;db.set.lastBk=0;db.set.fbAt=0;localStorage.removeItem('crs_lastall');localStorage.removeItem('dani_sync_last');
+  const a=window.daniLastBackup();db.set.lastBk=Date.now();const b=window.daniLastBackup();db.set.lastBk=0;localStorage.setItem('crs_lastall',String(Date.now()));const c=window.daniLastBackup();localStorage.removeItem('crs_lastall');db.set.fbAt=Date.now();const d=window.daniLastBackup();db.set.fbAt=0;
+  H.fx_new();await new Promise(r=>setTimeout(r,200));const m=document.querySelector('#ovl');const vis=m?[...m.querySelectorAll('.cwr')].filter(x=>!x.closest('details')).length:-1;const hid=m?m.querySelectorAll('details .cwr').length:-1;closeM();return [a===0,b>0,c>0,d>0,vis===4,hid>0]});ok(r.every(Boolean),'نتیجه '+r)});
+
 console.log('\n'+results.map(r=>r.join(' ')).join('\n')+'\n\n'+(results.length-fails)+' / '+results.length+' موفق');
 await browser.close();srv.close();process.exit(fails?1:0);
