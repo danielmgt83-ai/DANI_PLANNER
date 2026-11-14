@@ -1,6 +1,14 @@
 <!doctype html>
 <html lang="fa" dir="rtl"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1"><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#0f1b2d"><style>html{background:#070b22}</style><link rel="icon" type="image/png" href="icons/favicon-64.png"><link rel="apple-touch-icon" href="icons/icon-180.png">
+<script>/* دروازه‌ی نسخه (v115): صفحه‌ی انتظار می‌ماند تا معلوم شود نسخه‌ی در حال اجرا تازه‌ترین است؛ اگر نبود، نسخه‌ی تازه جایگزین و صفحه یک‌بار بارگذاری می‌شود (نسخه‌ی قدیمی دیده نمی‌شود). حداکثر ۳ ثانیه صبر. */
+(function(){var G=window.daniGate={s:0};function ok(){if(G.s===0)G.s=1}try{var h=location.hostname;if(!/^https?:$/.test(location.protocol)||(h==="localhost"&&location.port==="")||h==="127.0.0.1"||!window.fetch||!window.caches){ok();return}setTimeout(ok,3000);
+function sig(t){var o=[],r=/(?:src|href)="([^"]*\?v=[^"]*)"/g,m;while(m=r.exec(t))o.push(m[1]);return o.join("|")}
+function own(){var o=[],n=document.querySelectorAll("script[src],link[href]");for(var i=0;i<n.length;i++){var a=n[i].getAttribute(n[i].tagName==="SCRIPT"?"src":"href");if(a&&a.indexOf("?v=")>-1)o.push(a)}return o.join("|")}
+fetch("index.html?_g="+Date.now(),{cache:"no-store"}).then(function(r){return r.ok?r.text():Promise.reject()}).then(function(t){if(t.indexOf("js/boot.js")<0)return ok();
+function go(){var a=sig(t),b=own();if(!a||a===b)return ok();try{if(sessionStorage.getItem("dani_gate")===a)return ok()}catch(e){return ok()}
+return caches.keys().then(function(ks){ks=ks.filter(function(k){return/^dani/i.test(k)});var us=[new URL("./",location.href).href,new URL("index.html",location.href).href];return Promise.all(ks.map(function(k){return caches.open(k).then(function(c){return Promise.all(us.map(function(u){return c.put(u,new Response(t,{headers:{"Content-Type":"text/html; charset=utf-8"}}))}))})}))}).then(function(){try{sessionStorage.setItem("dani_gate",a);sessionStorage.setItem("dani_gate_p","1")}catch(e){return ok()}G.s=2;location.reload()})}
+if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",go);else go()}).catch(ok)}catch(e){G.s=1}})();</script>
 <title>DANI Planner | پلنر دانی</title>
 <script>try{if(localStorage.getItem("dani_lock")){document.documentElement.setAttribute("data-lk","1");var s=document.createElement("style");s.textContent="html[data-lk] body>*{visibility:hidden}html[data-lk] body>#dklk{visibility:visible}";document.head.appendChild(s);setTimeout(function(){if(!window.__daniLockReady)document.documentElement.removeAttribute("data-lk")},12000)}}catch(e){}</script>
 <link rel="stylesheet" href="dani.css?v=3">
@@ -28,7 +36,7 @@
 <path id="bvT" d="M60 1010Q50 640 440 470" pathLength="100" fill="none" stroke="url(#bvTr)" stroke-width="4" stroke-linecap="round" stroke-dasharray="100" stroke-dashoffset="100" opacity=".9"/>
 <g id="bvG" transform="translate(440 470)"><circle r="30" fill="url(#bvSg)"/><circle r="4" fill="#fff"/></g>
 <g id="bvM" transform="translate(60 1010) scale(1.9)"><use href="#bvLan"/></g>
-<text x="270" y="1110" text-anchor="middle" font-family="system-ui,sans-serif" font-weight="500" font-size="34" letter-spacing="14" fill="#fff" opacity=".92">DANI</text></svg></div><script>(function(){var P=document.getElementById("bvP"),M=document.getElementById("bvM"),T=document.getElementById("bvT"),G=document.getElementById("bvG");if(!P||!P.getTotalLength)return;var L=P.getTotalLength(),p=0,d=0;window.daniBootDone=function(){d=1};function s(q){var a=P.getPointAtLength(L*q);M.setAttribute("transform","translate("+a.x.toFixed(1)+" "+a.y.toFixed(1)+") rotate("+(Math.sin(Date.now()/520)*4).toFixed(1)+") scale(1.9)");T.style.strokeDashoffset=100*(1-q);if(q>.97)G.setAttribute("transform","translate(440 470) scale("+(1+(q-.97)*14).toFixed(2)+")")}function f(){p+=d?(1-p)*.22:(.88-p)*.012;s(p);if(document.getElementById("bootv")&&p<.999)requestAnimationFrame(f)}requestAnimationFrame(f)})();</script><script>setTimeout(function(){var e=document.getElementById("bootv");if(e)e.remove()},9000)</script>
+<text x="270" y="1110" text-anchor="middle" font-family="system-ui,sans-serif" font-weight="500" font-size="34" letter-spacing="14" fill="#fff" opacity=".92">DANI</text></svg></div><script>(function(){var P=document.getElementById("bvP"),M=document.getElementById("bvM"),T=document.getElementById("bvT"),G=document.getElementById("bvG");if(!P||!P.getTotalLength)return;var L=P.getTotalLength(),p=0,d=0,MIN=1800,t0=Date.now(),k=0;try{if(sessionStorage.getItem("dani_gate_p")){sessionStorage.removeItem("dani_gate_p");t0-=1000;p=.5}}catch(e){}window.daniBootDone=function(){d=1};function s(q){var a=P.getPointAtLength(L*q);M.setAttribute("transform","translate("+a.x.toFixed(1)+" "+a.y.toFixed(1)+") rotate("+(Math.sin(Date.now()/520)*4).toFixed(1)+") scale(1.9)");T.style.strokeDashoffset=100*(1-q);if(q>.97)G.setAttribute("transform","translate(440 470) scale("+(1+(q-.97)*14).toFixed(2)+")")}function ok(){var g=window.daniGate;return d&&(!g||g.s===1)&&Date.now()-t0>=MIN}function f(){var e=document.getElementById("bootv");if(!e)return;var r=ok(),tg=r?1:Math.min(.9,(Date.now()-t0)/MIN*.9);p+=(tg-p)*(r?.16:.1);if(p>tg)p=tg;s(p);if(p>.995){if(!k){k=1;e.style.transition="opacity .4s";e.style.opacity=0;setTimeout(function(){e.remove()},430)}return}requestAnimationFrame(f)}requestAnimationFrame(f)})();</script><script>setTimeout(function(){var e=document.getElementById("bootv");if(e)e.remove()},9000)</script>
 <div class="app"><nav id="nav"></nav><main><button id="mb" class="np" onclick="$('#nav').classList.toggle('o')">☰ منو</button><div id="pg"><div style="display:grid;place-items:center;height:55vh;font:700 26px sans-serif;letter-spacing:.35em;opacity:.55">DANI</div></div></main></div>
 <div id="toast"></div><div id="ovl"></div>
 <script src="js/data/du.js?v=3"></script>
@@ -114,10 +122,10 @@
 <script src="js/dlmove.js?v=1"></script>
 <script src="js/homemerge.js?v=1"></script>
 <script src="js/datamerge.js?v=1"></script>
-<script src="js/fx.js?v=8n"></script>
+<script src="js/fx.js?v=8o"></script>
 <script src="js/qa-more.js?v=3"></script>
 <script src="js/onboard.js?v=2"></script>
 <script src="js/guide2.js?v=5"></script>
 <script src="js/i18n-late.js?v=6"></script>
-<script src="js/boot.js?v=10"></script>
+<script src="js/boot.js?v=11"></script>
 </body></html>
