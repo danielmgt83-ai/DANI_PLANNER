@@ -50,6 +50,11 @@ jobs:
         run: ./gradlew assembleDebug --no-daemon
       - name: Rename APK
         run: cp android/app/build/outputs/apk/debug/app-debug.apk DANI-Planner.apk
+      - name: Show signing fingerprint (to compare builds)
+        run: |
+          AS=$(ls $ANDROID_HOME/build-tools/*/apksigner | tail -1)
+          $AS verify --print-certs android/app/build/outputs/apk/debug/app-debug.apk | tee /tmp/sig.txt
+          grep -i "SHA-256" /tmp/sig.txt | sed 's/^/::notice title=Signing SHA-256::/'
       - uses: actions/upload-artifact@v4
         with:
           name: DANI-Planner-apk
@@ -62,4 +67,4 @@ jobs:
           gh release delete android-latest --yes --cleanup-tag || true
           gh release create android-latest android-shell/DANI-Planner.apk \
             --title "DANI Planner — Android" \
-            --notes "APK آماده‌ی نصب (حالت: ${{ inputs.mode }}). راهنما: ANDROID-FA.md"
+            --notes "APK آماده‌ی نصب (حالت: ${{ inputs.mode }}). امضا: $(grep -i 'certificate SHA-256' /tmp/sig.txt | head -1). راهنما: ANDROID-FA.md"
