@@ -6,7 +6,7 @@
 (function(){
 const T=window.daniT;
 const FX=()=>{const s=db.set;if(!s.fx||typeof s.fx!=='object')s.fx={};if(s.fx.hap===undefined)s.fx.hap=1;if(s.fx.anim===undefined)s.fx.anim=1;return s.fx};
-const VER='2026.11.70';
+const VER='2026.11.72';
 /* ---------- لرزش و پاپ ---------- */
 const HAP=/^(qk_go|nx_go|nx_sw|pf_add|tp_ap|bin_rs|ex_save|ab_now|ql_|pm_|tm_|tstart|tfinish|hab|ob_log|ob_go|dnd_set|ls_now|dk_)/;
 const reduce=()=>{try{return matchMedia('(prefers-reduced-motion: reduce)').matches}catch(e){return false}};
@@ -19,6 +19,8 @@ st.textContent='@keyframes fxpop{0%{transform:scale(1)}40%{transform:scale(.92)}
 document.head.appendChild(st);
 /* ---------- چه چیزی تازه است ---------- */
 const WN=[
+ ['⚡','باز شدن برنامه سریع‌تر شد: با اینترنت کند یا فیلتر دیگر صفحه‌ی سفید چند ثانیه‌ای نمی‌ماند (بخشی از این اصلاح با APK تازه فعال می‌شود).','Faster app start: on a slow or filtered connection the white screen no longer lingers for seconds (part of this fix needs a new APK).'],
+ ['🧍','مرد در آیکون اعلان‌ها بزرگ‌تر و خواناتر شد (با APK تازه دیده می‌شود).','The figure in the notification icon is bigger and clearer (visible with a new APK).'],
  ['🏮','صفحه‌ی انتظار تازه: فانوس‌هایی که آرام بالا می‌روند، ماه و ستاره، و نوار پیشرفت.','New loading screen: lanterns drifting up under the moon and stars, with a progress bar.'],
  ['🌕','آیکون اعلان‌ها عوض شد: مرد روی قله زیر ماه کامل (آیکون رنگی بزرگ + نسخه‌ی تک‌رنگ نوار وضعیت). برای دیدن آن APK تازه لازم است.','New notification icons: a lone figure on a peak under a full moon (colour large icon + mono status-bar icon). Needs a new APK to appear.'],
  ['🔁','پیام «نسخه‌ی تازه آماده است» حالا فقط وقتی می‌آید که واقعاً نسخه‌ی تازه‌تری از آنچه اجراست روی سایت باشد؛ شماره‌ی نسخه هم در پیام نوشته می‌شود و تکرار بی‌دلیل ندارد.','The “new version ready” notice now appears only when the site really has a newer version than the one running; the version numbers are shown and it no longer repeats.'],
