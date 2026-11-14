@@ -571,6 +571,7 @@ DANI Planner: پلنر شخصی فارسی (RTL، با لایه‌ی ترجمه�
 
 > v91: ترتیب بوت: `boot0.js` (extLoadAll) باید قبل از `courses.js` باشد؛ `boot.js` (render و آماده‌شدن) آخرین اسکریپت. این دو را جابه‌جا نکن.
 
+> v108: آیکون‌های اعلان (`ic_stat_dani`, `dani_large` در res/drawable-*) = مرد روی قله زیر ماه (استخراج‌شده از تصویر کاربر). آیکون لانچر و splash هنوز عوض نشده‌اند. کد بدون تغییر.
 > v107: پیام `dani-update` فقط برای html و با `rv` (شماره‌ی fx.js?v در index سایت). boot.js مقایسه با نسخه‌ی در حال اجرا و شمارنده‌ی localStorage `dani_ota_told`؛ ۳ تکرار → `dani-reset-html` به SW. توجه: sw.js اجراشونده همان داخل APK است (OTA فقط کش فایل‌ها را عوض می‌کند، نه خود SW).
 > v106: مرجع موعدها = صفحه‌ی pj (`#dlmv` از `js/dlmove.js` که `PG.dl()` را جاسازی می‌کند). تب cal در plan2 دیگر `PG.dl` را جاسازی نمی‌کند؛ `H.p2_pj` به pj می‌رود.
 > v105: `js/datamerge.js` — تب `uch` پنهان؛ محتوای `center()` (baked.js) در `#uchx` تب data. `results2.js` `analysis()` برای تب rep. دو نوع پشتیبان کامل متفاوت‌اند: `crs_allexp` (مرکز پشتیبان) و `ufull` (قالب dani-fullbackup).
