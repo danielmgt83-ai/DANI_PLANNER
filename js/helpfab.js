@@ -52,7 +52,8 @@ function sheet(){
    +'<label class="m" style="display:block">'+T('اندازه','Size')+'<input type="range" min="30" max="60" step="2" value="'+SZ()+'" data-hfr="sz" style="width:100%"></label>'
    +'<div class="row" style="margin-top:4px"><button class="chip '+(HF().av===0?'':'on')+'" data-a="hf_av">'+T('دوری خودکار از دکمه‌ها و نوارها','Auto-avoid other buttons & bars')+'</button><span class="m">'+T('دکمه را با انگشت هم می‌توانی بکشی.','You can also drag the button.')+'</span></div>'
    +'<div class="row" style="margin-top:8px"><button class="chip" data-a="hf_pos">'+T('بازگرداندن جا','Reset position')+'</button><button class="chip" data-a="hf_hide">'+T('پنهان‌کردن این دکمه','Hide this button')+'</button><button class="chip" data-a="ob_close">'+T('بستن','Close')+'</button></div>'
-   +'<p class="m">'+T('برگرداندن دکمه: تنظیمات ← زمان ← «دکمه‌ی راهنما».','To bring it back: Settings → Time → “Help button”.')+'</p></div>'}
+   +'<p class="m">'+T('برگرداندن دکمه: تنظیمات ← زمان ← «دکمه‌ی راهنما».','To bring it back: Settings → Time → “Help button”.')+'</p>'
+   +'<div class="m" style="margin-top:12px;text-align:center;opacity:.8"><button class="chip" data-a="fx_upd" style="font-size:.82em;opacity:.8">🔄 '+T('به‌روزرسانی اجباری','Force update')+'</button><div style="margin-top:4px;font-size:.8em">'+(window.daniVer?'v '+window.daniVer:'')+'</div></div></div>'}
 H.hf_open=()=>{HF().seen=1;save();fab();modal(sheet())};
 document.addEventListener('input',e=>{const t=e.target;if(!t||!t.dataset||!t.dataset.hfr)return;HF()[t.dataset.hfr]=+t.value;fab()});
 document.addEventListener('change',e=>{const t=e.target;if(t&&t.dataset&&t.dataset.hfr)save()});
