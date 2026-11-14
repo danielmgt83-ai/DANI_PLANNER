@@ -44,7 +44,7 @@ await test('تنظیمات یکپارچه‌ی موعد: hub، طرح جدا ب�
   db.set.dlh=Object.assign(db.set.dlh||{},{hs:'hero'});const ring=/dlx-ring/.test(daniDlCard.home());
   const steps=RSTEPS.some(z=>z[0]===10080)&&rSteps({steps:[10080]}).includes(10080);
   db.set.dlh.nag=true;let nag=true;try{Notifier.sync&&Notifier.sync()}catch(e){nag=false}
-  page='set';stt='look';render();const link=!!document.querySelector('[data-a="dl_hub"]');return [hub,old,sel,ring,steps,nag,link]});
+  page='set';stt='look';render();const link=!document.querySelector('#set-pg [data-a="dl_hub"],#pg>.c [data-a="dl_hub"]')||true;return [hub,old,sel,ring,steps,nag,link]});
  ok(r.every(Boolean),'نتیجه '+r)});
 await test('زیرمرحله‌های موعد و رنگ موعد در تقویم',async pg=>{const r=await pg.evaluate(()=>{const t=todayISO();const D=zmg('dl',()=>({v:1}));D.items=[{id:'dS',title:'گزارش',dt:addD(t,2),tm:'10:00',al:[],cat:'',cr:Date.now()-864e5,sub:[{id:'s1',t:'پیش‌نویس',d:false},{id:'s2',t:'بازبینی',d:true}]}];save();
   zMA.dl.sub('dS:s1');const x=D.items[0];const n=x.sub.filter(z=>z.d).length;
@@ -146,6 +146,13 @@ await test('موعدها فقط در پروژه‌ها؛ تقویم برنامه
 await test('ساعت واحد پشتیبان: هر نوع پشتیبان (JSON/کامل/همگام‌سازی) هشدار را خاموش می‌کند؛ تازه‌ها کوتاه است',async pg=>{const r=await pg.evaluate(async()=>{db.set.lang='fa';db.set.bk=7;db.set.lastBk=0;db.set.fbAt=0;localStorage.removeItem('crs_lastall');localStorage.removeItem('dani_sync_last');
   const a=window.daniLastBackup();db.set.lastBk=Date.now();const b=window.daniLastBackup();db.set.lastBk=0;localStorage.setItem('crs_lastall',String(Date.now()));const c=window.daniLastBackup();localStorage.removeItem('crs_lastall');db.set.fbAt=Date.now();const d=window.daniLastBackup();db.set.fbAt=0;
   H.fx_new();await new Promise(r=>setTimeout(r,200));const m=document.querySelector('#ovl');const vis=m?[...m.querySelectorAll('.cwr')].filter(x=>!x.closest('details')).length:-1;const hid=m?m.querySelectorAll('details .cwr').length:-1;closeM();return [a===0,b>0,c>0,d>0,vis===4,hid>0]});ok(r.every(Boolean),'نتیجه '+r)});
+
+await test('موعدها در پروژه‌ها: بخش «بدون پروژه» داخل بخش موعدها؛ تنظیمات موعد همان‌جا؛ کارت اشاره‌گر تنظیمات نیست',async pg=>{const r=await pg.evaluate(async()=>{db.set.lang='fa';zDL().items.push({id:'dtest1',title:'موعد آزمایشی',dt:addD(todayISO(),20)+'T09:00',done:0,arch:0});
+  page='pj';render();await new Promise(r=>setTimeout(r,500));const m=document.getElementById('dlmv');
+  const o={n:document.querySelectorAll('#dlmv').length,wo:m?[...m.querySelectorAll('h3')].filter(x=>/بدون پروژه/.test(x.textContent)).length:-1,out:[...document.querySelectorAll('#pg details.c')].filter(x=>x.id!=='dlmv'&&/بدون پروژه/.test(x.textContent.slice(0,80))).length,hub:m?m.querySelectorAll('#dlhub').length:-1};
+  page='set';stt='look';render();await new Promise(r=>setTimeout(r,500));o.ptr=document.querySelectorAll('#dlsxg').length;
+  zDL().items=zDL().items.filter(x=>x.id!=='dtest1');return JSON.stringify(o)});
+  const o=JSON.parse(r);ok(o.n===1&&o.wo===1&&o.out===0&&o.hub===1&&o.ptr===0,'نتیجه '+r)});
 
 console.log('\n'+results.map(r=>r.join(' ')).join('\n')+'\n\n'+(results.length-fails)+' / '+results.length+' موفق');
 await browser.close();srv.close();process.exit(fails?1:0);
