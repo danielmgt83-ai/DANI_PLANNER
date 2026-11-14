@@ -571,6 +571,7 @@ DANI Planner: پلنر شخصی فارسی (RTL، با لایه‌ی ترجمه�
 
 > v91: ترتیب بوت: `boot0.js` (extLoadAll) باید قبل از `courses.js` باشد؛ `boot.js` (render و آماده‌شدن) آخرین اسکریپت. این دو را جابه‌جا نکن.
 
+> v116: «ساعت آخرین پشتیبان» فقط از window.daniLastBackup() (backupc.js) خوانده شود؛ هر نوع پشتیبان تازه یکی از ۴ کلید را بروز می‌کند. WN در fx.js: ۴ مورد بالا + بقیه زیر details.
 > v115: دروازه‌ی نسخه = اسکریپت inline در head index.html (window.daniGate.s: 0 در انتظار،1 آماده،2 در حال reload). صفحه‌ی انتظار (`#bootv`) فقط وقتی کامل می‌شود که daniBootDone + daniGate.s==1 + ۱٫۸ث گذشته باشد. در localhost بدون پورت (APK) و 127.0.0.1 (ویندوز) غیرفعال. تست: tests/gate.mjs. توجه: هر انتشار باید ?v یکی از فایل‌ها را بالا ببرد وگرنه دروازه تغییر را نمی‌بیند.
 > v114: نسخه‌ی ویندوز = windows-shell/ (Electron, main.js سرو محلی 127.0.0.1:47831 تا origin/داده ثابت بماند) + workflow build-windows.yml (windows-latest، electron-builder portable+nsis، Release windows-latest). بدون تست. فایل‌های وب در workflow به windows-shell/app کپی می‌شوند؛ اگر پوشه‌ی جدیدی به ریشه اضافه شد، به لیست `for it in …` اضافه کن.
 > v113: آیکون اعلان = فانوس D (کاربر مرد/ماه را نپسندید؛ مینیمال + نمادین خواست). منبع SVG در اسکرچ‌پد؛ ic_stat 24-96px، dani_large 96-256px.
