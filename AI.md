@@ -571,6 +571,7 @@ DANI Planner: پلنر شخصی فارسی (RTL، با لایه‌ی ترجمه�
 
 > v91: ترتیب بوت: `boot0.js` (extLoadAll) باید قبل از `courses.js` باشد؛ `boot.js` (render و آماده‌شدن) آخرین اسکریپت. این دو را جابه‌جا نکن.
 
+> v118: update.html = بازنشانی کش/SW بدون دست زدن به داده (آدرس: …/DANI_PLANNER/update.html)؛ H.fx_upd همان کار را از دکمه‌ی راهنما می‌کند. SW برای script/style با content-type html کش/استفاده نمی‌کند. update-sw.py: windows-shell و update.html بیرون از PRECACHE.
 > v117: موعد فقط در #dlmv صفحه‌ی پروژه‌ها (بخش «بدون پروژه» + فهرست + هشدارها + دسته‌ها + تنظیمات #dlhub). کارت #dlsxg در تنظیمات حذف شد.
 > v116: «ساعت آخرین پشتیبان» فقط از window.daniLastBackup() (backupc.js) خوانده شود؛ هر نوع پشتیبان تازه یکی از ۴ کلید را بروز می‌کند. WN در fx.js: ۴ مورد بالا + بقیه زیر details.
 > v115: دروازه‌ی نسخه = اسکریپت inline در head index.html (window.daniGate.s: 0 در انتظار،1 آماده،2 در حال reload). صفحه‌ی انتظار (`#bootv`) فقط وقتی کامل می‌شود که daniBootDone + daniGate.s==1 + ۱٫۸ث گذشته باشد. در localhost بدون پورت (APK) و 127.0.0.1 (ویندوز) غیرفعال. تست: tests/gate.mjs. توجه: هر انتشار باید ?v یکی از فایل‌ها را بالا ببرد وگرنه دروازه تغییر را نمی‌بیند.

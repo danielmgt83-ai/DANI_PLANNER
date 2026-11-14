@@ -1,0 +1,8 @@
+<!doctype html>
+<html lang="fa" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>DANI · به‌روزرسانی</title>
+<style>html,body{margin:0;height:100%;background:#070b22;color:#e8eefc;font-family:system-ui,Tahoma,sans-serif}body{display:flex;align-items:center;justify-content:center;text-align:center;padding:24px}.b{max-width:340px}.s{width:42px;height:42px;border:4px solid #ffffff33;border-top-color:#7fb0ff;border-radius:50%;margin:0 auto 18px;animation:r 1s linear infinite}@keyframes r{to{transform:rotate(360deg)}}p{opacity:.8;line-height:1.8}</style></head>
+<body><div class="b"><div class="s"></div><h3 id="t">در حال به‌روزرسانی…</h3><p id="m">حافظه‌ی نسخه‌ی قبلی پاک می‌شود و برنامه‌ی تازه باز می‌شود. اطلاعات تو دست‌نخورده می‌ماند.<br>Clearing the old-version cache; your data stays untouched.</p></div>
+<script>(async function(){try{var rs=navigator.serviceWorker&&await navigator.serviceWorker.getRegistrations();if(rs)for(var i=0;i<rs.length;i++)await rs[i].unregister()}catch(e){}
+try{var ks=await caches.keys();for(var j=0;j<ks.length;j++)await caches.delete(ks[j])}catch(e){}
+try{sessionStorage.removeItem('dani_gate');localStorage.removeItem('dani_ota_told')}catch(e){}
+setTimeout(function(){location.replace('index.html?fresh='+Date.now())},600)})()</script></body></html>
