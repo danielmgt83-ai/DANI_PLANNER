@@ -17,4 +17,4 @@ try{if('serviceWorker' in navigator)navigator.serviceWorker.addEventListener('me
 
 /* v83: boot.js حالا آخرین اسکریپت است؛ اولین رسم فقط یک‌بار و بعد از آماده‌شدن همه‌ی ویژگی‌ها انجام می‌شود. */
 window.__daniBooted=1;try{document.dispatchEvent(new Event('dani-booted'))}catch(e){}
-try{requestAnimationFrame(()=>setTimeout(()=>{const e=document.getElementById('bootv');if(e){e.style.transition='opacity .2s';e.style.opacity=0;setTimeout(()=>e.remove(),230)}},450))}catch(e){const v=document.getElementById('bootv');if(v)v.remove()}
+try{requestAnimationFrame(()=>setTimeout(()=>{try{window.daniBootDone&&window.daniBootDone()}catch(e){}const e=document.getElementById('bootv');if(e){e.style.transition='opacity .35s';e.style.opacity=0;setTimeout(()=>e.remove(),380)}},650))}catch(e){const v=document.getElementById('bootv');if(v)v.remove()}
