@@ -1,6 +1,7 @@
 {
   "appId": "app.dani.planner",
   "appName": "DANI Planner",
+  "backgroundColor": "#070b22",
   "webDir": "www",
   "server": {
     "url": "https://danielmgt83-ai.github.io/DANI_PLANNER/",
