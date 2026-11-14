@@ -28,7 +28,7 @@ const hr=h=>fa(h)+T(' ساعت',' h');
       out.push({id:7001,at:target.getTime(),title:'DANI 📊',body,ch:'dani-remind-v2',key:'wk-sum-'+todayISO()})}}catch(e){}
   try{const z=FZ(),t=db.timer;if(z.on&&t&&t.state==='running'&&t.mode!=='cd'){const left=z.h*3600000-el();
       if(left>2000)out.push({id:7002,at:now+left,title:'DANI ⏱',body:T('تایمر «'+aN(t.actId)+'» حدود '+hr(z.h)+' است روشن مانده — هنوز کار می‌کنی؟','Timer “'+aN(t.actId)+'” has been running ~'+z.h+' h — still working?'),ch:'dani-remind-v2',key:'timer-forgot'})}}catch(e){}
-  try{const last=Math.max(db.set.lastBk||0,+localStorage.getItem('dani_sync_last')||0);
+  try{const last=(window.daniLastBackup?window.daniLastBackup():Math.max(db.set.lastBk||0,+localStorage.getItem('dani_sync_last')||0));
       const bk=+db.set.bk>0?+db.set.bk:0,age=last?Math.floor((now-last)/864e5):null;
       if(bk&&db.entries&&db.entries.length>5&&(last===0||now-last>bk*864e5)){const a=new Date(now);a.setHours(20,0,0,0);if(a.getTime()<=now+2000)a.setDate(a.getDate()+1);
         out.push({id:7003,at:a.getTime(),title:'DANI 🛡',body:age===null?T('هنوز پشتیبانی نگرفته‌ای. با یک لمس پشتیبان بگیر و در Drive یا تلگرام نگه دار.','No backup yet. One tap to take one and keep it in Drive or Telegram.'):T(fa(String(age))+' روز است پشتیبان نگرفته‌ای. با یک لمس بگیر و در Drive یا تلگرام نگه دار.',age+' days since your last backup. One tap to take one and keep it in Drive or Telegram.'),ch:'dani-remind-v2',key:'bk-nag-'+todayISO()})}}catch(e){}
@@ -83,7 +83,7 @@ async function health(){const L=[],ok=(b,t,w)=>L.push({b,t,w});
   const kb=Math.round(JSON.stringify(db).length/1024);ok(kb<3500,T('حجم داده: '+fa(kb)+' کیلوبایت','Data size: '+kb+' KB'),T('نزدیک سقف مرورگر (حدود ۵ مگابایت)؛ پشتیبان بگیر','Near the browser limit (~5 MB); back up'));
   const ids=new Set(),dup=db.entries.filter(e=>{if(ids.has(e.id))return true;ids.add(e.id);return false}).length;ok(!dup,T('شناسه‌ی ثبت‌ها یکتاست','Entry ids are unique'),T(fa(dup)+' ثبت با شناسه‌ی تکراری','' +dup+' entries with duplicate ids'));
   const aid=new Set(db.acts.map(a=>a.id)),orph=db.entries.filter(e=>!aid.has(e.actId)).length;ok(!orph,T('همه‌ی ثبت‌ها فعالیت دارند','All entries have an activity'),T(fa(orph)+' ثبت بدون فعالیت (فعالیتِ حذف‌شده؛ از سطل بازیافت می‌شود برگرداند)',orph+' entries without activity (deleted activity; restore from the recycle bin)'));
-  const last=Math.max(db.set.lastBk||0,+localStorage.getItem('dani_sync_last')||0),age=last?Math.floor((Date.now()-last)/864e5):null;
+  const last=(window.daniLastBackup?window.daniLastBackup():Math.max(db.set.lastBk||0,+localStorage.getItem('dani_sync_last')||0)),age=last?Math.floor((Date.now()-last)/864e5):null;
   ok(age!==null&&age<=14,age===null?T('هنوز پشتیبان/همگام‌سازی نداشته‌ای','No backup / sync yet'):T('آخرین پشتیبان/همگام‌سازی '+fa(age)+' روز پیش','Last backup/sync '+age+' days ago'),T('پشتیبان بگیر یا همگام‌سازی را وصل کن','Make a backup or connect sync'));
   try{const n=await listSnaps();ok(n.length>0,T('نسخه‌ی خودکار: '+fa(n.length),'Auto snapshots: '+n.length),T('هنوز ساخته نشده؛ چند ثانیه بعد از باز شدن برنامه ساخته می‌شود','Not created yet; made shortly after opening'))}catch(e){}
   try{const e=window.daniErrs?window.daniErrs():[];ok(!e.length,T('خطای ثبت‌شده‌ای نیست','No recorded errors'),T(fa(e.length)+' خطا ثبت شده (دکمه‌ی «گزارش مشکل»)',e.length+' errors recorded (use “Report a problem”)'))}catch(e){}

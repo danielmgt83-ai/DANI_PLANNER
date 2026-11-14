@@ -77,7 +77,7 @@ H.xshare=async()=>{const txt=JSON.stringify({app:'hamrah',version:3,exportedAt:n
 const _sp3=setPage;setPage=function(){const h=_sp3();return stt==='data'?h+`<div class="c" style="margin-top:10px"><h3>ارسال پشتیبان به ایمیل / تلگرام / Drive</h3><button class="p" data-a="xshare">ارسال پشتیبان</button><p class="m">در موبایل پنجره‌ی اشتراک‌گذاری باز می‌شود؛ ایمیل، تلگرام یا Google Drive را انتخاب کن و فایل پشتیبان خودکار پیوست می‌شود. در کامپیوتر فایل دانلود و ایمیل خالی باز می‌شود تا خودت پیوستش کنی. ارسال خودکار و بی‌صدا ممکن نیست، چون به سرور و حساب کاربری نیاز دارد.</p></div>`:h};
 
 load();render();
-if(db.set.bk>0&&db.entries.length&&Date.now()-(db.set.lastBk||0)>db.set.bk*864e5&&!db.caps.bkNag){db.caps.bkNag=1;setTimeout(()=>toast('مدتی است پشتیبان JSON نگرفته‌اید؛ از «تنظیمات» بگیرید'),1500)}
+if(db.set.bk>0&&db.entries.length&&Date.now()-(window.daniLastBackup?window.daniLastBackup():(db.set.lastBk||0))>db.set.bk*864e5&&!db.caps.bkNag){db.caps.bkNag=1;setTimeout(()=>toast('مدتی است پشتیبان JSON نگرفته‌اید؛ از «تنظیمات» بگیرید'),1500)}
 window.__T={g2j,j2g,mm,dur,TM,migrate,analyze,timeline,findOverlaps,get db(){return db}};
 
 /* ===== v12-light: removed embedded MP3 tracks; retain synthesized Web Audio tones ===== */

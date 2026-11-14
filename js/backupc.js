@@ -4,8 +4,9 @@
    کارت‌های ریزتر (JSON/CSV، ارسال، سطل بازیافت…) زیر همین گروه می‌مانند. */
 (function(){
 const T=window.daniT;
-const lastAll=()=>{try{const t=+localStorage.getItem('crs_lastall');return t?new Date(t).toLocaleDateString(db.set.cal==='g'?'en-GB':'fa-IR'):''}catch(e){return''}};
-const daysSince=()=>{try{const t=+localStorage.getItem('crs_lastall');return t?Math.floor((Date.now()-t)/864e5):null}catch(e){return null}};
+window.daniLastBackup=()=>{try{return Math.max(+localStorage.getItem('crs_lastall')||0,(db.set&&db.set.lastBk)||0,(db.set&&db.set.fbAt)||0,+localStorage.getItem('dani_sync_last')||0)}catch(e){return 0}};
+const lastAll=()=>{try{const t=window.daniLastBackup();return t?new Date(t).toLocaleDateString(db.set.cal==='g'?'en-GB':'fa-IR'):''}catch(e){return''}};
+const daysSince=()=>{try{const t=window.daniLastBackup();return t?Math.floor((Date.now()-t)/864e5):null}catch(e){return null}};
 function card(){
   const d=daysSince(),bk=+db.set.bk||0,pw=window.daniCrypt&&window.daniCrypt.on&&window.daniCrypt.on();
   const warn=d===null?T('هنوز پشتیبان کامل نگرفته‌ای.','No full backup yet.'):T('آخرین پشتیبان کامل: ','Last full backup: ')+lastAll()+' ('+fa(d)+T(' روز پیش',' days ago')+')';

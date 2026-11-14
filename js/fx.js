@@ -6,7 +6,7 @@
 (function(){
 const T=window.daniT;
 const FX=()=>{const s=db.set;if(!s.fx||typeof s.fx!=='object')s.fx={};if(s.fx.hap===undefined)s.fx.hap=1;if(s.fx.anim===undefined)s.fx.anim=1;return s.fx};
-const VER='2026.11.74';
+const VER='2026.11.75';
 /* ---------- لرزش و پاپ ---------- */
 const HAP=/^(qk_go|nx_go|nx_sw|pf_add|tp_ap|bin_rs|ex_save|ab_now|ql_|pm_|tm_|tstart|tfinish|hab|ob_log|ob_go|dnd_set|ls_now|dk_)/;
 const reduce=()=>{try{return matchMedia('(prefers-reduced-motion: reduce)').matches}catch(e){return false}};
@@ -19,6 +19,7 @@ st.textContent='@keyframes fxpop{0%{transform:scale(1)}40%{transform:scale(.92)}
 document.head.appendChild(st);
 /* ---------- چه چیزی تازه است ---------- */
 const WN=[
+ ['🛡','هشدار «پشتیبان کامل نگرفته‌ای» دیگر بی‌جا نمی‌آید: هر نوع پشتیبان (فایل ساده، کامل، همگام‌سازی) حساب می‌شود. «تازه‌ها» هم کوتاه شد و می‌شود نمایش خودکارش را خاموش کرد.','The “no backup” warning no longer shows by mistake: any backup type (plain file, full, sync) counts. “What’s new” is shorter and its auto-popup can be turned off.'],
  ['🏮','صفحه‌ی انتظار هوشمند: همیشه مسیر کامل فانوس را نشان می‌دهد (حداقل ~۲ ثانیه)، تا تازه‌ترین نسخه آماده نشده وارد برنامه نمی‌شود و نسخه‌ی قدیمی دیده نمی‌شود.','Smarter loading screen: always plays the full lantern path (~2 s minimum), and waits for the newest version so you never see an old one first.'],
  ['🏮','آیکون اعلان‌ها تازه شد: فانوسی با حرف D داخلش (با APK تازه دیده می‌شود).','New notification icon: a lantern with a D inside (visible with a new APK).'],
  ['⚡','باز شدن برنامه سریع‌تر شد: با اینترنت کند یا فیلتر دیگر صفحه‌ی سفید چند ثانیه‌ای نمی‌ماند (بخشی از این اصلاح با APK تازه فعال می‌شود).','Faster app start: on a slow or filtered connection the white screen no longer lingers for seconds (part of this fix needs a new APK).'],
@@ -108,10 +109,10 @@ const WN=[
  ['⏱','تایمر زنده در اعلان، ویجت خانه و دکمه‌های اعلان (با APK جدید)','Live timer notification, home widget and notification buttons (new APK)']];
 const seen=()=>{try{return localStorage.getItem('dani_seen_ver')||''}catch(e){return''}};
 const mark=()=>{try{localStorage.setItem('dani_seen_ver',VER)}catch(e){}};
-function wnHTML(){return'<div style="max-width:440px">'+daniH('🆕','چه چیزی تازه است','What\'s new')+WN.map(x=>'<div class="cwr" style="display:flex;gap:8px"><span aria-hidden="true">'+x[0]+'</span><span dir="auto">'+T(x[1],x[2])+'</span></div>').join('')+'<div class="row" style="margin-top:10px"><button class="p" data-a="ob_close">'+T('باشه','Got it')+'</button></div></div>'}
+function wnHTML(){const R=x=>'<div class="cwr" style="display:flex;gap:8px"><span aria-hidden="true">'+x[0]+'</span><span dir="auto">'+T(x[1],x[2])+'</span></div>',top=WN.slice(0,4),rest=WN.slice(4);return'<div style="max-width:440px">'+daniH('🆕','چه چیزی تازه است','What\'s new')+top.map(R).join('')+(rest.length?'<details style="margin-top:8px"><summary style="cursor:pointer;opacity:.75">'+T('تغییرات قبلی ('+fa(String(rest.length))+')','Earlier changes ('+rest.length+')')+'</summary>'+rest.map(R).join('')+'</details>':'')+'<div class="row" style="margin-top:10px"><button class="p" data-a="ob_close">'+T('باشه','Got it')+'</button></div></div>'}
 H.fx_new=()=>{mark();modal(wnHTML())};
 setTimeout(()=>{try{if(seen()===VER)return;const used=(db.entries&&db.entries.length>3)||(db.set.ob&&(db.set.ob.fin||db.set.ob.dis));
-  if(!used){mark();return}
+  if(!used||FX().wnOff){mark();return}
   if(document.querySelector('#ovl .ov'))return;mark();modal(wnHTML())}catch(e){}},5500);
 /* ---------- نمونه‌داده ---------- */
 H.fx_smp=()=>{if(db.entries.some(e=>e.smp))return toast(T('نمونه‌داده از قبل هست','Sample data already loaded'),1);
@@ -126,8 +127,9 @@ window.daniFx={hasSample:()=>db.entries.some(e=>e.smp),few:()=>db.entries.length
 /* ---------- کارت تنظیمات ---------- */
 H.fx_hap=()=>{FX().hap=FX().hap?0:1;save();render()};
 H.fx_an=()=>{FX().anim=FX().anim?0:1;save();render()};
+H.fx_wn=()=>{FX().wnOff=FX().wnOff?0:1;save();render()};
 function card(){const f=FX();
   return'<div class="c" id="fxcard">'+daniH('✨','حس برنامه','App feel')+'<div class="row"><button class="chip '+(f.hap?'on':'')+'" data-a="fx_hap">📳 '+T('لرزش ریز روی اقدام‌های مهم','Light haptics on key actions')+'</button><button class="chip '+(f.anim?'on':'')+'" data-a="fx_an">✨ '+T('انیمیشن نرم دکمه‌ها','Soft button animation')+'</button></div>'
-   +'<div class="row" style="margin-top:6px"><button class="chip" data-a="fx_new">🆕 '+T('چه چیزی تازه است','What\'s new')+'</button></div></div>'}
+   +'<div class="row" style="margin-top:6px"><button class="chip" data-a="fx_new">🆕 '+T('چه چیزی تازه است','What\'s new')+'</button><button class="chip '+(f.wnOff?'':'on')+'" data-a="fx_wn">🔔 '+T('نمایش خودکار تازه‌ها بعد از هر نسخه','Auto-show what\'s new after each update')+'</button></div></div>'}
 {const _sp=setPage;setPage=function(){const h=_sp.apply(this,arguments);return(typeof h==='string'&&typeof stt!=='undefined'&&stt==='look')?h+card():h}}
 })();
