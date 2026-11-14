@@ -154,5 +154,8 @@ await test('موعدها در پروژه‌ها: بخش «بدون پروژه» 
   zDL().items=zDL().items.filter(x=>x.id!=='dtest1');return JSON.stringify(o)});
   const o=JSON.parse(r);ok(o.n===1&&o.wo===1&&o.out===0&&o.hub===1&&o.ptr===0,'نتیجه '+r)});
 
+await test('تنظیمات: فهرست، صفحه‌ی بخش و برگشت (چیزی گم نمی‌شود)',async pg=>{const r=await pg.evaluate(()=>{document.querySelector('[data-a=go][data-p=set]').click();const rows=document.querySelectorAll('.snr').length,sub0=daniSetSub;const seen={};for(const k of ['lang','look','quote','menu','notif','widget','exam','bk','sec','adv']){H.snv_open({dataset:{k}});seen[k]=[...document.getElementById('pg').children].filter(c=>!c.classList.contains('snv-x')&&c.id!=='snv').length;H.snv_back()}H.snv_classic();const classic=document.querySelectorAll('.snv-x').length;page='day';render();return JSON.stringify({rows,sub0,seen,classic,after:String(daniSetSub)})});
+ const o=JSON.parse(r);ok(o.rows===10&&o.sub0===''&&o.classic===0&&o.after==='undefined','نتیجه '+r);for(const k of ['lang','look','quote','menu','notif','widget','exam','bk','sec','adv'])ok(o.seen[k]>0,'بخش خالی: '+k)});
+
 console.log('\n'+results.map(r=>r.join(' ')).join('\n')+'\n\n'+(results.length-fails)+' / '+results.length+' موفق');
 await browser.close();srv.close();process.exit(fails?1:0);
