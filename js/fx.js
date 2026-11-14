@@ -6,7 +6,7 @@
 (function(){
 const T=window.daniT;
 const FX=()=>{const s=db.set;if(!s.fx||typeof s.fx!=='object')s.fx={};if(s.fx.hap===undefined)s.fx.hap=1;if(s.fx.anim===undefined)s.fx.anim=1;return s.fx};
-const VER='2026.11.79';
+const VER='2026.11.80';
 /* ---------- لرزش و پاپ ---------- */
 const HAP=/^(qk_go|nx_go|nx_sw|pf_add|tp_ap|bin_rs|ex_save|ab_now|ql_|pm_|tm_|tstart|tfinish|hab|ob_log|ob_go|dnd_set|ls_now|dk_)/;
 const reduce=()=>{try{return matchMedia('(prefers-reduced-motion: reduce)').matches}catch(e){return false}};
@@ -19,6 +19,7 @@ st.textContent='@keyframes fxpop{0%{transform:scale(1)}40%{transform:scale(.92)}
 document.head.appendChild(st);
 /* ---------- چه چیزی تازه است ---------- */
 const WN=[
+ ['🧩','صفحه‌ی پروژه‌ها مرتب شد: بخش بزرگ «موعدها» حالا چند بخش جمع‌شونده‌ی برچسب‌دار است (فهرست، افزودن، پیش‌بینی، بدون پروژه، هشدارها، دسته‌ها، تنظیمات) و بالای صفحه دکمه‌های پرش دارد. چیزی حذف نشده. باز و بسته بودن بخش‌ها و جای اسکرول هم یادش می‌ماند.','Projects page tidied: the big “Deadlines” block is now labelled collapsible sections (list, add, forecast, no-project, alerts, categories, settings) with jump buttons on top. Nothing removed. Open sections and scroll position are remembered.'],
  ['🧭','تنظیمات حالا یک فهرست مرتب است (زبان، ظاهر، جمله‌ها، منو، اعلان‌ها، ویجت، پشتیبان، امنیت…). هر ردیف یک صفحه‌ی جدا با دکمه‌ی برگشت باز می‌کند. هیچ قابلیتی حذف نشده؛ «نمای تب‌ها» هم پایین فهرست مانده.','Settings is now a tidy list (language, look, sentences, menu, notifications, widget, backup, security…). Each row opens its own page with a back button. Nothing was removed; the classic tabs view stays at the bottom of the list.'],
  ['🆕','پیام «نسخه‌ی تازه آماده است» حالا یک نوار ماندگار با دکمه‌ی «به‌روزرسانی» است (دیگر یک ثانیه‌ای نمی‌رود). دکمه اول همه‌ی فایل‌های تازه را می‌گیرد، بعد برنامه را دوباره باز می‌کند.','The “new version ready” message is now a persistent bar with an “Update” button (no more one-second flash). It downloads everything new first, then restarts the app.'],
  ['🔄','دکمه‌ی کوچک «به‌روزرسانی اجباری» در راهنما (دکمه‌ی ✦) و صفحه‌ی update.html: اگر تغییرات تازه نمی‌نشست، حافظه‌ی نسخه‌ی قبلی پاک می‌شود و برنامه تازه بالا می‌آید. اطلاعات تو دست‌نخورده می‌ماند.','A small “Force update” button in Help (✦) and the update.html page: if new changes do not show up, the old-version cache is cleared and the app starts fresh. Your data is untouched.'],
