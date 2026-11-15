@@ -36,13 +36,12 @@ function css(){if(document.getElementById('snvcss'))return;const s=document.crea
  document.head.appendChild(s)}
 function rows(q){q=(q||'').toLowerCase().trim();return SEC.filter(x=>!q||(x.t.join(' ')+' '+x.s.join(' ')+' '+x.kw).toLowerCase().includes(q)).map(x=>'<button class="snr" data-a="snv_open" data-k="'+x.k+'"><span class="sni">'+x.i+'</span><span class="snt"><b>'+T(x.t[0],x.t[1])+'</b><small>'+T(x.s[0],x.s[1])+'</small></span><span class="snc"></span></button>').join('')||'<p class="m">'+T('چیزی پیدا نشد.','Nothing found.')+'</p>'}
 function head(sub){const d=document.createElement('div');d.id='snv';d.setAttribute('data-nobi','');
- if(!sub){d.innerHTML='<input class="snq" id="snvq" type="search" placeholder="🔍 '+T('جستجو در تنظیمات…','Search settings…')+'" aria-label="'+T('جستجو','Search')+'"><div id="snvl">'+rows('')+'</div><button class="chip snl" data-a="snv_classic">'+T('نمای تب‌ها (قدیمی)','Tabs view (classic)')+'</button>'}
+ if(!sub){d.innerHTML='<input class="snq" id="snvq" type="search" placeholder="🔍 '+T('جستجو در تنظیمات…','Search settings…')+'" aria-label="'+T('جستجو','Search')+'"><div id="snvl">'+rows('')+'</div>'}
  else{const x=BY[sub];d.innerHTML='<div class="snb"><button class="chip" data-a="snv_back">'+back()+' '+T('تنظیمات','Settings')+'</button><b>'+x.i+' '+T(x.t[0],x.t[1])+'</b></div>'}
  return d}
 function apply(){const sub=window.daniSetSub;if(sub===undefined||sub===null)return;
  const pg=document.getElementById('pg');if(!pg)return;css();
  const sec=sub&&BY[sub];if(sub&&!sec){window.daniSetSub='';return apply()}
- if(sec&&stt!==sec.tab){stt=sec.tab;return render()}
  pg.querySelectorAll(':scope>#snv').forEach(n=>n.remove());
  const kids=[...pg.children];let shown=0;
  const fresh=window.daniSetFresh;window.daniSetFresh=0;const vis=[];
@@ -50,10 +49,11 @@ function apply(){const sub=window.daniSetSub;if(sub===undefined||sub===null)retu
  if(fresh&&vis.length<=2)vis.forEach(n=>{if(n.tagName==='DETAILS')n.open=true});
  const h=head(sub);pg.insertBefore(h,pg.firstChild);
  if(sec&&!shown){const p=document.createElement('p');p.className='m';p.textContent=T('این بخش اینجا چیزی ندارد.','Nothing in this section.');h.appendChild(p)}}
+const DEF={look:'look',time:'notif',data:'bk'};
+{const _ps=PG.set;PG.set=function(){let sub=window.daniSetSub;if(sub===undefined||sub===null||(sub!==''&&BY[sub]&&BY[sub].tab!==stt))sub=window.daniSetSub=(window.__sntOpen&&stt==='look')?'quote':(DEF[stt]||'');if(sub==='')return'';const x=BY[sub];if(x)stt=x.tab;return _ps.apply(this,arguments)}}
 {const _r=render;render=function(){if(page!=='set')window.daniSetSub=undefined;const r=_r.apply(this,arguments);try{if(page==='set')apply()}catch(e){console.error('setnav',e)}return r}}
 {const _g=H.go;H.go=function(e){const d=e&&e.dataset;if(d&&d.p==='set')window.daniSetSub=d.s?undefined:'';return _g.apply(this,arguments)}}
 H.snv_open=e=>{const x=BY[e.dataset.k];if(!x)return;window.daniSetSub=x.k;window.daniSetFresh=1;stt=x.tab;render();try{window.scrollTo(0,0)}catch(_){}};
 H.snv_back=()=>{window.daniSetSub='';render();try{window.scrollTo(0,0)}catch(_){}};
-H.snv_classic=()=>{window.daniSetSub=undefined;render()};
 document.addEventListener('input',e=>{if(e.target&&e.target.id==='snvq'){const l=document.getElementById('snvl');if(l)l.innerHTML=rows(e.target.value)}});
 })();
