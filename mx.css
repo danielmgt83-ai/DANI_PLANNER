@@ -1,0 +1,12 @@
+/* DANI · mx.css — «ظاهر مدرن» مرحله‌ی ۱ (کارت‌ها، عنوان‌ها، دکمه‌ها).
+   فقط وقتی html[data-mx="1"] است؛ برای تم‌های شخصیت‌دار (با تصویر/قاب جمله/بسته‌ی تم) خاموش می‌ماند تا ویژگی‌های خودشان حفظ شود. ساختار صفحه‌ها تغییر نمی‌کند. */
+html[data-mx="1"] #pg .c{border-radius:22px;padding:16px;border-color:color-mix(in srgb,var(--b) 55%,transparent);box-shadow:0 8px 28px #0000001f,inset 0 1px 0 #ffffff0d}
+html[data-mx="1"]:not([data-card=glass]) #pg .c{background:linear-gradient(180deg,color-mix(in srgb,var(--c) 90%,#fff 10%),var(--c))}
+html[data-mx="1"] #pg .c>h3,html[data-mx="1"] #pg .c>.row>h3{font-size:14px;font-weight:700;margin:0 0 10px;letter-spacing:.02em}
+html[data-mx="1"] #pg .c .m{line-height:1.8}
+html[data-mx="1"] #pg button.p{border-radius:999px;padding:10px 20px;font-weight:600;box-shadow:0 6px 18px color-mix(in srgb,var(--ac) 38%,transparent)}
+html[data-mx="1"] #pg .chip{border-radius:999px;padding:7px 13px}
+html[data-mx="1"] #pg input:not([type=checkbox]):not([type=radio]),html[data-mx="1"] #pg select,html[data-mx="1"] #pg textarea{border-radius:14px}
+html[data-mx="1"] #pg .big{letter-spacing:.5px}
+html[data-mx="1"] #pg .gp i,html[data-mx="1"] #pg .bar i{border-radius:8px}
+html[data-mx="1"] #pg>.c,html[data-mx="1"] #pg>details.c{margin-top:0;margin-bottom:14px}

@@ -626,3 +626,6 @@ DANI Planner: پلنر شخصی فارسی (RTL، با لایه‌ی ترجمه�
 (v130) rhythm.js: streakMap(sk) در کارت چرخه؛ guide2.js: art(ic,n) بالای بدنه‌ی هر قدم.
 
 (v131) self-heal: index.html window.__sf + boot.js (dani_heal)؛ boot0.js shim daniDF؛ dlcard.js با window.*؛ دکمه‌های اجازه‌ی اعلان منتظر H.nt_perm.
+
+### mx.css / js/mx.js — ظاهر مدرن
+html[data-mx=1] فقط وقتی db.set.mx!==0 و تم ساده است (بدون hero/pack/qchar/custom). مرحله‌ی ۱ فقط CSS کارت/عنوان/دکمه؛ مراحل بعد: خانه، برنامه، نتایج. هر تم شخصیت‌دار ظاهر خودش را دارد.
