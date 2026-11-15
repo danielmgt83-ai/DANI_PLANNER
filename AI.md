@@ -624,3 +624,5 @@ DANI Planner: پلنر شخصی فارسی (RTL، با لایه‌ی ترجمه�
 (v129) theme-eren.js: بسته‌ی تم می‌تواند quotes داشته باشد → qpRegister + d.qchar.
 
 (v130) rhythm.js: streakMap(sk) در کارت چرخه؛ guide2.js: art(ic,n) بالای بدنه‌ی هر قدم.
+
+(v131) self-heal: index.html window.__sf + boot.js (dani_heal)؛ boot0.js shim daniDF؛ dlcard.js با window.*؛ دکمه‌های اجازه‌ی اعلان منتظر H.nt_perm.
