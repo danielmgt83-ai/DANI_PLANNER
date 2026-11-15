@@ -180,5 +180,11 @@ await test('واقع‌بینی: نسبت زمان واقعی به برآورد 
   made.forEach(x=>delete db.plans[x]);delete db.plans[d];db.entries=db.entries.filter(e=>!/^pe\d$/.test(e.id));return txt});
  ok(r.includes('×'),'متن: '+r)});
 
+await test('آکادمی: ثبت خودکار زمان مطالعه (خاموش پیش‌فرض، ثبت هنگام خروج)',async pg=>{const r=await pg.evaluate(async()=>{const w=ms=>new Promise(r=>setTimeout(r,ms));const a=db.acts.find(x=>x.active&&!x.arch)||db.acts[0];const n0=db.entries.length;
+  const o={def:!(db.set.at&&db.set.at.on)};page='acd';zMS.acd.tab='courses';render();await w(500);o.row=!!document.getElementById('atrow');
+  H.at_on();o.sel=!!document.querySelector('[data-ats]');db.set.at.act=a.id;db.set.at.pend=400;page='home';render();await w(300);
+  const e=db.entries[db.entries.length-1];o.logged=db.entries.length===n0+1&&e.src==='acd'&&e.min===7;db.entries=db.entries.filter(x=>x.src!=='acd');db.set.at.on=0;return JSON.stringify(o)});
+ const o=JSON.parse(r);ok(o.def&&o.row&&o.sel&&o.logged,'نتیجه '+r)});
+
 console.log('\n'+results.map(r=>r.join(' ')).join('\n')+'\n\n'+(results.length-fails)+' / '+results.length+' موفق');
 await browser.close();srv.close();process.exit(fails?1:0);
