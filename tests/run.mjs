@@ -174,5 +174,11 @@ await test('واقع‌بینی برنامه: کارت در تب روز، سه �
   db.plans[d][0].goal=1200;render();await w(500);const bad=(document.getElementById('p2real')||{}).textContent||'';delete db.plans[d];render();return JSON.stringify({ok1,bad})});
  const o=JSON.parse(r);ok(o.ok1&&o.ok1.includes('✅')&&o.bad.includes('⚠'),'نتیجه '+r)});
 
+await test('واقع‌بینی: نسبت زمان واقعی به برآورد از ۱۴ روز گذشته',async pg=>{const r=await pg.evaluate(async()=>{const w=ms=>new Promise(r=>setTimeout(r,ms));const a=db.acts.find(x=>x.active&&!x.arch)||db.acts[0];const t=todayISO(),made=[];
+  for(let i=1;i<=4;i++){const d=addD(t,-i);db.plans[d]=[{id:'pr'+i,actId:a.id,start:'09:00',end:'11:00',goal:120,status:'plan'}];db.entries.push({id:'pe'+i,day:d,date:d,actId:a.id,min:180,start:'09:00',end:'12:00'});made.push(d)}
+  const d=addD(t,1);db.plans[d]=[{id:'rz9',actId:a.id,start:'09:00',end:'10:00',goal:60,status:'plan'}];daniP2Go('day',d);await w(500);const txt=(document.getElementById('p2real')||{}).textContent||'';
+  made.forEach(x=>delete db.plans[x]);delete db.plans[d];db.entries=db.entries.filter(e=>!/^pe\d$/.test(e.id));return txt});
+ ok(r.includes('×'),'متن: '+r)});
+
 console.log('\n'+results.map(r=>r.join(' ')).join('\n')+'\n\n'+(results.length-fails)+' / '+results.length+' موفق');
 await browser.close();srv.close();process.exit(fails?1:0);
