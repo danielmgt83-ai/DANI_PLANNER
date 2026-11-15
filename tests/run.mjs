@@ -196,5 +196,10 @@ await test('نقشه‌ی زنجیره در چرخه‌ی امروز و تصوی
 
 await test('پایداری: بدون datefield.js و modules-deadlines نباید خطای ReferenceError بدهد (shim) و اسکریپت خراب ثبت می‌شود',async pg=>{const r=await pg.evaluate(()=>{const o={};o.df=!!(window.daniDF&&daniDF.html&&daniDF.get);o.shimHtml=typeof daniDF.html('x','2026-01-01')==='string';o.dl=typeof window.dlDashHTML==='function';o.sf=Array.isArray(window.__sf||[]);return JSON.stringify(o)});const o=JSON.parse(r);ok(o.df&&o.shimHtml&&o.dl&&o.sf,'نتیجه '+r)});
 
+await test('ظاهر مدرن: روشن برای تم ساده، خاموش برای تم شخصیت‌دار، کلید کار می‌کند',async pg=>{const r=await pg.evaluate(async()=>{const w=ms=>new Promise(r=>setTimeout(r,ms));const o={};db.set.skin='dani';render();await w(300);o.dani=document.documentElement.dataset.mx;
+  const ch=Object.keys(SKINS).find(k=>SKINS[k].hero||SKINS[k].qchar);if(ch){db.set.skin=ch;render();await w(300);o.char=document.documentElement.dataset.mx}else o.char='0';
+  db.set.skin='dani';H.mx_t();await w(200);o.off=document.documentElement.dataset.mx;H.mx_t();await w(200);o.on=document.documentElement.dataset.mx;return JSON.stringify(o)});
+ const o=JSON.parse(r);ok(o.dani==='1'&&o.char==='0'&&o.off==='0'&&o.on==='1','نتیجه '+r)});
+
 console.log('\n'+results.map(r=>r.join(' ')).join('\n')+'\n\n'+(results.length-fails)+' / '+results.length+' موفق');
 await browser.close();srv.close();process.exit(fails?1:0);
