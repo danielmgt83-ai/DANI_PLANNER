@@ -620,3 +620,5 @@ DANI Planner: پلنر شخصی فارسی (RTL، با لایه‌ی ترجمه�
 ثبت خودکار زمان مطالعه در آکادمی؛ db.set.at={on,act,pend}؛ ردیف #atrow بالای tab=courses؛ flush هنگام خروج. بعد از courses.js بارگذاری شود (قبل از setnav.js).
 
 (v128) plan2.js: کلاس‌های .p2nav/.p2why/.p2num برای فشرده‌سازی سربرگ‌ها؛ projects.js ورودی آهنگ با placeholder.
+
+(v129) theme-eren.js: بسته‌ی تم می‌تواند quotes داشته باشد → qpRegister + d.qchar.
