@@ -6,7 +6,7 @@
 (function(){
 const T=window.daniT;
 const FX=()=>{const s=db.set;if(!s.fx||typeof s.fx!=='object')s.fx={};if(s.fx.hap===undefined)s.fx.hap=1;if(s.fx.anim===undefined)s.fx.anim=1;return s.fx};
-const VER='2026.11.88';
+const VER='2026.11.89';
 /* ---------- لرزش و پاپ ---------- */
 const HAP=/^(qk_go|nx_go|nx_sw|pf_add|tp_ap|bin_rs|ex_save|ab_now|ql_|pm_|tm_|tstart|tfinish|hab|ob_log|ob_go|dnd_set|ls_now|dk_)/;
 const reduce=()=>{try{return matchMedia('(prefers-reduced-motion: reduce)').matches}catch(e){return false}};
@@ -19,6 +19,7 @@ st.textContent='@keyframes fxpop{0%{transform:scale(1)}40%{transform:scale(.92)}
 document.head.appendChild(st);
 /* ---------- چه چیزی تازه است ---------- */
 const WN=[
+ ['🗺','«چرخه‌ی امروز» حالا نقشه‌ی زنجیره‌ات را نشان می‌دهد (۱۴ روز اخیر + فاصله تا نشان بعدی) و هر قدمِ راهنمای شروع یک تصویر کوچک دارد.','"Today\'s rhythm" now shows your streak map (last 14 days + distance to the next badge) and each Start-guide step has a small illustration.'],
  ['💬','بسته‌ی تم حالا می‌تواند جمله‌های شخصیت خودش را هم داشته باشد (فیلد quotes)؛ قاب جمله و جمله‌های خانه بدون بسته‌ی جدا کار می‌کنند.','A theme pack can now carry its own character quotes (the quotes field); the quote frame and home lines work without a separate pack.'],
  ['🧹','صفحه‌ی برنامه جمع‌وجورتر شد: سربرگ‌ها و زیرسربرگ‌های «ساعت پر · عادت · یادآور» یک ردیف قابل‌کشیدن‌اند، توضیح هر بخش پشت «ℹ️ این بخش چیست؟» است و خانه‌ی «آهنگ ساعت/هفته» در پروژه‌ها دیگر خالی و گنگ نیست.','Plan page tidied: tabs and sub-tabs are one swipeable row, each section\'s explainer is behind "ℹ️ What is this?", and the empty "pace h/week" box in Projects now shows a hint.'],
  ['🎓','ثبت خودکار زمان مطالعه‌ی آکادمی (اختیاری): بالای تب «دوره‌ها» روشنش کن و یک فعالیت انتخاب کن؛ وقتی در حال استفاده‌ای زمان جمع می‌شود و هنگام خروج در لاگ ثبت می‌شود.','Auto-log Academy study time (optional): turn it on above the Courses tab and pick an activity; time adds up while you use it and is logged when you leave.'],

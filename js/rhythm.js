@@ -20,6 +20,9 @@ function problems(){const out=[],t=todayISO();
   try{const op=plan(t).filter(x=>!['done','canceled','carried'].includes(x.status)).length;if(op&&new Date().getHours()>=17)out.push(T(fa(op)+' کار امروز هنوز ناتمام است','' +op+' task(s) of today still open'))}catch(e){}
   try{const a=analyze(t);(a.lim||[]).slice(0,1).forEach(x=>out.push(x))}catch(e){}return out.slice(0,3)}
 
+function streakMap(sk){const t=todayISO(),dots=[];for(let i=13;i>=0;i--){const d=addD(t,-i),on=has(d),td=i===0;dots.push('<i style="display:inline-block;width:14px;height:14px;border-radius:50%;margin:0 2px;'+(on?'background:var(--ac,#3b82f6)':'background:transparent;border:1.5px solid var(--bd,#8886)')+(td?';box-shadow:0 0 0 2px var(--ac,#3b82f6)':'')+'"></i>')}
+  const M=[3,7,14,30,60,100,200,365],nx=M.find(m=>m>sk.n);
+  return'<div class="rhmap" style="margin:6px 0 2px"><div style="display:flex;justify-content:center;flex-wrap:nowrap;overflow:hidden" aria-label="'+T('۱۴ روز اخیر','Last 14 days')+'">'+dots.join('')+'</div>'+(nx?'<div class="m" style="text-align:center;margin-top:4px">🏅 '+T('تا نشان '+fa(nx)+' روزه '+fa(nx-sk.n)+' روز مانده','' +(nx-sk.n)+' day(s) to the '+nx+'-day badge')+'</div>':'<div class="m" style="text-align:center;margin-top:4px">🏆 '+T('بالاترین نشان را گرفتی','Top badge reached')+'</div>')+'</div>'}
 /* ---------- کارت ---------- */
 function card(){const s=stateOf(),sk=streak(),hr=new Date().getHours(),t=todayISO();
   const step=(ok,ic,ttl)=>'<div style="flex:1;min-width:84px;text-align:center;padding:8px 4px;border-radius:12px;border:1px solid var(--bd,#8884);'+(ok?'opacity:1':'opacity:.75')+'"><div style="font-size:1.3em">'+(ok?'✅':ic)+'</div><div class="m">'+ttl+'</div></div>';
@@ -31,7 +34,7 @@ function card(){const s=stateOf(),sk=streak(),hr=new Date().getHours(),t=todayIS
   else if(!s.logged)cta='<button class="p" data-a="go" data-p="log">'+T('یک ثبت کوتاه','A short log')+'</button>';
   const pb=hr>=17?problems():[];
   let h='<div class="c" id="rhcard"><div class="row">'+daniH('🔄','چرخه‌ی امروز','Today\'s rhythm')+'<span class="sp"></span><span class="m">'+(sk.n?'🔥 '+T(fa(sk.n)+' روز پیوسته','' +sk.n+'-day streak'):T('زنجیره‌ای نداری؛ امروز شروعش کن','No streak yet — start today'))+'</span></div>'
-   +'<div class="row" style="gap:8px;margin:8px 0;flex-wrap:nowrap">'+step(s.planned,'📝',T('برنامه','Plan'))+step(s.logged&&s.min>=1,'⏱',T('اجرا','Do')+(s.min?' · '+mm(s.min):''))+step(s.reviewed,'🔎',T('بازبینی','Review'))+'</div>';
+   +streakMap(sk)+'<div class="row" style="gap:8px;margin:8px 0;flex-wrap:nowrap">'+step(s.planned,'📝',T('برنامه','Plan'))+step(s.logged&&s.min>=1,'⏱',T('اجرا','Do')+(s.min?' · '+mm(s.min):''))+step(s.reviewed,'🔎',T('بازبینی','Review'))+'</div>';
   if(sk.n&&!sk.today)h+='<div class="m">'+T('امروز هنوز ثبت نداری؛ برای حفظ زنجیره یک ثبت کوتاه کافی است.','Nothing logged yet today — one short log keeps your streak.')+'</div>';
   if(pb.length)h+='<div class="m" style="margin-top:6px">⚠️ '+pb.map(esc).join(' · ')+'</div>';
   if(cta)h+='<div class="row" style="margin-top:8px">'+cta+(hr>=18&&s.reviewed&&!s.tmr?'':'')+'</div>';
