@@ -149,13 +149,18 @@ await test('ساعت واحد پشتیبان: هر نوع پشتیبان (JSON/�
 
 await test('موعدها در پروژه‌ها: بخش «بدون پروژه» داخل بخش موعدها؛ تنظیمات موعد همان‌جا؛ کارت اشاره‌گر تنظیمات نیست',async pg=>{const r=await pg.evaluate(async()=>{db.set.lang='fa';zDL().items.push({id:'dtest1',title:'موعد آزمایشی',dt:addD(todayISO(),20)+'T09:00',done:0,arch:0});
   page='pj';render();await new Promise(r=>setTimeout(r,500));const m=document.getElementById('dlmv');
-  const o={n:document.querySelectorAll('#dlmv').length,wo:m?[...m.querySelectorAll('h3')].filter(x=>/بدون پروژه/.test(x.textContent)).length:-1,out:[...document.querySelectorAll('#pg details.c')].filter(x=>x.id!=='dlmv'&&/بدون پروژه/.test(x.textContent.slice(0,80))).length,hub:m?m.querySelectorAll('#dlhub').length:-1};
+  const o={n:document.querySelectorAll('#dlmv').length,wo:m?[...m.querySelectorAll('h3')].filter(x=>/بدون پروژه/.test(x.textContent)).length:-1,out:[...document.querySelectorAll('#pg details.c')].filter(x=>x.id!=='dlmv'&&!x.closest('#dlmv')&&/بدون پروژه/.test(x.textContent.slice(0,80))).length,hub:m?m.querySelectorAll('#dlhub').length:-1};
   page='set';stt='look';render();await new Promise(r=>setTimeout(r,500));o.ptr=document.querySelectorAll('#dlsxg').length;
   zDL().items=zDL().items.filter(x=>x.id!=='dtest1');return JSON.stringify(o)});
   const o=JSON.parse(r);ok(o.n===1&&o.wo===1&&o.out===0&&o.hub===1&&o.ptr===0,'نتیجه '+r)});
 
 await test('تنظیمات: فهرست، صفحه‌ی بخش و برگشت (چیزی گم نمی‌شود)',async pg=>{const r=await pg.evaluate(()=>{document.querySelector('[data-a=go][data-p=set]').click();const rows=document.querySelectorAll('.snr').length,sub0=daniSetSub;const seen={};for(const k of ['lang','look','quote','menu','notif','widget','exam','bk','sec','adv']){H.snv_open({dataset:{k}});seen[k]=[...document.getElementById('pg').children].filter(c=>!c.classList.contains('snv-x')&&c.id!=='snv').length;H.snv_back()}H.snv_classic();const classic=document.querySelectorAll('.snv-x').length;page='day';render();return JSON.stringify({rows,sub0,seen,classic,after:String(daniSetSub)})});
  const o=JSON.parse(r);ok(o.rows===10&&o.sub0===''&&o.classic===0&&o.after==='undefined','نتیجه '+r);for(const k of ['lang','look','quote','menu','notif','widget','exam','bk','sec','adv'])ok(o.seen[k]>0,'بخش خالی: '+k)});
+
+await test('پروژه‌ها: بخش‌های موعد برچسب‌دار، چیزی گم نمی‌شود، باز بودن حفظ می‌شود',async pg=>{const r=await pg.evaluate(()=>{const t=todayISO();zDL().items.push({id:'dQ',title:'T',dt:addD(t,9),tm:'09:00',al:[0],cat:''});save();page='pj';render();const m=document.getElementById('dlmv');
+  const ids=['df-t','dlhub','dlfc','df-sub','df-al','df-n'].every(i=>document.getElementById(i)),direct=[...m.children].filter(c=>c.tagName!=='SUMMARY'&&!c.classList.contains('pjs')).length,secs=m.querySelectorAll('.pjs').length;
+  H.pjn_go({dataset:{k:'alerts'}});render();const keep=document.getElementById('dlmv').open&&document.getElementById('pjs-alerts').open;return JSON.stringify({ids,direct,secs,keep,jump:!!document.getElementById('pjjump')})});
+ const o=JSON.parse(r);ok(o.ids&&o.direct===0&&o.secs>=5&&o.keep&&o.jump,'نتیجه '+r)});
 
 console.log('\n'+results.map(r=>r.join(' ')).join('\n')+'\n\n'+(results.length-fails)+' / '+results.length+' موفق');
 await browser.close();srv.close();process.exit(fails?1:0);
