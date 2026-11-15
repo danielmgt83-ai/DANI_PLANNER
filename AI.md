@@ -618,3 +618,5 @@ DANI Planner: پلنر شخصی فارسی (RTL، با لایه‌ی ترجمه�
 
 ### js/acdtime.js
 ثبت خودکار زمان مطالعه در آکادمی؛ db.set.at={on,act,pend}؛ ردیف #atrow بالای tab=courses؛ flush هنگام خروج. بعد از courses.js بارگذاری شود (قبل از setnav.js).
+
+(v128) plan2.js: کلاس‌های .p2nav/.p2why/.p2num برای فشرده‌سازی سربرگ‌ها؛ projects.js ورودی آهنگ با placeholder.
