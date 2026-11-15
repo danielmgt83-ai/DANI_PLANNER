@@ -169,5 +169,10 @@ await test('تایمر واحد: نوار کوچک، صفحه‌ی تمرکز ب
   db.timer={state:'ready',mode:'sw',dur:0,acc:0};render();await w(700);o.gone=!document.getElementById('txbar');return JSON.stringify(o)});
  const o=JSON.parse(r);ok(o.bar&&o.foc&&o.ring&&/^\d\d:\d\d(:\d\d)?$/.test(o.d)&&o.calm&&o.paused&&o.closed&&o.gone,'نتیجه '+r)});
 
+await test('واقع‌بینی برنامه: کارت در تب روز، سه حالت',async pg=>{const r=await pg.evaluate(async()=>{const w=ms=>new Promise(r=>setTimeout(r,ms));const a=db.acts.find(x=>x.active&&!x.arch)||db.acts[0];const d=addD(todayISO(),1);
+  db.plans[d]=[{id:'rz1',actId:a.id,start:'09:00',end:'10:00',goal:60,status:'plan'}];daniP2Go('day',d);await w(500);const ok1=(document.getElementById('p2real')||{}).textContent||'';
+  db.plans[d][0].goal=1200;render();await w(500);const bad=(document.getElementById('p2real')||{}).textContent||'';delete db.plans[d];render();return JSON.stringify({ok1,bad})});
+ const o=JSON.parse(r);ok(o.ok1&&o.ok1.includes('✅')&&o.bad.includes('⚠'),'نتیجه '+r)});
+
 console.log('\n'+results.map(r=>r.join(' ')).join('\n')+'\n\n'+(results.length-fails)+' / '+results.length+' موفق');
 await browser.close();srv.close();process.exit(fails?1:0);
