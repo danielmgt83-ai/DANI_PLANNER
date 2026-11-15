@@ -609,3 +609,5 @@ DANI Planner: پلنر شخصی فارسی (RTL، با لایه‌ی ترجمه�
 
 ### js/timerx.js — تایمر یکپارچه
 نوار `#txbar` (فقط وقتی `db.timer` فعال یا استراحت پومودورو است) + صفحه‌ی `#tx-foc` (H.tx_open/close/pause/res/fin/set/dim/photo). `db.set.tx={look:'ring'|'calm',bg:'theme'|'photo'|'plain',dim,photo}`. عکس تم: imgUrl→`--hero`→اولین background-image صفحه‌ی خانه (کش IMC). H.pm_foc1/pm_foc0 را بازنویسی می‌کند؛ overlay قدیمی pomodoro.js دیگر باز نمی‌شود. بعد از pomodoro.js و dock.js بارگذاری شود.
+
+(v124) اعلان سنجاق‌شده: دکمه‌ها کاشی گوشه‌گرد ۳۸dp (dani_pin_circle.xml شکل rectangle)؛ نام drawable برای سازگاری همان ماند.
