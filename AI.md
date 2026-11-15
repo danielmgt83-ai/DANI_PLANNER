@@ -605,3 +605,7 @@ DANI Planner: پلنر شخصی فارسی (RTL، با لایه‌ی ترجمه�
 > v94: ویجت `nx`/`sk` (livesync.js widgetSync → widgetSet → DaniWidget.build، فقط type≥1؛ id‌ها dw_nx/dw_sk).
 > v93: dlnag.js سطح‌بندی لحن (lvl 1-3) از `lateDue` و روزهای مانده؛ `active` اگر `todayMin`≥سهمیه پیام امروز حذف می‌شود.
 > v92: پنل سریع = `DaniPin` (بومی) + `pinSync()` در livesync.js؛ دکمه‌ی تازه‌ی پنل را هم‌زمان در `DaniPin.show` و `DaniPinAction` اضافه کن. صف: `tlog:<act>:<startMs>:<min>`، `note:<text>`، `log:<min>`.
+
+
+### js/timerx.js — تایمر یکپارچه
+نوار `#txbar` (فقط وقتی `db.timer` فعال یا استراحت پومودورو است) + صفحه‌ی `#tx-foc` (H.tx_open/close/pause/res/fin/set/dim/photo). `db.set.tx={look:'ring'|'calm',bg:'theme'|'photo'|'plain',dim,photo}`. عکس تم: imgUrl→`--hero`→اولین background-image صفحه‌ی خانه (کش IMC). H.pm_foc1/pm_foc0 را بازنویسی می‌کند؛ overlay قدیمی pomodoro.js دیگر باز نمی‌شود. بعد از pomodoro.js و dock.js بارگذاری شود.
