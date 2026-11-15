@@ -622,3 +622,5 @@ DANI Planner: پلنر شخصی فارسی (RTL، با لایه‌ی ترجمه�
 (v128) plan2.js: کلاس‌های .p2nav/.p2why/.p2num برای فشرده‌سازی سربرگ‌ها؛ projects.js ورودی آهنگ با placeholder.
 
 (v129) theme-eren.js: بسته‌ی تم می‌تواند quotes داشته باشد → qpRegister + d.qchar.
+
+(v130) rhythm.js: streakMap(sk) در کارت چرخه؛ guide2.js: art(ic,n) بالای بدنه‌ی هر قدم.
