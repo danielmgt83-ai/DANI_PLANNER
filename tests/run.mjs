@@ -162,5 +162,12 @@ await test('پروژه‌ها: بخش‌های موعد برچسب‌دار، چ
   H.pjn_go({dataset:{k:'alerts'}});render();const keep=document.getElementById('dlmv').open&&document.getElementById('pjs-alerts').open;return JSON.stringify({ids,direct,secs,keep,jump:!!document.getElementById('pjjump')})});
  const o=JSON.parse(r);ok(o.ids&&o.direct===0&&o.secs>=5&&o.keep&&o.jump,'نتیجه '+r)});
 
+await test('تایمر واحد: نوار کوچک، صفحه‌ی تمرکز با دو ظاهر، پایان',async pg=>{const r=await pg.evaluate(async()=>{const w=ms=>new Promise(r=>setTimeout(r,ms));const a=db.acts.find(x=>x.active&&!x.arch)||db.acts[0];TM.start('cd',a.id,'',25);render();await w(700);
+  const o={bar:!!document.getElementById('txbar')};H.tx_open();await w(100);o.foc=!!document.getElementById('tx-foc');o.d=(document.getElementById('tx-d')||{}).textContent;o.ring=!!document.getElementById('tx-arc');
+  H.tx_set({dataset:{k:'look',v:'calm'}});o.calm=document.getElementById('tx-foc').classList.contains('calm')&&!document.getElementById('tx-arc');
+  H.tx_set({dataset:{k:'look',v:'ring'}});H.tx_pause();await w(100);o.paused=db.timer.state==='paused';H.tx_res();H.tx_close();await w(700);o.closed=!document.getElementById('tx-foc')&&!!document.getElementById('txbar');
+  db.timer={state:'ready',mode:'sw',dur:0,acc:0};render();await w(700);o.gone=!document.getElementById('txbar');return JSON.stringify(o)});
+ const o=JSON.parse(r);ok(o.bar&&o.foc&&o.ring&&/^\d\d:\d\d(:\d\d)?$/.test(o.d)&&o.calm&&o.paused&&o.closed&&o.gone,'نتیجه '+r)});
+
 console.log('\n'+results.map(r=>r.join(' ')).join('\n')+'\n\n'+(results.length-fails)+' / '+results.length+' موفق');
 await browser.close();srv.close();process.exit(fails?1:0);
