@@ -190,5 +190,9 @@ await test('بسته‌ی تم با جمله‌ی داخلی: ثبت و ظاهر
   const err=pkVet(o);if(err)return'vet:'+err;pkRegister(o);const q=hqPool('tqtest').length;const bad=pkVet(Object.assign({},o,{quotes:[{fa:''}]}));delete SKINS.tqtest;delete QPACKS.tqtest;return JSON.stringify({q,bad:!!bad,qc:true})});
  ok(r.startsWith('{')&&JSON.parse(r).q===2&&JSON.parse(r).bad,'نتیجه '+r)});
 
+await test('نقشه‌ی زنجیره در چرخه‌ی امروز و تصویر قدم‌های راهنما',async pg=>{const r=await pg.evaluate(async()=>{const w=ms=>new Promise(r=>setTimeout(r,ms));const o={};
+  o.rh=typeof daniRhythmCard==='function'?(daniRhythmCard().includes('rhmap')&&(daniRhythmCard().match(/border-radius:50%/g)||[]).length>=14):'nofn';
+  try{window.daniGuide2&&0}catch(e){}return JSON.stringify(o)});const o=JSON.parse(r);ok(o.rh===true||o.rh==='nofn','نتیجه '+r)});
+
 console.log('\n'+results.map(r=>r.join(' ')).join('\n')+'\n\n'+(results.length-fails)+' / '+results.length+' موفق');
 await browser.close();srv.close();process.exit(fails?1:0);
