@@ -6,7 +6,7 @@
 (function(){
 const T=window.daniT;
 const FX=()=>{const s=db.set;if(!s.fx||typeof s.fx!=='object')s.fx={};if(s.fx.hap===undefined)s.fx.hap=1;if(s.fx.anim===undefined)s.fx.anim=1;return s.fx};
-const VER='2026.11.81';
+const VER='2026.11.82';
 /* ---------- لرزش و پاپ ---------- */
 const HAP=/^(qk_go|nx_go|nx_sw|pf_add|tp_ap|bin_rs|ex_save|ab_now|ql_|pm_|tm_|tstart|tfinish|hab|ob_log|ob_go|dnd_set|ls_now|dk_)/;
 const reduce=()=>{try{return matchMedia('(prefers-reduced-motion: reduce)').matches}catch(e){return false}};
@@ -19,6 +19,7 @@ st.textContent='@keyframes fxpop{0%{transform:scale(1)}40%{transform:scale(.92)}
 document.head.appendChild(st);
 /* ---------- چه چیزی تازه است ---------- */
 const WN=[
+ ['⏱','تایمر یکپارچه شد: وقتی تایمر یا پومودورو فعال است یک نوار کوچک روی همه‌ی صفحه‌ها می‌ماند (مکث/ادامه با یک لمس). با لمس آن «صفحه‌ی تمرکز» تمام‌صفحه باز می‌شود، با دو ظاهر (حلقه‌ای یا آرام) و پس‌زمینه‌ی عکس تم، عکس خودت یا ساده، با تیرگی قابل تنظیم. حالت تمرکز قدیمی همین صفحه شد؛ چیزی حذف نشد.','Unified timer: a small bar stays on every page while a timer or Pomodoro runs (pause/resume in one tap). Tap it for a full-screen Focus page with two looks (ring or calm) and a theme-image, own-photo or plain background with adjustable dim. The old focus mode is now this page; nothing was removed.'],
  ['⚡','تنظیمات سریع‌تر شد (فهرست دیگر کل تب را نمی‌سازد) و دکمه‌ی گیج‌کننده‌ی «نمای قدیمی» برداشته شد؛ هر ورود به تنظیمات همین فهرست و صفحه‌های جداست. رندر صفحه‌ها هم سبک‌تر شد.','Settings is faster (the list no longer builds a whole tab) and the confusing “classic view” button is gone; every way into Settings now uses the list and its pages. Page rendering is lighter too.'],
  ['🧩','صفحه‌ی پروژه‌ها مرتب شد: بخش بزرگ «موعدها» حالا چند بخش جمع‌شونده‌ی برچسب‌دار است (فهرست، افزودن، پیش‌بینی، بدون پروژه، هشدارها، دسته‌ها، تنظیمات) و بالای صفحه دکمه‌های پرش دارد. چیزی حذف نشده. باز و بسته بودن بخش‌ها و جای اسکرول هم یادش می‌ماند.','Projects page tidied: the big “Deadlines” block is now labelled collapsible sections (list, add, forecast, no-project, alerts, categories, settings) with jump buttons on top. Nothing removed. Open sections and scroll position are remembered.'],
  ['🧭','تنظیمات حالا یک فهرست مرتب است (زبان، ظاهر، جمله‌ها، منو، اعلان‌ها، ویجت، پشتیبان، امنیت…). هر ردیف یک صفحه‌ی جدا با دکمه‌ی برگشت باز می‌کند. هیچ قابلیتی حذف نشده؛ «نمای تب‌ها» هم پایین فهرست مانده.','Settings is now a tidy list (language, look, sentences, menu, notifications, widget, backup, security…). Each row opens its own page with a back button. Nothing was removed; the classic tabs view stays at the bottom of the list.'],
