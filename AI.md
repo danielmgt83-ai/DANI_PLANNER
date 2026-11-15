@@ -615,3 +615,6 @@ DANI Planner: پلنر شخصی فارسی (RTL، با لایه‌ی ترجمه�
 (v125) js/plan2.js: realism(d) → #p2real بالای vsCard در تب روز؛ ساعت بیداری ثابت ۷:۰۰–۲۳:۳۰ (قابل تنظیم‌شدن در آینده).
 
 (v126) plan2.js: paceRatio() → realism() برنامه را در نسبت واقعی/برآورد ضرب می‌کند.
+
+### js/acdtime.js
+ثبت خودکار زمان مطالعه در آکادمی؛ db.set.at={on,act,pend}؛ ردیف #atrow بالای tab=courses؛ flush هنگام خروج. بعد از courses.js بارگذاری شود (قبل از setnav.js).
