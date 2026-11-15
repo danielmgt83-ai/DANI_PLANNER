@@ -186,5 +186,9 @@ await test('آکادمی: ثبت خودکار زمان مطالعه (خاموش 
   const e=db.entries[db.entries.length-1];o.logged=db.entries.length===n0+1&&e.src==='acd'&&e.min===7;db.entries=db.entries.filter(x=>x.src!=='acd');db.set.at.on=0;return JSON.stringify(o)});
  const o=JSON.parse(r);ok(o.def&&o.row&&o.sel&&o.logged,'نتیجه '+r)});
 
+await test('بسته‌ی تم با جمله‌ی داخلی: ثبت و ظاهر شدن در استخر جمله‌ها',async pg=>{const r=await pg.evaluate(()=>{const o={format:'dani-themepack',version:1,id:'tqtest',name:'TQ',desc:'t',tag:'t',skin:{lay:'side',dark:false,card:'default'},quotes:[{fa:'جمله‌ی آزمایشی یک',en:'test one',a:'X'},{fa:'جمله‌ی آزمایشی دو',en:'test two',a:'X'}]};
+  const err=pkVet(o);if(err)return'vet:'+err;pkRegister(o);const q=hqPool('tqtest').length;const bad=pkVet(Object.assign({},o,{quotes:[{fa:''}]}));delete SKINS.tqtest;delete QPACKS.tqtest;return JSON.stringify({q,bad:!!bad,qc:true})});
+ ok(r.startsWith('{')&&JSON.parse(r).q===2&&JSON.parse(r).bad,'نتیجه '+r)});
+
 console.log('\n'+results.map(r=>r.join(' ')).join('\n')+'\n\n'+(results.length-fails)+' / '+results.length+' موفق');
 await browser.close();srv.close();process.exit(fails?1:0);
