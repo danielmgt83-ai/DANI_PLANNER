@@ -14,12 +14,12 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center_vertical"
-        android:paddingBottom="8dp">
+        android:paddingBottom="6dp">
         <Chronometer
             android:id="@+id/pn_chr"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="30sp"
+            android:textSize="28sp"
             android:fontFamily="sans-serif-light"
             android:layoutDirection="ltr"
             style="@android:style/TextAppearance.Material.Notification.Title" />
@@ -27,7 +27,7 @@
             android:id="@+id/pn_tt"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="30sp"
+            android:textSize="28sp"
             android:fontFamily="sans-serif-light"
             style="@android:style/TextAppearance.Material.Notification.Title" />
         <TextView
@@ -55,19 +55,19 @@
         android:paddingTop="2dp"
         android:paddingBottom="2dp">
         <FrameLayout
-            android:layout_width="44dp"
-            android:layout_height="44dp">
+            android:layout_width="38dp"
+            android:layout_height="38dp">
             <ImageView
                 android:id="@+id/pn_c1"
-                android:layout_width="44dp"
-                android:layout_height="44dp"
+                android:layout_width="38dp"
+                android:layout_height="38dp"
                 android:src="@drawable/dani_pin_circle" />
             <TextView
                 android:id="@+id/pn_e1"
-                android:layout_width="44dp"
-                android:layout_height="44dp"
+                android:layout_width="38dp"
+                android:layout_height="38dp"
                 android:gravity="center"
-                android:textSize="20sp"
+                android:textSize="17sp"
                 android:textColor="#FFFFFF" />
         </FrameLayout>
         <TextView
@@ -75,7 +75,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="3dp"
-            android:textSize="11sp"
+            android:textSize="10sp"
             android:maxLines="1"
             android:ellipsize="end"
             android:maxWidth="64dp"
@@ -91,19 +91,19 @@
         android:paddingTop="2dp"
         android:paddingBottom="2dp">
         <FrameLayout
-            android:layout_width="44dp"
-            android:layout_height="44dp">
+            android:layout_width="38dp"
+            android:layout_height="38dp">
             <ImageView
                 android:id="@+id/pn_c2"
-                android:layout_width="44dp"
-                android:layout_height="44dp"
+                android:layout_width="38dp"
+                android:layout_height="38dp"
                 android:src="@drawable/dani_pin_circle" />
             <TextView
                 android:id="@+id/pn_e2"
-                android:layout_width="44dp"
-                android:layout_height="44dp"
+                android:layout_width="38dp"
+                android:layout_height="38dp"
                 android:gravity="center"
-                android:textSize="20sp"
+                android:textSize="17sp"
                 android:textColor="#FFFFFF" />
         </FrameLayout>
         <TextView
@@ -111,7 +111,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="3dp"
-            android:textSize="11sp"
+            android:textSize="10sp"
             android:maxLines="1"
             android:ellipsize="end"
             android:maxWidth="64dp"
@@ -127,19 +127,19 @@
         android:paddingTop="2dp"
         android:paddingBottom="2dp">
         <FrameLayout
-            android:layout_width="44dp"
-            android:layout_height="44dp">
+            android:layout_width="38dp"
+            android:layout_height="38dp">
             <ImageView
                 android:id="@+id/pn_c3"
-                android:layout_width="44dp"
-                android:layout_height="44dp"
+                android:layout_width="38dp"
+                android:layout_height="38dp"
                 android:src="@drawable/dani_pin_circle" />
             <TextView
                 android:id="@+id/pn_e3"
-                android:layout_width="44dp"
-                android:layout_height="44dp"
+                android:layout_width="38dp"
+                android:layout_height="38dp"
                 android:gravity="center"
-                android:textSize="20sp"
+                android:textSize="17sp"
                 android:textColor="#FFFFFF" />
         </FrameLayout>
         <TextView
@@ -147,7 +147,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="3dp"
-            android:textSize="11sp"
+            android:textSize="10sp"
             android:maxLines="1"
             android:ellipsize="end"
             android:maxWidth="64dp"
@@ -163,19 +163,19 @@
         android:paddingTop="2dp"
         android:paddingBottom="2dp">
         <FrameLayout
-            android:layout_width="44dp"
-            android:layout_height="44dp">
+            android:layout_width="38dp"
+            android:layout_height="38dp">
             <ImageView
                 android:id="@+id/pn_c4"
-                android:layout_width="44dp"
-                android:layout_height="44dp"
+                android:layout_width="38dp"
+                android:layout_height="38dp"
                 android:src="@drawable/dani_pin_circle" />
             <TextView
                 android:id="@+id/pn_e4"
-                android:layout_width="44dp"
-                android:layout_height="44dp"
+                android:layout_width="38dp"
+                android:layout_height="38dp"
                 android:gravity="center"
-                android:textSize="20sp"
+                android:textSize="17sp"
                 android:textColor="#FFFFFF" />
         </FrameLayout>
         <TextView
@@ -183,7 +183,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="3dp"
-            android:textSize="11sp"
+            android:textSize="10sp"
             android:maxLines="1"
             android:ellipsize="end"
             android:maxWidth="64dp"
@@ -199,19 +199,19 @@
         android:paddingTop="2dp"
         android:paddingBottom="2dp">
         <FrameLayout
-            android:layout_width="44dp"
-            android:layout_height="44dp">
+            android:layout_width="38dp"
+            android:layout_height="38dp">
             <ImageView
                 android:id="@+id/pn_c5"
-                android:layout_width="44dp"
-                android:layout_height="44dp"
+                android:layout_width="38dp"
+                android:layout_height="38dp"
                 android:src="@drawable/dani_pin_circle" />
             <TextView
                 android:id="@+id/pn_e5"
-                android:layout_width="44dp"
-                android:layout_height="44dp"
+                android:layout_width="38dp"
+                android:layout_height="38dp"
                 android:gravity="center"
-                android:textSize="20sp"
+                android:textSize="17sp"
                 android:textColor="#FFFFFF" />
         </FrameLayout>
         <TextView
@@ -219,7 +219,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="3dp"
-            android:textSize="11sp"
+            android:textSize="10sp"
             android:maxLines="1"
             android:ellipsize="end"
             android:maxWidth="64dp"
@@ -235,19 +235,19 @@
         android:paddingTop="2dp"
         android:paddingBottom="2dp">
         <FrameLayout
-            android:layout_width="44dp"
-            android:layout_height="44dp">
+            android:layout_width="38dp"
+            android:layout_height="38dp">
             <ImageView
                 android:id="@+id/pn_c6"
-                android:layout_width="44dp"
-                android:layout_height="44dp"
+                android:layout_width="38dp"
+                android:layout_height="38dp"
                 android:src="@drawable/dani_pin_circle" />
             <TextView
                 android:id="@+id/pn_e6"
-                android:layout_width="44dp"
-                android:layout_height="44dp"
+                android:layout_width="38dp"
+                android:layout_height="38dp"
                 android:gravity="center"
-                android:textSize="20sp"
+                android:textSize="17sp"
                 android:textColor="#FFFFFF" />
         </FrameLayout>
         <TextView
@@ -255,7 +255,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="3dp"
-            android:textSize="11sp"
+            android:textSize="10sp"
             android:maxLines="1"
             android:ellipsize="end"
             android:maxWidth="64dp"
