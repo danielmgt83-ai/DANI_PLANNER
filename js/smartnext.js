@@ -7,6 +7,7 @@
 const T=window.daniT;
 const NX=()=>{const s=db.set;if(!s.nx||typeof s.nx!=='object')s.nx={};const n=s.nx;
   if(n.am===undefined){n.am='08:00';n.pm='21:00';n.amOn=1;n.pmOn=1}
+  if(n.v!==2){n.v=2;n.off=1}/* v133: «بعدی چی؟» پس از ادغام به‌صورت پیش‌فرض در خانه نیست (از «شخصی‌سازی خانه» روشن می‌شود؛ در برگه‌ی پایین «بعدی چی؟» و کارت «امروز» هست) */
   if(!n.skip||n.skip.d!==todayISO())n.skip={d:todayISO(),ids:[]};return n};
 const say=(m,b)=>{try{toast(m,b)}catch(e){}};
 const on=m=>{try{return modOn(m)}catch(e){return false}};

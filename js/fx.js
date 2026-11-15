@@ -6,7 +6,7 @@
 (function(){
 const T=window.daniT;
 const FX=()=>{const s=db.set;if(!s.fx||typeof s.fx!=='object')s.fx={};if(s.fx.hap===undefined)s.fx.hap=1;if(s.fx.anim===undefined)s.fx.anim=1;return s.fx};
-const VER='2026.11.91';
+const VER='2026.11.92';
 /* ---------- لرزش و پاپ ---------- */
 const HAP=/^(qk_go|nx_go|nx_sw|pf_add|tp_ap|bin_rs|ex_save|ab_now|ql_|pm_|tm_|tstart|tfinish|hab|ob_log|ob_go|dnd_set|ls_now|dk_)/;
 const reduce=()=>{try{return matchMedia('(prefers-reduced-motion: reduce)').matches}catch(e){return false}};
@@ -19,6 +19,7 @@ st.textContent='@keyframes fxpop{0%{transform:scale(1)}40%{transform:scale(.92)}
 document.head.appendChild(st);
 /* ---------- چه چیزی تازه است ---------- */
 const WN=[
+ ['🎯','کارت «بعدی چی؟» دیگر خودش در خانه نیست (بعد از ادغام تکراری بود). هنوز در برگه‌ی «بعدی چی؟»ی نوار پایین و با «شخصی‌سازی خانه» قابل‌روشن‌کردن است.','The "What next?" card is no longer on Home by default (it duplicated the merged cards). It is still in the bottom toolbar sheet and can be turned on from Customize home.'],
  ['✨','ظاهر مدرن (مرحله‌ی ۱): کارت‌ها، عنوان‌ها، دکمه‌ها و ورودی‌ها نرم‌تر و گردتر شدند، با فاصله‌ی بهتر. فقط برای تم‌های ساده‌ی داخلی؛ تم‌های شخصیت‌دار ظاهر خودشان را نگه می‌دارند. کلید: تنظیمات ← ظاهر و تم.','Modern look (step 1): cards, titles, buttons and inputs are softer and rounder with better spacing. Only for the plain built-in themes; character themes keep their own look. Switch: Settings → Look & themes.'],
  ['🛠','پایداری اولین اجرا بعد از نصب: اگر فایلی دیر یا ناقص بارگذاری شود برنامه خودش یک‌بار کش را پاک و دوباره باز می‌شود؛ ورودی تاریخ و کارت موعد دیگر با این حالت خطا نمی‌دهند؛ دکمه‌ی «اجازه‌ی اعلان» در اولین اجرا صبر می‌کند تا اعلان آماده شود.','First-run stability after install: if a file loads late or incomplete the app clears its cache and reloads once; the date field and deadline card no longer error in that state; the "Allow notifications" button now waits for the notifier to be ready.'],
  ['🗺','«چرخه‌ی امروز» حالا نقشه‌ی زنجیره‌ات را نشان می‌دهد (۱۴ روز اخیر + فاصله تا نشان بعدی) و هر قدمِ راهنمای شروع یک تصویر کوچک دارد.','"Today\'s rhythm" now shows your streak map (last 14 days + distance to the next badge) and each Start-guide step has a small illustration.'],
