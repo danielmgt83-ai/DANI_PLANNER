@@ -57,6 +57,15 @@ function odBar(){let l=[];try{l=plOverdue()}catch(e){}if(!l.length)return'';
    +'<div class="row" style="margin:6px 0"><button class="chip" data-a="p2_odall">⟳ '+T('همه را به امروز ببر','Move all to today')+'</button></div>'+overdueCard()+'</details>'}
 H.p2_odall=()=>{const t=todayISO();let n=0;plOverdue().forEach(o=>{const p=plan(o.d).find(x=>x.id===o.x.id);if(!p)return;p.status='carried';p.to=t;(db.plans[t]=db.plans[t]||[]).push(Object.assign({},p,{id:uid(),status:'todo',reason:'',from:o.d,n:(p.n||0)+1,to:undefined}));n++});save();say(T(fa(n)+' کار به امروز منتقل شد','Moved '+n+' items to today'));render()};
 /* برنامه در برابر واقعی (برنامه‌ی ذخیره‌شده‌ی این روز) */
+/* ---------- واقع‌بینی برنامه (v125): کل برنامه‌ی روز در برابر وقت آزاد (بیداری ۷:۰۰–۲۳:۳۰ منهای ساعت‌های پر) ---------- */
+function realism(d){let p=[];try{p=(plan(d)||[]).filter(x=>!['done','canceled','carried'].includes(x.status))}catch(e){}if(!p.length)return'';
+  const need=p.reduce((a,x)=>a+Math.max(0,+x.goal||(x.start&&x.end?dur(x.start,x.end):0)),0);if(!need)return'';
+  const t=todayISO();let from=7*60;if(d===t){const n=new Date();from=Math.max(from,n.getHours()*60+n.getMinutes())}else if(d<t)return'';
+  const to=23*60+30;let free=Math.max(0,to-from);
+  busyOn(d).forEach(b=>{const s=Math.max(from,tm(b.s)),e=Math.min(to,tm(b.e));if(e>s)free-=e-s});free=Math.max(0,free);
+  const bad=need>free,tight=!bad&&need>free*.85,k=bad?'⚠':tight?'🟡':'✅';
+  const msg=bad?T('برنامه '+mm(need-free)+' بیشتر از وقت آزاد است؛ چیزی را به روز دیگر ببر.',mm(need-free)+' more than your free time — move something to another day.'):tight?T('برنامه فشرده است؛ تقریباً همه‌ی وقت آزاد را می‌گیرد.','Tight plan — it takes almost all your free time.'):T('برنامه واقع‌بینانه است.','The plan looks realistic.');
+  return'<div class="c" id="p2real" style="padding:8px 12px"><div class="row" style="align-items:center"><span>'+k+'</span><span style="flex:1"><b>'+T('برنامه','Planned')+' '+mm(need)+'</b> · '+T('وقت آزاد','free')+' ≈ '+mm(free)+'<br><small class="m">'+msg+'</small></span></div></div>'}
 function vsCard(d){let p=[];try{p=plan(d)||[]}catch(e){}if(!p.length)return'';vd=d;let pr={pc:0,goal:0,act:0};try{pr=prog(d)}catch(e){}
   return'<div class="c">'+daniH('📊','برنامه در برابر واقعی','Planned vs actual')+'<p class="m">'+T('پیشرفت','Progress')+' '+fa(pr.pc)+(LANGEN()?'%':'٪')+' · '+T('هدف','goal')+' '+mm(pr.goal)+' · '+T('واقعی','actual')+' '+mm(pr.act)+'</p>'
    +p.map((x,i)=>{if(!x.actId||!act(x.actId))return'';const a=actual(d,x.actId),g=+x.goal||0;
@@ -77,6 +86,7 @@ function dayTab(){const t=todayISO(),d=P2.date&&P2.date>=addD(t,-30)?P2.date:add
   const ev=eventsOf(d);if(ev.length)h+='<div class="dyex" style="margin-top:6px">'+ev.join('<br>')+'</div>';
   h+='</div>'+odBar();
   try{window.daniPlanLoad(d);h+=PG.tmr()}catch(e){console.error('p2 day',e)}
+  try{h+=realism(d)}catch(e){console.error('p2 real',e)}
   h+=vsCard(d)+recList();
   const cp='<div class="row" style="margin:6px 0"><button class="chip" data-a="copyDay">'+T('کپی به روز دیگر','Copy to another day')+'</button><button class="chip" data-a="tmpl">'+T('قالب هفتگی: اعمال روی ۷ روز','Weekly template: apply to 7 days')+'</button></div>';
   h+=legacyCards(['#tpcard']).replace('</summary>','</summary>'+cp);
