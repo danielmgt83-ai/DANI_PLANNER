@@ -6,7 +6,7 @@
 (function(){
 const T=window.daniT;
 const FX=()=>{const s=db.set;if(!s.fx||typeof s.fx!=='object')s.fx={};if(s.fx.hap===undefined)s.fx.hap=1;if(s.fx.anim===undefined)s.fx.anim=1;return s.fx};
-const VER='2026.11.86';
+const VER='2026.11.87';
 /* ---------- لرزش و پاپ ---------- */
 const HAP=/^(qk_go|nx_go|nx_sw|pf_add|tp_ap|bin_rs|ex_save|ab_now|ql_|pm_|tm_|tstart|tfinish|hab|ob_log|ob_go|dnd_set|ls_now|dk_)/;
 const reduce=()=>{try{return matchMedia('(prefers-reduced-motion: reduce)').matches}catch(e){return false}};
@@ -19,6 +19,7 @@ st.textContent='@keyframes fxpop{0%{transform:scale(1)}40%{transform:scale(.92)}
 document.head.appendChild(st);
 /* ---------- چه چیزی تازه است ---------- */
 const WN=[
+ ['🧹','صفحه‌ی برنامه جمع‌وجورتر شد: سربرگ‌ها و زیرسربرگ‌های «ساعت پر · عادت · یادآور» یک ردیف قابل‌کشیدن‌اند، توضیح هر بخش پشت «ℹ️ این بخش چیست؟» است و خانه‌ی «آهنگ ساعت/هفته» در پروژه‌ها دیگر خالی و گنگ نیست.','Plan page tidied: tabs and sub-tabs are one swipeable row, each section\'s explainer is behind "ℹ️ What is this?", and the empty "pace h/week" box in Projects now shows a hint.'],
  ['🎓','ثبت خودکار زمان مطالعه‌ی آکادمی (اختیاری): بالای تب «دوره‌ها» روشنش کن و یک فعالیت انتخاب کن؛ وقتی در حال استفاده‌ای زمان جمع می‌شود و هنگام خروج در لاگ ثبت می‌شود.','Auto-log Academy study time (optional): turn it on above the Courses tab and pick an activity; time adds up while you use it and is logged when you leave.'],
  ['⏳','خط «واقع‌بینی» برنامه حالا از ۱۴ روز گذشته یاد می‌گیرد: اگر معمولاً بیشتر از برآوردت طول می‌کشد، برآورد واقعی را هم نشان می‌دهد.','The Plan "realism" line now learns from your last 14 days: if you usually take longer than planned it shows a realistic estimate.'],
  ['🧮','در صفحه‌ی برنامه یک خط «واقع‌بینی» اضافه شد: کل برنامه‌ی روز را با وقت آزادت (بیداری منهای ساعت‌های پر) مقایسه می‌کند و اگر جا نمی‌شود می‌گوید چقدر بیشتر است.','A new "realism" line on the Plan page compares the day\'s plan with your free time (waking hours minus busy blocks) and says how much it overshoots.'],
