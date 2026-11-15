@@ -168,7 +168,7 @@ H.ob_go=e=>{const a=myAct();if(!a)return;closeM();if(e.dataset.w==='pm'&&window.
 H.ob_log=e=>{const a=myAct(),m=+e.dataset.m;if(!a)return;const en=nowHM();if(tm(en)-m<0)return toast(T('این بازه از نیمه‌شب می‌گذرد','Crosses midnight'),1);
   db.entries.push({id:uid(),date:todayISO(),actId:a,subId:'',start:hm(tm(en)-m),end:en,min:m,note:'',src:'quick'});adv()};
 H.ob_rev=()=>{const t=todayISO(),d=db.days[t]=db.days[t]||{};d.learned=g('ob-ln').slice(0,200);d.tomorrow=g('ob-cp').slice(0,200);F().review=1;adv()};
-H.ob_nt=async()=>{try{if(H.nt_perm)await H.nt_perm()}catch(e){}setTimeout(()=>{CUR=-1;draw()},500)};
+H.ob_nt=async()=>{for(let i=0;i<14&&!H.nt_perm;i++)await new Promise(r=>setTimeout(r,300));try{if(H.nt_perm)await H.nt_perm()}catch(e){}setTimeout(()=>{CUR=-1;draw()},500)};
 H.ob_home=e=>{const k=e.dataset.k;try{if(k==='classic'){H.h2_off()}else{H.h2_pre({dataset:{k}})}}catch(x){}F().home=1;save();closeM();render();CUR=-1;draw()};
 H.ob_to=e=>{const p=e.dataset.p;closeM();if(p==='plan')QA('plan')};
 H.ob_try=e=>{const f=FEATS.find(x=>x.k===e.dataset.k);if(!f)return;if(f.k==='bk')OB().used.bk=1;closeM();save();try{f.go()}catch(x){console.error(x)}};

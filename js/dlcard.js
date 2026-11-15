@@ -51,8 +51,8 @@ function render1(sty,sample){const its=sample?[{id:'_s',title:T('نمونه: ت�
   return wrap(i,ch+'<b>'+esc(S_(x.title,100))+'</b><div class="m">'+meta(x)+'</div><div class="dlcd" data-id="'+esc(x.id)+'" data-big="1">'+(sample?'':(typeof dlCD==='function'?dlCD(x,true):''))+'</div>'+foot(i))}
 const _old=typeof dlDashHTML==='function'?dlDashHTML:null;
 function home(sample){if(!sample&&typeof modOn==='function'&&!modOn('dl'))return'';return render1(D().hs,sample)}
-dlDashHTML=function(){try{return home()}catch(e){console.error('dlcard',e);return _old?_old():''}};
-hDl=function(){let x='';try{x=home()}catch(e){console.error('dlcard',e)}return x||'<div class="c"><h3>'+BH('Next deadline','موعد بعدی')+'</h3><p class="m">بخش موعدها خاموش است؛ از تنظیمات، «ماژول‌ها» روشنش کن.</p></div>'};
+window.dlDashHTML=function(){try{return home()}catch(e){console.error('dlcard',e);return _old?_old():''}};
+window.hDl=function(){let x='';try{x=home()}catch(e){console.error('dlcard',e)}return x||'<div class="c"><h3>'+BH('Next deadline','موعد بعدی')+'</h3><p class="m">بخش موعدها خاموش است؛ از تنظیمات، «ماژول‌ها» روشنش کن.</p></div>'};
 try{if(typeof HSEC!=='undefined'&&HSEC.dlc)HSEC.dlc.r=hDl}catch(e){}
 H.dl_cyc=()=>{const o=D(),i=ST.findIndex(q=>q[0]===o.hs);o.hs=ST[(i+1)%ST.length][0];save();render()};
 setInterval(()=>{try{document.querySelectorAll('#dlcard:not(.dlx-pv)').forEach(c=>{if(c.closest('#dlsx'))return;const h=home();if(h&&c.outerHTML!==h&&/dlx/.test(h)&&c.classList.contains('dlx'))c.outerHTML=h})}catch(e){}},60000);

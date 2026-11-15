@@ -112,7 +112,7 @@ H.g2_skip=H.g2_next;
 H.g2_fin=()=>{const g=GD();g.fin=1;g.done.fin=1;save();close();say(T('آماده‌ای ✓','All set ✓'))};
 H.g2_lang=e=>{db.set.lang=e.dataset.v;try{I18_MEMO.clear();i18Apply()}catch(x){}save();draw()};
 H.g2_cal=e=>{db.set.cal=e.dataset.v;save();draw()};
-H.g2_perm=async()=>{try{if(H.nt_perm)await H.nt_perm();else await Notification.requestPermission()}catch(e){}setTimeout(draw,400)};
+H.g2_perm=async()=>{for(let i=0;i<14&&!H.nt_perm;i++)await new Promise(r=>setTimeout(r,300));try{if(H.nt_perm)await H.nt_perm();else if('Notification' in window)await Notification.requestPermission();else say(T('اعلان در این حالت پشتیبانی نمی‌شود','Notifications are not supported here'),1)}catch(e){say(String(e&&e.message||e),1)}setTimeout(draw,400)};
 const leave=fn=>{const o=q('gd2');if(o)o.remove();fn()};
 H.g2_trk=()=>leave(()=>{page='day';render();setTimeout(()=>{const e=q('lgcard')||document.querySelector('.dytr');if(e)e.scrollIntoView({block:'start'})},120)});
 H.g2_res=e=>leave(()=>{page='res';rt=e.dataset.r;render()});
