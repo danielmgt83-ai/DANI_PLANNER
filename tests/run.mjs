@@ -194,5 +194,7 @@ await test('نقشه‌ی زنجیره در چرخه‌ی امروز و تصوی
   o.rh=typeof daniRhythmCard==='function'?(daniRhythmCard().includes('rhmap')&&(daniRhythmCard().match(/border-radius:50%/g)||[]).length>=14):'nofn';
   try{window.daniGuide2&&0}catch(e){}return JSON.stringify(o)});const o=JSON.parse(r);ok(o.rh===true||o.rh==='nofn','نتیجه '+r)});
 
+await test('پایداری: بدون datefield.js و modules-deadlines نباید خطای ReferenceError بدهد (shim) و اسکریپت خراب ثبت می‌شود',async pg=>{const r=await pg.evaluate(()=>{const o={};o.df=!!(window.daniDF&&daniDF.html&&daniDF.get);o.shimHtml=typeof daniDF.html('x','2026-01-01')==='string';o.dl=typeof window.dlDashHTML==='function';o.sf=Array.isArray(window.__sf||[]);return JSON.stringify(o)});const o=JSON.parse(r);ok(o.df&&o.shimHtml&&o.dl&&o.sf,'نتیجه '+r)});
+
 console.log('\n'+results.map(r=>r.join(' ')).join('\n')+'\n\n'+(results.length-fails)+' / '+results.length+' موفق');
 await browser.close();srv.close();process.exit(fails?1:0);
