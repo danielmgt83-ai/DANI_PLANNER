@@ -58,14 +58,21 @@ function odBar(){let l=[];try{l=plOverdue()}catch(e){}if(!l.length)return'';
 H.p2_odall=()=>{const t=todayISO();let n=0;plOverdue().forEach(o=>{const p=plan(o.d).find(x=>x.id===o.x.id);if(!p)return;p.status='carried';p.to=t;(db.plans[t]=db.plans[t]||[]).push(Object.assign({},p,{id:uid(),status:'todo',reason:'',from:o.d,n:(p.n||0)+1,to:undefined}));n++});save();say(T(fa(n)+' کار به امروز منتقل شد','Moved '+n+' items to today'));render()};
 /* برنامه در برابر واقعی (برنامه‌ی ذخیره‌شده‌ی این روز) */
 /* ---------- واقع‌بینی برنامه (v125): کل برنامه‌ی روز در برابر وقت آزاد (بیداری ۷:۰۰–۲۳:۳۰ منهای ساعت‌های پر) ---------- */
+/* نسبت زمان واقعی به برآورد در ۱۴ روز گذشته (فقط وقتی داده‌ی کافی هست) */
+function paceRatio(){let g=0,a=0,days=0;const t=todayISO();
+  for(let i=1;i<=14;i++){const d=addD(t,-i);let p=[];try{p=plan(d)||[]}catch(e){}if(!p.length)continue;const by={};
+    p.forEach(x=>{const w=Math.max(0,+x.goal||(x.start&&x.end?dur(x.start,x.end):0));if(w&&x.actId)by[x.actId]=(by[x.actId]||0)+w});
+    let dg=0,da=0;Object.keys(by).forEach(id=>{const r=actual(d,id);if(r>0){dg+=by[id];da+=r}});if(dg>0){g+=dg;a+=da;days++}}
+  if(days<3||g<300)return 1;return Math.min(2,Math.max(.5,a/g))}
 function realism(d){let p=[];try{p=(plan(d)||[]).filter(x=>!['done','canceled','carried'].includes(x.status))}catch(e){}if(!p.length)return'';
   const need=p.reduce((a,x)=>a+Math.max(0,+x.goal||(x.start&&x.end?dur(x.start,x.end):0)),0);if(!need)return'';
   const t=todayISO();let from=7*60;if(d===t){const n=new Date();from=Math.max(from,n.getHours()*60+n.getMinutes())}else if(d<t)return'';
   const to=23*60+30;let free=Math.max(0,to-from);
   busyOn(d).forEach(b=>{const s=Math.max(from,tm(b.s)),e=Math.min(to,tm(b.e));if(e>s)free-=e-s});free=Math.max(0,free);
-  const bad=need>free,tight=!bad&&need>free*.85,k=bad?'⚠':tight?'🟡':'✅';
-  const msg=bad?T('برنامه '+mm(need-free)+' بیشتر از وقت آزاد است؛ چیزی را به روز دیگر ببر.',mm(need-free)+' more than your free time — move something to another day.'):tight?T('برنامه فشرده است؛ تقریباً همه‌ی وقت آزاد را می‌گیرد.','Tight plan — it takes almost all your free time.'):T('برنامه واقع‌بینانه است.','The plan looks realistic.');
-  return'<div class="c" id="p2real" style="padding:8px 12px"><div class="row" style="align-items:center"><span>'+k+'</span><span style="flex:1"><b>'+T('برنامه','Planned')+' '+mm(need)+'</b> · '+T('وقت آزاد','free')+' ≈ '+mm(free)+'<br><small class="m">'+msg+'</small></span></div></div>'}
+  const rt=paceRatio();const adj=rt>1.1?Math.round(need*rt):need;
+  const bad=adj>free,tight=!bad&&adj>free*.85,k=bad?'⚠':tight?'🟡':'✅';
+  const msg=bad?T('برنامه '+mm(adj-free)+' بیشتر از وقت آزاد است؛ چیزی را به روز دیگر ببر.',mm(adj-free)+' more than your free time — move something to another day.'):tight?T('برنامه فشرده است؛ تقریباً همه‌ی وقت آزاد را می‌گیرد.','Tight plan — it takes almost all your free time.'):T('برنامه واقع‌بینانه است.','The plan looks realistic.');
+  return'<div class="c" id="p2real" style="padding:8px 12px"><div class="row" style="align-items:center"><span>'+k+'</span><span style="flex:1"><b>'+T('برنامه','Planned')+' '+mm(need)+'</b> · '+T('وقت آزاد','free')+' ≈ '+mm(free)+(rt>1.1?'<br><small class="m">'+T('معمولاً ×'+fa(rt.toFixed(1))+' بیشتر از برآوردت طول می‌کشد؛ برآورد واقعی ≈ ','You usually take ×'+rt.toFixed(1)+' longer than planned; realistic estimate ≈ ')+mm(adj)+'</small>':'')+'<br><small class="m">'+msg+'</small></span></div></div>'}
 function vsCard(d){let p=[];try{p=plan(d)||[]}catch(e){}if(!p.length)return'';vd=d;let pr={pc:0,goal:0,act:0};try{pr=prog(d)}catch(e){}
   return'<div class="c">'+daniH('📊','برنامه در برابر واقعی','Planned vs actual')+'<p class="m">'+T('پیشرفت','Progress')+' '+fa(pr.pc)+(LANGEN()?'%':'٪')+' · '+T('هدف','goal')+' '+mm(pr.goal)+' · '+T('واقعی','actual')+' '+mm(pr.act)+'</p>'
    +p.map((x,i)=>{if(!x.actId||!act(x.actId))return'';const a=actual(d,x.actId),g=+x.goal||0;
