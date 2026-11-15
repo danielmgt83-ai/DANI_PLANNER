@@ -25,6 +25,7 @@ async function pkSig(o,pass){const enc=new TextEncoder(),k=await crypto.subtle.i
 function pkVet(o){if(!o||typeof o!=='object'||Array.isArray(o)||o.format!=='dani-themepack'||o.version!==1)return'این فایل بسته‌ی تم DANI نیست (format/version)';
  if(typeof o.id!=='string'||!/^[a-z][a-z0-9_-]{1,23}$/.test(o.id))return'شناسه‌ی بسته نامعتبر است';if(SK_BUILTIN.has(o.id))return'شناسه با تم داخلی یکی است';
  if(typeof o.name!=='string'||!o.name.trim()||o.name.length>30)return'نام بسته نامعتبر است';if(o.qchar!=null&&(typeof o.qchar!=='string'||!/^[a-z][a-z0-9_-]{1,23}$/.test(o.qchar)))return'qchar نامعتبر است';
+ if(o.quotes!=null){if(!Array.isArray(o.quotes)||o.quotes.length>200)return'quotes باید آرایه‌ی حداکثر ۲۰۰ جمله باشد';const qv=qpVet({format:'dani-quotepack',version:1,id:o.id,name:o.name,character:o.qchar||o.id,quotes:o.quotes});if(qv.err)return'quotes: '+qv.err}
  if(o.css!=null&&(typeof o.css!=='string'||o.css.length>3e5))return'css نامعتبر یا بزرگ است';
  if(o.js!=null&&(typeof o.js!=='string'||o.js.length>4e5))return'js نامعتبر یا بزرگ است';
  if(o.icons!=null){if(typeof o.icons!=='object'||Array.isArray(o.icons))return'icons نامعتبر است';for(const[k,v]of Object.entries(o.icons))if(!/^[a-z]{2,8}$/.test(k)||typeof v!=='string'||v.length>3000||/<\s*script|on\w+\s*=|javascript:/i.test(v))return'آیکون نامعتبر: '+k}
@@ -32,6 +33,7 @@ function pkVet(o){if(!o||typeof o!=='object'||Array.isArray(o)||o.format!=='dani
  const r=vetTheme(Object.assign({},o.skin||{},{format:'hamrah-theme',version:1,id:o.id,name:o.name,desc:o.desc,tag:o.tag}),true);return r.ok?null:r.err}
 function pkRegister(o){const r=vetTheme(Object.assign({},o.skin||{},{format:'hamrah-theme',version:1,id:o.id,name:o.name,desc:o.desc,tag:o.tag}),true);if(!r.ok)throw new Error(r.err);
  const d=r.def;d.custom=false;d.pack=true;if(o.qchar)d.qchar=o.qchar;if(o.home)d.home='desk';SKINS[o.id]=d;PK_IC[o.id]=o.icons||{};
+ if(Array.isArray(o.quotes)&&o.quotes.length){const qv=qpVet({format:'dani-quotepack',version:1,id:o.id,name:o.name,character:o.qchar||o.id,author:o.name,quotes:o.quotes});if(qv.pack){qpRegister(qv.pack);d.qchar=o.qchar||o.id}}
  let st=document.getElementById('pk-css-'+o.id);if(st)st.remove();if(o.css){st=document.createElement('style');st.id='pk-css-'+o.id;st.textContent=o.css;document.head.appendChild(st)}
  if(o.js)new Function('PK',o.js)(Object.assign({},PKAPI,{assets:o.assets||{},id:o.id}))}
 async function pkSave(id,rec){const v=JSON.stringify(rec);try{await IMG.set('pack_'+id,v);return'idb'}catch(e){}try{localStorage.setItem('dani_pack_'+id,v);return'ls'}catch(e){}return'mem'}
