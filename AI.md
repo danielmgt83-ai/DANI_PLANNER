@@ -645,3 +645,4 @@ html[data-mx=1] فقط وقتی db.set.mx!==0 و تم ساده است (بدون 
 (v138) plan2.js: centering تب فعال با getBoundingClientRect (RTL-safe).
 
 (v139) plan3.js: tidy پس از render برای زبانه‌ی برنامه‌ی روز؛ ⓘ فقط hidden را عوض می‌کند (گره‌ها حذف نمی‌شوند). state در حافظه (open).
+(v140) plan3.js: note(p,key,anchor) پشت ⓘ برای زبانه‌های bh/cal؛ فقط hidden.
