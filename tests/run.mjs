@@ -201,5 +201,12 @@ await test('ظاهر مدرن: روشن برای تم ساده، خاموش بر
   db.set.skin='dani';H.mx_t();await w(200);o.off=document.documentElement.dataset.mx;H.mx_t();await w(200);o.on=document.documentElement.dataset.mx;return JSON.stringify(o)});
  const o=JSON.parse(r);ok(o.dani==='1'&&o.char==='0'&&o.off==='0'&&o.on==='1','نتیجه '+r)});
 
+await test('خانه v134: موعد خالی یک ردیف، درس خالی پیام دارد، پنجره زیر نوار به‌روزرسانی نمی‌رود',async pg=>{const r=await pg.evaluate(async()=>{const w=ms=>new Promise(r=>setTimeout(r,ms));const o={};
+  db.set.skin='dani';page='home';render();await w(600);const d=document.getElementById('dlcard');o.dl=d?Math.round(d.getBoundingClientRect().height):'none';
+  o.lesson=typeof HSEC!=='undefined'&&HSEC.lesson?!!HSEC.lesson.__h3:'nolesson';
+  daniUpdBanner&&daniUpdBanner('x',()=>{});H.h2_edit();await w(300);const u=document.getElementById('updbar');o.upd=u?Math.round(u.getBoundingClientRect().top):'none';
+  document.querySelector('.ov')?.remove();u&&u.remove();return JSON.stringify(o)});
+ const o=JSON.parse(r);ok((o.dl==='none'||o.dl<120)&&(o.upd==='none'||o.upd<100),'نتیجه '+r)});
+
 console.log('\n'+results.map(r=>r.join(' ')).join('\n')+'\n\n'+(results.length-fails)+' / '+results.length+' موفق');
 await browser.close();srv.close();process.exit(fails?1:0);
