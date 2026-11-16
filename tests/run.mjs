@@ -219,6 +219,7 @@ await test('امروز v136: کارت تب‌دار، همه‌ی دکمه‌ه�
  const o=JSON.parse(r);ok(o.tab&&o.tl&&o.en&&o.rs&&o.full&&o.off,'نتیجه '+r)});
 
 await test('برنامه v138: تب فعال در هر چهار تب کاملاً در صفحه دیده می‌شود',async pg=>{const r=await pg.evaluate(async()=>{const o=[];for(const t of ['day','exp','bh','cal']){daniP2Go(t,todayISO());await new Promise(r=>setTimeout(r,200));const a=document.querySelector('.p2nav .p,.p2nav .on');const x=a.getBoundingClientRect();o.push(x.left>=0&&x.right<=innerWidth+1)}return o.join()});ok(r==='true,true,true,true','نتیجه '+r)});
+await test('برنامه v139: ⓘ راهنما را باز/بسته می‌کند و دکمه‌های ساعت‌ها هست',async pg=>{const r=await pg.evaluate(async()=>{daniP2Go('day',todayISO());await new Promise(x=>setTimeout(x,300));const q=s=>document.querySelector(s);const p=[...document.querySelectorAll('[data-p3]')];const h0=p.every(e=>e.hidden);q('.p3i[data-k=ins]').click();const o=q('[data-p3=ins]').hidden===false;return{n:p.length,h0,o,arr:!!q('[data-a=tp_arr]'),clr:!!q('[data-a=tp_clr]'),sav:!!q('[data-a=tp_save]')}});if(r.n!==2||!r.h0||!r.o||!r.arr||!r.clr||!r.sav)throw new Error(JSON.stringify(r))});
 
 console.log('\n'+results.map(r=>r.join(' ')).join('\n')+'\n\n'+(results.length-fails)+' / '+results.length+' موفق');
 await browser.close();srv.close();process.exit(fails?1:0);
