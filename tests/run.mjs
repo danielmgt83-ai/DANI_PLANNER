@@ -208,5 +208,15 @@ await test('خانه v134: موعد خالی یک ردیف، درس خالی پ�
   document.querySelector('.ov')?.remove();u&&u.remove();return JSON.stringify(o)});
  const o=JSON.parse(r);ok((o.dl==='none'||o.dl<120)&&(o.upd==='none'||o.upd<100),'نتیجه '+r)});
 
+await test('امروز v136: کارت تب‌دار، همه‌ی دکمه‌ها در تب خودشان دیده می‌شوند، خاموش‌شدن دو کارت جدا برمی‌گرداند',async pg=>{const r=await pg.evaluate(async()=>{const w=ms=>new Promise(r=>setTimeout(r,ms));const o={};
+  db.set.skin='dani';db.set.tdt=1;const t=todayISO();db.acts.forEach(a=>a.active=true);db.entries.push({id:uid(),date:t,actId:db.acts[0].id,subId:'',start:'07:00',end:'08:30',min:90});
+  const D=db.set.dy=db.set.dy||{};D.hide=(D.hide||[]).filter(x=>['tl','ed'].indexOf(x)<0);page='day';render();await w(300);
+  o.tab=!!document.getElementById('dytab');
+  for(const k of ['tl','en','rs']){H.td3_tab(document.querySelector('#dytab [data-t='+k+']'));await w(50);const bs=[...document.querySelectorAll('#dytab [data-tp='+k+'] button')];o[k]=bs.length>0&&bs.every(b=>b.getBoundingClientRect().width>0)}
+  o.full=!!document.querySelector('#dytab [data-r=eod]');
+  H.td3_t();await w(300);o.off=!document.getElementById('dytab')&&document.querySelectorAll('#pg>.c.dyc').length>=2;
+  db.set.tdt=1;return JSON.stringify(o)});
+ const o=JSON.parse(r);ok(o.tab&&o.tl&&o.en&&o.rs&&o.full&&o.off,'نتیجه '+r)});
+
 console.log('\n'+results.map(r=>r.join(' ')).join('\n')+'\n\n'+(results.length-fails)+' / '+results.length+' موفق');
 await browser.close();srv.close();process.exit(fails?1:0);
