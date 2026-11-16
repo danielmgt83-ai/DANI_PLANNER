@@ -643,3 +643,5 @@ html[data-mx=1] فقط وقتی db.set.mx!==0 و تم ساده است (بدون 
 (v137) index.html: متای iOS PWA (capable, title DANI, status-bar black). اپ native iOS هنوز نیست؛ مسیر PWA در Safari.
 
 (v138) plan2.js: centering تب فعال با getBoundingClientRect (RTL-safe).
+
+(v139) plan3.js: tidy پس از render برای زبانه‌ی برنامه‌ی روز؛ ⓘ فقط hidden را عوض می‌کند (گره‌ها حذف نمی‌شوند). state در حافظه (open).
