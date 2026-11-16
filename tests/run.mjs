@@ -218,5 +218,7 @@ await test('امروز v136: کارت تب‌دار، همه‌ی دکمه‌ه�
   db.set.tdt=1;return JSON.stringify(o)});
  const o=JSON.parse(r);ok(o.tab&&o.tl&&o.en&&o.rs&&o.full&&o.off,'نتیجه '+r)});
 
+await test('برنامه v138: تب فعال در هر چهار تب کاملاً در صفحه دیده می‌شود',async pg=>{const r=await pg.evaluate(async()=>{const o=[];for(const t of ['day','exp','bh','cal']){daniP2Go(t,todayISO());await new Promise(r=>setTimeout(r,200));const a=document.querySelector('.p2nav .p,.p2nav .on');const x=a.getBoundingClientRect();o.push(x.left>=0&&x.right<=innerWidth+1)}return o.join()});ok(r==='true,true,true,true','نتیجه '+r)});
+
 console.log('\n'+results.map(r=>r.join(' ')).join('\n')+'\n\n'+(results.length-fails)+' / '+results.length+' موفق');
 await browser.close();srv.close();process.exit(fails?1:0);
