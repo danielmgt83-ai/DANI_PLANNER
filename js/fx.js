@@ -6,7 +6,7 @@
 (function(){
 const T=window.daniT;
 const FX=()=>{const s=db.set;if(!s.fx||typeof s.fx!=='object')s.fx={};if(s.fx.hap===undefined)s.fx.hap=1;if(s.fx.anim===undefined)s.fx.anim=1;return s.fx};
-const VER='2026.11.97';
+const VER='2026.11.98';
 /* ---------- لرزش و پاپ ---------- */
 const HAP=/^(qk_go|nx_go|nx_sw|pf_add|tp_ap|bin_rs|ex_save|ab_now|ql_|pm_|tm_|tstart|tfinish|hab|ob_log|ob_go|dnd_set|ls_now|dk_)/;
 const reduce=()=>{try{return matchMedia('(prefers-reduced-motion: reduce)').matches}catch(e){return false}};
@@ -19,6 +19,7 @@ st.textContent='@keyframes fxpop{0%{transform:scale(1)}40%{transform:scale(.92)}
 document.head.appendChild(st);
 /* ---------- چه چیزی تازه است ---------- */
 const WN=[
+ ['🗓','صفحه‌ی برنامه جمع‌وجورتر شد: راهنماها پشت دکمه‌ی ⓘ، ردیف «اخیراً» قابل‌کشیدن، دکمه‌های ساعت‌ها در یک ردیف و کارت‌های بسته باریک‌تر؛ هیچ قابلیتی کم نشد.','Plan page is tidier: hints behind an ⓘ button, a swipeable “Recent” row, time buttons in one row and slimmer closed cards; nothing was removed.'],
  ['🧭','صفحه‌ی برنامه: نوار تب‌ها (برنامه‌ی روز، توقع، ساعت پر…) حالا همیشه تب فعال را وسط و قابل‌دیدن نگه می‌دارد؛ قبلاً در بعضی تب‌ها از صفحه بیرون می‌رفت.','Plan page: the tab strip now keeps the active tab centred and visible; before, on some tabs it scrolled off-screen.'],
  ['🍎','آماده‌تر برای آیفون: بعد از «افزودن به صفحه‌ی اصلی» در Safari، برنامه تمام‌صفحه و با اسم DANI باز می‌شود.','Better on iPhone: after "Add to Home Screen" in Safari the app opens full-screen with the name DANI.'],
  ['🗂','صفحه‌ی امروز: «تایم‌لاین»، «فهرست ثبت‌ها» و «نتیجه‌ی امروز» حالا یک کارت با سه تب‌اند؛ عدد «ثبت‌شده» همیشه بالای کارت است و هیچ دکمه‌ای کم نشد. خاموش‌کردن: شخصی‌سازی صفحه‌ی امروز ← «کارت تب‌دار».','Today page: "Timeline", "Entries" and "Result" are now one card with three tabs; the logged-time number always stays on top and no button was removed. Turn off: Customize Today → "Tabbed card".'],
