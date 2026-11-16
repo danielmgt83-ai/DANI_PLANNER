@@ -636,3 +636,6 @@ html[data-mx=1] فقط وقتی db.set.mx!==0 و تم ساده است (بدون 
 کارت موعد خالی یک ردیف (:has(>p[data-ecta]))؛ HSEC.lesson.r خالی ← پیام؛ لایه‌های شناور هنگام .ov کنار می‌روند. عنوان‌ها همان BH دوزبانه‌ی فعلی‌اند و دست نخورده‌اند.
 
 (v135) daily.js SECS.ls: fallback به HSEC.lesson.r() وقتی homeParts().ls خالی است.
+
+### js/today3.js (v136)
+پس از render روی صفحه‌ی day: Timeline+Result(+Entries) ← #dytab با تب. گره‌ها move می‌شوند. db.set.tdt=0 خاموش. اسم‌ها/عنوان‌ها همان BH فعلی.
