@@ -639,3 +639,5 @@ html[data-mx=1] فقط وقتی db.set.mx!==0 و تم ساده است (بدون 
 
 ### js/today3.js (v136)
 پس از render روی صفحه‌ی day: Timeline+Result(+Entries) ← #dytab با تب. گره‌ها move می‌شوند. db.set.tdt=0 خاموش. اسم‌ها/عنوان‌ها همان BH فعلی.
+
+(v137) index.html: متای iOS PWA (capable, title DANI, status-bar black). اپ native iOS هنوز نیست؛ مسیر PWA در Safari.
