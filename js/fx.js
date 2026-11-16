@@ -6,7 +6,7 @@
 (function(){
 const T=window.daniT;
 const FX=()=>{const s=db.set;if(!s.fx||typeof s.fx!=='object')s.fx={};if(s.fx.hap===undefined)s.fx.hap=1;if(s.fx.anim===undefined)s.fx.anim=1;return s.fx};
-const VER='2026.11.93';
+const VER='2026.11.94';
 /* ---------- لرزش و پاپ ---------- */
 const HAP=/^(qk_go|nx_go|nx_sw|pf_add|tp_ap|bin_rs|ex_save|ab_now|ql_|pm_|tm_|tstart|tfinish|hab|ob_log|ob_go|dnd_set|ls_now|dk_)/;
 const reduce=()=>{try{return matchMedia('(prefers-reduced-motion: reduce)').matches}catch(e){return false}};
@@ -19,6 +19,7 @@ st.textContent='@keyframes fxpop{0%{transform:scale(1)}40%{transform:scale(.92)}
 document.head.appendChild(st);
 /* ---------- چه چیزی تازه است ---------- */
 const WN=[
+ ['📖','«شخصی‌سازی صفحه‌ی امروز»: گزینه‌ی «درس بعدی (آکادمی)» حالا در تم‌هایی که خانه‌ی اختصاصی ندارند هم کارت درس بعدی را نشان می‌دهد (قبلاً تیک می‌خورد ولی چیزی نمی‌آمد).','"Customize Today": the "Next lesson (Academy)" option now shows the next-lesson card also in themes without their own home (it used to be ticked but showed nothing).'],
  ['🧹','خانه: کارت «موعد بعدی» وقتی موعدی نیست یک ردیف کوچک می‌شود (وقتی موعد داری همان کارت کامل با هشدارها و ظاهرها). «درس بعدی (آکادمی)» وقتی درسی نیست پیام نشان می‌دهد. پنجره‌ی شخصی‌سازی دیگر زیر نوار به‌روزرسانی و دکمه‌ی راهنما نمی‌رود.','Home: the "Next deadline" card collapses to one slim row when you have no deadline (with deadlines you still get the full card, alerts and styles). "Next lesson (Academy)" shows a message when there is no lesson. The customize window is no longer covered by the update bar and help button.'],
  ['🎯','کارت «بعدی چی؟» دیگر خودش در خانه نیست (بعد از ادغام تکراری بود). هنوز در برگه‌ی «بعدی چی؟»ی نوار پایین و با «شخصی‌سازی خانه» قابل‌روشن‌کردن است.','The "What next?" card is no longer on Home by default (it duplicated the merged cards). It is still in the bottom toolbar sheet and can be turned on from Customize home.'],
  ['✨','ظاهر مدرن (مرحله‌ی ۱): کارت‌ها، عنوان‌ها، دکمه‌ها و ورودی‌ها نرم‌تر و گردتر شدند، با فاصله‌ی بهتر. فقط برای تم‌های ساده‌ی داخلی؛ تم‌های شخصیت‌دار ظاهر خودشان را نگه می‌دارند. کلید: تنظیمات ← ظاهر و تم.','Modern look (step 1): cards, titles, buttons and inputs are softer and rounder with better spacing. Only for the plain built-in themes; character themes keep their own look. Switch: Settings → Look & themes.'],
