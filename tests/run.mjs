@@ -226,6 +226,7 @@ await test('v142: رندر دوباره اسکرول و کارت‌های باز
  /* details ساخته‌ی render نیست؛ پس کارت واقعی صفحه را امتحان می‌کنیم */
  const dd=document.querySelector('#pg details');if(dd){dd.open=true;const k=dd.id||dd.querySelector('summary').textContent.replace(/\s+/g,' ').trim();window.scrollTo(0,300);render();await new Promise(x=>setTimeout(x,300));const d2=[...document.querySelectorAll('#pg details')].find(e=>(e.id||e.querySelector('summary').textContent.replace(/\s+/g,' ').trim())===k);o.op=!!(d2&&d2.open)}else o.op=true;
  page='home';render();window.scrollTo(0,0);return o});if(r.y0<300||Math.abs(r.y1-r.y0)>3||!r.op)throw new Error(JSON.stringify(r))});
+await test('امروز v143: کارت ثبت فعالیت اگر داخل تم هم باشد (پومودورو/ثبت سریع) تکرار نمی‌شود',async pg=>{const r=await pg.evaluate(async()=>{const o=deskHTML,res={};for(const m of ['pm','ql']){H.dy_mode({dataset:{m}});deskHTML=function(){return '<div class="dk"><div class="c"><h3>Hero</h3></div>'+window.daniLogCard()+'</div>'};page='day';render();await new Promise(x=>setTimeout(x,250));res[m]=document.querySelectorAll('#pg [data-a=dy_mode][data-m=pm]').length;deskHTML=o}H.dy_mode({dataset:{m:'sw'}});page='home';render();return res});if(r.pm!==1||r.ql!==1)throw new Error(JSON.stringify(r))});
 
 console.log('\n'+results.map(r=>r.join(' ')).join('\n')+'\n\n'+(results.length-fails)+' / '+results.length+' موفق');
 await browser.close();srv.close();process.exit(fails?1:0);
