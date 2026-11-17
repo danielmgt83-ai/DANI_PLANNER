@@ -159,8 +159,8 @@ await test('تنظیمات: فهرست، صفحه‌ی بخش و برگشت (چ�
 
 await test('پروژه‌ها: بخش‌های موعد برچسب‌دار، چیزی گم نمی‌شود، باز بودن حفظ می‌شود',async pg=>{const r=await pg.evaluate(()=>{const t=todayISO();zDL().items.push({id:'dQ',title:'T',dt:addD(t,9),tm:'09:00',al:[0],cat:''});save();page='pj';render();const m=document.getElementById('dlmv');
   const ids=['df-t','dlhub','dlfc','df-sub','df-al','df-n'].every(i=>document.getElementById(i)),direct=[...m.children].filter(c=>c.tagName!=='SUMMARY'&&!c.classList.contains('pjs')).length,secs=m.querySelectorAll('.pjs').length;
-  H.pjn_go({dataset:{k:'alerts'}});render();const keep=document.getElementById('dlmv').open&&document.getElementById('pjs-alerts').open;return JSON.stringify({ids,direct,secs,keep,jump:!!document.getElementById('pjjump')})});
- const o=JSON.parse(r);ok(o.ids&&o.direct===0&&o.secs>=5&&o.keep&&o.jump,'نتیجه '+r)});
+  H.dl_hub({dataset:{}});const keep=document.getElementById('dlmv').open&&!document.getElementById('dlmv').hidden;return JSON.stringify({ids,direct,secs,keep,jump:!!document.getElementById('pjjump')})});
+ const o=JSON.parse(r);ok(o.ids&&o.direct===0&&o.secs>=3&&o.keep,'نتیجه '+r)});
 
 await test('تایمر واحد: نوار کوچک، صفحه‌ی تمرکز با دو ظاهر، پایان',async pg=>{const r=await pg.evaluate(async()=>{const w=ms=>new Promise(r=>setTimeout(r,ms));const a=db.acts.find(x=>x.active&&!x.arch)||db.acts[0];TM.start('cd',a.id,'',25);render();await w(700);
   const o={bar:!!document.getElementById('txbar')};H.tx_open();await w(100);o.foc=!!document.getElementById('tx-foc');o.d=(document.getElementById('tx-d')||{}).textContent;o.ring=!!document.getElementById('tx-arc');
@@ -228,6 +228,15 @@ await test('v142: رندر دوباره اسکرول و کارت‌های باز
  page='home';render();window.scrollTo(0,0);return o});if(r.y0<300||Math.abs(r.y1-r.y0)>3||!r.op)throw new Error(JSON.stringify(r))});
 await test('امروز v143: کارت ثبت فعالیت اگر داخل تم هم باشد (پومودورو/ثبت سریع) تکرار نمی‌شود',async pg=>{const r=await pg.evaluate(async()=>{const o=deskHTML,res={};for(const m of ['pm','ql']){H.dy_mode({dataset:{m}});deskHTML=function(){return '<div class="dk"><div class="c"><h3>Hero</h3></div>'+window.daniLogCard()+'</div>'};page='day';render();await new Promise(x=>setTimeout(x,250));res[m]=document.querySelectorAll('#pg [data-a=dy_mode][data-m=pm]').length;deskHTML=o}H.dy_mode({dataset:{m:'sw'}});page='home';render();return res});if(r.pm!==1||r.ql!==1)throw new Error(JSON.stringify(r))});
 await test('مسیر روشن v144: پیش‌فرض خاموش؛ چهار قدم، ذخیره، پایان و ثبت شدت بعد',async pg=>{const r=await pg.evaluate(async()=>{const o={};page='day';render();o.off=DANI_DY().hide.includes('wp')&&!document.getElementById('cpcard');DANI_DY().hide=DANI_DY().hide.filter(k=>k!=='wp');db.set.cpw={list:[]};render();const q=(a,n)=>document.querySelector('#cpcard [data-a='+a+']'+(n?'[data-n="'+n+'"]':''));q('cp_new').click();const t=document.getElementById('cp-t');t.value='نگرانی آزمون';t.dispatchEvent(new Event('input',{bubbles:true}));q('cp_n1').click();q('cp_n2').click();document.querySelector('#cpcard [data-n=ctl]').click();q('cp_n3').click();const s=document.getElementById('cp-s');s.value='حل ده تست';s.dispatchEvent(new Event('input',{bubbles:true}));q('cp_save').click();o.n=db.set.cpw.list.length;q('cp_end').click?0:0;document.querySelector('#cpcard [data-a=cp_end][data-st=done]').click();document.querySelector('#cpcard [data-a=cp_s1][data-n="2"]').click();const w=db.set.cpw.list[0];o.w=[w.st,w.s0,w.s1];DANI_DY().hide.push('wp');db.set.cpw={list:[]};page='home';render();return o});if(!r.off||r.n!==1||r.w[0]!=='done'||r.w[2]!==2)throw new Error(JSON.stringify(r))});
+await test('پروژه‌ها v145: سوییچ پروژه/موعد، ردیف بسته‌ی پروژه، چهار زبانه و سه گروه موعد',async pg=>{const r=await pg.evaluate(async()=>{const w=()=>new Promise(x=>setTimeout(x,350));const o={};const t=todayISO();const z=zDL();z.items.push({id:'t3d1',name:'x',dt:addD(t,20)});const a=db.acts.filter(x=>x.cat==='learn')[0];db.mods.pj.items.push({id:'t3p1',name:'پروژه‌ی تست',due:addD(t,30),hrs:20,from:addD(t,-2),parts:a?[{id:'t3x',a:a.id,s:[],hrs:20}]:[]});
+ daniPj3.seg='pj';daniPj3.open='';page='pj';render();await w();const q=s=>document.querySelector(s);
+ o.card=!!q('.pjc .pj3d');o.closed=!q('.pj3d').open;o.dlHidden=q('#dlmv').hidden;
+ q('.pj3d summary').click();await w();o.opened=q('.pj3d').open;o.tabs=document.querySelectorAll('.pj3d .pj3t [data-t]').length;
+ q('.pj3d [data-a=pj3_tab][data-t=ed]').click();o.edBtn=!!q('.pj3d [data-pane=ed] [data-a=pj_ed]');
+ q('.pj3d [data-a=pj3_tab][data-t=hr]').click();o.hr=!!q('.pj3d [data-pane=hr] [data-a=pj_hnew]')&&!!q('.pj3d [data-pane=hr] [data-a=pj_rnew]');
+ q('[data-a=pj3_seg][data-k=dl]').click();await w();o.dlShown=!q('#dlmv').hidden;o.groups=document.querySelectorAll('#dlmv .pj3g').length;o.pjHidden=[...document.querySelectorAll('#pg>.pjc')].every(c=>c.hidden);
+ daniPj3.seg='pj';page='home';render();db.mods.pj.items=db.mods.pj.items.filter(x=>x.id!=='t3p1');z.items=z.items.filter(x=>x.id!=='t3d1');return o});
+ if(!r.card||!r.closed||!r.dlHidden||!r.opened||r.tabs!==4||!r.edBtn||!r.hr||!r.dlShown||r.groups!==3||!r.pjHidden)throw new Error(JSON.stringify(r))});
 
 console.log('\n'+results.map(r=>r.join(' ')).join('\n')+'\n\n'+(results.length-fails)+' / '+results.length+' موفق');
 await browser.close();srv.close();process.exit(fails?1:0);
