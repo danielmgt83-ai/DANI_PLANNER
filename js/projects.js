@@ -140,7 +140,7 @@ try{const st=document.createElement('style');st.textContent='.fcb{border:1px sol
 function projCard(p,v){const s=stats(p,v),ps=parts(p);
   let h='<div class="c pjc" style="margin-top:10px"><div class="row"><b style="flex:1;min-width:0">'+esc(p.name)+'</b>'+(s.st?'<span class="chip on" style="background:'+s.col+'22;color:'+s.col+'">'+s.st+'</span>':'')+'</div>';
   h+='<div class="m">'+(s.d?T('موعد','Due')+' '+fmtD(s.d)+' · '+(s.over?T('گذشته','past'):T(fa(s.left)+' روز مانده',s.left+' days left')):T('بدون موعد','No deadline'))+(s.bud?' · '+T('بودجه','Budget')+' '+H1(s.bud)+' '+T('ساعت','h'):'')+'</div>';
-  if(s.bud)h+=bar(s.spent,s.bud,s.col)+'<div class="m">'+T('انجام‌شده','Done')+' '+mm(s.spent)+' '+T('از','of')+' '+mm(s.bud)+' · '+T('مانده','left')+' '+mm(s.rem)+(s.perDay&&!s.over?' · '+T('آهنگ لازم','pace')+' '+mm(s.perDay)+'/'+T('روز','day'):'')+'</div>';
+  if(s.bud)h+=bar(s.spent,s.bud,s.col)+'<div class="m">'+T('انجام‌شده','Done')+' '+mm(s.spent)+' '+T('از','of')+' '+mm(s.bud)+' · '+T('مانده','left')+' '+mm(s.rem)+'</div>';
   else h+='<div class="m">'+T('جمع ثبت‌شده','Logged')+' '+mm(s.spent)+' · '+T('برای نمایش آهنگ، بودجه‌ی ساعت بگذار.','set an hour budget to see the pace.')+'</div>';
   h+='<div class="dyex">'+PN[v]+': '+(s.bud?T('لازم','target')+' <b>'+mm(s.tgt)+'</b> · ':'')+T('انجام','done')+' <b>'+mm(s.done)+'</b>'+(s.bud&&s.tgt?bar(s.done,s.tgt,'#3b82f6'):'')+'</div>';
   h+=fcHTML(p);

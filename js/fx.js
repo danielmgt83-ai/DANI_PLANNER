@@ -6,7 +6,7 @@
 (function(){
 const T=window.daniT;
 const FX=()=>{const s=db.set;if(!s.fx||typeof s.fx!=='object')s.fx={};if(s.fx.hap===undefined)s.fx.hap=1;if(s.fx.anim===undefined)s.fx.anim=1;return s.fx};
-const VER='2026.11.103';
+const VER='2026.11.104';
 /* ---------- لرزش و پاپ ---------- */
 const HAP=/^(qk_go|nx_go|nx_sw|pf_add|tp_ap|bin_rs|ex_save|ab_now|ql_|pm_|tm_|tstart|tfinish|hab|ob_log|ob_go|dnd_set|ls_now|dk_)/;
 const reduce=()=>{try{return matchMedia('(prefers-reduced-motion: reduce)').matches}catch(e){return false}};
@@ -19,6 +19,7 @@ st.textContent='@keyframes fxpop{0%{transform:scale(1)}40%{transform:scale(.92)}
 document.head.appendChild(st);
 /* ---------- چه چیزی تازه است ---------- */
 const WN=[
+ ['🎓','«پروژه‌ها» خیلی جمع‌وجور شد: سوییچ «پروژه‌ها | موعدها»، هر پروژه یک ردیف با چهار زبانه (وضعیت، بخش‌ها، عادت و یادآوری، ویرایش) و موعدها در سه گروه؛ هیچ قابلیتی کم نشد.','Projects is much tidier: a “Projects | Deadlines” switch, each project is one row with four tabs, and deadlines in three groups; nothing was removed.'],
  ['🧭','ابزار تازه‌ی اختیاری «مسیر روشن / Clear Path»: نگرانی را در چهار قدم به یک اقدام کوچک تبدیل کن و به برنامه‌ی امروز بفرست. در «شخصی‌سازی امروز» روشنش کن.','New optional tool “Clear Path”: turn a worry into one small action in four steps and send it to today\'s plan. Turn it on in “Customize Today”.'],
  ['🧩','کپی‌شدن کارت «ثبت فعالیت» (وقتی پومودورو یا ثبت سریع را می‌زدی) درست شد: فقط یک کارت می‌ماند.','Fixed the duplicated “Activity Log” card (when tapping Pomodoro or Quick log): only one card remains.'],
  ['📌','دیگر صفحه با زدن دکمه‌ها (پومودورو، ثبت سریع و …) به بالا نمی‌پرد و کارت‌های جمع‌شونده‌ای که باز کرده‌ای بسته نمی‌شوند.','The page no longer jumps to the top when you tap buttons (Pomodoro, Quick log…), and collapsible cards you opened stay open.'],
