@@ -650,3 +650,4 @@ html[data-mx=1] فقط وقتی db.set.mx!==0 و تم ساده است (بدون 
 (v142) keep3.js: رپر render بیرونی؛ scroll+details-open حفظ. لاگ Chrome = نبود dashboard-planner.js (آپلود ناقص) — آپلود همه‌ی فایل‌ها در یک commit.
 (v143) daily.js homeParts: حذف کامل #dytr/dy_mode از deskHTML تم (باگ کپی Activity Log در حالت pm/ql).
 (v144) clearpath.js: SECS.wp از طریق window.DANI_SECS؛ داده db.set.cpw.list؛ پیش‌فرض hidden.
+(v145) pj3.js: سوییچ pj/dl، accordion پروژه با ۴ زبانه، ۳ گروه موعد؛ state در window.daniPj3؛ H.dl_hub هوک شده.
