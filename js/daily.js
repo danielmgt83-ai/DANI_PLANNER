@@ -12,7 +12,8 @@ const NV=()=>{const s=db.set;if(!s.nv||typeof s.nv!=='object')s.nv={mode:'classi
 const simple=()=>true;
 const DY=()=>{const s=db.set;if(!s.dy||typeof s.dy!=='object')s.dy={};const o=s.dy;if(!Array.isArray(o.hide))o.hide=[];if(o.gaps===undefined)o.gaps=1;const ALL=['th','sp','pl','tr','tl','ed','ls','qt','wk','cp','dl','nt','wp'];if(!Array.isArray(o.order))o.order=ALL.slice();if(!Array.isArray(o.seen))o.seen=['sp','pl','tr','tl','ed'];
   if(o.order.includes('th')===false&&!o.seen.includes('th'))o.order.unshift('th');
-  ALL.forEach(k=>{if(!o.order.includes(k))o.order.push(k);if(!o.seen.includes(k)){o.seen.push(k);if(['wk','cp','dl','nt','wp'].includes(k)&&!o.hide.includes(k))o.hide.push(k)}});return o};
+  ALL.forEach(k=>{if(!o.order.includes(k))o.order.push(k);if(!o.seen.includes(k)){o.seen.push(k);if(['wk','cp','dl','nt'].includes(k)&&!o.hide.includes(k))o.hide.push(k)}});
+  if(!o.wpOn){o.wpOn=1;o.hide=o.hide.filter(k=>k!=='wp');const i=o.order.indexOf('wp');if(i>=0){o.order.splice(i,1);o.order.splice(Math.min(1,o.order.length),0,'wp')}}return o};
 const nowMin=()=>{const d=new Date();return d.getHours()*60+d.getMinutes()};
 const hh=m=>pad(Math.floor(m/60)%24)+':'+pad(m%60);
 
