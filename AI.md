@@ -649,3 +649,4 @@ html[data-mx=1] فقط وقتی db.set.mx!==0 و تم ساده است (بدون 
 (v141) plan3.js tidyPJ: محتوای صفحه‌ی pj دیرتر از render ساخته می‌شود؛ tidy با setTimeout 0 هم اجرا می‌شود (idempotent).
 (v142) keep3.js: رپر render بیرونی؛ scroll+details-open حفظ. لاگ Chrome = نبود dashboard-planner.js (آپلود ناقص) — آپلود همه‌ی فایل‌ها در یک commit.
 (v143) daily.js homeParts: حذف کامل #dytr/dy_mode از deskHTML تم (باگ کپی Activity Log در حالت pm/ql).
+(v144) clearpath.js: SECS.wp از طریق window.DANI_SECS؛ داده db.set.cpw.list؛ پیش‌فرض hidden.
