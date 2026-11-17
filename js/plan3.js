@@ -4,9 +4,20 @@
    ۵) کارت‌های بسته‌ی «تکرارشونده» و «قالب‌ها» باریک‌تر. فقط ظاهر؛ گره‌ها فقط پنهان/جابه‌جا می‌شوند. */
 (function(){'use strict';
 const T=window.daniT||function(a){return a};
-const open={leg:0,ins:0,bz:0,lg:0,dx:0};
+const open={leg:0,ins:0,bz:0,lg:0,dx:0,pj:0};
 function ib(k){const b=document.createElement('button');b.type='button';b.className='chip p3i'+(open[k]?' on':'');b.dataset.a='p3_i';b.dataset.k=k;b.textContent='ⓘ';b.setAttribute('aria-label',T('راهنما','Help'));return b}
+function tidyPJ(){
+ const pg=document.getElementById('pg');if(!pg||!pg.querySelector('#pjjump'))return;
+ const p=[...pg.querySelectorAll(':scope>.c>p.m')].find(x=>/^پروژه = هدف بزرگ|^Project = a big goal/.test(x.textContent.trim()));
+ if(p&&!p.dataset.p3){const c=p.parentElement,rows=c.querySelectorAll(':scope>.row'),r1=rows[0],r2=rows[1];
+  p.dataset.p3='pj';p.hidden=!open.pj;
+  if(r1&&r2){const nw=r2.querySelector('[data-a=pj_ed]');const sp=r2.querySelector(':scope>span[style*=flex]');r1.appendChild(ib('pj'));if(nw)r1.appendChild(nw);if(sp)sp.remove();c.classList.add('p3pj')}}
+ pg.querySelectorAll(':scope>.c').forEach(c=>{
+  if(c.children.length===1&&c.firstElementChild.tagName==='P'&&/^هنوز پروژه‌ای نداری|^No projects yet/.test(c.textContent.trim()))c.classList.add('p3slim');
+  if(c.querySelector(':scope>label.row>input[data-a=pj_td]'))c.classList.add('p3slim')});
+}
 function tidy(){
+ tidyPJ();
  const nav=document.querySelector('#pg .p2nav');if(!nav)return;
  const pg=document.getElementById('pg');
  /* ۱ */
@@ -44,9 +55,11 @@ st.textContent=
  +'#cio-row{flex-wrap:nowrap;gap:5px;align-items:center}#cio-row>*{min-width:0;flex:0 1 auto;font-size:11px;padding:6px 7px;line-height:1.3}#cio-row>.p3i{flex:none;font-size:13px;padding:2px 9px}'
  +'.row:has(>label.chip>input.bz-w){flex-wrap:nowrap;gap:3px}.row:has(>label.chip>input.bz-w)>label.chip{flex:1;min-width:0;padding:6px 0;justify-content:center;gap:2px;display:flex;align-items:center}'
  +'.p2cal .p2c{min-height:0;height:48px;padding:3px 0}'
- +'.c.p3slim{padding:8px 14px}.c.p3slim>.row{margin:0;align-items:center}'
+ +'.c.p3pj>.row{align-items:center;margin-top:6px}.c.p3pj>.row:last-child{flex-wrap:nowrap}.c.p3pj>.row:last-child>.chip{flex:1}'
+ +'#dlmv>summary{display:flex;align-items:center;gap:8px}#dlmv>summary>h3{flex:1;min-width:0;margin:0;font-size:.82em;display:flex;align-items:center;gap:6px;flex-wrap:nowrap}#dlmv>summary>.m{white-space:nowrap}#dlmv:not([open]){padding:6px 14px}'
+ +'.c.p3slim{padding:8px 14px}.c.p3slim>p,.c.p3slim>label{margin:0;font-size:12px}.c.p3slim>.row{margin:0;align-items:center}'
  +'body:has(#pg .p2nav) #pg>details.c:not([open]){padding:6px 14px}'
  +'body:has(#pg .p2nav) #pg>details.c>summary>*{margin-top:0;margin-bottom:0}';
 document.head.appendChild(st);
-{const _r=render;render=function(){const r=_r.apply(this,arguments);try{tidy()}catch(e){console.error('plan3',e)}return r}}
+{const _r=render;render=function(){const r=_r.apply(this,arguments);try{tidy()}catch(e){console.error('plan3',e)}setTimeout(function(){try{tidyPJ()}catch(e){console.error('plan3 pj',e)}},0);return r}}
 })();
