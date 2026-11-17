@@ -6,7 +6,7 @@
 (function(){
 const T=window.daniT;
 const FX=()=>{const s=db.set;if(!s.fx||typeof s.fx!=='object')s.fx={};if(s.fx.hap===undefined)s.fx.hap=1;if(s.fx.anim===undefined)s.fx.anim=1;return s.fx};
-const VER='2026.11.100';
+const VER='2026.11.101';
 /* ---------- لرزش و پاپ ---------- */
 const HAP=/^(qk_go|nx_go|nx_sw|pf_add|tp_ap|bin_rs|ex_save|ab_now|ql_|pm_|tm_|tstart|tfinish|hab|ob_log|ob_go|dnd_set|ls_now|dk_)/;
 const reduce=()=>{try{return matchMedia('(prefers-reduced-motion: reduce)').matches}catch(e){return false}};
@@ -19,6 +19,7 @@ st.textContent='@keyframes fxpop{0%{transform:scale(1)}40%{transform:scale(.92)}
 document.head.appendChild(st);
 /* ---------- چه چیزی تازه است ---------- */
 const WN=[
+ ['📌','دیگر صفحه با زدن دکمه‌ها (پومودورو، ثبت سریع و …) به بالا نمی‌پرد و کارت‌های جمع‌شونده‌ای که باز کرده‌ای بسته نمی‌شوند.','The page no longer jumps to the top when you tap buttons (Pomodoro, Quick log…), and collapsible cards you opened stay open.'],
  ['🎓','«پروژه‌ها» جمع‌وجورتر شد: توضیح بالا پشت ⓘ، دکمه‌ها در دو ردیف، کارت‌های خالی باریک و کارت «موعدها» تک‌خطی؛ هیچ قابلیتی کم نشد.','Projects is tidier: top hint behind ⓘ, buttons in two rows, slim empty cards and a one-line Deadlines card; nothing was removed.'],
  ['📅','برنامه: زبانه‌های «ساعت پر» و «تقویم» هم جمع‌وجور شدند — توضیح‌ها پشت ⓘ، روزهای هفته در یک ردیف، خانه‌های تقویم کوتاه‌تر؛ هیچ قابلیتی کم نشد.','Plan: “Busy” and “Calendar” tabs are tidier — hints behind ⓘ, weekdays in one row, shorter calendar cells; nothing was removed.'],
  ['🗓','صفحه‌ی برنامه جمع‌وجورتر شد: راهنماها پشت دکمه‌ی ⓘ، ردیف «اخیراً» قابل‌کشیدن، دکمه‌های ساعت‌ها در یک ردیف و کارت‌های بسته باریک‌تر؛ هیچ قابلیتی کم نشد.','Plan page is tidier: hints behind an ⓘ button, a swipeable “Recent” row, time buttons in one row and slimmer closed cards; nothing was removed.'],
