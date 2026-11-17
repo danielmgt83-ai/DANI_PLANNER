@@ -171,6 +171,9 @@ function homeParts(){const P={th:'',qt:'',ls:''};try{if(typeof deskHTML!=='funct
   doc.body.querySelectorAll('#dlcard').forEach(e=>{if(e===root)return;const w=e.parentElement;e.remove();if(w&&w!==root&&!w.children.length&&!(w.textContent||'').trim())w.remove()});
   /* کارت‌های هم‌کارِ خانه‌ی قدیمی که یکی‌شان در «امروز» هست: موعد بعدی، ثبت فعالیت، برنامه‌ی زمانی، هدف امروز، خلاصه‌ی امروز */
   const DUP=/موعد بعدی|Next deadline|^(⏱)?\s*(Activity Log|ثبت فعالیت)|Today's Schedule|برنامه‌ی زمانی امروز|Today's Target|هدف امروز|Today's Summary|خلاصه‌ی عملکرد|Today's Notes|یادداشت امروز|Goal Progress|پیشرفت اهداف|^Compare|مقایسه‌ی روزها|Main Focus|تمرکز اصلی|My week|هفته‌ی من/;
+  /* v143: کارت «ثبت فعالیت» یکپارچه (#dytr) اگر داخل خودِ تم هم آمده، کامل برداشته می‌شود (قبلاً فقط تیترش برمی‌خاست و بدنه‌اش بالای صفحه می‌ماند) */
+  doc.body.querySelectorAll('#dytr,#pmcard,[data-a=dy_mode]').forEach(e=>{if(!e.isConnected)return;const c=e.closest('#dytr');if(c&&c!==root){const w=c.parentElement;c.remove();if(w&&w!==root&&!w.children.length&&!(w.textContent||'').trim())w.remove()}});
+  doc.body.querySelectorAll('[data-a=dy_mode]').forEach(e=>{const r=e.closest('.row');const c=r&&r.closest('.c,.dyc');if(c&&c!==root){const w=c.parentElement;c.remove();if(w&&w!==root&&!w.children.length&&!(w.textContent||'').trim())w.remove()}});
   const hasH=x=>!!x.querySelector('h3,h2,.dh');
   [...root.querySelectorAll('h3,h2,.dh')].forEach(h=>{if(!h.isConnected||!DUP.test(h.textContent.replace(/\s+/g,' ').trim()))return;
     let n=h;while(n.parentElement&&n.parentElement!==root&&![...n.parentElement.children].some(x=>x!==n&&hasH(x)))n=n.parentElement;
