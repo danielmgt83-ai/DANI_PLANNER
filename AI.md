@@ -646,3 +646,4 @@ html[data-mx=1] فقط وقتی db.set.mx!==0 و تم ساده است (بدون 
 
 (v139) plan3.js: tidy پس از render برای زبانه‌ی برنامه‌ی روز؛ ⓘ فقط hidden را عوض می‌کند (گره‌ها حذف نمی‌شوند). state در حافظه (open).
 (v140) plan3.js: note(p,key,anchor) پشت ⓘ برای زبانه‌های bh/cal؛ فقط hidden.
+(v141) plan3.js tidyPJ: محتوای صفحه‌ی pj دیرتر از render ساخته می‌شود؛ tidy با setTimeout 0 هم اجرا می‌شود (idempotent).
