@@ -10,9 +10,9 @@ const T=window.daniT;
 const say=(m,b)=>{try{toast(m,b)}catch(e){}};
 const NV=()=>{const s=db.set;if(!s.nv||typeof s.nv!=='object')s.nv={mode:'classic'};if(s.nv.mode!=='simple')s.nv.mode='classic';return s.nv};
 const simple=()=>true;
-const DY=()=>{const s=db.set;if(!s.dy||typeof s.dy!=='object')s.dy={};const o=s.dy;if(!Array.isArray(o.hide))o.hide=[];if(o.gaps===undefined)o.gaps=1;const ALL=['th','sp','pl','tr','tl','ed','ls','qt','wk','cp','dl','nt'];if(!Array.isArray(o.order))o.order=ALL.slice();if(!Array.isArray(o.seen))o.seen=['sp','pl','tr','tl','ed'];
+const DY=()=>{const s=db.set;if(!s.dy||typeof s.dy!=='object')s.dy={};const o=s.dy;if(!Array.isArray(o.hide))o.hide=[];if(o.gaps===undefined)o.gaps=1;const ALL=['th','sp','pl','tr','tl','ed','ls','qt','wk','cp','dl','nt','wp'];if(!Array.isArray(o.order))o.order=ALL.slice();if(!Array.isArray(o.seen))o.seen=['sp','pl','tr','tl','ed'];
   if(o.order.includes('th')===false&&!o.seen.includes('th'))o.order.unshift('th');
-  ALL.forEach(k=>{if(!o.order.includes(k))o.order.push(k);if(!o.seen.includes(k)){o.seen.push(k);if(['wk','cp','dl','nt'].includes(k)&&!o.hide.includes(k))o.hide.push(k)}});return o};
+  ALL.forEach(k=>{if(!o.order.includes(k))o.order.push(k);if(!o.seen.includes(k)){o.seen.push(k);if(['wk','cp','dl','nt','wp'].includes(k)&&!o.hide.includes(k))o.hide.push(k)}});return o};
 const nowMin=()=>{const d=new Date();return d.getHours()*60+d.getMinutes()};
 const hh=m=>pad(Math.floor(m/60)%24)+':'+pad(m%60);
 
@@ -153,6 +153,7 @@ H.dy_su=e=>{const s=SETUP[+e.dataset.i][2];if(s==='ob'){if(H.ob_open)H.ob_open()
 H.dy_sudone=()=>{DY().setup=1;save();render()};
 const OPT=['wk','cp','dl','nt'];
 const SECS={th:[()=>homeParts().th,T('تم: سلام، هیرو، گالری','Theme: greeting, hero, gallery')],qt:[()=>homeParts().qt,T('یک اندیشه (جمله‌ی تم)','A thought (theme quote)')],ls:[()=>homeParts().ls||(typeof HSEC!=='undefined'&&HSEC.lesson&&HSEC.lesson.r?HSEC.lesson.r():''),T('درس بعدی (آکادمی)','Next lesson (Academy)')],wk:[()=>weekCard(),T('هفته‌ی من (هدف هفتگی فعالیت‌ها)','My week (weekly activity goals)')],cp:[()=>hCompare(),T('مقایسه‌ی روزها و هفته‌ها','Compare days & weeks')],dl:[()=>hDl(),T('موعد بعدی','Next deadline')],nt:[()=>hNoteDesk(),T('یادداشت امروز (کادر)','Today\'s note box')],sp:[secSetup,T('راه‌اندازی','Set-up')],pl:[secPlan,T('برنامه‌ی امروز','Today\'s plan')],tr:[secTrack,T('ثبت فعالیت','Track')],tl:[secTl,T('تایم‌لاین','Timeline')],ed:[secEd,T('نتیجه‌ی امروز','Result')]};
+window.DANI_SECS=SECS;window.DANI_DY=DY;
 H.dy_cfg=()=>{window.__dyCfg=!window.__dyCfg;render()};
 H.dy_sec=e=>{const k=e.dataset.k,h=DY().hide,i=h.indexOf(k);if(i>=0)h.splice(i,1);else h.push(k);save();render()};
 H.dy_mv=e=>{const o=DY().order,i=o.indexOf(e.dataset.k),j=i+(+e.dataset.n);if(i<0||j<0||j>=o.length)return;const t=o[i];o[i]=o[j];o[j]=t;save();render()};
