@@ -273,6 +273,17 @@ await test('آکادمی v148: ۴ بخش، زیرزبانه‌ها همه‌ی �
  H.acd3_go({dataset:{k:'quiz'}});await w();o.crsNav=getComputedStyle(document.querySelector('#crs>.c')).display==='none';
  zMS.acd.tab='review';page='home';render();return o});
  if(r.top!==4||!r.all||!r.clean||!r.addRes||!r.crsNav)throw new Error(JSON.stringify(r))});
+await test('ظاهر و تم v149: ۵ زبانه، هر کارت قدیمی جای مشخص دارد، تم خودکار و مقدار قدیمی روشن/تیره می‌ماند',async pg=>{const r=await pg.evaluate(async()=>{const o={};const w=()=>new Promise(x=>setTimeout(x,300));page='set';stt='look';render();await w();
+ o.tabs=document.querySelectorAll('#lk3 .lk3tabs .chip').length;const where=id=>{const e=document.querySelector(id);const p=e&&e.closest('.lk3p');return p?p.dataset.p:''};
+ o.skin=where('#skincard');o.thmx=where('#thmx');o.mx=where('#mxcard');o.fx=where('#fxcard');
+ const ic=[...document.querySelectorAll('#lk3 .stsec')].map(s=>s.closest('.lk3p').dataset.p);o.ic=ic.join();
+ o.dash=!!document.querySelector('#lk3 .lk3p[data-p=fx] details');
+ o.lf=!!document.querySelector('#lk3 .lk3p[data-p=co] [data-f=th]');
+ H.lk3_p({dataset:{k:'ic'}});o.vis=[...document.querySelectorAll('#lk3 .lk3p')].filter(p=>!p.hidden).map(p=>p.dataset.p).join();
+ H.lk3_p({dataset:{k:'th'}});
+ const old=db.set.th;db.set.th='dark';render();o.dk=document.documentElement.dataset.th;db.set.th='auto';render();o.au=['light','dark'].includes(document.documentElement.dataset.th);db.set.th='light';render();o.lt=document.documentElement.dataset.th;db.set.th=old;
+ o.def=daniThMode&&true;page='home';render();return o});
+ if(r.tabs!==5||r.skin!=='th'||r.thmx!=='th'||r.mx!=='co'||r.fx!=='fx'||!/ic/.test(r.ic)||!r.dash||!r.lf||r.vis!=='ic'||r.dk!=='dark'||!r.au||r.lt!=='light')throw new Error(JSON.stringify(r))});
 await test('مسیر روشن v144: پیش‌فرض خاموش؛ چهار قدم، ذخیره، پایان و ثبت شدت بعد',async pg=>{const r=await pg.evaluate(async()=>{const o={};page='day';render();o.off=!DANI_DY().hide.includes('wp')&&!!document.getElementById('cpcard');DANI_DY().hide=DANI_DY().hide.filter(k=>k!=='wp');db.set.cpw={list:[]};render();const q=(a,n)=>document.querySelector('#cpcard [data-a='+a+']'+(n?'[data-n="'+n+'"]':''));q('cp_new').click();const t=document.getElementById('cp-t');t.value='نگرانی آزمون';t.dispatchEvent(new Event('input',{bubbles:true}));q('cp_n1').click();q('cp_n2').click();document.querySelector('#cpcard [data-n=ctl]').click();q('cp_n3').click();const s=document.getElementById('cp-s');s.value='حل ده تست';s.dispatchEvent(new Event('input',{bubbles:true}));q('cp_save').click();o.n=db.set.cpw.list.length;q('cp_end').click?0:0;document.querySelector('#cpcard [data-a=cp_end][data-st=done]').click();document.querySelector('#cpcard [data-a=cp_s1][data-n="2"]').click();const w=db.set.cpw.list[0];o.w=[w.st,w.s0,w.s1];DANI_DY().hide.push('wp');db.set.cpw={list:[]};page='home';render();return o});if(!r.off||r.n!==1||r.w[0]!=='done'||r.w[2]!==2)throw new Error(JSON.stringify(r))});
 await test('پروژه‌ها v145: سوییچ پروژه/موعد، ردیف بسته‌ی پروژه، چهار زبانه و سه گروه موعد',async pg=>{const r=await pg.evaluate(async()=>{const w=()=>new Promise(x=>setTimeout(x,350));const o={};const t=todayISO();const z=zDL();z.items.push({id:'t3d1',name:'x',dt:addD(t,20)});const a=db.acts.filter(x=>x.cat==='learn')[0];db.mods.pj.items.push({id:'t3p1',name:'پروژه‌ی تست',due:addD(t,30),hrs:20,from:addD(t,-2),parts:a?[{id:'t3x',a:a.id,s:[],hrs:20}]:[]});
  daniPj3.seg='pj';daniPj3.open='';page='pj';render();await w();const q=s=>document.querySelector(s);
