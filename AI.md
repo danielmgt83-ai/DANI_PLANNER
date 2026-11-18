@@ -652,3 +652,4 @@ html[data-mx=1] فقط وقتی db.set.mx!==0 و تم ساده است (بدون 
 (v144) clearpath.js: SECS.wp از طریق window.DANI_SECS؛ داده db.set.cpw.list؛ پیش‌فرض hidden.
 (v145) pj3.js: سوییچ pj/dl، accordion پروژه با ۴ زبانه، ۳ گروه موعد؛ state در window.daniPj3؛ H.dl_hub هوک شده.
 (v146) clearpath.js: برگشت به مسیر (CP.r، db.set.cpw.back، OB/RS کتابخانه‌ی مانع/راه‌حل)؛ errorlog.js: probe فایل ناقص.
+(v147) courses.js: مرکز آزمون (pool با نشانه‌های چندتایی، exam، neg، konkur)؛ rhythm.js: daniStreakDay فقط ثبت مفید.
