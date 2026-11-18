@@ -295,5 +295,26 @@ await test('پروژه‌ها v145: سوییچ پروژه/موعد، ردیف ب
  daniPj3.seg='pj';page='home';render();db.mods.pj.items=db.mods.pj.items.filter(x=>x.id!=='t3p1');z.items=z.items.filter(x=>x.id!=='t3d1');return o});
  if(!r.card||!r.closed||!r.dlHidden||!r.opened||r.tabs!==4||!r.edBtn||!r.hr||!r.dlShown||r.groups!==3||!r.pjHidden)throw new Error(JSON.stringify(r))});
 
+await test('آکادمی مبحث‌محور v150: مجموعه‌ها، پیشنهاد گروه‌بندی، تسلط، فلش‌کارت مبحث، تکراری‌ها',async pg=>{const r=await pg.evaluate(async()=>{const C=daniCourses.state,o={};
+ const mkc=(id,ti)=>({id,title:ti,contentVersion:'1',chapters:[{id:'c1',title:'ف۱'}],topics:[{id:'t1',title:'م۱'}]});
+ ['mba-math-d1','mba-math-d2','gmat-mba','toefl-grammar','grammar-foundation','solo-x'].forEach(id=>C.cache.courses.push(mkc(id,'دوره '+id)));
+ C.cache.lessons.push({id:'zl1',courseId:'toefl-grammar',chapterId:'c1',title:'آزمون تشخیصی',order:1,blocks:[]});
+ C.cache.questions.push({id:'zq1',courseId:'toefl-grammar',type:'single',difficulty:1,lessonIds:['zl1'],topicIds:['t1'],stem:'s',choices:[{id:'a',text:'x'},{id:'b',text:'y'}],answer:{choice:'a'},solution:'ح'});
+ const m=a=>new Map(a.map(x=>[x.id,x]));C.ix.courses=m(C.cache.courses);C.ix.lessons=m(C.cache.lessons);C.ix.questions=m(C.cache.questions);
+ C.loaded=true;C.quiz=null;C.keyId='';C.courseId='';C.lessonId='';
+ localStorage.setItem('dani_ext_index',JSON.stringify([{id:'acadlessons',name:'درس‌های آکادمی',on:true}]));
+ page='acd';zMS.acd.tab='courses';C.tab='home';render();const html=()=>document.getElementById('pg').innerHTML;
+ o.sug=(html().match(/data-a="acd4_mk"/g)||[]).length;o.dup=/محتوای تکراری/.test(html());
+ H.acd4_mk({dataset:{t:'mba'}});H.acd4_mk({dataset:{t:'grammar'}});render();
+ o.cols=zAC().cols.length;o.mba=zAC().cols.find(c=>c.title==='MBA').cids.length;o.gr=zAC().cols.find(c=>c.title==='Grammar').cids.length;
+ o.free=(html().match(/solo-x/)||[]).length>0&&/بدون مجموعه/.test(html());
+ H.acd4_rm({dataset:{k:zAC().cols[0].id,c:'gmat-mba'}});o.rm=zAC().cols[0].cids.length;
+ H.acd4_ext({dataset:{v:'0'}});o.ext=JSON.parse(localStorage.getItem('dani_ext_index'))[0].on===false;
+ C.tab='courses';C.courseId='toefl-grammar';C.lessonId='zl1';render();o.card=/فلش‌کارت‌های این مبحث/.test(html());
+ document.getElementById('a4-b').value='apple | سیب\nbad line\nbook | کتاب';H.acd4_addc({dataset:{l:'zl1'}});
+ o.cards=zAX().cards.filter(c=>c.lid==='zl1').length;o.chip=/🃏/.test((C.lessonId='',C.courseId='toefl-grammar',render(),html()));
+ C.courseId='';page='home';render();return o});
+ if(r.sug!==2||!r.dup||r.cols!==2||r.mba!==3||r.gr!==2||!r.free||r.rm!==2||!r.ext||!r.card||r.cards!==2||!r.chip)throw new Error(JSON.stringify(r))});
+
 console.log('\n'+results.map(r=>r.join(' ')).join('\n')+'\n\n'+(results.length-fails)+' / '+results.length+' موفق');
 await browser.close();srv.close();process.exit(fails?1:0);
