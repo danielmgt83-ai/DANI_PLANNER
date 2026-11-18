@@ -654,3 +654,4 @@ html[data-mx=1] فقط وقتی db.set.mx!==0 و تم ساده است (بدون 
 (v146) clearpath.js: برگشت به مسیر (CP.r، db.set.cpw.back، OB/RS کتابخانه‌ی مانع/راه‌حل)؛ errorlog.js: probe فایل ناقص.
 (v147) courses.js: مرکز آزمون (pool با نشانه‌های چندتایی، exam، neg، konkur)؛ rhythm.js: daniStreakDay فقط ثبت مفید.
 (v148) acd3.js: ناوبری آکادمی در ۴ گروه؛ نماها V[key,group,zMS tab,CR.tab]؛ academy.js کارت‌های کهنه حذف.
+(v149) look3.js: ۵ زبانه برای ظاهر و تم؛ core.js: th='auto' با daniThMode().
