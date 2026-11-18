@@ -587,6 +587,7 @@ function vHome(){
   let h='<div class="g g4"><div class="c"><h3>دوره‌ها</h3><div class="big">'+faN(cs.length)+'</div></div><div class="c"><h3>درس‌های کامل‌شده</h3><div class="big">'+faN(CR.cache.progress.filter(p=>p.done).length)+'</div></div><div class="c"><h3>دقت آزمون‌ها</h3><div class="big">'+(tq?faN(Math.round(ok/tq*100))+'٪':'—')+'</div><div class="m" style="text-align:center">'+faN(tq)+' پاسخ تصحیح‌شده</div></div><div class="c"><h3>اشتباهات باز</h3><div class="big">'+faN(unresolved())+'</div></div></div>';
   if(last){const l=CR.ix.lessons.get(last.id);if(l)h+='<div class="c"><h3>ادامه‌ی مطالعه</h3><b dir="auto">'+E_(l.title)+'</b> <span class="m">· '+E_((CR.ix.courses.get(l.courseId)||{}).title||'')+'</span><div class="row" style="margin-top:8px"><button class="p" data-a="crs_open" data-c="'+E_(l.courseId)+'" data-l="'+E_(l.id)+'">ادامه</button></div></div>'}
   if(act.length)h+='<div class="c"><h3>آزمون نیمه‌تمام</h3>'+act.map(a=>'<div class="row"><span>'+E_((CR.ix.courses.get(a.courseId)||{}).title||a.courseId)+' · '+(a.mode==='exam'?'آزمون':'تمرین')+' · '+faN(a.qids.length)+' سؤال</span><button class="p" data-a="crs_resume" data-id="'+E_(a.id)+'">ادامه</button></div>').join('')+'</div>';
+  if(window.daniAcd4)return h+window.daniAcd4.tree();
   h+=cs.map(c=>{const p=courseProg(c.id);return'<div class="c"><div class="row"><h3 class="sp" dir="auto">'+E_(c.title)+'</h3><span class="m">نسخه‌ی '+E_(c.contentVersion)+'</span></div>'+bar(p.p)+'<div class="m">'+faN(p.done)+' از '+faN(p.n)+' درس · '+faN(questionsOf(c.id).length)+' سؤال</div><div class="row" style="margin-top:8px"><button class="p" data-a="crs_open" data-c="'+E_(c.id)+'">باز کردن</button><button data-a="crs_qstart" data-c="'+E_(c.id)+'" data-s="all" data-m="exam">آزمون جامع</button></div></div>'}).join('');
   return h;
 }
@@ -594,6 +595,7 @@ function vCourses(){
   if(CR.lessonId)return vStudy();
   if(CR.courseId&&course())return vCourse();
   const cs=CR.cache.courses;if(!cs.length)return empty();
+  if(window.daniAcd4)return window.daniAcd4.tree();
   return'<div class="g g2">'+cs.map(c=>{const p=courseProg(c.id);return'<div class="c"><h3 dir="auto">'+E_(c.title)+'</h3><p class="m" dir="auto">'+E_(c.description)+'</p>'+bar(p.p)+'<div class="m">'+faN(c.chapters.length)+' فصل · '+faN(p.n)+' درس · '+faN(questionsOf(c.id).length)+' سؤال · زبان: '+E_(c.language)+'</div><button class="p" data-a="crs_open" data-c="'+E_(c.id)+'" style="margin-top:8px">باز کردن</button></div>'}).join('')+'</div>';
 }
 function vCourse(){
@@ -603,8 +605,8 @@ function vCourse(){
   if(c.prerequisites&&c.prerequisites.length)h+='<div class="m">پیش‌نیاز: '+c.prerequisites.map(x=>E_(x)).join('، ')+'</div>';
   h+='</div>';
   c.chapters.forEach(ch=>{const ls=L.filter(l=>l.chapterId===ch.id),d=ls.filter(l=>{const p=CR.ix.progress.get(l.id);return p&&p.done}).length;
-    h+='<div class="c"><div class="row"><h3 class="sp" dir="auto">'+E_(ch.title)+'</h3><span class="m">'+faN(d)+'/'+faN(ls.length)+'</span><button data-a="crs_qstart" data-c="'+E_(c.id)+'" data-s="chapter:'+E_(ch.id)+'" data-m="practice">تمرین فصل</button><button data-a="crs_qstart" data-c="'+E_(c.id)+'" data-s="chapter:'+E_(ch.id)+'" data-m="exam">آزمون فصل</button></div>'+bar(ls.length?d/ls.length*100:0)+
-    (ls.length?ls.map(l=>{const p=CR.ix.progress.get(l.id),bm=CR.ix.bookmarks.has('b_lesson_'+l.id);return'<div class="cwr"><span>'+(p&&p.done?'✅ ':'⬜ ')+'<a data-a="crs_open" data-c="'+E_(c.id)+'" data-l="'+E_(l.id)+'" tabindex="0" style="cursor:pointer;color:var(--ac)" dir="auto">'+E_(l.title)+'</a> '+(bm?'★ ':'')+stBadge(l)+ctBadge(l)+'</span></div>'}).join(''):'<p class="m">این فصل هنوز درسی ندارد.</p>')+'</div>'});
+    h+='<div class="c"><div class="row"><h3 class="sp" dir="auto">'+E_(ch.title)+'</h3><span class="m">'+faN(d)+'/'+faN(ls.length)+'</span><button data-a="crs_qstart" data-c="'+E_(c.id)+'" data-s="chapter:'+E_(ch.id)+'" data-m="practice">تمرین فصل</button><button data-a="crs_qstart" data-c="'+E_(c.id)+'" data-s="chapter:'+E_(ch.id)+'" data-m="exam">آزمون فصل</button></div>'+bar(ls.length?d/ls.length*100:0)+(window.daniAcd4?window.daniAcd4.chapterInfo(c.id,ch,ls):'')+
+    (ls.length?ls.map(l=>{const p=CR.ix.progress.get(l.id),bm=CR.ix.bookmarks.has('b_lesson_'+l.id);return'<div class="cwr"><span>'+(p&&p.done?'✅ ':'⬜ ')+'<a data-a="crs_open" data-c="'+E_(c.id)+'" data-l="'+E_(l.id)+'" tabindex="0" style="cursor:pointer;color:var(--ac)" dir="auto">'+E_(l.title)+'</a> '+(bm?'★ ':'')+stBadge(l)+ctBadge(l)+(window.daniAcd4?window.daniAcd4.lessonChip(l):'')+'</span></div>'}).join(''):'<p class="m">این فصل هنوز درسی ندارد.</p>')+'</div>'});
   return h;
 }
 function vStudy(){
@@ -621,6 +623,7 @@ function vStudy(){
   h+=srcLine(l.sourceRef);
   h+='<div class="row" style="margin-top:10px"><button class="'+(p.done?'':'p')+'" data-a="crs_done" data-l="'+E_(l.id)+'">'+(p.done?'↩ برگرداندن به ناتمام':'✓ این درس را تمام کردم')+'</button><button data-a="crs_bm" data-k="lesson" data-r="'+E_(l.id)+'">'+(CR.ix.bookmarks.has('b_lesson_'+l.id)?'★ نشانک شد':'☆ نشانک')+'</button></div></div>';
   h+='<div class="c"><h3>تمرین و تست این درس</h3>'+(qs.length?'<div class="m">'+faN(by(1))+' آسان · '+faN(by(2))+' متوسط · '+faN(by(3))+' دشوار</div><div class="row" style="margin-top:8px">'+[1,2,3].map(d=>by(d)?'<button data-a="crs_qstart" data-c="'+E_(c.id)+'" data-s="lesson:'+E_(l.id)+'" data-m="practice" data-d="'+d+'">تمرین '+['آسان','متوسط','دشوار'][d-1]+'</button>':'').join('')+'<button class="p" data-a="crs_qstart" data-c="'+E_(c.id)+'" data-s="lesson:'+E_(l.id)+'" data-m="exam">آزمون این درس</button></div>':'<p class="m">هنوز سؤالی به این درس پیوند نخورده است.</p>')+'</div>';
+  if(window.daniAcd4)h+=window.daniAcd4.lessonCards(l);
   const ns=CR.cache.notes.filter(n=>n.lessonId===l.id).sort((a,b)=>b.at-a.at);
   h+='<div class="c"><h3>یادداشت‌های من</h3><textarea id="crs-note" rows="3" dir="auto" placeholder="یادداشت درباره‌ی این درس…"></textarea><button data-a="crs_note" data-l="'+E_(l.id)+'">ذخیره‌ی یادداشت</button>'+ns.map(n=>'<div class="cwr"><span dir="auto" style="white-space:pre-wrap">'+E_(n.text)+' <small class="m">'+new Date(n.at).toLocaleDateString('fa-IR')+'</small></span><button class="d" data-a="crs_notedel" data-id="'+E_(n.id)+'">✕</button></div>').join('')+'</div>';
   h+='<div class="row">'+(i>0?'<button data-a="crs_open" data-c="'+E_(c.id)+'" data-l="'+E_(L[i-1].id)+'">‹ درس قبلی</button>':'')+'<span class="sp"></span>'+(i<L.length-1?'<button class="p" data-a="crs_open" data-c="'+E_(c.id)+'" data-l="'+E_(L[i+1].id)+'">درس بعدی ›</button>':'')+'</div>';
@@ -1161,7 +1164,7 @@ function mount(){
     return'<div class="c"><h3>'+BH('Academy','آکادمی')+'</h3>'+acdTabs()+'</div>'+crsView()};
   if(!zMS.acd.tab||zMS.acd.tab==='review')zMS.acd.tab='courses'; /* تب پیش‌فرضی که خود پلنر گذاشته (مثلاً learn) تغییر نمی‌کند */
   crLoad().then(()=>{if(inCrs())rerender()});
-  window.daniCourses={buildEverything,prepEverything,rehydrateHost,hostSnap,state:CR,validatePack,loadPackZip,zipRead,zipWrite,tex2mml,grade,inl,blocks,IDB,planPack,normalizePack,commitPack,importFile,buildCourseZip,startQuiz,submitQuiz,userExport,planUser,version:CRV};
+  window.daniCourses={buildEverything,prepEverything,rehydrateHost,hostSnap,state:CR,validatePack,loadPackZip,zipRead,zipWrite,tex2mml,grade,inl,blocks,IDB,planPack,normalizePack,commitPack,importFile,buildCourseZip,startQuiz,submitQuiz,userExport,planUser,version:CRV,api:{latestResults,questionsOf,lessonsOf,courseProg,mastery,pool}};
 }
 mount();
 })();
