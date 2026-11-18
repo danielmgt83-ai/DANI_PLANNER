@@ -703,9 +703,16 @@ function vReport(){
 function putUser(s,o){const arr=CR.cache[s],i=arr.findIndex(x=>x.id===o.id);if(i<0)arr.push(o);else arr[i]=o;CR.ix[s].set(o.id,o);return IDB.put(s,o)}
 function delUser(s,id){CR.cache[s]=CR.cache[s].filter(x=>x.id!==id);CR.ix[s].delete(id);return IDB.del(s,id)}
 /* ---------- آزمون / تمرین ---------- */
+/* v147: دامنه می‌تواند رشته (مثل قبل) یا فهرستی از نشانه‌ها باشد؛ اجتماعشان گرفته می‌شود: all | chapter:ID | lesson:ID | topic:ID | exam:نام | studied | weak | wrong | flagged */
 function pool(cid,scope,diffs){
+  if(Array.isArray(scope)){const seen=new Set(),out=[];(scope.length?scope:['all']).forEach(t=>pool1(cid,t,diffs).forEach(q=>{if(!seen.has(q.id)){seen.add(q.id);out.push(q)}}));return out}
+  return pool1(cid,scope,diffs)}
+function pool1(cid,scope,diffs){
   let Q=questionsOf(cid);scope=scope||'all';
-  if(scope.startsWith('chapter:')){const ids=new Set(lessonsOf(cid).filter(l=>l.chapterId===scope.slice(8)).map(l=>l.id));Q=Q.filter(q=>q.lessonIds.some(i=>ids.has(i)))}
+  if(scope==='studied'){const ids=new Set(lessonsOf(cid).filter(l=>{const p=CR.ix.progress.get(l.id);return p&&p.done}).map(l=>l.id));Q=Q.filter(q=>q.lessonIds.some(i=>ids.has(i)))}
+  else if(scope==='weak'){const w=new Set(mastery(cid).filter(m=>m.p<60&&m.t!=='_none').map(m=>m.t));Q=Q.filter(q=>q.topicIds.some(t=>w.has(t)))}
+  else if(scope.startsWith('exam:'))Q=Q.filter(q=>String(q.exam||'')===scope.slice(5));
+  else if(scope.startsWith('chapter:')){const ids=new Set(lessonsOf(cid).filter(l=>l.chapterId===scope.slice(8)).map(l=>l.id));Q=Q.filter(q=>q.lessonIds.some(i=>ids.has(i)))}
   else if(scope.startsWith('lesson:'))Q=Q.filter(q=>q.lessonIds.includes(scope.slice(7)));
   else if(scope.startsWith('topic:'))Q=Q.filter(q=>q.topicIds.includes(scope.slice(6)));
   else if(scope==='wrong'){const w=new Set(CR.cache.errors.filter(e=>!e.resolved&&e.courseId===cid).map(e=>e.qid));Q=Q.filter(q=>w.has(q.id))}
@@ -718,7 +725,7 @@ async function startQuiz(o){
   const Q=pool(o.courseId,o.scope,o.diffs);
   if(!Q.length){msg('err','سؤالی با این شرایط پیدا نشد. دامنه یا سطح دشواری را عوض کنید.');CR.tab='quiz';rerender();return}
   let ids=(o.shuffle===false?Q:shuffle(Q)).map(q=>q.id);if(o.count>0)ids=ids.slice(0,o.count);
-  const a={id:uid('a_'),courseId:o.courseId,mode:o.mode||'exam',timed:!!o.timed,limitSec:o.timed?Math.max(1,o.minutes||30)*60:0,startedAt:Date.now(),finishedAt:0,status:'active',qids:ids,items:{},used:0,scope:o.scope||'all'};
+  const a={id:uid('a_'),courseId:o.courseId,mode:o.mode||'exam',timed:!!o.timed,limitSec:o.timed?Math.max(1,o.minutes||30)*60:0,startedAt:Date.now(),finishedAt:0,status:'active',qids:ids,items:{},used:0,scope:Array.isArray(o.scope)?o.scope.join(','):(o.scope||'all'),neg:!!o.neg,konkur:!!o.konkur};
   await crAssets(o.courseId);
   CR.quiz=a;CR.qi=0;CR.qStart=Date.now();CR.resumedAt=Date.now();CR.tab='quiz';CR.keyId='';CR.msg=null;
   await putUser('attempts',a);armTimer();rerender();
@@ -739,9 +746,9 @@ async function recordErrors(a){
 }
 async function submitQuiz(auto){
   const a=CR.quiz;if(!a)return;touchQ();a.used=usedMs();clearInterval(CR.tmr);
-  let ok=0,tot=0,pend=0;
-  a.qids.forEach(id=>{const q=CR.ix.questions.get(id),it=a.items[id]||(a.items[id]={answer:null,ms:0,flag:false});if(!q)return;const g=grade(q,it.answer);it.ok=g.ok;it.skipped=!!g.skipped;if(g.auto){tot++;if(g.ok)ok++}else pend++});
-  a.status='done';a.finishedAt=Date.now();a.score={ok,total:tot,pending:pend};
+  let ok=0,tot=0,pend=0,wrong=0,blank=0;
+  a.qids.forEach(id=>{const q=CR.ix.questions.get(id),it=a.items[id]||(a.items[id]={answer:null,ms:0,flag:false});if(!q)return;const g=grade(q,it.answer);it.ok=g.ok;it.skipped=!!g.skipped;if(g.auto){tot++;if(g.ok)ok++;else if(g.skipped)blank++;else wrong++}else pend++});
+  a.status='done';a.finishedAt=Date.now();a.score={ok,total:tot,pending:pend,wrong,blank,neg:!!a.neg};
   CR.quiz=null;CR.keyId=a.id;
   await putUser('attempts',a);await recordErrors(a);
   rerender();
@@ -781,7 +788,7 @@ function vQuizRun(){
 function vKey(){
   const a=CR.ix.attempts.get(CR.keyId);if(!a){CR.keyId='';return vQuizSetup()}
   const c=CR.ix.courses.get(a.courseId),sc=a.score||{ok:0,total:0,pending:0},ms=a.qids.reduce((s,id)=>s+((a.items[id]||{}).ms||0),0);
-  let h='<div class="c"><div class="row"><h3 class="sp">پاسخ‌نامه‌ی تشریحی — '+E_(c?c.title:'')+'</h3><button data-a="crs_qnew">آزمون تازه</button></div><div class="big">'+(sc.total?faN(sc.ok)+' / '+faN(sc.total):'—')+'</div><div class="m" style="text-align:center">'+(sc.total?'درصد پاسخ‌های قابل تصحیح خودکار: '+faN(Math.round(sc.ok/sc.total*100))+'٪':'')+(sc.pending?' · '+faN(sc.pending)+' سؤال تشریحی نیازمند خودارزیابی':'')+' · مجموع زمان '+faN(Math.round(ms/1000))+' ثانیه</div><div class="row" style="margin-top:8px"><button data-a="crs_errprac">تمرین اشتباهات باز</button><button data-a="crs_tab" data-k="errors">دفترچه‌ی خطا</button></div></div>';
+  let h='<div class="c"><div class="row"><h3 class="sp">پاسخ‌نامه‌ی تشریحی — '+E_(c?c.title:'')+'</h3><button data-a="crs_qnew">آزمون تازه</button></div><div class="big">'+(sc.total?faN(sc.ok)+' / '+faN(sc.total):'—')+'</div><div class="m" style="text-align:center">'+(sc.total?'درصد پاسخ‌های قابل تصحیح خودکار: '+faN(Math.round(sc.ok/sc.total*100))+'٪':'')+(sc.neg&&sc.total?' · درصد با نمره‌ی منفی (هر غلط ⅓ نمره): '+faN(Math.round((sc.ok-(sc.wrong||0)/3)/sc.total*100))+'٪ · درست '+faN(sc.ok)+' · غلط '+faN(sc.wrong||0)+' · نزده '+faN(sc.blank||0):'')+(sc.pending?' · '+faN(sc.pending)+' سؤال تشریحی نیازمند خودارزیابی':'')+' · مجموع زمان '+faN(Math.round(ms/1000))+' ثانیه</div><div class="row" style="margin-top:8px"><button data-a="crs_errprac">تمرین اشتباهات باز</button><button data-a="crs_tab" data-k="errors">دفترچه‌ی خطا</button></div></div>';
   h+='<div class="crs-lesson" data-nobi style="--crs-mz:'+CR.mz+'">';
   a.qids.forEach((id,i)=>{const q=CR.ix.questions.get(id),it=a.items[id]||{};if(!q){h+='<div class="c">سؤال '+E_(id)+' دیگر نصب نیست.</div>';return}
     const ok=it.ok!=null?it.ok:(it.self==='right'?true:it.self==='wrong'?false:null),er=CR.ix.errors.get('e_'+id);
@@ -797,15 +804,28 @@ function vQuizSetup(){
   if(CR.keyId)return vKey();
   if(CR.quiz)return vQuizRun();
   const S=CR.setup,cid=S.courseId&&CR.ix.courses.get(S.courseId)?S.courseId:cs[0].id,c=CR.ix.courses.get(cid),act=CR.cache.attempts.filter(a=>a.status==='active');
-  const sc=S.scope||'all';
-  const opts=[['all','آزمون جامع (کل دوره)']].concat(c.chapters.map(x=>['chapter:'+x.id,'فصل: '+x.title])).concat((c.topics||[]).map(t=>['topic:'+t.id,'مبحث: '+t.title])).concat([['wrong','فقط اشتباهات باز'],['flagged','فقط سؤال‌های علامت‌خورده']]);
-  const n=pool(cid,sc,S.diffs||[1,2,3]).length;
+  let tk=Array.isArray(S.tokens)&&S.tokens.length?S.tokens:['all'];if(S.scope&&!Array.isArray(S.tokens)&&S.scope!=='all')tk=[S.scope];
+  const on=t=>tk.includes(t),cnt=t=>pool(cid,[t],S.diffs||[1,2,3]).length;
+  const n=pool(cid,tk,S.diffs||[1,2,3]).length;
+  const exams=[...new Set(questionsOf(cid).map(q=>q.exam).filter(Boolean))];
+  const ck=(t,lbl)=>'<label class="crs-ck"><input type="checkbox" data-crs-tk="'+E_(t)+'" '+(on(t)?'checked':'')+'> '+lbl+' <span class="m">('+faN(cnt(t))+')</span></label>';
+  const chip=(t,lbl)=>'<button class="chip '+(on(t)?'on':'')+'" data-a="crs_tk" data-t="'+E_(t)+'">'+lbl+' ('+faN(cnt(t))+')</button>';
+  const chs=c.chapters||[],tps=c.topics||[],lss=lessonsOf(cid);
+  const grp=(title,ks,body)=>'<details '+(tk.some(t=>ks.some(k=>t.startsWith(k)))?'open':'')+'><summary class="m" style="cursor:pointer">'+title+'</summary><div class="row" style="flex-wrap:wrap;margin-top:6px">'+body+'</div></details>';
   let h='';
   if(act.length)h+='<div class="c"><h3>نیمه‌تمام</h3>'+act.map(a=>'<div class="row"><span>'+E_((CR.ix.courses.get(a.courseId)||{}).title||'')+' · '+(a.mode==='exam'?'آزمون':'تمرین')+' · '+faN(Object.keys(a.items).length)+'/'+faN(a.qids.length)+' پاسخ‌داده</span><button class="p" data-a="crs_resume" data-id="'+E_(a.id)+'">ادامه</button><button class="d" data-a="crs_abandon" data-id="'+E_(a.id)+'">حذف</button></div>').join('')+'</div>';
-  h+='<div class="c"><h3>ساخت آزمون یا تمرین از بانک سؤال ذخیره‌شده</h3><p class="m">بدون هوش مصنوعی و بدون اینترنت؛ فقط از سؤال‌های واردشده.</p><div class="row"><div><label>دوره</label><select data-crs-set="courseId">'+cs.map(x=>'<option value="'+E_(x.id)+'" '+(x.id===cid?'selected':'')+'>'+E_(x.title)+'</option>').join('')+'</select></div><div><label>دامنه</label><select data-crs-set="scope">'+opts.map(o=>'<option value="'+E_(o[0])+'" '+(o[0]===sc?'selected':'')+'>'+E_(o[1])+'</option>').join('')+'</select></div></div>'+
-   '<label>سطح دشواری</label><div class="row">'+[1,2,3].map(d=>'<label class="crs-ck"><input type="checkbox" data-crs-diff="'+d+'" '+((S.diffs||[1,2,3]).includes(d)?'checked':'')+'> '+['آسان','متوسط','دشوار'][d-1]+'</label>').join('')+'</div>'+
-   '<div class="row"><div><label>تعداد سؤال (موجود: '+faN(n)+')</label><input type="number" min="1" id="crsq-count" value="'+(S.count||Math.min(10,Math.max(1,n)))+'" style="width:100px"></div><div><label>نوع</label><select data-crs-set="mode"><option value="exam" '+(S.mode!=='practice'?'selected':'')+'>آزمون (تصحیح در پایان)</option><option value="practice" '+(S.mode==='practice'?'selected':'')+'>تمرین (بررسی فوری)</option></select></div><div><label class="crs-ck"><input type="checkbox" id="crsq-timed" '+(S.timed?'checked':'')+' data-crs-set="timed"> زمان‌دار</label><input type="number" min="1" id="crsq-min" value="'+(S.minutes||20)+'" style="width:90px"> دقیقه</div></div>'+
-   '<div class="row" style="margin-top:10px"><button class="p" data-a="crs_qbegin" '+(n?'':'disabled')+'>شروع</button>'+(n?'':'<span class="m">با این شرایط سؤالی نیست.</span>')+'</div></div>';
+  h+='<div class="c"><h3>مرکز آزمون <span class="m">Exam Center</span></h3><p class="m">بدون هوش مصنوعی و بدون اینترنت؛ از بانک سؤال واردشده. هر چند مبحث/فصل/درس را با هم انتخاب کن.</p>'
+   +(cs.length>1?'<label>دوره</label><select data-crs-set="courseId">'+cs.map(x=>'<option value="'+E_(x.id)+'" '+(x.id===cid?'selected':'')+'>'+E_(x.title)+'</option>').join('')+'</select>':'')
+   +'<label>۱) چه چیزی را آزمون بدهم؟ (می‌شود چند مورد را با هم زد)</label><div class="row" style="flex-wrap:wrap">'+chip('all','کل دوره')+chip('studied','فقط درس‌های خوانده‌شده')+chip('weak','مبحث‌های ضعیف')+chip('wrong','اشتباهات باز')+chip('flagged','علامت‌خورده')+'</div>'
+   +(chs.length?grp('فصل‌ها',['chapter:'],chs.map(x=>ck('chapter:'+x.id,E_(x.title))).join('')):'')
+   +(tps.length?grp('مبحث‌ها',['topic:'],tps.map(x=>ck('topic:'+x.id,E_(x.title))).join('')):'')
+   +(lss.length?grp('درس‌های مشخص',['lesson:'],lss.map(x=>ck('lesson:'+x.id,E_(x.title))).join('')):'')
+   +(exams.length?'<label>آزمون‌های سال‌های گذشته / مجموعه‌ها</label><div class="row" style="flex-wrap:wrap">'+exams.map(x=>chip('exam:'+x,E_(x))).join('')+'</div>':'')
+   +'<div class="m" style="margin-top:6px"><b>'+faN(n)+'</b> سؤال با این انتخاب موجود است.</div>'
+   +'<label>۲) سطح دشواری</label><div class="row">'+[1,2,3].map(d=>'<label class="crs-ck"><input type="checkbox" data-crs-diff="'+d+'" '+((S.diffs||[1,2,3]).includes(d)?'checked':'')+'> '+['آسان','متوسط','دشوار'][d-1]+'</label>').join('')+'</div>'
+   +'<label>۳) شکل آزمون</label><div class="row"><div><label>تعداد سؤال</label><input type="number" min="1" id="crsq-count" value="'+(S.count||Math.min(10,Math.max(1,n)))+'" style="width:90px"></div><div><label>نوع</label><select data-crs-set="mode"><option value="exam" '+(S.mode!=='practice'?'selected':'')+'>آزمون (تصحیح در پایان)</option><option value="practice" '+(S.mode==='practice'?'selected':'')+'>تمرین (بررسی فوری)</option></select></div></div>'
+   +'<div class="row" style="flex-wrap:wrap"><label class="crs-ck"><input type="checkbox" id="crsq-timed" '+(S.timed?'checked':'')+' data-crs-set="timed"> زمان‌دار</label><input type="number" min="1" id="crsq-min" value="'+(S.minutes||20)+'" style="width:80px"> دقیقه<label class="crs-ck"><input type="checkbox" data-crs-set="neg" '+(S.neg?'checked':'')+'> نمره‌ی منفی (هر غلط ⅓)</label></div>'
+   +'<div class="row" style="margin-top:10px"><button class="p" data-a="crs_qbegin" '+(n?'':'disabled')+'>شروع</button><button data-a="crs_konkur" '+(n?'':'disabled')+' title="زمان‌دار، نمره‌ی منفی، ترتیب تصادفی، تقریباً ۱ دقیقه برای هر سؤال">🎯 شبیه‌ساز کنکور</button>'+(n?'':'<span class="m">با این شرایط سؤالی نیست.</span>')+'</div></div>';
   return h;
 }
 /* ---------- ورود / خروج / انتقال ---------- */
@@ -928,8 +948,12 @@ hh('erres',el=>{const e=CR.ix.errors.get(el.dataset.id);return putUser('errors',
 hh('key',el=>{CR.keyId=el.dataset.id;CR.tab='quiz';return crAssets(CR.ix.attempts.get(el.dataset.id).courseId).then(()=>{rerender();window.scrollTo(0,0)})});
 hh('qnew',()=>{CR.keyId='';rerender()});
 hh('self',el=>selfGrade(el.dataset.q,el.dataset.v));
+hh('tk',el=>{toggleTk(el.dataset.t)});
+function toggleTk(t){const S=CR.setup;let tk=Array.isArray(S.tokens)&&S.tokens.length?S.tokens.slice():['all'];const i=tk.indexOf(t);if(i>=0)tk.splice(i,1);else{if(t==='all')tk=[];else tk=tk.filter(x=>x!=='all');tk.push(t)}if(t==='all'&&i<0)tk=['all'];if(!tk.length)tk=['all'];S.tokens=tk;rerender()}
+hh('konkur',()=>{const S=CR.setup,cid=S.courseId||CR.cache.courses[0].id,tk=S.tokens&&S.tokens.length?S.tokens:['all'],diffs=S.diffs||[1,2,3],n=pool(cid,tk,diffs).length,cnt=Math.max(1,Math.min(parseInt(document.getElementById('crsq-count').value,10)||n,n));
+  return startQuiz({courseId:cid,scope:tk,diffs,count:cnt,mode:'exam',timed:true,minutes:cnt,neg:true,konkur:true})});
 hh('qbegin',()=>{const S=CR.setup,cid=S.courseId||CR.cache.courses[0].id,diffs=[...document.querySelectorAll('[data-crs-diff]')].filter(x=>x.checked).map(x=>+x.dataset.crsDiff),timed=document.getElementById('crsq-timed').checked;
-  return startQuiz({courseId:cid,scope:S.scope||'all',diffs,count:Math.max(1,parseInt(document.getElementById('crsq-count').value,10)||10),mode:S.mode||'exam',timed,minutes:parseInt(document.getElementById('crsq-min').value,10)||20})});
+  return startQuiz({courseId:cid,scope:S.tokens&&S.tokens.length?S.tokens:(S.scope||'all'),diffs,count:Math.max(1,parseInt(document.getElementById('crsq-count').value,10)||10),mode:S.mode||'exam',timed,minutes:parseInt(document.getElementById('crsq-min').value,10)||20,neg:!!S.neg})});
 hh('qgo',el=>{touchQ();CR.qi=+el.dataset.n;persistSoon();rerender();window.scrollTo(0,0)});
 hh('qnext',el=>{touchQ();CR.qi=Math.max(0,Math.min(CR.quiz.qids.length-1,CR.qi+(+el.dataset.n)));persistSoon();rerender();window.scrollTo(0,0)});
 hh('qflag',()=>{const it=curItem();it.flag=!it.flag;persistSoon();rerender()});
@@ -952,7 +976,8 @@ document.addEventListener('change',e=>{
   if(t.matches('[data-crs-bk]')){CR.bk[t.dataset.crsBk]=t.checked;return}
   if(t.matches('[data-crs-ev]')){const ev=CR.everything;if(t.dataset.crsEv==='host')ev.doHost=t.checked;else ev.doAcademy=t.checked;rerender();return}
   if(t.matches('[data-crs-evsafe]')){CR.everything.safety=t.checked;return}
-  if(t.matches('[data-crs-set]')){const k=t.dataset.crsSet;if(k==='courseId'){CR.setup={...CR.setup,courseId:t.value,scope:'all'}}else if(k==='timed')CR.setup.timed=t.checked;else CR.setup[k]=t.value;rerender();return}
+  if(t.matches('[data-crs-set]')){const k=t.dataset.crsSet;if(k==='courseId'){CR.setup={...CR.setup,courseId:t.value,scope:'all',tokens:['all']}}else if(k==='timed')CR.setup.timed=t.checked;else if(k==='neg')CR.setup.neg=t.checked;else CR.setup[k]=t.value;rerender();return}
+  if(t.matches('[data-crs-tk]')){toggleTk(t.dataset.crsTk);return}
   if(t.matches('[data-crs-diff]')){CR.setup.diffs=[...document.querySelectorAll('[data-crs-diff]')].filter(x=>x.checked).map(x=>+x.dataset.crsDiff);rerender();return}
   if(t.matches('[data-crs-down]')){CR.pending.down=t.checked;rerender();return}
   if(t.matches('[data-crs-rm]')){RS().mode=t.dataset.crsRm;rerender();return}

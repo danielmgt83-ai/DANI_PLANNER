@@ -8,8 +8,11 @@
 (function(){
 const T=window.daniT;
 const RH=()=>{const s=db.set;if(!s.rh||typeof s.rh!=='object')s.rh={};const r=s.rh;
-  if(r.plan===undefined){r.plan=1;r.streak=1;r.week=1;r.pin=0;r.tPlan='20:30';r.tStreak='21:30'}return r};
-const has=d=>{try{return(E(d)||[]).length>0}catch(e){return false}};
+  if(r.plan===undefined){r.plan=1;r.streak=1;r.week=1;r.pin=0;r.tPlan='20:30';r.tStreak='21:30'}
+  if(r.useOnly===undefined)r.useOnly=1;if(!r.tLast)r.tLast='23:00';if(r.last===undefined)r.last=1;return r};
+/* v147: «روز پربار» = دست‌کم یک ثبتِ مفید برای هدف/مطالعه (≥۵ دقیقه)؛ استراحت و کارهای دیگر زنجیره را نمی‌سازند. قابل خاموش‌کردن: db.set.rh.useOnly */
+const has=d=>{try{const es=E(d)||[];if(!RH().useOnly||!(window.daniUseTime&&window.daniUseTime.cls))return es.length>0;return es.some(e=>(+e.min||0)>=5&&window.daniUseTime.cls(e.actId)==='u')}catch(e){return false}};
+window.daniStreakDay=has;
 function streak(){const t=todayISO();let d=has(t)?t:addD(t,-1),n=0;while(n<800&&has(d)){n++;d=addD(d,-1)}return{n,today:has(t)}}
 function stateOf(d){const p=plan(d||todayISO()),dn=db.days[todayISO()]||{};
   const eod=['learned','barrier','explanation','tomorrow','mood','sleepQ','satisf'].some(k=>dn[k]);
@@ -35,12 +38,12 @@ function card(){const s=stateOf(),sk=streak(),hr=new Date().getHours(),t=todayIS
   const pb=hr>=17?problems():[];
   let h='<div class="c" id="rhcard"><div class="row">'+daniH('🔄','چرخه‌ی امروز','Today\'s rhythm')+'<span class="sp"></span><span class="m">'+(sk.n?'🔥 '+T(fa(sk.n)+' روز پیوسته','' +sk.n+'-day streak'):T('زنجیره‌ای نداری؛ امروز شروعش کن','No streak yet — start today'))+'</span></div>'
    +streakMap(sk)+'<div class="row" style="gap:8px;margin:8px 0;flex-wrap:nowrap">'+step(s.planned,'📝',T('برنامه','Plan'))+step(s.logged&&s.min>=1,'⏱',T('اجرا','Do')+(s.min?' · '+mm(s.min):''))+step(s.reviewed,'🔎',T('بازبینی','Review'))+'</div>';
-  if(sk.n&&!sk.today)h+='<div class="m">'+T('امروز هنوز ثبت نداری؛ برای حفظ زنجیره یک ثبت کوتاه کافی است.','Nothing logged yet today — one short log keeps your streak.')+'</div>';
+  if(sk.n&&!sk.today)h+='<div class="m">'+(RH().useOnly?T('امروز هنوز کارِ مفید برای هدف ثبت نشده؛ حتی ۱۰ دقیقه مطالعه/پروژه زنجیره را نگه می‌دارد (استراحت حساب نمی‌شود).','No goal-useful work logged yet today — even 10 minutes of study/project work keeps the streak (rest does not count).'):T('امروز هنوز ثبت نداری؛ برای حفظ زنجیره یک ثبت کوتاه کافی است.','Nothing logged yet today — one short log keeps your streak.'))+'</div>';
   if(pb.length)h+='<div class="m" style="margin-top:6px">⚠️ '+pb.map(esc).join(' · ')+'</div>';
   if(cta)h+='<div class="row" style="margin-top:8px">'+cta+(hr>=18&&s.reviewed&&!s.tmr?'':'')+'</div>';
   h+='<details style="margin-top:8px"><summary class="m">'+T('اعلان‌های چرخه','Rhythm notifications')+'</summary>'+settings()+'</details></div>';return h}
 function settings(){const r=RH(),cb=(k,l,tk)=>'<label class="m" style="display:block;margin:4px 0"><input type="checkbox" id="rh-'+k+'" '+(r[k]?'checked':'')+'> '+l+(tk?' <input type="time" id="rh-'+tk+'" value="'+esc(r[tk])+'">':'')+'</label>';
-  return '<div style="margin-top:6px">'+cb('plan',T('برنامه‌ی فردا (شب)','Plan tomorrow (evening)'),'tPlan')+cb('streak',T('محافظت زنجیره (اگر امروز ثبتی نیست)','Streak protection (if nothing logged today)'),'tStreak')+cb('week',T('بازبینی هفتگی (جمعه‌ها)','Weekly review (Fridays)'))
+  return '<div style="margin-top:6px">'+cb('plan',T('برنامه‌ی فردا (شب)','Plan tomorrow (evening)'),'tPlan')+cb('streak',T('محافظت زنجیره (اگر امروز ثبتی نیست)','Streak protection (if nothing logged today)'),'tStreak')+cb('last',T('⏳ فرصت آخر (اعلان دوم، نزدیک پایان روز)','⏳ Last chance (second alert near the end of the day)'),'tLast')+cb('useOnly',T('فقط کارِ مفید برای هدف/مطالعه زنجیره بسازد (استراحت و بقیه حساب نشود)','Only goal-useful work counts for the streak (rest/other does not)'))+cb('week',T('بازبینی هفتگی (جمعه‌ها)','Weekly review (Fridays)'))
    +cb('pin',T('📌 اعلان سنجاق‌شده (بعدی چی؟ / پومودورو؛ بی‌صدا، آزمایشی)','📌 Pinned notification (What next? / Pomodoro; silent, experimental)'))
    +'<div class="row"><button data-a="rh_save">'+T('ذخیره','Save')+'</button></div><p class="m">'+T('اعلان‌ها فقط در اپ اندروید کار می‌کنند. صبح و شب هم از کارت «بعدی چی؟» می‌آید.','Notifications work in the Android app only. Morning/evening summaries come from the "What next?" card.')+'</p></div>'}
 window.daniRhythmCard=card;
@@ -48,8 +51,8 @@ window.daniRhythmCard=card;
 /* ---------- عمل‌ها ---------- */
 H.rh_plan=e=>{vd=e&&e.dataset&&e.dataset.n?addD(todayISO(),+e.dataset.n):todayISO();page='dash';dt='plan';render();window.scrollTo(0,0)};
 H.rh_eod=()=>{page='dash';dt='today';render();setTimeout(()=>{const d=[...document.querySelectorAll('#pg details')].find(x=>/پایان روز|End-of-day/i.test(x.innerText));if(d){d.open=true;d.scrollIntoView({block:'center'})}},120)};
-H.rh_save=()=>{const r=RH(),ok=v=>/^\d\d:\d\d$/.test(v);['plan','streak','week','pin'].forEach(k=>{const c=$('#rh-'+k);if(c)r[k]=c.checked?1:0});
-  const a=val('rh-tPlan'),b=val('rh-tStreak');if(ok(a))r.tPlan=a;if(ok(b))r.tStreak=b;save();try{if(typeof Notifier!=='undefined')Notifier.sync(true)}catch(e){}try{toast(T('ذخیره شد ✓','Saved ✓'))}catch(e){}render()};
+H.rh_save=()=>{const r=RH(),ok=v=>/^\d\d:\d\d$/.test(v);['plan','streak','last','useOnly','week','pin'].forEach(k=>{const c=$('#rh-'+k);if(c)r[k]=c.checked?1:0});
+  const a=val('rh-tPlan'),b=val('rh-tStreak'),c3=val('rh-tLast');if(ok(a))r.tPlan=a;if(ok(b))r.tStreak=b;if(ok(c3))r.tLast=c3;save();try{if(typeof Notifier!=='undefined')Notifier.sync(true)}catch(e){}try{toast(T('ذخیره شد ✓','Saved ✓'))}catch(e){}render()};
 
 /* ---------- اعلان‌ها ---------- */
 const hs=s=>{let h=5381;for(let i=0;i<s.length;i++)h=((h<<5)+h+s.charCodeAt(i))|0;return 3e8+Math.abs(h)%1e8};
@@ -61,7 +64,9 @@ let PIN={text:'',at:0};
     if(r.plan&&okT(r.tPlan)){const at=atOf(d,r.tPlan);let tm0=true;try{tm0=plan(addD(d,1)).length>0}catch(e){}
       if(at>now+2000&&!tm0&&!(typeof inQuiet==='function'&&inQuiet(at)))out.push({id:hs('pl'+d),at,title:'DANI 📝',body:T('برنامه‌ی فردا را ببند؛ دو دقیقه کافی است و فردا بدون فکر شروع می‌کنی.','Set tomorrow\'s plan — two minutes, and tomorrow starts without thinking.'),ch:'dani-remind-v2',key:'rh-pl-'+d})}
     if(r.streak&&okT(r.tStreak)&&(i===0?sk.n>0&&!sk.today:i===1?sk.today:false)){const at=atOf(d,r.tStreak);
-      if(at>now+2000&&!(typeof inQuiet==='function'&&inQuiet(at)))out.push({id:hs('sk'+d),at,title:'DANI 🔥',body:T('زنجیره‌ی '+fa(i===0?sk.n:sk.n+1)+' روزه‌ات در خطر است؛ یک ثبت کوتاه کافی است.','Your '+(i===0?sk.n:sk.n+1)+'-day streak is at risk — one short log is enough.'),ch:'dani-remind-v2',key:'rh-sk-'+d})}
+      if(at>now+2000&&!(typeof inQuiet==='function'&&inQuiet(at)))out.push({id:hs('sk'+d),at,title:'DANI 🔥',body:T('زنجیره‌ی '+fa(i===0?sk.n:sk.n+1)+' روزه‌ات در خطر است؛ یک کارِ مفید (مثلاً ۱۰ دقیقه مطالعه) کافی است.','Your '+(i===0?sk.n:sk.n+1)+'-day streak is at risk — one useful task (e.g. 10 min of study) is enough.'),ch:'dani-remind-v2',key:'rh-sk-'+d})}
+    if(r.streak&&r.last&&okT(r.tLast)&&i===0&&sk.today===false){const at=atOf(d,r.tLast);
+      if(at>now+2000&&!(typeof inQuiet==='function'&&inQuiet(at))){const left=Math.max(1,Math.round((atOf(d,'23:59')-at)/36e5*60));out.push({id:hs('sl'+d),at,title:'DANI ⏳',body:T('فرصت آخر: کمتر از یک ساعت تا پایان روز. ۱۰ دقیقه کارِ مفید، زنجیره‌ی '+fa(sk.n||0)+' روزه‌ات را نجات می‌دهد.','Last chance: under an hour left. 10 useful minutes save your '+(sk.n||0)+'-day streak.'),ch:'dani-remind-v2',key:'rh-sl-'+d})}}
     if(r.week){const dt0=new Date(atOf(d,'18:00'));if(dt0.getDay()===5&&dt0.getTime()>now+2000&&!(typeof inQuiet==='function'&&inQuiet(dt0.getTime())))out.push({id:hs('wk'+d),at:dt0.getTime(),title:'DANI 🔎',body:T('بازبینی هفتگی؛ سه دقیقه، و هفته‌ی بعد روشن‌تر است.','Weekly review — three minutes make next week clearer.'),ch:'dani-remind-v2',key:'rh-wk-'+d})}}
   if(r.pin){let text='';const p=db.set.pomo,tm=db.timer;
     try{if(p&&p.ph==='work'&&tm&&tm.mode==='cd'&&tm.state==='running'){const end=tm.t0+(tm.dur-tm.acc);text='🍅 '+T('تمرکز روی ','Focus on ')+aN(tm.actId)+' · '+T('تا ','until ')+fa(nowHMof(end))}

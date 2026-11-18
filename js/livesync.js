@@ -67,7 +67,7 @@ function widgetSync(){
   try{if(WG().on&&WG().nx!==0){const t0=todayISO(),hm=new Date().toTimeString().slice(0,5);
       const q=(db.plans[t0]||[]).filter(p=>p.status==='todo'&&p.start&&p.start>=hm).sort((a,b)=>a.start<b.start?-1:1)[0];
       if(q)nx='⏭ '+fa(q.start)+' · '+String((typeof aN==='function'?aN(q.actId):'')||'').slice(0,22)}
-    if(WG().on&&WG().sk!==0){const has=d=>(E(d)||[]).length>0,t=todayISO();let d=has(t)?t:addD(t,-1),n=0;while(n<800&&has(d)){n++;d=addD(d,-1)}
+    if(WG().on&&WG().sk!==0){const has=d=>window.daniStreakDay?window.daniStreakDay(d):(E(d)||[]).length>0,t=todayISO();let d=has(t)?t:addD(t,-1),n=0;while(n<800&&has(d)){n++;d=addD(d,-1)}
       if(n>0)sk='🔥 '+fa(String(n))+' '+T('روز پیاپی','day streak')}}catch(e){}
   const sig=l1+'|'+l2+'|'+l3+'|'+hb+'|'+dn+du+dt+dc+qt+qp+nx+sk;if(sig===wsig)return;wsig=sig;
   try{D.widgetSet({l1,l2,l3,hb,dn,du,dt,dc,qt,qp,nx,sk})}catch(e){}
