@@ -6,7 +6,7 @@
 (function(){
 const T=window.daniT;
 const FX=()=>{const s=db.set;if(!s.fx||typeof s.fx!=='object')s.fx={};if(s.fx.hap===undefined)s.fx.hap=1;if(s.fx.anim===undefined)s.fx.anim=1;return s.fx};
-const VER='2026.11.106';
+const VER='2026.11.107';
 /* ---------- لرزش و پاپ ---------- */
 const HAP=/^(qk_go|nx_go|nx_sw|pf_add|tp_ap|bin_rs|ex_save|ab_now|ql_|pm_|tm_|tstart|tfinish|hab|ob_log|ob_go|dnd_set|ls_now|dk_)/;
 const reduce=()=>{try{return matchMedia('(prefers-reduced-motion: reduce)').matches}catch(e){return false}};
@@ -19,6 +19,7 @@ st.textContent='@keyframes fxpop{0%{transform:scale(1)}40%{transform:scale(.92)}
 document.head.appendChild(st);
 /* ---------- چه چیزی تازه است ---------- */
 const WN=[
+ ['🎓','آکادمی مرتب شد: چهار بخش (یادگیری · مرور · آزمون · منابع) با زیرزبانه‌ها؛ همه‌ی صفحه‌ها و داده‌های قبلی هستند، فقط تکراری‌ها و کارت‌های خالیِ «به‌زودی» برداشته شد.','Academy tidied: four sections (Learn · Review · Exams · Resources) with sub-tabs; every earlier page and your data are kept — only duplicates and the empty “coming soon” cards went.'],
  ['🎯','آکادمی: «مرکز آزمون» — چند مبحث/فصل/درس را با هم انتخاب کن، فقط خوانده‌شده‌ها یا ضعیف‌ها، آزمون‌های سال‌های گذشته و شبیه‌ساز کنکور با نمره‌ی منفی. 🔥 زنجیره فقط با کارِ مفید برای هدف ساخته می‌شود و اعلان «فرصت آخر» دارد.','Academy: “Exam Center” — mix several topics/chapters/lessons, studied-only or weak topics, past exams and a konkur-style simulator with negative marking. 🔥 Streaks now need goal-useful work and have a “last chance” alert.'],
  ['🧭','«مسیر روشن» حالا «برگشت به مسیر» دارد: گم‌شده/اهمال/بی‌حوصله/چند روز دور؛ مانع‌یابی، راه‌حل و اطلاعات، برنامه‌ی بازگشت نرم و پیگیری «چه شد؟».','Clear Path now has “Back on track”: lost / procrastinating / no drive / away; obstacles, solutions & info, a soft comeback plan and a “how did it go?” follow-up.'],
  ['🎓','«پروژه‌ها» خیلی جمع‌وجور شد: سوییچ «پروژه‌ها | موعدها»، هر پروژه یک ردیف با چهار زبانه (وضعیت، بخش‌ها، عادت و یادآوری، ویرایش) و موعدها در سه گروه؛ هیچ قابلیتی کم نشد.','Projects is much tidier: a “Projects | Deadlines” switch, each project is one row with four tabs, and deadlines in three groups; nothing was removed.'],

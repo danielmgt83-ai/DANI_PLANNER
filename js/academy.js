@@ -8,10 +8,8 @@ const aOk=r=>r&&typeof r==='object'&&typeof r.id==='string'&&r.id&&typeof r.titl
 const zSOON=['دوره‌های ویدیویی','متن و جزوه','یادداشت‌برداری درسی','ثبت زمان مطالعه (اتصال به تایمر)','آزمون و تمرین','پیگیری پیشرفت','پیشنهاد درس بعدی'];
 PG.acd=()=>{const A=zAC(),res=A.res.filter(aOk),cat=zMS.acd.cat,q=zMS.acd.q.trim(),e=zMS.acd.edit,cur=e&&res.find(x=>x.id===e);
  let L=res.filter(x=>(!cat||x.cat===cat)&&(!q||(x.title+' '+(x.note||'')).includes(q)));
- let h='<div class="c"><h3>آکادمی</h3><p>جایگاه آموزش‌های آینده‌ی همراهی. فعلاً می‌توانید منابع آموزشی خودتان را دسته‌بندی و نگه‌داری کنید؛ بخش‌های دیگر در حال توسعه‌اند.</p></div>';
+ let h='';
  h+='<div class="c"><h3>دسته‌بندی‌ها</h3><div class="mrow"><button class="chip '+(!cat?'on':'')+'" data-m="acd:cat:">همه ('+fa(res.length)+')</button>'+ACAT.map(c=>'<button class="chip '+(cat===c?'on':'')+'" data-m="acd:cat:'+c+'">'+esc(c)+' ('+fa(res.filter(x=>x.cat===c).length)+')</button>').join('')+'</div></div>';
- h+='<div class="c"><h3>دوره‌های موجود</h3><div class="empty">هنوز دوره‌ای اضافه نشده است. این بخش برای آموزش‌های آینده آماده است.</div></div>';
- h+='<div class="c"><h3>در حال توسعه</h3><div class="mrow">'+zSOON.map(s=>'<span class="badge soon">'+s+' · به‌زودی</span>').join('')+'</div></div>';
  h+='<div class="c"><h3>'+(cur?'ویرایش منبع':'افزودن منبع آموزشی')+'</h3><label>عنوان</label><input id="af-t" maxlength="100" value="'+esc(cur?cur.title:'')+'" style="width:100%"><label>نشانی (https://…)</label><input id="af-u" maxlength="500" dir="ltr" value="'+esc(cur?cur.url:'')+'" style="width:100%" placeholder="https://example.com/course">'
   +'<div class="mrow"><div class="grow"><label>دسته</label><select id="af-c">'+ACAT.map(c=>'<option '+((cur?cur.cat:(cat||ACAT[8]))===c?'selected':'')+'>'+esc(c)+'</option>').join('')+'</select></div></div><label>یادداشت (اختیاری)</label><input id="af-n" maxlength="300" value="'+esc(cur?cur.note||'':'')+'" style="width:100%"><div class="row" style="margin-top:10px">'+mBtn('acd:save','ذخیره','p')+(cur?mBtn('acd:cancel','انصراف',''):'')+'</div></div>';
  h+='<div class="c"><h3>منابع آموزشی</h3><input id="asearch" data-mi="acd:q" value="'+esc(zMS.acd.q)+'" placeholder="جست‌وجو در منابع" style="width:100%" aria-label="جست‌وجو">';
