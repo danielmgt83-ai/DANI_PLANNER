@@ -73,7 +73,7 @@ await test('هشدار موعد هوشمند: سطح جدی، مقدار امر�
  ok(r.every(Boolean),'نتیجه '+r)});
 await test('ویجت: رگه‌ی روزها و برنامه‌ی بعدی ارسال می‌شود و خاموش‌شدنی است',async pg=>{
  const r=await pg.evaluate(async()=>{const got=[];window.Capacitor={isNativePlatform:()=>true,Plugins:{DaniNative:{widgetSet:o=>{got.push(o);return Promise.resolve()},widgetPop:()=>Promise.resolve({q:'[]'}),pinSet:()=>Promise.resolve()}}};
-  const t=todayISO(),a=db.acts[0];db.entries.push({id:uid(),date:t,actId:a.id,min:30,start:'08:00'});db.entries.push({id:uid(),date:addD(t,-1),actId:a.id,min:30,start:'08:00'});
+  const t=todayISO(),a=db.acts[0];a.use='u';db.entries.push({id:uid(),date:t,actId:a.id,min:30,start:'08:00'});db.entries.push({id:uid(),date:addD(t,-1),actId:a.id,min:30,start:'08:00'});
   db.plans[t]=[{id:uid(),actId:a.id,start:'23:58',end:'23:59',goal:1,status:'todo'}];db.set.wg={on:1};save();
   await new Promise(r=>setTimeout(r,3500));const g=got[got.length-1]||{};const on=/🔥/.test(g.sk||'')&&/⏭/.test(g.nx||'');
   db.set.wg.sk=0;db.set.wg.nx=0;daniLiveSync.widgetSync();await new Promise(r=>setTimeout(r,200));return [on,true]});
@@ -235,6 +235,36 @@ await test('برگشت به مسیر v146: انتخاب حالت و مانع، �
  db.set.cpw.nudge=true;db.set.cpw.nudgeN=2;db.set.cpw.back=[];const old=db.entries.slice();db.entries=[{id:'zz',date:addD(todayISO(),-5),actId:(db.acts[0]||{}).id,start:'09:00',end:'09:30',min:30}];render();o.nudge=/💛/.test(document.getElementById('cpcard').textContent);
  db.entries=old;DANI_DY().hide.push('wp');db.set.cpw={list:[]};page='home';render();return o});
  if(!r.btn||r.sol!==2||r.min!=='10'||r.b[0]!=='proc'||r.b[1]!=='big,tired'||r.b[3]!=='open'||r.after!=='part'||!r.nudge)throw new Error(JSON.stringify(r))});
+await test('مرکز آزمون v147: انتخاب چندتایی فصل/مبحث، اجتماع بدون تکرار، شبیه‌ساز کنکور با نمره‌ی منفی',async pg=>{const r=await pg.evaluate(async()=>{const C=daniCourses.state,o={};
+ const bak=JSON.stringify([C.cache.courses.length]);
+ const mk=(id,l,t,d,ex)=>({id,courseId:'tc1',type:'single',difficulty:d,lessonIds:[l],topicIds:[t],stem:'س '+id,choices:[{id:'a',text:'x'},{id:'b',text:'y'}],answer:{choice:'a'},solution:'ح',exam:ex||''});
+ C.cache.courses.push({id:'tc1',title:'دوره‌ی تست',contentVersion:'1',chapters:[{id:'c1',title:'ف۱'},{id:'c2',title:'ف۲'}],topics:[{id:'t1',title:'م۱'},{id:'t2',title:'م۲'},{id:'t3',title:'م۳'}]});
+ C.cache.lessons.push({id:'tl1',courseId:'tc1',chapterId:'c1',title:'د۱',order:1,blocks:[]},{id:'tl2',courseId:'tc1',chapterId:'c2',title:'د۲',order:2,blocks:[]});
+ [mk('q1','tl1','t1',1),mk('q2','tl1','t2',2),mk('q3','tl2','t2',3,'کنکور ۱۴۰۲'),mk('q4','tl2','t3',1)].forEach(q=>C.cache.questions.push(q));
+ const m=a=>new Map(a.map(x=>[x.id,x]));C.ix.courses=m(C.cache.courses);C.ix.lessons=m(C.cache.lessons);C.ix.questions=m(C.cache.questions);
+ C.loaded=true;C.setup={courseId:'tc1'};C.quiz=null;C.keyId='';
+ const P=(...a)=>daniCourses.state&&0;
+ page='acd';zMS.acd.tab='courses';C.tab='quiz';render();
+ const html=()=>document.getElementById('pg').innerHTML;
+ o.ui=/مرکز آزمون/.test(html())&&/data-crs-tk/.test(html())&&/شبیه‌ساز کنکور/.test(html());
+ const tk=t=>{document.querySelector('[data-a=crs_tk][data-t="'+t+'"],[data-crs-tk="'+t+'"]').click?0:0};
+ C.setup.tokens=['topic:t2'];render();o.n1=+(/<b>([^<]+)<\/b> سؤال با این انتخاب/.exec(html())||[])[1].replace(/[۰-۹]/g,d=>'۰۱۲۳۴۵۶۷۸۹'.indexOf(d));
+ C.setup.tokens=['topic:t2','chapter:c2'];render();o.n2=+(/<b>([^<]+)<\/b> سؤال با این انتخاب/.exec(html())||[])[1].replace(/[۰-۹]/g,d=>'۰۱۲۳۴۵۶۷۸۹'.indexOf(d));
+ C.setup.tokens=['exam:کنکور ۱۴۰۲'];render();o.n3=+(/<b>([^<]+)<\/b> سؤال با این انتخاب/.exec(html())||[])[1].replace(/[۰-۹]/g,d=>'۰۱۲۳۴۵۶۷۸۹'.indexOf(d));
+ C.setup.tokens=['all'];render();document.querySelector('[data-a=crs_konkur]').click();await new Promise(x=>setTimeout(x,600));
+ o.run=!!C.quiz&&C.quiz.neg&&C.quiz.timed&&C.quiz.konkur;o.cnt=C.quiz&&C.quiz.qids.length;
+ if(C.quiz){const id=C.quiz.qids[0];C.quiz.items[id]={answer:'b',ms:0};await daniCourses.submitQuiz();await new Promise(x=>setTimeout(x,300));const a=C.cache.attempts[C.cache.attempts.length-1];o.sc=[a.score.ok,a.score.wrong,a.score.blank,a.score.neg]}
+ C.keyId='';C.cache.attempts.length=0;C.ix.attempts=new Map();
+ ['courses','lessons','questions'].forEach(k=>{C.cache[k]=C.cache[k].filter(x=>(x.courseId||x.id)!=='tc1')});C.ix.courses=m(C.cache.courses);C.ix.lessons=m(C.cache.lessons);C.ix.questions=m(C.cache.questions);
+ page='home';render();return o});
+ if(!r.ui||r.n1!==2||r.n2!==3||r.n3!==1||!r.run||r.cnt!==4||r.sc[1]!==1||r.sc[2]!==3||!r.sc[3])throw new Error(JSON.stringify(r))});
+await test('زنجیره v147: فقط ثبت مفید برای هدف روز پربار حساب می‌شود، استراحت نه',async pg=>{const r=await pg.evaluate(()=>{const o={};const t=todayISO(),a=db.acts[0],b=db.acts[1];const ua=a.use,ub=b.use;a.use='u';b.use='w';
+ const old=db.entries.slice();db.entries=[{id:'sx1',date:t,actId:b.id,start:'10:00',end:'11:00',min:60}];db.set.rh=Object.assign(db.set.rh||{},{useOnly:1});
+ o.rest=window.daniStreakDay(t);db.entries.push({id:'sx2',date:t,actId:a.id,start:'12:00',end:'12:03',min:3});o.short=window.daniStreakDay(t);
+ db.entries.push({id:'sx3',date:t,actId:a.id,start:'13:00',end:'13:20',min:20});o.useful=window.daniStreakDay(t);
+ db.set.rh.useOnly=0;db.entries=[{id:'sx1',date:t,actId:b.id,start:'10:00',end:'11:00',min:60}];o.off=window.daniStreakDay(t);
+ db.entries=old;a.use=ua;b.use=ub;return o});
+ if(r.rest||r.short||!r.useful||!r.off)throw new Error(JSON.stringify(r))});
 await test('مسیر روشن v144: پیش‌فرض خاموش؛ چهار قدم، ذخیره، پایان و ثبت شدت بعد',async pg=>{const r=await pg.evaluate(async()=>{const o={};page='day';render();o.off=!DANI_DY().hide.includes('wp')&&!!document.getElementById('cpcard');DANI_DY().hide=DANI_DY().hide.filter(k=>k!=='wp');db.set.cpw={list:[]};render();const q=(a,n)=>document.querySelector('#cpcard [data-a='+a+']'+(n?'[data-n="'+n+'"]':''));q('cp_new').click();const t=document.getElementById('cp-t');t.value='نگرانی آزمون';t.dispatchEvent(new Event('input',{bubbles:true}));q('cp_n1').click();q('cp_n2').click();document.querySelector('#cpcard [data-n=ctl]').click();q('cp_n3').click();const s=document.getElementById('cp-s');s.value='حل ده تست';s.dispatchEvent(new Event('input',{bubbles:true}));q('cp_save').click();o.n=db.set.cpw.list.length;q('cp_end').click?0:0;document.querySelector('#cpcard [data-a=cp_end][data-st=done]').click();document.querySelector('#cpcard [data-a=cp_s1][data-n="2"]').click();const w=db.set.cpw.list[0];o.w=[w.st,w.s0,w.s1];DANI_DY().hide.push('wp');db.set.cpw={list:[]};page='home';render();return o});if(!r.off||r.n!==1||r.w[0]!=='done'||r.w[2]!==2)throw new Error(JSON.stringify(r))});
 await test('پروژه‌ها v145: سوییچ پروژه/موعد، ردیف بسته‌ی پروژه، چهار زبانه و سه گروه موعد',async pg=>{const r=await pg.evaluate(async()=>{const w=()=>new Promise(x=>setTimeout(x,350));const o={};const t=todayISO();const z=zDL();z.items.push({id:'t3d1',name:'x',dt:addD(t,20)});const a=db.acts.filter(x=>x.cat==='learn')[0];db.mods.pj.items.push({id:'t3p1',name:'پروژه‌ی تست',due:addD(t,30),hrs:20,from:addD(t,-2),parts:a?[{id:'t3x',a:a.id,s:[],hrs:20}]:[]});
  daniPj3.seg='pj';daniPj3.open='';page='pj';render();await w();const q=s=>document.querySelector(s);
