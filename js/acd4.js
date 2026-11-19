@@ -12,7 +12,7 @@ const API=()=>{try{return window.daniCourses&&window.daniCourses.api}catch(e){re
 const E=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const F=n=>{try{return fa(n)}catch(e){return String(n)}};
 const cols=()=>{const A=zAC();if(!Array.isArray(A.cols))A.cols=[];A.cols=A.cols.filter(c=>c&&typeof c.id==='string'&&typeof c.title==='string'&&Array.isArray(c.cids));return A.cols};
-const ui={open:{},ct:{}};
+const ui={open:{},ct:{},undo:false};
 const cardsOf=f=>{try{return zAX().cards.filter(srsOk).filter(f)}catch(e){return[]}};
 const dueOf=f=>{const t=todayISO();return cardsOf(c=>c.due<=t&&f(c)).length};
 /* آمار تسلط: آخرین نتیجه‌ی هر سؤال؛ lids = مجموعه‌ی درس‌ها (اختیاری) */
@@ -58,7 +58,7 @@ function tree(){const C=CRs();if(!C)return'';const cs=C.cache.courses,used=new S
  h+='<div class="c"><h3>'+T('مجموعه‌ها و درس‌ها','Collections & subjects')+'</h3><p class="m">'+T('هر درس یک فایل است و داخلش فصل ← مبحث ← تدریس، فلش‌کارت، تمرین و آزمون. مجموعه‌ها فقط برای مرتب‌کردن‌اند.','Each subject is one file: chapters → topics → teaching, cards, practice, exams. Collections only group them.')+'</p><button data-a="acd4_new">＋ '+T('مجموعه‌ی تازه','New collection')+'</button></div>';
  cols().forEach(col=>{const l=col.cids.map(id=>cs.find(c=>c.id===id)).filter(Boolean);l.forEach(c=>used.add(c.id));h+=colCard(col,l)});
  const free=cs.filter(c=>!used.has(c.id));
- h+=suggest(free);
+ h+=mergeCard()+suggest(free);
  if(free.length)h+='<div class="c"><h3>'+T('درس‌های بدون مجموعه','Subjects without a collection')+'</h3>'+free.map(c=>rowCourse(c,'')).join('')+'</div>';
  h+=dupCard();return h}
 
@@ -164,5 +164,36 @@ H.acd4_ft=e=>{ui.ft=e.dataset.k;ui.fn=30;rr()};
 H.acd4_fn=()=>{ui.fn=(ui.fn||30)+40;rr()};
 H.acd4_exam=e=>{const C=CRq();C.setup={courseId:e.dataset.c};try{H.acd3_go({dataset:{k:'quiz'}})}catch(x){rr()}};
 H.acd4_newput=e=>{const t=(prompt(T('نام مجموعه (مثلاً MBA):','Collection name:'))||'').trim().slice(0,40);if(!t)return;const k={id:'k'+uid(),title:t,cids:[e.dataset.c]};cols().push(k);closeM();zcommit()};
+
+/* ===== v152: ادغام درس‌های هم‌موضوع ===== */
+const tk2=c=>c.id.toLowerCase().split(/[-_.]/).filter(t=>t.length>=3&&!/^\d+$/.test(t)&&!/^d\d+$/.test(t)&&!STOP.has(t));
+function mergeSugg(cs){const out=[],seen=new Set(),g2={};
+ cs.forEach(c=>{const t=tk2(c);if(t.length>=2)(g2[t[0]+'-'+t[1]]=g2[t[0]+'-'+t[1]]||[]).push(c)});
+ Object.entries(g2).forEach(([k,l])=>{if(l.length>=2){out.push({id:k,list:l});l.forEach(c=>seen.add(c.id))}});
+ groups(cs.filter(c=>!seen.has(c.id))).forEach(([t,l])=>{if(l.length===2)out.push({id:t==='grammar'?'english-grammar':t,list:l})});
+ return out}
+function commonTitle(l){const a=l.map(c=>String(c.title));let p=a[0];a.forEach(x=>{while(p&&!x.startsWith(p))p=p.slice(0,-1)});p=p.replace(/[\s—\-–:·]+$/,'').trim();return p||a[0]}
+function mergeCard(){const C=CRq();if(!C)return'';const cs=C.cache.courses,sg=mergeSugg(cs);let h='';
+ if(ui.undo)h+='<div class="c" style="border-color:#16a34a"><h3>↩ '+T('آخرین ادغام قابل برگشت است','Last merge can be undone')+'</h3><p class="m">'+T('اگر نتیجه را نپسندیدی، همه‌چیز (درس‌ها، سؤال‌ها، پیشرفت، خطاها) به حالت قبل برمی‌گردد.','Restores everything to how it was.')+'</p><button data-a="acd4_mgundo">↩ '+T('برگرداندن ادغام','Undo merge')+'</button></div>';
+ if(cs.length<2)return h;
+ h+='<div class="c"><h3>🧩 '+T('ادغام درس‌های هم‌موضوع','Merge related subjects')+'</h3><p class="m">'+T('مثلاً ریاضی (حد + مشتق + آزمون مخلوط) در یک درس با چند فصل. شناسه‌ی درس‌ها و سؤال‌ها، پیشرفت، خطاها و آزمون‌های قبلی می‌مانند. پیشنهاد: اول یک پشتیبان بگیر (ورود و مدیریت).','E.g. Math (limits + derivatives + mixed exam) as one subject. Ids, progress, mistakes and attempts are kept.')+'</p>'
+  +sg.map(x=>'<div class="row"><span class="sp" dir="auto"><b>'+E(commonTitle(x.list))+'</b> <span class="m">← '+x.list.map(c=>E(c.title)).join(' + ')+'</span></span><button class="p" data-a="acd4_mg" data-n="'+E(x.id)+'" data-c="'+E(x.list.map(c=>c.id).join(','))+'">'+T('ادغام…','Merge…')+'</button></div>').join('')
+  +'<div class="row" style="margin-top:6px"><button data-a="acd4_mgpick">'+T('انتخاب دستی…','Pick manually…')+'</button></div></div>';
+ return h}
+async function doMerge(id,title,ids){const a=API(),A=zAX();
+ const cardsBefore=A.cards.filter(c=>ids.indexOf(c.cid)>=0).map(c=>({id:c.id,cid:c.cid})),colsBefore=JSON.parse(JSON.stringify(cols()));
+ const r=await a.merge(id,title,ids);
+ A.cards.forEach(c=>{if(ids.indexOf(c.cid)>=0)c.cid=id});
+ cols().forEach(k=>{if(k.cids.some(i=>ids.indexOf(i)>=0)){const out=[];k.cids.forEach(i=>{if(ids.indexOf(i)>=0){if(out.indexOf(id)<0)out.push(id)}else out.push(i)});k.cids=out}});
+ zAC().mergeUndo={newId:id,ids:ids.slice(),cards:cardsBefore,cols:colsBefore};ui.undo=true;zcommit();return r}
+H.acd4_mg=e=>{const ids=e.dataset.c.split(','),C=CRq(),l=ids.map(i=>C.ix.courses.get(i)).filter(Boolean);if(l.length<2)return;
+ const id=(prompt(T('شناسه‌ی درس تازه (انگلیسی، مثل mba-math):','New subject id (English):'),e.dataset.n)||'').trim();if(!id)return;
+ const title=(prompt(T('نام درس تازه:','New subject name:'),commonTitle(l))||'').trim().slice(0,80);if(!title)return;
+ if(!confirm(T('این '+l.length+' درس در «'+title+'» ادغام شوند؟\nدرس‌ها و سؤال‌ها، پیشرفت، خطاها و آزمون‌ها می‌مانند و بعداً می‌توانی ادغام را برگردانی.','Merge these subjects?')))return;
+ doMerge(id,title,ids).then(r=>toast(T('ادغام شد: ','Merged: ')+F(r.chapters)+' '+T('فصل','chapters')+' · '+F(r.lessons)+' '+T('مبحث','topics')+' · '+F(r.questions)+' '+T('سؤال','questions'))).catch(x=>toast(String(x.message||x),1))};
+H.acd4_mgpick=()=>{const C=CRq();modal('<h3>'+T('کدام درس‌ها ادغام شوند؟','Which subjects?')+'</h3>'+C.cache.courses.map(c=>'<label class="row"><input type="checkbox" class="a4mc" value="'+E(c.id)+'"> <span class="sp" dir="auto">'+E(c.title)+'</span></label>').join('')+'<div class="row"><button class="p" data-a="acd4_mgdo">'+T('ادامه','Next')+'</button><button data-a="cl">'+T('بستن','Close')+'</button></div>')};
+H.acd4_mgdo=()=>{const ids=[...document.querySelectorAll('.a4mc:checked')].map(x=>x.value);if(ids.length<2){toast(T('حداقل دو درس انتخاب کن','Pick at least two'),1);return}closeM();H.acd4_mg({dataset:{c:ids.join(','),n:ids[0]}})};
+H.acd4_mgundo=()=>{if(!confirm(T('ادغام برگردانده شود؟','Undo the merge?')))return;const A=zAX(),u=zAC().mergeUndo;API().undoMerge().then(()=>{if(u){A.cards.forEach(c=>{const o=u.cards.find(x=>x.id===c.id);if(o)c.cid=o.cid});if(u.cols)zAC().cols=u.cols;delete zAC().mergeUndo}ui.undo=false;zcommit();toast(T('ادغام برگشت','Merge undone'))}).catch(x=>toast(String(x.message||x),1))};
+try{API()&&API().mergeUndoInfo().then(i=>{ui.undo=!!i})}catch(e){}
 window.daniAcd4={tree,chapterInfo,lessonChip,lessonCards,stat,cols,groups,courseTabs,crumb,lessonExtra,myLinks,placed,zipCards,todayCard};
 })();

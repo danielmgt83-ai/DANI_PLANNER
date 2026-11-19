@@ -507,6 +507,54 @@ async function deleteCourse(id,withUser){
   if(CR.assetCourse===id)CR.assetCourse='';
   await crLoad();
 }
+/* v152: ادغام چند درس هم‌موضوع در یک درس (با نگه‌داشتن شناسه‌ی درس/سؤال، پیشرفت، خطاها و آزمون‌ها؛ با امکان برگشت) */
+async function mergeCourses(newId,title,srcIds){
+  const src=srcIds.map(id=>CR.ix.courses.get(id)).filter(Boolean);
+  if(src.length<2)throw new Error('حداقل دو درس برای ادغام لازم است');
+  if(!/^[A-Za-z0-9][A-Za-z0-9_.-]{0,63}$/.test(newId)||newId.startsWith('__'))throw new Error('شناسه‌ی درس فقط حروف انگلیسی، عدد و - _ . باشد');
+  if(CR.ix.courses.has(newId)&&!srcIds.includes(newId))throw new Error('این شناسه برای درس دیگری استفاده شده است');
+  const allAssets=await IDB.all('assets');
+  if(allAssets.some(a=>srcIds.includes(a.courseId)))throw new Error('این درس‌ها فایل تصویری دارند؛ ادغام خودکار برایشان هنوز پشتیبانی نمی‌شود');
+  const now=nowISO(),cl=o=>JSON.parse(JSON.stringify(o));
+  const chUsed=new Set(),tpTitle=new Map(),chapters=[],topics=[],goals=[],pre=[],chMap={},tpMap={},exam={};
+  src.forEach(c=>{chMap[c.id]={};tpMap[c.id]={};if(/exam/i.test(c.id))exam[c.id]=String(c.title);
+    (c.chapters||[]).slice().sort((a,b)=>(a.order||0)-(b.order||0)).forEach(ch=>{let id=ch.id;if(chUsed.has(id))id=c.id+'-'+id;chUsed.add(id);chMap[c.id][ch.id]=id;chapters.push({...cl(ch),id,order:chapters.length+1})});
+    (c.topics||[]).forEach(t=>{let id=t.id;if(tpTitle.has(id)&&tpTitle.get(id)!==t.title)id=c.id+'-'+id;if(!tpTitle.has(id)){tpTitle.set(id,t.title);topics.push({id,title:t.title})}tpMap[c.id][t.id]=id});
+    (c.goals||[]).forEach(g=>{if(!goals.includes(g))goals.push(g)});(c.prerequisites||[]).forEach(g=>{if(!pre.includes(g))pre.push(g)})});
+  const inS=o=>srcIds.includes(o.courseId);
+  const L=CR.cache.lessons.filter(inS),Q=CR.cache.questions.filter(inS),S=(await IDB.all('sources')).filter(inS),
+        PR=CR.cache.progress.filter(inS),AT=CR.cache.attempts.filter(inS),ER=CR.cache.errors.filter(inS);
+  const snap={key:'merge_undo',at:now,newId,srcIds:[...srcIds],courses:cl(src),lessons:cl(L),questions:cl(Q),sources:cl(S),progress:cl(PR),attempts:cl(AT),errors:cl(ER)};
+  const mapT=(cid,a)=>Array.isArray(a)?a.map(t=>tpMap[cid][t]||t):a;
+  const nL=L.map(l=>({...l,courseId:newId,chapterId:chMap[l.courseId][l.chapterId]||l.chapterId,topics:mapT(l.courseId,l.topics)}));
+  const nQ=Q.map(q=>{const x={...q,courseId:newId,topicIds:mapT(q.courseId,q.topicIds)};if(exam[q.courseId]&&!x.exam)x.exam=exam[q.courseId];return x});
+  const course={id:newId,title:String(title),description:src.map(c=>c.description).filter(Boolean).join(' · ').slice(0,600),language:src[0].language||'fa',contentVersion:'1.0.0',templateVersion:src[0].templateVersion||1,topics,goals,prerequisites:pre,chapters,
+    importedAt:src.map(c=>c.importedAt).filter(Boolean).sort()[0]||now,updatedAt:now,log:[{at:now,version:'1.0.0',mode:'merge',from:[...srcIds],lessons:nL.length,questions:nQ.length}]};
+  await IDB.tx(['courses','lessons','questions','sources','progress','attempts','errors','meta'],'readwrite',async t=>{
+    await rq(t.objectStore('meta').put(snap));
+    for(const id of srcIds)if(id!==newId)await rq(t.objectStore('courses').delete(id));
+    await rq(t.objectStore('courses').put(course));
+    for(const x of nL)await rq(t.objectStore('lessons').put(x));
+    for(const x of nQ)await rq(t.objectStore('questions').put(x));
+    for(const x of S)await rq(t.objectStore('sources').put({...x,courseId:newId}));
+    for(const x of PR)await rq(t.objectStore('progress').put({...x,courseId:newId}));
+    for(const x of AT)await rq(t.objectStore('attempts').put({...x,courseId:newId}));
+    for(const x of ER)await rq(t.objectStore('errors').put({...x,courseId:newId}));
+  });
+  await crLoad();
+  return{lessons:nL.length,questions:nQ.length,chapters:chapters.length}
+}
+async function undoMerge(){
+  const sn=await IDB.get('meta','merge_undo');if(!sn)throw new Error('ادغامی برای برگشت نیست');
+  await IDB.tx(['courses','lessons','questions','sources','progress','attempts','errors','meta'],'readwrite',async t=>{
+    if(!sn.srcIds.includes(sn.newId))await rq(t.objectStore('courses').delete(sn.newId));
+    for(const c of sn.courses)await rq(t.objectStore('courses').put(c));
+    for(const [s,k] of [['lessons','lessons'],['questions','questions'],['sources','sources'],['progress','progress'],['attempts','attempts'],['errors','errors']])for(const x of sn[k])await rq(t.objectStore(s).put(x));
+    await rq(t.objectStore('meta').delete('merge_undo'));
+  });
+  await crLoad();return sn
+}
+const mergeUndoInfo=async()=>{try{const s=await IDB.get('meta','merge_undo');return s?{newId:s.newId,srcIds:s.srcIds,at:s.at}:null}catch(e){return null}};
 /* ---------- helpers ---------- */
 const C_=()=>CR.cache,course=()=>CR.ix.courses.get(CR.courseId);
 const lessonsOf=cid=>CR.cache.lessons.filter(l=>l.courseId===cid).sort((a,b)=>a.order-b.order);
@@ -1169,7 +1217,7 @@ function mount(){
     return'<div class="c"><h3>'+BH('Academy','آکادمی')+'</h3>'+acdTabs()+'</div>'+crsView()};
   if(!zMS.acd.tab||zMS.acd.tab==='review')zMS.acd.tab='courses'; /* تب پیش‌فرضی که خود پلنر گذاشته (مثلاً learn) تغییر نمی‌کند */
   crLoad().then(()=>{if(inCrs())rerender()});
-  window.daniCourses={buildEverything,prepEverything,rehydrateHost,hostSnap,state:CR,validatePack,loadPackZip,zipRead,zipWrite,tex2mml,grade,inl,blocks,IDB,planPack,normalizePack,commitPack,importFile,buildCourseZip,startQuiz,submitQuiz,userExport,planUser,version:CRV,api:{latestResults,questionsOf,lessonsOf,courseProg,mastery,pool,blk}};
+  window.daniCourses={buildEverything,prepEverything,rehydrateHost,hostSnap,state:CR,validatePack,loadPackZip,zipRead,zipWrite,tex2mml,grade,inl,blocks,IDB,planPack,normalizePack,commitPack,importFile,buildCourseZip,startQuiz,submitQuiz,userExport,planUser,version:CRV,api:{latestResults,questionsOf,lessonsOf,courseProg,mastery,pool,blk,merge:mergeCourses,undoMerge,mergeUndoInfo}};
 }
 mount();
 })();

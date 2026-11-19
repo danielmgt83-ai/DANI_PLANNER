@@ -6,7 +6,7 @@
 (function(){
 const T=window.daniT;
 const FX=()=>{const s=db.set;if(!s.fx||typeof s.fx!=='object')s.fx={};if(s.fx.hap===undefined)s.fx.hap=1;if(s.fx.anim===undefined)s.fx.anim=1;return s.fx};
-const VER='2026.11.110';
+const VER='2026.11.111';
 /* ---------- لرزش و پاپ ---------- */
 const HAP=/^(qk_go|nx_go|nx_sw|pf_add|tp_ap|bin_rs|ex_save|ab_now|ql_|pm_|tm_|tstart|tfinish|hab|ob_log|ob_go|dnd_set|ls_now|dk_)/;
 const reduce=()=>{try{return matchMedia('(prefers-reduced-motion: reduce)').matches}catch(e){return false}};
@@ -19,6 +19,7 @@ st.textContent='@keyframes fxpop{0%{transform:scale(1)}40%{transform:scale(.92)}
 document.head.appendChild(st);
 /* ---------- چه چیزی تازه است ---------- */
 const WN=[
+ ['🧩','ادغام درس‌های هم‌موضوع: ریاضی (حد + مشتق + آزمون مخلوط) و انگلیسی (دو دوره‌ی گرامر) هر کدام یک درس با چند فصل می‌شوند. شناسه‌ها، پیشرفت، خطاها و آزمون‌ها می‌مانند؛ سؤال‌های آزمون مخلوط برچسب «آزمون» می‌گیرند؛ دکمه‌ی برگرداندن ادغام هست.','Merge related subjects into one with chapters; progress, mistakes and attempts kept; undo available.'],
  ['🎓','آکادمی یکپارچه: «درس‌ها» و «دوره‌ها» یکی شد. داخل هر درس زبانه‌های فصل‌ها، فرمول‌ها، کارت‌ها، خطاها، نشانک‌ها و آزمون هست؛ دفترچه فرمول با ارجاع به تدریس، سؤال و صفحه‌ی جزوه؛ مسیر مجموعه ‹ درس ‹ فصل ‹ مبحث بالای هر مبحث؛ «ورود و مدیریت» جدا از منابع؛ منابع یکی و جمع‌وجور؛ پرسیدن مجموعه هنگام نصب.','Unified Academy: Lessons+Courses merged; per-subject tabs (chapters, formulas, cards, mistakes, bookmarks, exam); formula notebook; breadcrumb; import/manage separate; one compact Resources page; collection chosen on install.'],
  ['📚','آکادمی مبحث‌محور: «مجموعه» (مثل MBA) ← درس ← فصل ← مبحث. درصد تسلط روی هر فصل و مبحث، فلش‌کارت مخصوص هر مبحث، پیشنهاد گروه‌بندی خودکار و هشدار محتوای تکراری. چیزی پاک نشد.','Topic-centred Academy: collections → subjects → chapters → topics, mastery %, per-topic flashcards, auto-grouping and duplicate warning. Nothing deleted.'],
  ['🎨','«ظاهر و تم» مرتب شد: پنج زبانه (تم · رنگ و حالت · آیکون‌ها · پس‌زمینه · حس و کارت‌ها)؛ حالت «خودکار (طبق گوشی)» اضافه شد و برای کاربر تازه پیش‌فرض است. چیزی حذف نشد.','“Look & themes” is tidier: five tabs (Theme · Colour & mode · Icons · Background · Feel & cards); an “Auto (follow phone)” mode is new and the default for new users. Nothing was removed.'],
