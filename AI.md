@@ -657,4 +657,5 @@ html[data-mx=1] فقط وقتی db.set.mx!==0 و تم ساده است (بدون 
 (v149) look3.js: ۵ زبانه برای ظاهر و تم؛ core.js: th='auto' با daniThMode().
 (v150) acd4.js: مجموعه‌ها/درخت آکادمی، تسلط، فلش‌کارت مبحث (cards.lid)؛ courses.js: api export + hookها. مرحله‌ی بعد: فلش‌کارت در ZIP، آزمون‌ساز بین‌درسی، ادغام دوره‌ها.
 (v151) acd3 نوار ۴گروهی؛ acd4: courseTabs/formulaBook/crumb/placed/zipCards؛ ZIP: `flashcards/*.json` و `manifest.collection` اختیاری؛ بلوک‌ها `name`/`page` اختیاری. باقی: آزمون‌ساز بین‌درسی، ادغام دوره‌ها، بسته‌ی جامع.
+(v153) rename: api.renameItem(kind c|ch|l,cid,id,title) → db.mods.acd.ren؛ reapplyRen بعد از commitPack؛ api.addQuestion؛ builder در lessonExtra؛ migOld (کارت‌های افزونه‌ی acadlessons → مبحث‌های دوره).
 (v152) merge: api.merge(newId,title,srcIds)/undoMerge؛ undo فقط آخرین ادغام.
