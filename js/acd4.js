@@ -193,8 +193,8 @@ function placed(cid,name){try{const L=cols();if(L.some(c=>c.cids.includes(cid)))
  setTimeout(()=>{if(!cols().some(c=>c.cids.includes(cid)))askPlace(cid)},500)}catch(e){console.error(e)}}
 function zipCards(cid,list){const C=CRq(),A=zAX(),c=C.ix.courses.get(cid),t=todayISO();let n=0,u=0;
  (list||[]).forEach(f=>{if(!f||!f.q||!f.a||!f.id)return;const fid=cid+':'+f.id,q=S_(String(f.q),300),a=S_(String(f.a),600),l=f.lessonId&&C.ix.lessons.get(f.lessonId),lid=l?l.id:'';
-  const o=A.cards.find(x=>x.fid===fid);if(o){o.q=q;o.a=a;if(lid)o.lid=lid;u++;return}
-  if(A.cards.length>=2000)return;A.cards.push({id:'c'+uid(),fid,deck:S_((c?c.title:cid)+(l?' › '+l.title:''),60),cid,lid,q,a,ease:2.5,ivl:0,reps:0,lap:0,due:t,created:t,ag:''});n++});
+  const o=A.cards.find(x=>x.fid===fid);if(o){o.q=q;o.a=a;if(f.x)o.x=S_(String(f.x),200);if(lid)o.lid=lid;u++;return}
+  if(A.cards.length>=2000)return;A.cards.push({id:'c'+uid(),fid,deck:S_((c?c.title:cid)+(l?' › '+l.title:''),60),cid,lid,q,a,x:f.x?S_(String(f.x),200):undefined,ease:2.5,ivl:0,reps:0,lap:0,due:t,created:t,ag:''});n++});
  if(n||u){zcommit();toast(F(n)+' '+T('فلش‌کارت از فایل درس اضافه شد','flashcards added from the course file')+(u?' · '+F(u)+' '+T('به‌روز','updated'):''))}}
 H.acd4_ct=e=>{ui.ct[e.dataset.c]=e.dataset.k;rr()};
 H.acd4_goct=e=>{ui.ct[e.dataset.c]=e.dataset.k;const C=CRq();C.lessonId='';C.courseId=e.dataset.c;rr();window.scrollTo(0,0)};
