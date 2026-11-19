@@ -356,13 +356,14 @@ await test('آکادمی v153: فصل‌های جدا و بازشونده، تغ
  [1,2,3,4].forEach(i=>C.cache.lessons.push({id:'rt-l'+i,courseId:'rt',chapterId:'c'+i,title:'مبحث '+i,order:i,blocks:[],status:'approved',topics:[]}));
  C.ix.courses=new Map(C.cache.courses.map(x=>[x.id,x]));C.ix.lessons=new Map(C.cache.lessons.map(x=>[x.id,x]));C.ix.questions=new Map();C.loaded=true;
  page='acd';zMS.acd.tab='courses';C.tab='courses';C.courseId='rt';C.lessonId='';render();let h=document.getElementById('pg').innerHTML;
- o.badges=(h.match(/class="badge">(فصل|Ch\.) /g)||[]).length;o.ren=(h.match(/data-a="acd4_ren"/g)||[]).length;o.closed=!/مبحث 1|مبحث ۱/.test(h);
+ o.badges=(h.match(/class="badge">(فصل|Ch\.) /g)||[]).length;o.ren=(h.match(/data-a="acd4_rn"/g)||[]).length;o.closed=!/مبحث 1|مبحث ۱/.test(h);
+ window.prompt=()=>'نام-کلیکی';document.querySelector('[data-a="acd4_rn"][data-t="c"]').click();await new Promise(r=>setTimeout(r,400));o.click=C.ix.courses.get('rt').title==='نام-کلیکی';
  H.crs_chtog({dataset:{k:'c1'}});h=document.getElementById('pg').innerHTML;o.opened=/مبحث ۱|مبحث 1/.test(h);
  await daniCourses.api.renameItem('ch','rt','c1','مقدمه');await daniCourses.api.renameItem('l','rt','rt-l1','تعریف حد');await daniCourses.api.renameItem('c','rt','rt','ریاضی من');
  render();h=document.getElementById('pg').innerHTML;o.rn=/مقدمه/.test(h)&&/تعریف حد/.test(h)&&/ریاضی من/.test(h)&&zAC().ren.rt.c==='ریاضی من';
  o.bld=/a4b-fq/.test(daniAcd4.lessonExtra(C.ix.lessons.get('rt-l1')));
  page='home';render();return o});
- if(r.badges!==4||r.ren<5||!r.closed||!r.opened||!r.rn||!r.bld)throw new Error(JSON.stringify(r))});
+ if(r.badges!==4||r.ren<5||!r.closed||!r.opened||!r.rn||!r.bld||!r.click)throw new Error(JSON.stringify(r))});
 
 await test('آکادمی v154: آزمون‌ساز چنددرسی (ترتیب انتخاب، ترکیب دو درس، آمار هر درس)',async pg=>{const r=await pg.evaluate(async()=>{const C=daniCourses.state,o={};
  C.cache.courses.length=0;C.cache.lessons.length=0;C.cache.questions.length=0;C.cache.attempts.length=0;
