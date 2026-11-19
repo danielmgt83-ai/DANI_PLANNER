@@ -2,6 +2,10 @@
 
 > هر تحویل یک خط در اینجا. جدیدترین بالا. (هوش مصنوعی‌ها: هر بار که فایلی را عوض می‌کنید، این‌جا یک خط بنویسید.)
 
+## (۱۵۳) v155 — فلش‌کارت قوی‌تر
+- `js/cards2.js` (جدید، بعد از acd4): `acdReview/acdCards/srsDue` گسترش یافت؛ 🔊 SpeechSynthesis، حالت املا، جای‌خالی `{{…}}`، فیلد `x` (مثال/تلفظ)، سقف کارت جدید (`zAX().nl`, `nlc`).
+- `acd4.js`: `zipCards` فیلد `x` را هم می‌خواند.
+
 ## (۱۵۲) v154 — آزمون‌ساز چنددرسی
 - `courses.js`: `api.startMulti` (items به ترتیب انتخاب؛ order=pick|shuffle؛ attempt با `courses[]`/`mixed`)، `latestResults` و `recordErrors` برای آزمون ترکیبی بر پایه‌ی courseId هر سؤال، `crAssets('a|b')`.
 - `acd4.js`: `xbuilder/xtoggle` (درخت مجموعه←درس←فصل←مبحث، ترتیب ↑↓، شبیه‌ساز کنکور) داخل مرکز آزمون.
