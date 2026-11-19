@@ -304,7 +304,7 @@ await test('آکادمی مبحث‌محور v150: مجموعه‌ها، پیش�
  C.loaded=true;C.quiz=null;C.keyId='';C.courseId='';C.lessonId='';
  localStorage.setItem('dani_ext_index',JSON.stringify([{id:'acadlessons',name:'درس‌های آکادمی',on:true}]));
  page='acd';zMS.acd.tab='courses';C.tab='home';render();const html=()=>document.getElementById('pg').innerHTML;
- o.sug=(html().match(/data-a="acd4_mk"/g)||[]).length;o.dup=/محتوای تکراری/.test(html());
+ o.sug=(html().match(/data-a="acd4_mk"/g)||[]).length;o.dup=/acd4_mig/.test(html());
  H.acd4_mk({dataset:{t:'mba'}});H.acd4_mk({dataset:{t:'grammar'}});render();
  o.cols=zAC().cols.length;o.mba=zAC().cols.find(c=>c.title==='MBA').cids.length;o.gr=zAC().cols.find(c=>c.title==='Grammar').cids.length;
  o.free=(html().match(/solo-x/)||[]).length>0&&/بدون مجموعه/.test(html());
@@ -348,6 +348,21 @@ await test('آکادمی v152: پیشنهاد ادغام درس‌های هم‌
  o.btn=(h.match(/data-a="acd4_mg"/g)||[]).length;o.math=/data-n="mba-math"[^>]*data-c="mba-math-d1-limit,mba-math-d2-derivative,mba-math-exam-01"/.test(h);o.en=/data-n="english-grammar"/.test(h);o.pick=/acd4_mgpick/.test(h);
  page='home';render();return o});
  if(r.btn!==2||!r.math||!r.en||!r.pick)throw new Error(JSON.stringify(r))});
+
+await test('آکادمی v153: فصل‌های جدا و بازشونده، تغییر نام ماندگار، سازنده داخل مبحث',async pg=>{const r=await pg.evaluate(async()=>{const C=daniCourses.state,o={};
+ C.cache.courses.length=0;C.cache.lessons.length=0;C.cache.questions.length=0;
+ const ch=[1,2,3,4].map(i=>({id:'c'+i,title:'فصل‌نمونه '+i,order:i}));
+ C.cache.courses.push({id:'rt',title:'درس آزمایشی',contentVersion:'1',language:'fa',description:'',goals:[],prerequisites:[],topics:[],chapters:ch});
+ [1,2,3,4].forEach(i=>C.cache.lessons.push({id:'rt-l'+i,courseId:'rt',chapterId:'c'+i,title:'مبحث '+i,order:i,blocks:[],status:'approved',topics:[]}));
+ C.ix.courses=new Map(C.cache.courses.map(x=>[x.id,x]));C.ix.lessons=new Map(C.cache.lessons.map(x=>[x.id,x]));C.ix.questions=new Map();C.loaded=true;
+ page='acd';zMS.acd.tab='courses';C.tab='courses';C.courseId='rt';C.lessonId='';render();let h=document.getElementById('pg').innerHTML;
+ o.badges=(h.match(/class="badge">(فصل|Ch\.) /g)||[]).length;o.ren=(h.match(/data-a="acd4_ren"/g)||[]).length;o.closed=!/مبحث 1|مبحث ۱/.test(h);
+ H.crs_chtog({dataset:{k:'c1'}});h=document.getElementById('pg').innerHTML;o.opened=/مبحث ۱|مبحث 1/.test(h);
+ await daniCourses.api.renameItem('ch','rt','c1','مقدمه');await daniCourses.api.renameItem('l','rt','rt-l1','تعریف حد');await daniCourses.api.renameItem('c','rt','rt','ریاضی من');
+ render();h=document.getElementById('pg').innerHTML;o.rn=/مقدمه/.test(h)&&/تعریف حد/.test(h)&&/ریاضی من/.test(h)&&zAC().ren.rt.c==='ریاضی من';
+ o.bld=/a4b-fq/.test(daniAcd4.lessonExtra(C.ix.lessons.get('rt-l1')));
+ page='home';render();return o});
+ if(r.badges!==4||r.ren<5||!r.closed||!r.opened||!r.rn||!r.bld)throw new Error(JSON.stringify(r))});
 
 console.log('\n'+results.map(r=>r.join(' ')).join('\n')+'\n\n'+(results.length-fails)+' / '+results.length+' موفق');
 await browser.close();srv.close();process.exit(fails?1:0);
