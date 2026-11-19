@@ -340,5 +340,14 @@ await test('آکادمی v151: زبانه‌های درون درس، دفترچ�
  C.tab='home';page='home';render();return o});
  if(r.top!==4||!r.today||!r.mgmt||!r.noB||r.tabs!==6||!r.fm||!r.er||!r.ex||!r.extra||r.zc!==2||r.zc2!==2||!r.pl||!r.src)throw new Error(JSON.stringify(r))});
 
+await test('آکادمی v152: پیشنهاد ادغام درس‌های هم‌موضوع (ریاضی ۳ تایی، انگلیسی ۲ تایی)',async pg=>{const r=await pg.evaluate(async()=>{const C=daniCourses.state,o={};
+ C.cache.courses.length=0;C.cache.lessons.length=0;C.cache.questions.length=0;
+ ['mba-math-d1-limit','mba-math-d2-derivative','mba-math-exam-01','gmat-mba','toefl-grammar','grammar-foundation'].forEach(id=>C.cache.courses.push({id,title:id.startsWith('mba-math')?'ریاضی MBA — '+id:id,contentVersion:'1',chapters:[{id:'c'+id,title:'ف'}],topics:[]}));
+ C.ix.courses=new Map(C.cache.courses.map(x=>[x.id,x]));C.ix.lessons=new Map();C.ix.questions=new Map();C.loaded=true;zAC().cols=[];
+ page='acd';zMS.acd.tab='courses';C.tab='home';C.courseId='';C.lessonId='';render();const h=document.getElementById('pg').innerHTML;
+ o.btn=(h.match(/data-a="acd4_mg"/g)||[]).length;o.math=/data-n="mba-math"[^>]*data-c="mba-math-d1-limit,mba-math-d2-derivative,mba-math-exam-01"/.test(h);o.en=/data-n="english-grammar"/.test(h);o.pick=/acd4_mgpick/.test(h);
+ page='home';render();return o});
+ if(r.btn!==2||!r.math||!r.en||!r.pick)throw new Error(JSON.stringify(r))});
+
 console.log('\n'+results.map(r=>r.join(' ')).join('\n')+'\n\n'+(results.length-fails)+' / '+results.length+' موفق');
 await browser.close();srv.close();process.exit(fails?1:0);
