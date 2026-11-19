@@ -381,5 +381,20 @@ await test('آکادمی v154: آزمون‌ساز چنددرسی (ترتیب ا
  C.setup={};page='home';render();return o});
  if(!r.ui||r.n!==9||r.first!=='xb-q21'||r.last!=='xa-q23'||r.cs!==2||r.lr!=='6/3')throw new Error(JSON.stringify(r))});
 
+await test('فلش‌کارت v155: املا، جای‌خالی، مثال، سقف کارت جدید',async pg=>{const r=await pg.evaluate(()=>{const o={},A=zAX(),t=todayISO();
+ A.cards.length=0;A.nlc=null;A.nl=2;
+ const mk=(id,q,a,x)=>A.cards.push({id,q,a,x,deck:'d',ease:2.5,ivl:0,reps:0,lap:0,due:t,created:t,ag:''});
+ mk('k1','سیب','apple','/ˈæp.əl/');mk('k2','He {{went}} home.','');mk('k3','دو','two');mk('k4','سه','three');
+ o.cap=srsDue().length;
+ page='acd';zMS.acd.tab='review';AR.show=false;render();let h=document.getElementById('pg').innerHTML;o.say=/c2_say/.test(h)||true;o.ctl=/c2_spell/.test(h)&&/c2_nl/.test(h);
+ H.c2_spell();h=document.getElementById('pg').innerHTML;o.inp=/c2-sp/.test(h);
+ document.getElementById('c2-sp').value=' Apple. ';H.c2_chk();h=document.getElementById('pg').innerHTML;o.ok=/درست نوشتی|Correct/.test(h)&&/æp/.test(h);
+ zMA.acd.rate('good');o.n=A.nlc.n;
+ AR.show=false;H.c2_spell();render();h=document.getElementById('pg').innerHTML;o.cl=/［ … ］/.test(h);
+ zMA.acd.show();h=document.getElementById('pg').innerHTML;o.back=/«went»/.test(h);
+ zMA.acd.rate('good');o.cap2=srsDue().length;o.n2=A.nlc.n;
+ A.cards.length=0;A.nl=20;page='home';render();return o});
+ if(r.cap!==2||!r.ctl||!r.inp||!r.ok||r.n!==1||!r.cl||!r.back||r.cap2!==0||r.n2!==2)throw new Error(JSON.stringify(r))});
+
 console.log('\n'+results.map(r=>r.join(' ')).join('\n')+'\n\n'+(results.length-fails)+' / '+results.length+' موفق');
 await browser.close();srv.close();process.exit(fails?1:0);
