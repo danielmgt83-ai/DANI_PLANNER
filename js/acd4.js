@@ -232,6 +232,54 @@ H.acd4_mg=e=>{const ids=e.dataset.c.split(','),C=CRq(),l=ids.map(i=>C.ix.courses
 H.acd4_mgpick=()=>{const C=CRq();modal('<h3>'+T('کدام درس‌ها ادغام شوند؟','Which subjects?')+'</h3>'+C.cache.courses.map(c=>'<label class="row"><input type="checkbox" class="a4mc" value="'+E(c.id)+'"> <span class="sp" dir="auto">'+E(c.title)+'</span></label>').join('')+'<div class="row"><button class="p" data-a="acd4_mgdo">'+T('ادامه','Next')+'</button><button data-a="cl">'+T('بستن','Close')+'</button></div>')};
 H.acd4_mgdo=()=>{const ids=[...document.querySelectorAll('.a4mc:checked')].map(x=>x.value);if(ids.length<2){toast(T('حداقل دو درس انتخاب کن','Pick at least two'),1);return}closeM();H.acd4_mg({dataset:{c:ids.join(','),n:ids[0]}})};
 H.acd4_mgundo=()=>{if(!confirm(T('ادغام برگردانده شود؟','Undo the merge?')))return;const A=zAX(),u=zAC().mergeUndo;API().undoMerge().then(()=>{if(u){A.cards.forEach(c=>{const o=u.cards.find(x=>x.id===c.id);if(o)c.cid=o.cid});if(u.cols)zAC().cols=u.cols;delete zAC().mergeUndo}ui.undo=false;zcommit();toast(T('ادغام برگشت','Merge undone'))}).catch(x=>toast(String(x.message||x),1))};
+
+/* ===== v154: آزمون‌ساز چنددرسی (مجموعه ← درس ← فصل ← مبحث؛ ترتیب دلخواه؛ ترکیب چند درس) ===== */
+const xb=()=>ui.xb||(ui.xb={sel:[],open:{},diffs:[1,2,3],count:'',order:'pick',mode:'exam',timed:false,min:30,neg:false});
+function xtoggle(multi){return'<div class="c"><div class="row"><button class="chip '+(!multi?'on':'')+'" data-a="acd4_xmode" data-v="0">'+T('یک درس','One subject')+'</button><button class="chip '+(multi?'on':'')+'" data-a="acd4_xmode" data-v="1">🧩 '+T('آزمون‌ساز (ترکیب چند درس)','Builder (mix subjects)')+'</button></div></div>'}
+const xcnt=(cid,sc)=>{try{return API().pool(cid,[sc],xb().diffs).length}catch(e){return 0}};
+const xon=t=>xb().sel.indexOf(t)>=0;
+function xlabel(t){const i=t.indexOf('|'),cid=t.slice(0,i),sc=t.slice(i+1),C=CRs(),c=C.ix.courses.get(cid);if(!c)return t;
+ if(sc==='all')return c.title+' — '+T('کل درس','whole subject');
+ if(sc.startsWith('chapter:')){const k=sc.slice(8),ci=c.chapters.findIndex(x=>x.id===k);return c.title+' › '+T('فصل','Ch.')+' '+F(ci+1)+(ci>=0?': '+c.chapters[ci].title:'')}
+ const l=C.ix.lessons.get(sc.slice(7));return c.title+' › '+(l?l.title:sc)}
+function xnode(cid,c){const C=CRs(),o=xb().open,ck=(t,lbl,n)=>'<label class="crs-ck"><input type="checkbox" data-a="acd4_xsel" data-t="'+E(t)+'" '+(xon(t)?'checked':'')+'> <span dir="auto">'+E(lbl)+'</span> <span class="m">('+F(n)+')</span></label>';
+ const key='c:'+cid,open=!!o[key];
+ let h='<div class="a4row"><div class="row"><button data-a="acd4_xopen" data-k="'+E(key)+'" aria-expanded="'+open+'">'+(open?'▾':'◂')+'</button>'+ck(cid+'|all',c.title,xcnt(cid,'all'))+'</div>';
+ if(open){(c.chapters||[]).forEach((ch,i)=>{const hk='h:'+cid+':'+ch.id,ho=!!o[hk],ls=C.cache.lessons.filter(l=>l.courseId===cid&&l.chapterId===ch.id).sort((a,b)=>a.order-b.order);
+   h+='<div style="margin-inline-start:14px"><div class="row"><button class="chip sm" data-a="acd4_xopen" data-k="'+E(hk)+'">'+(ho?'▾':'◂')+'</button>'+ck(cid+'|chapter:'+ch.id,T('فصل','Ch.')+' '+F(i+1)+': '+ch.title,xcnt(cid,'chapter:'+ch.id))+'</div>';
+   if(ho)h+=ls.map(l=>'<div style="margin-inline-start:18px">'+ck(cid+'|lesson:'+l.id,l.title,xcnt(cid,'lesson:'+l.id))+'</div>').join('');
+   h+='</div>'})}
+ return h+'</div>'}
+function xbuilder(){const C=CRs(),S=xb(),cs=C.cache.courses,L=cols();
+ let h=xtoggle(true);
+ if(!cs.length)return h+'<div class="c"><p class="m">'+T('هنوز درسی نیست.','No subjects yet.')+'</p></div>';
+ h+='<div class="c"><h3>🧩 '+T('آزمون‌ساز','Exam builder')+' <span class="m">Exam Builder</span></h3><p class="m">'+T('۱) از درخت زیر درس، فصل یا مبحث را تیک بزن (می‌شود از چند درس و چند مجموعه). ۲) ترتیب را پایین مشخص کن. ۳) شروع.','1) tick subjects, chapters or topics (mix freely). 2) set the order below. 3) start.')+'</p>';
+ const used=new Set();
+ L.forEach(k=>{const list=k.cids.map(id=>C.ix.courses.get(id)).filter(Boolean);list.forEach(c=>used.add(c.id));if(!list.length)return;
+  const ko='k:'+k.id,op=S.open[ko]!==false;h+='<div class="a4col"><div class="row"><button data-a="acd4_xopen" data-k="'+E(ko)+'" aria-expanded="'+op+'">'+(op?'▾':'◂')+'</button><b class="sp" dir="auto">📚 '+E(k.title)+'</b></div>'+(op?list.map(c=>xnode(c.id,c)).join(''):'')+'</div>'});
+ const free=cs.filter(c=>!used.has(c.id));if(free.length){const op=S.open['k:_free']!==false;h+='<div class="a4col"><div class="row"><button data-a="acd4_xopen" data-k="k:_free" aria-expanded="'+op+'">'+(op?'▾':'◂')+'</button><b class="sp">'+T('بدون مجموعه','No collection')+'</b></div>'+(op?free.map(c=>xnode(c.id,c)).join(''):'')+'</div>'}
+ h+='</div>';
+ /* انتخاب‌ها به ترتیب */
+ const tot=S.sel.reduce((n,t)=>n+xcnt(t.slice(0,t.indexOf('|')),t.slice(t.indexOf('|')+1)),0);
+ h+='<div class="c"><h3>'+T('ترتیب آزمون','Order')+' ('+F(S.sel.length)+')</h3>'+(S.sel.length?S.sel.map((t,i)=>'<div class="row"><span class="badge">'+F(i+1)+'</span><span class="sp" dir="auto">'+E(xlabel(t))+'</span><button class="chip sm" data-a="acd4_xmv" data-i="'+i+'" data-d="-1" '+(i?'':'disabled')+' aria-label="up">↑</button><button class="chip sm" data-a="acd4_xmv" data-i="'+i+'" data-d="1" '+(i<S.sel.length-1?'':'disabled')+' aria-label="down">↓</button><button class="chip sm d" data-a="acd4_xrm" data-i="'+i+'" aria-label="remove">✕</button></div>').join(''):'<p class="m">'+T('هنوز چیزی انتخاب نشده.','Nothing picked yet.')+'</p>')+'</div>';
+ const df=d=>'<label class="crs-ck"><input type="checkbox" data-a="acd4_xset" data-k="diff" data-v="'+d+'" '+(S.diffs.includes(d)?'checked':'')+'> '+[T('آسان','Easy'),T('متوسط','Medium'),T('دشوار','Hard')][d-1]+'</label>';
+ h+='<div class="c"><div class="m"><b>'+F(tot)+'</b> '+T('سؤال با این انتخاب (بدون حذف تکراری‌های بین بخش‌ها)','questions available (before de-duplication)')+'</div>'
+  +'<label>'+T('سطح دشواری','Difficulty')+'</label><div class="row">'+[1,2,3].map(df).join('')+'</div>'
+  +'<label>'+T('چینش سؤال‌ها','Question order')+'</label><div class="row"><button class="chip '+(S.order==='pick'?'on':'')+'" data-a="acd4_xset" data-k="order" data-v="pick">'+T('به ترتیب بالا','As ordered above')+'</button><button class="chip '+(S.order==='shuffle'?'on':'')+'" data-a="acd4_xset" data-k="order" data-v="shuffle">'+T('کاملاً تصادفی','Fully shuffled')+'</button></div>'
+  +'<div class="row"><div><label>'+T('تعداد سؤال (خالی = همه)','Count (blank = all)')+'</label><input type="number" min="1" id="a4x-n" value="'+E(S.count)+'" style="width:100px"></div><div><label>'+T('نوع','Mode')+'</label><select id="a4x-m"><option value="exam" '+(S.mode==='exam'?'selected':'')+'>'+T('آزمون','Exam')+'</option><option value="practice" '+(S.mode==='practice'?'selected':'')+'>'+T('تمرین','Practice')+'</option></select></div></div>'
+  +'<div class="row"><label class="crs-ck"><input type="checkbox" id="a4x-t" '+(S.timed?'checked':'')+'> '+T('زمان‌دار','Timed')+'</label><input type="number" min="1" id="a4x-min" value="'+S.min+'" style="width:80px"> '+T('دقیقه','min')+'<label class="crs-ck"><input type="checkbox" id="a4x-neg" '+(S.neg?'checked':'')+'> '+T('نمرهٔ منفی (هر غلط ⅓)','Negative marking')+'</label></div>'
+  +'<div class="row" style="margin-top:10px"><button class="p" data-a="acd4_xgo" '+(tot?'':'disabled')+'>'+T('شروع آزمون','Start')+'</button><button data-a="acd4_xgo" data-k="1" '+(tot?'':'disabled')+'>🎯 '+T('شبیه‌ساز کنکور (تصادفی، زمان‌دار، منفی)','Konkur simulator')+'</button></div></div>';
+ return h}
+function xsync(){const S=xb(),g=id=>document.getElementById(id);if(g('a4x-n')){S.count=g('a4x-n').value;S.mode=g('a4x-m').value;S.timed=g('a4x-t').checked;S.min=parseInt(g('a4x-min').value,10)||30;S.neg=g('a4x-neg').checked}}
+H.acd4_xmode=e=>{const C=CRs();C.setup=C.setup||{};C.setup.multi=e.dataset.v==='1';rr()};
+H.acd4_xopen=e=>{xsync();const S=xb(),k=e.dataset.k;S.open[k]=!(S.open[k]===undefined?k.startsWith('k:'):S.open[k]);rr()};
+H.acd4_xsel=e=>{xsync();const S=xb(),t=e.dataset.t,i=S.sel.indexOf(t);if(i>=0)S.sel.splice(i,1);else S.sel.push(t);rr()};
+H.acd4_xmv=e=>{xsync();const S=xb(),i=+e.dataset.i,j=i+(+e.dataset.d);if(j<0||j>=S.sel.length)return;[S.sel[i],S.sel[j]]=[S.sel[j],S.sel[i]];rr()};
+H.acd4_xrm=e=>{xsync();xb().sel.splice(+e.dataset.i,1);rr()};
+H.acd4_xset=e=>{xsync();const S=xb(),k=e.dataset.k,v=e.dataset.v;if(k==='diff'){const d=+v,i=S.diffs.indexOf(d);if(i>=0){if(S.diffs.length>1)S.diffs.splice(i,1)}else S.diffs.push(d)}else S[k]=v;rr()};
+H.acd4_xgo=e=>{xsync();const S=xb(),kon=!!e.dataset.k;if(!S.sel.length){toast(T('اول چیزی انتخاب کن','Pick something first'),1);return}
+ const items=S.sel.map(t=>({cid:t.slice(0,t.indexOf('|')),scope:t.slice(t.indexOf('|')+1)})),n=Math.max(0,parseInt(S.count,10)||0);
+ API().startMulti({items,diffs:S.diffs,count:kon&&!n?0:n,order:kon?'shuffle':S.order,mode:kon?'exam':S.mode,timed:kon||S.timed,minutes:kon?Math.max(10,Math.round((n||60))):S.min,neg:kon||S.neg,konkur:kon}).catch(x=>toast(String(x.message||x),1))};
 try{API()&&API().mergeUndoInfo().then(i=>{ui.undo=!!i})}catch(e){}
-window.daniAcd4={tree,chapterInfo,lessonChip,lessonCards,stat,cols,groups,courseTabs,crumb,lessonExtra,myLinks,placed,zipCards,todayCard};
+window.daniAcd4={xbuilder,xtoggle,tree,chapterInfo,lessonChip,lessonCards,stat,cols,groups,courseTabs,crumb,lessonExtra,myLinks,placed,zipCards,todayCard};
 })();

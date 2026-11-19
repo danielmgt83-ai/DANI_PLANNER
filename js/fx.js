@@ -6,7 +6,7 @@
 (function(){
 const T=window.daniT;
 const FX=()=>{const s=db.set;if(!s.fx||typeof s.fx!=='object')s.fx={};if(s.fx.hap===undefined)s.fx.hap=1;if(s.fx.anim===undefined)s.fx.anim=1;return s.fx};
-const VER='2026.11.112';
+const VER='2026.11.113';
 /* ---------- لرزش و پاپ ---------- */
 const HAP=/^(qk_go|nx_go|nx_sw|pf_add|tp_ap|bin_rs|ex_save|ab_now|ql_|pm_|tm_|tstart|tfinish|hab|ob_log|ob_go|dnd_set|ls_now|dk_)/;
 const reduce=()=>{try{return matchMedia('(prefers-reduced-motion: reduce)').matches}catch(e){return false}};
@@ -19,6 +19,7 @@ st.textContent='@keyframes fxpop{0%{transform:scale(1)}40%{transform:scale(.92)}
 document.head.appendChild(st);
 /* ---------- چه چیزی تازه است ---------- */
 const WN=[
+ ['🧩','آزمون‌ساز چنددرسی: در «مرکز آزمون» دکمهٔ «آزمون‌ساز» را بزن؛ از درخت مجموعه ← درس ← فصل ← مبحث هرچه خواستی تیک بزن، ترتیبش را با ↑↓ بچین (یا تصادفی)، و چند درس را در یک آزمون (حتی شبیه‌ساز کنکور) ترکیب کن. نتیجه به آمار هر درس برمی‌گردد.','Multi-subject exam builder: in Exam Center tap “Builder”, tick subjects/chapters/topics from the tree, order them (or shuffle), mix several subjects into one exam (even a konkur simulator). Results feed each subject\'s stats.'],
  ['✎','فصل‌ها جدا و بازشونده (فصل ۱، فصل ۲…)؛ با ✎ نام درس، فصل و مبحث را عوض کن (با به‌روزرسانی دوره پاک نمی‌شود). داخل هر مبحث «🛠 ساخت» برای فلش‌کارت و سؤال خودت. «درس‌های قدیمی» با یک دکمه به درس‌ها منتقل می‌شود.','Chapters are separate and collapsible; ✎ renames subjects, chapters and topics (kept across updates); 🛠 build cards/questions inside a topic; old lessons move into subjects with one button.'],
  ['🧩','ادغام درس‌های هم‌موضوع: ریاضی (حد + مشتق + آزمون مخلوط) و انگلیسی (دو دوره‌ی گرامر) هر کدام یک درس با چند فصل می‌شوند. شناسه‌ها، پیشرفت، خطاها و آزمون‌ها می‌مانند؛ سؤال‌های آزمون مخلوط برچسب «آزمون» می‌گیرند؛ دکمه‌ی برگرداندن ادغام هست.','Merge related subjects into one with chapters; progress, mistakes and attempts kept; undo available.'],
  ['🎓','آکادمی یکپارچه: «درس‌ها» و «دوره‌ها» یکی شد. داخل هر درس زبانه‌های فصل‌ها، فرمول‌ها، کارت‌ها، خطاها، نشانک‌ها و آزمون هست؛ دفترچه فرمول با ارجاع به تدریس، سؤال و صفحه‌ی جزوه؛ مسیر مجموعه ‹ درس ‹ فصل ‹ مبحث بالای هر مبحث؛ «ورود و مدیریت» جدا از منابع؛ منابع یکی و جمع‌وجور؛ پرسیدن مجموعه هنگام نصب.','Unified Academy: Lessons+Courses merged; per-subject tabs (chapters, formulas, cards, mistakes, bookmarks, exam); formula notebook; breadcrumb; import/manage separate; one compact Resources page; collection chosen on install.'],
