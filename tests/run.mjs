@@ -267,7 +267,7 @@ await test('زنجیره v147: فقط ثبت مفید برای هدف روز پ�
  if(r.rest||r.short||!r.useful||!r.off)throw new Error(JSON.stringify(r))});
 await test('آکادمی v148: ۴ بخش، زیرزبانه‌ها همه‌ی صفحه‌های قبلی را باز می‌کنند، کارت‌های قدیمیِ خالی رفته‌اند',async pg=>{const r=await pg.evaluate(async()=>{const o={};const w=()=>new Promise(x=>setTimeout(x,300));page='acd';render();await w();
  o.top=document.querySelectorAll('#pg .a3top .chip').length;const got={};
- for(const k of ['learn','courses','review','cards','errors','bm','quiz','tests','report','rep2','res','sources','manage']){H.acd3_go({dataset:{k}});await w();got[k]=daniAcd3.cur()[0]===k&&document.querySelectorAll('#pg .a3sub .chip.on').length===1}
+ for(const k of ['learn','courses','review','cards','errors','bm','quiz','tests','report','rep2','res','sources','manage']){H.acd3_go({dataset:{k}});await w();got[k]=daniAcd3.cur()[0]===k}
  o.all=Object.values(got).every(Boolean);o.bad=Object.keys(got).filter(k=>!got[k]).join();
  H.acd3_go({dataset:{k:'res'}});await w();const tx=document.getElementById('pg').textContent;o.clean=!/Coming Soon|در حال توسعه|دوره‌های موجود/.test(tx);o.addRes=!!document.getElementById('af-t');
  H.acd3_go({dataset:{k:'quiz'}});await w();o.crsNav=getComputedStyle(document.querySelector('#crs>.c')).display==='none';
@@ -315,6 +315,30 @@ await test('آکادمی مبحث‌محور v150: مجموعه‌ها، پیش�
  o.cards=zAX().cards.filter(c=>c.lid==='zl1').length;o.chip=/🃏/.test((C.lessonId='',C.courseId='toefl-grammar',render(),html()));
  C.courseId='';page='home';render();return o});
  if(r.sug!==2||!r.dup||r.cols!==2||r.mba!==3||r.gr!==2||!r.free||r.rm!==2||!r.ext||!r.card||r.cards!==2||!r.chip)throw new Error(JSON.stringify(r))});
+
+await test('آکادمی v151: زبانه‌های درون درس، دفترچه فرمول، جای نصب، فلش‌کارت ZIP، نوار یکپارچه',async pg=>{const r=await pg.evaluate(async()=>{const C=daniCourses.state,o={};
+ C.cache.courses.length=0;C.cache.lessons.length=0;C.cache.questions.length=0;C.cache.errors.length=0;C.cache.bookmarks.length=0;
+ C.cache.courses.push({id:'m1',title:'ریاضی',contentVersion:'1',chapters:[{id:'c1',title:'فصل ۱'}],topics:[{id:'t1',title:'م'}]});
+ C.cache.lessons.push({id:'m1l1',courseId:'m1',chapterId:'c1',title:'حد',order:1,sourceRef:{page:7},blocks:[{type:'formula',tex:'x^2',name:'مربع',page:9},{type:'rule',title:'قاعده',text:'متن'},{type:'p',text:'پاراگراف'}]});
+ C.cache.questions.push({id:'m1q1',courseId:'m1',type:'single',difficulty:1,lessonIds:['m1l1'],topicIds:['t1'],stem:'سؤال نمونه',choices:[{id:'a',text:'x'},{id:'b',text:'y'}],answer:{choice:'a'},solution:'ح'});
+ C.cache.errors.push({id:'e1',qid:'m1q1',courseId:'m1',resolved:false,lastAt:1});
+ const m=a=>new Map(a.map(x=>[x.id,x]));C.ix.courses=m(C.cache.courses);C.ix.lessons=m(C.cache.lessons);C.ix.questions=m(C.cache.questions);C.ix.errors=m(C.cache.errors);C.loaded=true;
+ const html=()=>document.getElementById('pg').innerHTML;
+ page='acd';zMS.acd.tab='courses';C.tab='home';C.courseId='';C.lessonId='';render();
+ const top=[...document.querySelectorAll('.a3top .chip')].map(x=>x.textContent.trim());o.top=top.length;o.today=/امروز/.test(html());o.mgmt=top.some(x=>/ورود و مدیریت/.test(x));
+ o.noB=!top.some(x=>/مرور/.test(x));
+ C.courseId='m1';C.tab='courses';render();o.tabs=(html().match(/data-a="acd4_ct"/g)||[]).length;
+ H.acd4_ct({dataset:{c:'m1',k:'fm'}});o.fm=/دفترچه فرمول/.test(html())&&/جزوه ص/.test(html())&&/تدریس کامل/.test(html());
+ H.acd4_ct({dataset:{c:'m1',k:'er'}});o.er=/خطاهای این درس/.test(html())&&/سؤال نمونه/.test(html());
+ H.acd4_ct({dataset:{c:'m1',k:'ex'}});o.ex=/مرکز آزمون/.test(html());
+ C.lessonId='m1l1';C.tab='courses';render();o.crumb=/ریاضی ›/.test(html())||/ریاضی/.test(html());o.extra=/فرمول در این مبحث/.test(html());
+ C.lessonId='';C.courseId='';
+ daniAcd4.zipCards('m1',[{id:'f1',lessonId:'m1l1',q:'Q?',a:'A!'},{id:'f2',q:'Q2',a:'A2'}]);o.zc=zAX().cards.filter(c=>c.cid==='m1').length;
+ daniAcd4.zipCards('m1',[{id:'f1',lessonId:'m1l1',q:'Q?!',a:'A!'}]);o.zc2=zAX().cards.filter(c=>c.cid==='m1').length;
+ daniAcd4.placed('m1','MBA');o.pl=zAC().cols.some(c=>c.title==='MBA'&&c.cids.includes('m1'));
+ zMS.acd.tab='courses';C.tab='sources';render();o.src=/لینک‌ها و منابع شخصی من/.test(html())&&/<details class="c"><summary><b dir="auto">ریاضی/.test(html());
+ C.tab='home';page='home';render();return o});
+ if(r.top!==4||!r.today||!r.mgmt||!r.noB||r.tabs!==6||!r.fm||!r.er||!r.ex||!r.extra||r.zc!==2||r.zc2!==2||!r.pl||!r.src)throw new Error(JSON.stringify(r))});
 
 console.log('\n'+results.map(r=>r.join(' ')).join('\n')+'\n\n'+(results.length-fails)+' / '+results.length+' موفق');
 await browser.close();srv.close();process.exit(fails?1:0);
