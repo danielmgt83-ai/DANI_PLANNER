@@ -424,6 +424,7 @@ function validatePack(P,existing){
   assets.forEach((a,p)=>{if(!refAssets.has(p))W('فایل بدون استفاده در بسته: '+p)});
   // ارجاع درس‌ها به فصل‌های تهی
   chap.forEach(c=>{if(c&&c.id&&!P.lessons.some(l=>l.chapterId===c.id)&&!(existing&&CR.cache.lessons.some(l=>l.courseId===existing.id&&l.chapterId===c.id)))W('فصل «'+c.id+'» هیچ درسی ندارد')});
+  (P.flashcards||[]).forEach((f,i)=>{if(!f||!f.id||!f.q||!f.a)W('فلش‌کارت شماره‌ی '+(i+1)+': باید id، q و a داشته باشد');else if(f.lessonId&&!P.lessons.some(l=>l.id===f.lessonId)&&!(existing&&CR.cache.lessons.some(l=>l.id===f.lessonId)))W('فلش‌کارت «'+f.id+'»: lessonId ناشناخته است')});
   return{errors:err,warnings:warn};
 }
 /* ---------- خواندن بسته از ZIP ---------- */
@@ -432,7 +433,7 @@ async function readJSON(z,name,list){
   try{return JSON.parse(dec.decode(u).replace(/^\uFEFF/,''))}catch(e){throw new Error(name+': JSON نامعتبر — '+e.message)}
 }
 async function loadPackZip(z){
-  const P={manifest:null,course:null,lessons:[],questions:[],sources:[],assets:new Map(),sourceIds:new Set(),fileErrors:[],names:[...z.ents.keys()]};
+  const P={manifest:null,course:null,lessons:[],questions:[],flashcards:[],sources:[],assets:new Map(),sourceIds:new Set(),fileErrors:[],names:[...z.ents.keys()]};
   if(!z.ents.has('manifest.json'))throw new Error('manifest.json در بسته نیست — این فایل بسته‌ی دوره‌ی DANI نیست');
   P.manifest=await readJSON(z,'manifest.json');
   const F=P.manifest.files||{};
@@ -441,6 +442,7 @@ async function loadPackZip(z){
   const pick=(arr,rx)=>Array.isArray(arr)?arr:P.names.filter(n=>rx.test(n)).sort();
   for(const n of pick(F.lessons,/^lessons\/.+\.json$/)){try{const j=await readJSON(z,n);(Array.isArray(j)?j:Array.isArray(j.lessons)?j.lessons:[j]).forEach(x=>P.lessons.push(x))}catch(e){P.fileErrors.push(e.message)}}
   for(const n of pick(F.questions,/^questions\/.+\.json$/)){try{const j=await readJSON(z,n);(Array.isArray(j)?j:Array.isArray(j.questions)?j.questions:[j]).forEach(x=>P.questions.push(x))}catch(e){P.fileErrors.push(e.message)}}
+  for(const n of pick(F.flashcards,/^flashcards\/.+\.json$/)){try{const j=await readJSON(z,n);(Array.isArray(j)?j:Array.isArray(j.flashcards)?j.flashcards:[j]).forEach(x=>P.flashcards.push(x))}catch(e){P.fileErrors.push(e.message)}}
   const sf=F.sources||(z.ents.has('sources.json')?'sources.json':null);
   if(sf){try{const j=await readJSON(z,sf);(Array.isArray(j)?j:Array.isArray(j.sources)?j.sources:[j]).forEach(x=>P.sources.push(x))}catch(e){P.fileErrors.push(e.message)}}
   P.sources.forEach(s=>s&&s.id&&P.sourceIds.add(s.id));
@@ -493,6 +495,7 @@ async function commitPack(P,pl){
   });
   CR.assetCourse='';
   await crLoad();
+  try{if(window.daniAcd4){if(P.flashcards&&P.flashcards.length)window.daniAcd4.zipCards(C.id,P.flashcards);window.daniAcd4.placed(C.id,P.manifest.collection)}}catch(e){console.error(e)}
 }
 async function deleteCourse(id,withUser){
   const stores=[...COURSE_STORES,...(withUser?USER_STORES:[])];
@@ -604,6 +607,7 @@ function vCourse(){
   if(c.goals&&c.goals.length)h+='<b>اهداف یادگیری</b><ul dir="auto">'+c.goals.map(g=>'<li>'+inl(g)+'</li>').join('')+'</ul>';
   if(c.prerequisites&&c.prerequisites.length)h+='<div class="m">پیش‌نیاز: '+c.prerequisites.map(x=>E_(x)).join('، ')+'</div>';
   h+='</div>';
+  if(window.daniAcd4){const t=window.daniAcd4.courseTabs(c);h+=t.bar;if(t.body!=null)return h+t.body}
   c.chapters.forEach(ch=>{const ls=L.filter(l=>l.chapterId===ch.id),d=ls.filter(l=>{const p=CR.ix.progress.get(l.id);return p&&p.done}).length;
     h+='<div class="c"><div class="row"><h3 class="sp" dir="auto">'+E_(ch.title)+'</h3><span class="m">'+faN(d)+'/'+faN(ls.length)+'</span><button data-a="crs_qstart" data-c="'+E_(c.id)+'" data-s="chapter:'+E_(ch.id)+'" data-m="practice">تمرین فصل</button><button data-a="crs_qstart" data-c="'+E_(c.id)+'" data-s="chapter:'+E_(ch.id)+'" data-m="exam">آزمون فصل</button></div>'+bar(ls.length?d/ls.length*100:0)+(window.daniAcd4?window.daniAcd4.chapterInfo(c.id,ch,ls):'')+
     (ls.length?ls.map(l=>{const p=CR.ix.progress.get(l.id),bm=CR.ix.bookmarks.has('b_lesson_'+l.id);return'<div class="cwr"><span>'+(p&&p.done?'✅ ':'⬜ ')+'<a data-a="crs_open" data-c="'+E_(c.id)+'" data-l="'+E_(l.id)+'" tabindex="0" style="cursor:pointer;color:var(--ac)" dir="auto">'+E_(l.title)+'</a> '+(bm?'★ ':'')+stBadge(l)+ctBadge(l)+(window.daniAcd4?window.daniAcd4.lessonChip(l):'')+'</span></div>'}).join(''):'<p class="m">این فصل هنوز درسی ندارد.</p>')+'</div>'});
@@ -613,7 +617,7 @@ function vStudy(){
   const l=CR.ix.lessons.get(CR.lessonId);if(!l){CR.lessonId='';return vCourses()}
   const c=CR.ix.courses.get(l.courseId),p=CR.ix.progress.get(l.id)||{},L=lessonsOf(l.courseId),i=L.findIndex(x=>x.id===l.id),ch=c.chapters.find(x=>x.id===l.chapterId);
   const qs=questionsOf(l.courseId).filter(q=>q.lessonIds.includes(l.id)),by=d=>qs.filter(q=>q.difficulty===d).length;
-  let h='<div class="c crs-lesson" data-nobi style="--crs-mz:'+CR.mz+'"><div class="row np"><button data-a="crs_open" data-c="'+E_(c.id)+'">‹ '+E_(c.title)+'</button><span class="m">'+E_(ch?ch.title:'')+'</span><span class="sp"></span><button data-a="crs_mz" data-d="-1" title="کوچک‌کردن فرمول">A−</button><button data-a="crs_mz" data-d="1" title="بزرگ‌کردن فرمول">A+</button></div>'+
+  let h=(window.daniAcd4?window.daniAcd4.crumb(l):'')+'<div class="c crs-lesson" data-nobi style="--crs-mz:'+CR.mz+'"><div class="row np"><button data-a="crs_open" data-c="'+E_(c.id)+'">‹ '+E_(c.title)+'</button><span class="m">'+E_(ch?ch.title:'')+'</span><span class="sp"></span><button data-a="crs_mz" data-d="-1" title="کوچک‌کردن فرمول">A−</button><button data-a="crs_mz" data-d="1" title="بزرگ‌کردن فرمول">A+</button></div>'+
    '<h2 dir="auto" style="margin:8px 0">'+E_(l.title)+'</h2><div>'+stBadge(l)+ctBadge(l)+'</div>';
   if(p.done&&p.doneHash&&p.doneHash!==l.hash)h+='<div class="crs-call crs-warning"><div class="crs-ct">⚠️ این درس پس از تکمیل شما به‌روزرسانی شده است</div><button data-a="crs_ack" data-l="'+E_(l.id)+'">مرور شد</button></div>';
   if((l.prerequisites&&l.prerequisites.length)||(l.goals&&l.goals.length))h+='<div class="crs-call crs-note"><div class="crs-ct">🎯 پیش‌نیاز و اهداف</div>'+(l.prerequisites&&l.prerequisites.length?'<div>پیش‌نیاز: '+l.prerequisites.map(x=>inl(x)).join('، ')+'</div>':'')+(l.goals&&l.goals.length?'<ul dir="auto">'+l.goals.map(g=>'<li>'+inl(g)+'</li>').join('')+'</ul>':'')+'</div>';
@@ -623,7 +627,7 @@ function vStudy(){
   h+=srcLine(l.sourceRef);
   h+='<div class="row" style="margin-top:10px"><button class="'+(p.done?'':'p')+'" data-a="crs_done" data-l="'+E_(l.id)+'">'+(p.done?'↩ برگرداندن به ناتمام':'✓ این درس را تمام کردم')+'</button><button data-a="crs_bm" data-k="lesson" data-r="'+E_(l.id)+'">'+(CR.ix.bookmarks.has('b_lesson_'+l.id)?'★ نشانک شد':'☆ نشانک')+'</button></div></div>';
   h+='<div class="c"><h3>تمرین و تست این درس</h3>'+(qs.length?'<div class="m">'+faN(by(1))+' آسان · '+faN(by(2))+' متوسط · '+faN(by(3))+' دشوار</div><div class="row" style="margin-top:8px">'+[1,2,3].map(d=>by(d)?'<button data-a="crs_qstart" data-c="'+E_(c.id)+'" data-s="lesson:'+E_(l.id)+'" data-m="practice" data-d="'+d+'">تمرین '+['آسان','متوسط','دشوار'][d-1]+'</button>':'').join('')+'<button class="p" data-a="crs_qstart" data-c="'+E_(c.id)+'" data-s="lesson:'+E_(l.id)+'" data-m="exam">آزمون این درس</button></div>':'<p class="m">هنوز سؤالی به این درس پیوند نخورده است.</p>')+'</div>';
-  if(window.daniAcd4)h+=window.daniAcd4.lessonCards(l);
+  if(window.daniAcd4)h+=window.daniAcd4.lessonExtra(l)+window.daniAcd4.lessonCards(l);
   const ns=CR.cache.notes.filter(n=>n.lessonId===l.id).sort((a,b)=>b.at-a.at);
   h+='<div class="c"><h3>یادداشت‌های من</h3><textarea id="crs-note" rows="3" dir="auto" placeholder="یادداشت درباره‌ی این درس…"></textarea><button data-a="crs_note" data-l="'+E_(l.id)+'">ذخیره‌ی یادداشت</button>'+ns.map(n=>'<div class="cwr"><span dir="auto" style="white-space:pre-wrap">'+E_(n.text)+' <small class="m">'+new Date(n.at).toLocaleDateString('fa-IR')+'</small></span><button class="d" data-a="crs_notedel" data-id="'+E_(n.id)+'">✕</button></div>').join('')+'</div>';
   h+='<div class="row">'+(i>0?'<button data-a="crs_open" data-c="'+E_(c.id)+'" data-l="'+E_(L[i-1].id)+'">‹ درس قبلی</button>':'')+'<span class="sp"></span>'+(i<L.length-1?'<button class="p" data-a="crs_open" data-c="'+E_(c.id)+'" data-l="'+E_(L[i+1].id)+'">درس بعدی ›</button>':'')+'</div>';
@@ -677,17 +681,18 @@ function vReview(){
 function vSources(){
   const S=CR.cache.sources;if(!CR.cache.courses.length)return empty();
   let h='';
-  CR.cache.courses.forEach(c=>{
+  const wrapSrc=(c,h,mk)=>h.slice(0,mk)+'<details class="c"><summary><b dir="auto">'+E_(c.title)+'</b> <span class="m">· '+faN(S.filter(s=>s.courseId===c.id).length)+' منبع</span></summary>'+h.slice(mk).replace(/class="c"/g,'class="a4in"')+'</details>';
+  CR.cache.courses.forEach(c=>{const mk=h.length;
     const L=lessonsOf(c.id),Q=questionsOf(c.id),ss=S.filter(s=>s.courseId===c.id);
     const cnt=(arr,f)=>arr.filter(f).length,typ=Object.keys(CT_FA).map(k=>CT_FA[k]+': '+faN(cnt(L,l=>l.contentType===k))+'/'+faN(cnt(Q,q=>q.contentType===k))).join(' · ');
     h+='<div class="c"><h3 dir="auto">'+E_(c.title)+'</h3><div class="m">نوع محتوا (درس/سؤال) — '+typ+'</div><div class="m">وضعیت بررسی دروس: تأییدشده/کامل '+faN(cnt(L,l=>l.status==='approved'||l.status==='complete'))+' · نیازمند بررسی/پیش‌نویس/ناقص '+faN(cnt(L,l=>l.status!=='approved'&&l.status!=='complete'))+' از '+faN(L.length)+'</div></div>';
-    if(!ss.length){h+='<div class="c"><p class="m">برای این دوره منبعی ثبت نشده است؛ پوشش را نمی‌توان سنجید.</p></div>';return}
+    if(!ss.length){h+='<div class="c"><p class="m">برای این دوره منبعی ثبت نشده است؛ پوشش را نمی‌توان سنجید.</p></div>';h=wrapSrc(c,h,mk);return}
     ss.forEach(s=>{const chs=Array.isArray(s.chapters)?s.chapters:[];let cov=0;
       const rows=chs.map(x=>{const nl=L.filter(l=>l.sourceRef&&l.sourceRef.sourceId===s.id&&String(l.sourceRef.chapter)===String(x.id)).length,nq=Q.filter(q=>q.sourceRef&&q.sourceRef.sourceId===s.id&&String(q.sourceRef.chapter)===String(x.id)).length;if(nl||nq)cov++;
         return'<tr><td dir="auto">'+E_(x.title||x.id)+'</td><td>'+badge(SRC_FA[x.status]||'بررسی‌نشده',{processed:'#16a34a',partial:'#ea580c',unreadable:'#dc2626',pending:'#64748b'}[x.status]||'#64748b')+'</td><td>'+faN(nl)+'</td><td>'+faN(nq)+'</td><td class="m" dir="auto">'+(Array.isArray(x.issues)&&x.issues.length?x.issues.map(E_).join('؛ '):'')+'</td></tr>'}).join('');
       const bad=chs.filter(x=>x.status!=='processed').length;
-      h+='<div class="c"><h3 dir="auto">📚 '+E_(s.title||s.id)+'</h3><div class="m">'+E_([s.author,s.kind].filter(Boolean).join(' · '))+'</div>'+(chs.length?'<p>فصل‌های دارای محتوا: <b>'+faN(cov)+'</b> از <b>'+faN(chs.length)+'</b> فصل ثبت‌شده در فهرست منبع'+(bad?' · <span style="color:var(--wr)">'+faN(bad)+' فصل ناقص/ناخوانا/پردازش‌نشده</span>':'')+'</p><div class="crs-tw"><table><tr><th>فصل منبع</th><th>وضعیت</th><th>درس</th><th>سؤال</th><th>ملاحظات</th></tr>'+rows+'</table></div><p class="m">این آمار فقط بر پایه‌ی فهرست فصل‌هایی است که در بسته ثبت شده؛ کامل‌بودن پوشش کتاب بدون مقایسه با فهرست واقعی کتاب تأیید نمی‌شود.</p>':'<p class="m">فهرست فصل‌های این منبع ثبت نشده؛ پوشش قابل سنجش نیست.</p>')+'</div>'})});
-  return h;
+      h+='<div class="c"><h3 dir="auto">📚 '+E_(s.title||s.id)+'</h3><div class="m">'+E_([s.author,s.kind].filter(Boolean).join(' · '))+'</div>'+(chs.length?'<p>فصل‌های دارای محتوا: <b>'+faN(cov)+'</b> از <b>'+faN(chs.length)+'</b> فصل ثبت‌شده در فهرست منبع'+(bad?' · <span style="color:var(--wr)">'+faN(bad)+' فصل ناقص/ناخوانا/پردازش‌نشده</span>':'')+'</p><div class="crs-tw"><table><tr><th>فصل منبع</th><th>وضعیت</th><th>درس</th><th>سؤال</th><th>ملاحظات</th></tr>'+rows+'</table></div><p class="m">این آمار فقط بر پایه‌ی فهرست فصل‌هایی است که در بسته ثبت شده؛ کامل‌بودن پوشش کتاب بدون مقایسه با فهرست واقعی کتاب تأیید نمی‌شود.</p>':'<p class="m">فهرست فصل‌های این منبع ثبت نشده؛ پوشش قابل سنجش نیست.</p>')+'</div>'});h=wrapSrc(c,h,mk)});
+  return h+(window.daniAcd4?window.daniAcd4.myLinks():'');
 }
 function vReport(){
   if(!CR.cache.courses.length)return empty();
@@ -1164,7 +1169,7 @@ function mount(){
     return'<div class="c"><h3>'+BH('Academy','آکادمی')+'</h3>'+acdTabs()+'</div>'+crsView()};
   if(!zMS.acd.tab||zMS.acd.tab==='review')zMS.acd.tab='courses'; /* تب پیش‌فرضی که خود پلنر گذاشته (مثلاً learn) تغییر نمی‌کند */
   crLoad().then(()=>{if(inCrs())rerender()});
-  window.daniCourses={buildEverything,prepEverything,rehydrateHost,hostSnap,state:CR,validatePack,loadPackZip,zipRead,zipWrite,tex2mml,grade,inl,blocks,IDB,planPack,normalizePack,commitPack,importFile,buildCourseZip,startQuiz,submitQuiz,userExport,planUser,version:CRV,api:{latestResults,questionsOf,lessonsOf,courseProg,mastery,pool}};
+  window.daniCourses={buildEverything,prepEverything,rehydrateHost,hostSnap,state:CR,validatePack,loadPackZip,zipRead,zipWrite,tex2mml,grade,inl,blocks,IDB,planPack,normalizePack,commitPack,importFile,buildCourseZip,startQuiz,submitQuiz,userExport,planUser,version:CRV,api:{latestResults,questionsOf,lessonsOf,courseProg,mastery,pool,blk}};
 }
 mount();
 })();
