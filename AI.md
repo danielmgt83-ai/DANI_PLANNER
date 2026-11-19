@@ -657,6 +657,7 @@ html[data-mx=1] فقط وقتی db.set.mx!==0 و تم ساده است (بدون 
 (v149) look3.js: ۵ زبانه برای ظاهر و تم؛ core.js: th='auto' با daniThMode().
 (v150) acd4.js: مجموعه‌ها/درخت آکادمی، تسلط، فلش‌کارت مبحث (cards.lid)؛ courses.js: api export + hookها. مرحله‌ی بعد: فلش‌کارت در ZIP، آزمون‌ساز بین‌درسی، ادغام دوره‌ها.
 (v151) acd3 نوار ۴گروهی؛ acd4: courseTabs/formulaBook/crumb/placed/zipCards؛ ZIP: `flashcards/*.json` و `manifest.collection` اختیاری؛ بلوک‌ها `name`/`page` اختیاری. باقی: آزمون‌ساز بین‌درسی، ادغام دوره‌ها، بسته‌ی جامع.
+(v155.1) نام handler ها یکتا باشد (H.acd4_ren مجموعه؛ H.acd4_rn درس/فصل/مبحث). ❓ درس: .crs-lessonbar-ask درون‌صفحه، .crs-ask با انتخاب .crs-bq.sel.
 (v155) cards2.js: srsDue با سقف روزانه‌ی کارت جدید؛ کارت: x (مثال)، cloze {{…}}، TTS؛ فلش‌کارت ZIP می‌تواند x داشته باشد.
 (v154) exam builder: CR.setup.multi → daniAcd4.xbuilder؛ api.startMulti({items:[{cid,scope}],order,count,...}); attempt.courses=[cid…].
 (v153) rename: api.renameItem(kind c|ch|l,cid,id,title) → db.mods.acd.ren؛ reapplyRen بعد از commitPack؛ api.addQuestion؛ builder در lessonExtra؛ migOld (کارت‌های افزونه‌ی acadlessons → مبحث‌های دوره).
