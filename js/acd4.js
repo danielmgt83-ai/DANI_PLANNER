@@ -63,7 +63,7 @@ function migOld(){const C=CRs(),A=zAC(),by={};let n=0;
  zcommit();toast(T('انتقال شد: ','Moved: ')+F(n)+T(' فلش‌کارت. برنامه را یک‌بار ببند و باز کن.',' cards. Restart the app once.'));rr();return n}
 H.acd4_mig=()=>{if(!confirm(T('فلش‌کارت‌های درس‌های قدیمی به مبحث‌های دوره بروند و بخش قدیمی خاموش شود؟','Move the old cards and switch the old section off?')))return;migOld()};
 /* تغییر نام درس / فصل / مبحث */
-H.acd4_ren=e=>{const C=CRs(),t=e.dataset.t,cid=e.dataset.c,id=e.dataset.i,c=C.ix.courses.get(cid);if(!c)return;
+H.acd4_rn=e=>{const C=CRs(),t=e.dataset.t,cid=e.dataset.c,id=e.dataset.i,c=C.ix.courses.get(cid);if(!c)return;
  const cur=t==='c'?c.title:t==='ch'?((c.chapters.find(x=>x.id===id)||{}).title):((C.ix.lessons.get(id)||{}).title);
  const v=prompt(T('نام تازه:','New name:'),cur||'');if(v===null)return;const nv=v.trim();if(!nv||nv===cur)return;
  API().renameItem(t,cid,id,nv).then(()=>{toast(T('نام عوض شد','Renamed'));rr()}).catch(x=>toast(String(x.message||x),1))};

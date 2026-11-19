@@ -679,13 +679,13 @@ function vCourses(){
 }
 function vCourse(){
   const c=course(),L=lessonsOf(c.id);
-  let h='<div class="c"><div class="row"><button data-a="crs_back">‹ فهرست دوره‌ها</button><h3 class="sp" dir="auto">'+E_(c.title)+'</h3><button class="chip sm" data-a="acd4_ren" data-t="c" data-c="'+E_(c.id)+'" data-i="'+E_(c.id)+'" aria-label="Rename">✎</button></div><p dir="auto">'+E_(c.description)+'</p>';
+  let h='<div class="c"><div class="row"><button data-a="crs_back">‹ فهرست دوره‌ها</button><h3 class="sp" dir="auto">'+E_(c.title)+'</h3><button class="chip sm" data-a="acd4_rn" data-t="c" data-c="'+E_(c.id)+'" data-i="'+E_(c.id)+'" aria-label="Rename">✎</button></div><p dir="auto">'+E_(c.description)+'</p>';
   if(c.goals&&c.goals.length)h+='<b>اهداف یادگیری</b><ul dir="auto">'+c.goals.map(g=>'<li>'+inl(g)+'</li>').join('')+'</ul>';
   if(c.prerequisites&&c.prerequisites.length)h+='<div class="m">پیش‌نیاز: '+c.prerequisites.map(x=>E_(x)).join('، ')+'</div>';
   h+='</div>';
   if(window.daniAcd4){const t=window.daniAcd4.courseTabs(c);h+=t.bar;if(t.body!=null)return h+t.body}
   CR.chOpen=CR.chOpen||{};
-  const ren=(t,id,cid)=>'<button class="chip sm" data-a="acd4_ren" data-t="'+t+'" data-c="'+E_(cid)+'" data-i="'+E_(id)+'" title="'+TT('تغییر نام','Rename')+'" aria-label="'+TT('تغییر نام','Rename')+'">✎</button>';
+  const ren=(t,id,cid)=>'<button class="chip sm" data-a="acd4_rn" data-t="'+t+'" data-c="'+E_(cid)+'" data-i="'+E_(id)+'" title="'+TT('تغییر نام','Rename')+'" aria-label="'+TT('تغییر نام','Rename')+'">✎</button>';
   c.chapters.forEach((ch,ci)=>{const ls=L.filter(l=>l.chapterId===ch.id),d=ls.filter(l=>{const p=CR.ix.progress.get(l.id);return p&&p.done}).length,open=CR.chOpen[ch.id]!==undefined?CR.chOpen[ch.id]:c.chapters.length<=3;
     h+='<div class="c"><div class="row"><button data-a="crs_chtog" data-k="'+E_(ch.id)+'" aria-expanded="'+open+'">'+(open?'▾':'◂')+'</button><span class="badge">'+TT('فصل','Ch.')+' '+faN(ci+1)+'</span><h3 class="sp" dir="auto">'+E_(ch.title)+'</h3>'+ren('ch',ch.id,c.id)+'<span class="m">'+faN(d)+'/'+faN(ls.length)+'</span></div>'+bar(ls.length?d/ls.length*100:0)+
     (open?'<div class="row" style="margin-top:6px"><button data-a="crs_qstart" data-c="'+E_(c.id)+'" data-s="chapter:'+E_(ch.id)+'" data-m="practice">'+TT('تمرین فصل','Chapter practice')+'</button><button data-a="crs_qstart" data-c="'+E_(c.id)+'" data-s="chapter:'+E_(ch.id)+'" data-m="exam">'+TT('آزمون فصل','Chapter exam')+'</button></div>'+(window.daniAcd4?window.daniAcd4.chapterInfo(c.id,ch,ls):'')+
@@ -1295,10 +1295,9 @@ mount();
 .crs-lesson table th,.crs-lesson table td{padding:12px 14px!important}
 /* دکمهٔ «بپرس» روی هر بخش */
 .crs-bq{position:relative}
-.crs-ask{position:absolute;inset-inline-start:-6px;top:-6px;width:32px;height:32px;border-radius:50%;border:1px solid var(--b);background:var(--c);color:var(--ac);font-size:16px;line-height:1;cursor:pointer;opacity:.0;transition:opacity .15s,transform .15s;z-index:3;box-shadow:0 2px 8px rgba(0,0,0,.12)}
-.crs-bq:hover>.crs-ask,.crs-bq:focus-within>.crs-ask,.crs-ask:focus{opacity:1}
-@media (hover:none){.crs-ask{opacity:.85;width:36px;height:36px;inset-inline-start:-4px;top:-10px}}
-.crs-ask:hover{transform:scale(1.12)}
+.crs-ask{display:none;margin:0 0 6px;padding:3px 10px;border-radius:14px;border:1px solid var(--ac);background:transparent;color:var(--ac);font:inherit;font-size:12px;line-height:1.6;cursor:pointer;min-height:0}
+.crs-bq.sel{outline:2px dashed color-mix(in srgb,var(--ac) 55%,transparent);outline-offset:3px;border-radius:8px}
+.crs-bq.sel>.crs-ask{display:inline-block}
 #ask-sheet{position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,.45);display:none;align-items:flex-end;justify-content:center}
 #ask-sheet.on{display:flex}
 #ask-sheet .box{background:var(--c);color:var(--t);width:min(680px,100%);max-height:88vh;overflow:auto;border-radius:18px 18px 0 0;padding:18px 20px 24px;box-shadow:0 -8px 30px rgba(0,0,0,.3)}
@@ -1314,8 +1313,7 @@ mount();
 #ask-sheet .go{background:var(--ac);color:#fff}
 #ask-sheet .cp{background:var(--bg);color:var(--t);border:1px solid var(--b)!important}
 #ask-sheet .x{background:transparent;color:var(--m);border:0}
-.crs-lessonbar-ask{position:fixed;inset-inline-end:16px;bottom:18px;z-index:9000;border:0;border-radius:28px;padding:12px 18px;background:var(--ac);color:#fff;font:inherit;font-weight:700;box-shadow:0 6px 20px rgba(0,0,0,.28);cursor:pointer;display:none}
-body.in-crs .crs-lessonbar-ask{display:block}
+.crs-lessonbar-ask{display:inline-block;margin:0 0 8px;padding:3px 12px;border-radius:14px;border:1px solid var(--ac);background:transparent;color:var(--ac);font:inherit;font-size:12.5px;line-height:1.7;cursor:pointer;min-height:0}
 `;document.head.appendChild(st);
   function el(t,c,h){var e=document.createElement(t);if(c)e.className=c;if(h!=null)e.innerHTML=h;return e}
   var sheet=null,cur='';
@@ -1356,19 +1354,20 @@ body.in-crs .crs-lessonbar-ask{display:block}
     if(t.id==='ask-x'||t===sheet){if(sheet)sheet.classList.remove('on');return}
     if(t.id==='ask-cp'){copy(promptText());msg(T('کپی شد ✓','Copied ✓'));return}
     if(t.id==='ask-go'){var p=promptText();copy(p);window.open('https://claude.ai/new?q='+encodeURIComponent(p.slice(0,3500)),'_blank','noopener');msg(T('متن کپی هم شد؛ اگر صفحه‌ی Claude خالی بود، فقط Paste کن.','Text was copied too; if Claude opens empty, just paste.'));return}
+    var q=t.closest('.crs-bq');if(q&&!t.closest('.crs-ask,a,button,input,textarea,select,summary,label')){var was=q.classList.contains('sel');[].forEach.call(document.querySelectorAll('.crs-bq.sel'),function(x){x.classList.remove('sel')});if(!was)q.classList.add('sel')}
     var b=t.closest('.crs-ask');
     if(b){e.preventDefault();e.stopPropagation();open(describe(b.parentElement));return}
     if(t.closest('.crs-lessonbar-ask')){var L=document.querySelector('.crs-lesson');if(L)open(describe(L,true))}
   },true);
-  var fab=el('button','crs-lessonbar-ask','❓ '+T('سؤال از این درس','Ask about this lesson'));fab.type='button';document.body.appendChild(fab);
   function decorate(){
     var root=document.querySelector('.crs-lesson');
     document.body.classList.toggle('in-crs',!!root);
     if(!root)return;
+    if(!root.querySelector(':scope>.crs-lessonbar-ask')){var fab=el('button','crs-lessonbar-ask','❓ '+T('سؤال از این درس','Ask about this lesson'));fab.type='button';root.insertBefore(fab,root.firstChild)}
     [].forEach.call(root.children,function(c){
-      if(c.classList.contains('np')||c.classList.contains('row')||c.classList.contains('crs-bq'))return;
+      if(c.classList.contains('np')||c.classList.contains('row')||c.classList.contains('crs-bq')||c.classList.contains('crs-lessonbar-ask'))return;
       if(!c.textContent.trim()&&!c.querySelector('math'))return;
-      c.classList.add('crs-bq');var b=el('button','crs-ask','❓');b.title=T('این بخش را نفهمیدم — بپرس','I did not get this part — ask');b.type='button';c.insertBefore(b,c.firstChild)})}
+      c.classList.add('crs-bq');var b=el('button','crs-ask','❓ '+T('این بخش را بپرس','Ask about this part'));b.title=T('این بخش را نفهمیدم — بپرس','I did not get this part — ask');b.type='button';c.insertBefore(b,c.firstChild)})}
   var tm=0;new MutationObserver(function(){clearTimeout(tm);tm=setTimeout(decorate,120)}).observe(document.body,{childList:true,subtree:true});
   decorate();
 })();
