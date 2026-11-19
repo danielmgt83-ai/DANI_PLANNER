@@ -364,5 +364,22 @@ await test('آکادمی v153: فصل‌های جدا و بازشونده، تغ
  page='home';render();return o});
  if(r.badges!==4||r.ren<5||!r.closed||!r.opened||!r.rn||!r.bld)throw new Error(JSON.stringify(r))});
 
+await test('آکادمی v154: آزمون‌ساز چنددرسی (ترتیب انتخاب، ترکیب دو درس، آمار هر درس)',async pg=>{const r=await pg.evaluate(async()=>{const C=daniCourses.state,o={};
+ C.cache.courses.length=0;C.cache.lessons.length=0;C.cache.questions.length=0;C.cache.attempts.length=0;
+ ['xa','xb'].forEach(id=>{C.cache.courses.push({id,title:'درس '+id,contentVersion:'1',language:'fa',description:'',goals:[],prerequisites:[],topics:[],chapters:[{id:id+'c1',title:'ف۱',order:1},{id:id+'c2',title:'ف۲',order:2}]});
+  [1,2].forEach(i=>{C.cache.lessons.push({id:id+'-l'+i,courseId:id,chapterId:id+'c'+i,title:'م'+i,order:i,blocks:[],topics:[]});
+   [1,2,3].forEach(j=>C.cache.questions.push({id:id+'-q'+i+j,courseId:id,type:'single',difficulty:2,lessonIds:[id+'-l'+i],topicIds:[],stem:'س',choices:[{id:'a',text:'x'},{id:'b',text:'y'}],answer:{choice:'a'},solution:'s'}))})});
+ C.ix.courses=new Map(C.cache.courses.map(x=>[x.id,x]));C.ix.lessons=new Map(C.cache.lessons.map(x=>[x.id,x]));C.ix.questions=new Map(C.cache.questions.map(x=>[x.id,x]));C.loaded=true;
+ C.setup={multi:true};page='acd';zMS.acd.tab='courses';C.tab='quiz';C.courseId='';C.lessonId='';C.quiz=null;C.keyId='';zAC().cols=[];render();let h=document.getElementById('pg').innerHTML;
+ o.ui=/acd4_xsel/.test(h)&&/acd4_xmode/.test(h);
+ H.acd4_xopen({dataset:{k:'c:xa'}});H.acd4_xsel({dataset:{t:'xb|chapter:xbc2'}});H.acd4_xsel({dataset:{t:'xa|all'}});
+ h=document.getElementById('pg').innerHTML;o.order=/xa.*xb|xb.*xa/s.test(h)&&h.indexOf('xb')>=0;
+ await daniCourses.api.startMulti({items:[{cid:'xb',scope:'chapter:xbc2'},{cid:'xa',scope:'all'}],diffs:[1,2,3],count:0,order:'pick',mode:'exam'});
+ const a=C.quiz;o.n=a&&a.qids.length;o.first=a&&a.qids[0];o.last=a&&a.qids[a.qids.length-1];o.cs=a&&a.courses.length;
+ a.qids.forEach(id=>{a.items[id]={answer:{choice:'a'},ms:1}});C.quiz=a;await daniCourses.submitQuiz();
+ o.lr=daniCourses.api.latestResults('xa').size+'/'+daniCourses.api.latestResults('xb').size;
+ C.setup={};page='home';render();return o});
+ if(!r.ui||r.n!==9||r.first!=='xb-q21'||r.last!=='xa-q23'||r.cs!==2||r.lr!=='6/3')throw new Error(JSON.stringify(r))});
+
 console.log('\n'+results.map(r=>r.join(' ')).join('\n')+'\n\n'+(results.length-fails)+' / '+results.length+' موفق');
 await browser.close();srv.close();process.exit(fails?1:0);
