@@ -47,12 +47,50 @@ function suggest(free){const g=groups(free);if(!g.length)return'';
 /* افزونه‌ی قدیمی «درس‌ها» که محتوایش در یک دوره هم هست */
 const oldExt=()=>{try{return extIndex().find(x=>x.id==='acadlessons')||null}catch(e){return null}};
 function dupCard(){const x=oldExt(),C=CRs();if(!x||!C)return'';
- const dup=C.cache.lessons.some(l=>/آزمون تشخیصی/.test(l.title||''));if(!dup)return'';
- const on=x.on!==false;
- return'<div class="c" style="border-color:#ea580c"><h3>⚠ '+T('محتوای تکراری پیدا شد','Duplicate content found')+'</h3>'
-  +'<p class="m">'+T('افزونه‌ی قدیمی «'+E(x.name||'درس‌ها')+'» (آزمون تشخیصی و فصل ۳ گرامر) همان محتوایی است که در دوره‌ی گرامر هم هست؛ برای همین دو جا می‌دیدی.','The old “Lessons” add-on repeats content that is also in a course.')+'</p>'
-  +(on?'<p class="m">'+T('پنهان‌کردن فقط افزونه را خاموش می‌کند؛ هیچ داده‌ای پاک نمی‌شود و هر وقت بخواهی برمی‌گردد. اول مطمئن شو پیشرفتی در آن نداری.','Hiding only turns the add-on off; nothing is deleted.')+'</p><button class="p" data-a="acd4_ext" data-v="0">'+T('پنهان کردن افزونه‌ی قدیمی','Hide old add-on')+'</button>'+' <button data-a="acd3_go" data-k="learn">'+T('باز کردن درس‌های قدیمی','Open old lessons')+'</button>'
-   :'<p class="m">'+T('الان خاموش است (بعد از بستن و باز کردن برنامه دیگر دیده نمی‌شود).','Currently off.')+'</p><button data-a="acd4_ext" data-v="1">'+T('برگرداندن','Restore')+'</button>')+'</div>'}
+ const A=zAC(),done=!!A.oldMig,n=oldCards().length;
+ if(done)return x.on===false?'':'<div class="c"><p class="m">'+T('درس‌های قدیمی منتقل شد. برنامه را یک‌بار ببند و باز کن تا کنار برود.','Old lessons were moved. Restart the app once.')+'</p></div>';
+ return'<div class="c" style="border-color:#ea580c"><h3>🔀 '+T('انتقال «درس‌های قدیمی» به درس‌ها','Move “old lessons” into subjects')+'</h3>'
+  +'<p class="m">'+T('تمام درس‌ها و سؤال‌های آن از قبل در دورهٔ گرامر هست. فقط فلش‌کارت‌هایش (','All its lessons and questions already live in the grammar course. Only its flashcards (')+F(n)+T(' کارت) به مبحث‌های همان دوره می‌روند و بخش قدیمی خاموش می‌شود. چیزی پاک نمی‌شود و برگشت دارد.',' cards) move to the matching topics, then the old section is switched off. Nothing is deleted; you can restore it.')+'</p>'
+  +'<button class="p" data-a="acd4_mig">'+T('انتقال بده','Move now')+'</button></div>'}
+/* کارت‌های افزونه‌ی قدیمی (داخل درس‌های قدیمی) */
+function oldCards(){try{const A=zAX();return(A.lessons||[]).filter(l=>l&&Array.isArray(l.cards)).flatMap(l=>l.cards.map((c,i)=>({old:l,i,q:c.q,a:c.a})))}catch(e){return[]}}
+function migOld(){const C=CRs(),A=zAC(),by={};let n=0;
+ (zAX().lessons||[]).forEach(o=>{if(!o||!Array.isArray(o.cards)||!o.cards.length)return;const pre=String(o.title||'').split(')')[0].trim();
+  const t=C.cache.lessons.find(l=>pre&&String(l.title||'').split(')')[0].trim()===pre)||null;if(!t)return;
+  (by[t.courseId]=by[t.courseId]||[]).push(...o.cards.filter(c=>c&&c.q&&c.a).map((c,i)=>({id:'old-'+o.id+'-'+i,lessonId:t.id,q:c.q,a:c.a})))});
+ Object.keys(by).forEach(cid=>{zipCards(cid,by[cid]);n+=by[cid].length});
+ A.oldMig=1;const l=extIndex(),x=l.find(i=>i.id==='acadlessons');if(x){x.on=false;extSaveIndex(l)}
+ zcommit();toast(T('انتقال شد: ','Moved: ')+F(n)+T(' فلش‌کارت. برنامه را یک‌بار ببند و باز کن.',' cards. Restart the app once.'));rr();return n}
+H.acd4_mig=()=>{if(!confirm(T('فلش‌کارت‌های درس‌های قدیمی به مبحث‌های دوره بروند و بخش قدیمی خاموش شود؟','Move the old cards and switch the old section off?')))return;migOld()};
+/* تغییر نام درس / فصل / مبحث */
+H.acd4_ren=e=>{const C=CRs(),t=e.dataset.t,cid=e.dataset.c,id=e.dataset.i,c=C.ix.courses.get(cid);if(!c)return;
+ const cur=t==='c'?c.title:t==='ch'?((c.chapters.find(x=>x.id===id)||{}).title):((C.ix.lessons.get(id)||{}).title);
+ const v=prompt(T('نام تازه:','New name:'),cur||'');if(v===null)return;const nv=v.trim();if(!nv||nv===cur)return;
+ API().renameItem(t,cid,id,nv).then(()=>{toast(T('نام عوض شد','Renamed'));rr()}).catch(x=>toast(String(x.message||x),1))};
+/* سازنده‌ی داخل مبحث: فلش‌کارت و سؤال */
+function builder(l){const o=ui.bo===l.id;
+ const inp=(id,ph)=>'<input id="'+id+'" dir="auto" placeholder="'+ph+'" style="width:100%;margin:3px 0">';
+ return'<details class="c a4bld"'+(o?' open':'')+'><summary><b>🛠 '+T('ساخت در این مبحث','Build in this topic')+'</b></summary>'
+  +'<p class="m">'+T('هرچه اینجا بسازی همین‌جا به مبحث وصل می‌شود و با به‌روزرسانی دوره پاک نمی‌شود.','Whatever you build here attaches to this topic and survives course updates.')+'</p>'
+  +'<h4>'+T('فلش‌کارت','Flashcard')+'</h4>'+inp('a4b-fq',T('پرسش (روی کارت)','Question (front)'))+inp('a4b-fa',T('پاسخ (پشت کارت)','Answer (back)'))
+  +'<button data-a="acd4_bcard" data-l="'+E(l.id)+'">＋ '+T('افزودن کارت','Add card')+'</button>'
+  +'<h4 style="margin-top:12px">'+T('سؤال چهارگزینه‌ای','Multiple-choice question')+'</h4><textarea id="a4b-qs" rows="2" dir="auto" placeholder="'+T('متن سؤال','Question text')+'" style="width:100%"></textarea>'
+  +[1,2,3,4].map(i=>inp('a4b-o'+i,T('گزینه ','Option ')+F(i))).join('')
+  +'<div class="row"><label>'+T('گزینهٔ درست','Correct')+' <select id="a4b-ok">'+[1,2,3,4].map(i=>'<option value="'+i+'">'+F(i)+'</option>').join('')+'</select></label> <label>'+T('دشواری','Level')+' <select id="a4b-df"><option value="1">'+T('آسان','Easy')+'</option><option value="2" selected>'+T('متوسط','Medium')+'</option><option value="3">'+T('دشوار','Hard')+'</option></select></label></div>'
+  +'<textarea id="a4b-sl" rows="2" dir="auto" placeholder="'+T('پاسخ تشریحی','Explanation')+'" style="width:100%"></textarea>'
+  +'<button class="p" data-a="acd4_bq" data-l="'+E(l.id)+'">＋ '+T('افزودن سؤال','Add question')+'</button></details>'}
+H.acd4_bcard=e=>{const C=CRs(),l=C.ix.lessons.get(e.dataset.l),q=(document.getElementById('a4b-fq').value||'').trim(),a=(document.getElementById('a4b-fa').value||'').trim();
+ if(!l||!q||!a){toast(T('پرسش و پاسخ را بنویس','Write question and answer'),1);return}
+ const A=zAX(),c=C.ix.courses.get(l.courseId),t=todayISO();if(A.cards.length>=2000){toast(T('حداکثر ۲۰۰۰ کارت','Max 2000 cards'),1);return}
+ A.cards.push({id:'c'+uid(),fid:'u:'+uid(),deck:S_((c?c.title:'')+' › '+l.title,60),cid:l.courseId,lid:l.id,q:S_(q,300),a:S_(a,600),ease:2.5,ivl:0,reps:0,lap:0,due:t,created:t,ag:''});
+ ui.bo=l.id;zcommit();toast(T('کارت اضافه شد','Card added'))};
+H.acd4_bq=e=>{const C=CRs(),l=C.ix.lessons.get(e.dataset.l),g=id=>(document.getElementById(id).value||'').trim();
+ const o=[1,2,3,4].map(i=>g('a4b-o'+i)),stem=g('a4b-qs'),sol=g('a4b-sl');
+ if(!l||!stem||o.filter(Boolean).length<2||!sol){toast(T('متن سؤال، حداقل دو گزینه و پاسخ تشریحی لازم است','Need stem, 2+ options and an explanation'),1);return}
+ const ch=['a','b','c','d'],ci=+g('a4b-ok')-1;if(!o[ci]){toast(T('گزینهٔ درست خالی است','Correct option is empty'),1);return}
+ const choices=o.map((t,i)=>t?{id:ch[i],text:S_(t,300)}:null).filter(Boolean);
+ API().addQuestion({id:'u-'+uid(),type:'single',difficulty:+g('a4b-df'),lessonIds:[l.id],topicIds:l.topics||[],stem:S_(stem,800),choices,answer:{choice:ch[ci]},solution:S_(sol,1200)})
+  .then(()=>{ui.bo=l.id;toast(T('سؤال اضافه شد','Question added'));rr()}).catch(x=>toast(String(x.message||x),1))};
 
 function tree(){const C=CRs();if(!C)return'';const cs=C.cache.courses,used=new Set();let h=todayCard();
  h+='<div class="c"><h3>'+T('مجموعه‌ها و درس‌ها','Collections & subjects')+'</h3><p class="m">'+T('هر درس یک فایل است و داخلش فصل ← مبحث ← تدریس، فلش‌کارت، تمرین و آزمون. مجموعه‌ها فقط برای مرتب‌کردن‌اند.','Each subject is one file: chapters → topics → teaching, cards, practice, exams. Collections only group them.')+'</p><button data-a="acd4_new">＋ '+T('مجموعه‌ی تازه','New collection')+'</button></div>';
@@ -144,8 +182,8 @@ function courseTabs(c){const t=ui.ct[c.id]||'ch',cnt={fm:fbItems(c).length,cd:ca
 function crumb(l){const C=CRq(),c=C.ix.courses.get(l.courseId),col=cols().find(k=>k.cids.includes(l.courseId)),ch=c&&c.chapters.find(x=>x.id===l.chapterId);
  return'<div class="m a4cr" dir="auto">'+[col&&col.title,c&&c.title,ch&&ch.title,l.title].filter(Boolean).map(E).join(' › ')+'</div>'}
 function lessonExtra(l){const C=CRq(),er=C.cache.errors.filter(e=>{const q=C.ix.questions.get(e.qid);return q&&(q.lessonIds||[]).includes(l.id)}),op=er.filter(e=>!e.resolved).length,c=C.ix.courses.get(l.courseId),nf=fbItems(c).filter(x=>x.l.id===l.id).length;
- if(!er.length&&!nf)return'';
- return'<div class="c"><div class="row">'+(nf?'<button class="chip" data-a="acd4_goct" data-c="'+E(l.courseId)+'" data-k="fm">📐 '+F(nf)+' '+T('فرمول در این مبحث','formulas here')+'</button>':'')+(er.length?'<button class="chip" data-a="acd4_goct" data-c="'+E(l.courseId)+'" data-k="er">⚠ '+F(op)+' '+T('اشتباه باز از','open mistakes of')+' '+F(er.length)+'</button>':'')+'</div></div>'}
+ if(!er.length&&!nf)return builder(l);
+ return builder(l)+'<div class="c"><div class="row">'+(nf?'<button class="chip" data-a="acd4_goct" data-c="'+E(l.courseId)+'" data-k="fm">📐 '+F(nf)+' '+T('فرمول در این مبحث','formulas here')+'</button>':'')+(er.length?'<button class="chip" data-a="acd4_goct" data-c="'+E(l.courseId)+'" data-k="er">⚠ '+F(op)+' '+T('اشتباه باز از','open mistakes of')+' '+F(er.length)+'</button>':'')+'</div></div>'}
 function myLinks(){let h='';try{h=_acdRes()}catch(e){return''}
  return'<details class="c"><summary><b>🔗 '+T('لینک‌ها و منابع شخصی من','My personal links')+'</b></summary><p class="m">'+T('جای لینک و فایل‌هایی که خودت جمع می‌کنی (ویدیوی استاد، PDF، سایت). چیزی از دوره‌ها در این بخش نیست.','Your own links/files (videos, PDFs, sites). Course material is not here.')+'</p>'+h+'</details>'}
 function askPlace(cid){const C=CRq(),c=C&&C.ix.courses.get(cid);if(!c)return;const l=cols();

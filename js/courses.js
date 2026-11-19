@@ -495,6 +495,7 @@ async function commitPack(P,pl){
   });
   CR.assetCourse='';
   await crLoad();
+  try{await reapplyRen(C.id)}catch(e){console.error(e)}
   try{if(window.daniAcd4){if(P.flashcards&&P.flashcards.length)window.daniAcd4.zipCards(C.id,P.flashcards);window.daniAcd4.placed(C.id,P.manifest.collection)}}catch(e){console.error(e)}
 }
 async function deleteCourse(id,withUser){
@@ -506,6 +507,33 @@ async function deleteCourse(id,withUser){
   });
   if(CR.assetCourse===id)CR.assetCourse='';
   await crLoad();
+}
+/* v153: تغییر نام درس/فصل/مبحث (با نگه‌داشتن نام انتخابی بعد از به‌روزرسانی) و افزودن سؤال از داخل برنامه */
+async function applyOne(kind,c,id,title){
+  if(kind==='c'){c.title=title;await IDB.tx(['courses'],'readwrite',async t=>{await rq(t.objectStore('courses').put(c))})}
+  else if(kind==='ch'){const ch=c.chapters.find(x=>x.id===id);if(!ch)return;ch.title=title;await IDB.tx(['courses'],'readwrite',async t=>{await rq(t.objectStore('courses').put(c))})}
+  else{const l=CR.ix.lessons.get(id);if(!l||l.courseId!==c.id)return;l.title=title;await IDB.tx(['lessons'],'readwrite',async t=>{await rq(t.objectStore('lessons').put(l))})}
+}
+async function renameItem(kind,cid,id,title){
+  title=String(title||'').trim().slice(0,120);if(!title)throw new Error('نام خالی است');
+  const c=CR.ix.courses.get(cid);if(!c)throw new Error('درس پیدا نشد');
+  const R=zAC();if(!R.ren||typeof R.ren!=='object'||Array.isArray(R.ren))R.ren={};
+  const r=R.ren[cid]=R.ren[cid]||{c:'',ch:{},l:{}};
+  await applyOne(kind,c,id,title);
+  if(kind==='c')r.c=title;else if(kind==='ch')r.ch[id]=title;else r.l[id]=title;
+  zcommit();
+}
+async function reapplyRen(cid){
+  const R=zAC(),r=R.ren&&R.ren[cid],c=CR.ix.courses.get(cid);if(!r||!c)return;
+  if(r.c&&r.c!==c.title)await applyOne('c',c,cid,r.c);
+  for(const k of Object.keys(r.ch||{})){const ch=c.chapters.find(x=>x.id===k);if(ch&&ch.title!==r.ch[k])await applyOne('ch',c,k,r.ch[k])}
+  for(const k of Object.keys(r.l||{})){const l=CR.ix.lessons.get(k);if(l&&l.title!==r.l[k])await applyOne('l',c,k,r.l[k])}
+}
+async function addQuestion(q){
+  const l=CR.ix.lessons.get(q.lessonIds[0]);if(!l)throw new Error('مبحث پیدا نشد');
+  const x={...q,courseId:l.courseId,difficulty:[1,2,3].includes(+q.difficulty)?+q.difficulty:2,topicIds:Array.isArray(q.topicIds)?q.topicIds:[],hash:'u'+hashStr(JSON.stringify(q)),v:'user'};
+  await IDB.tx(['questions'],'readwrite',async t=>{await rq(t.objectStore('questions').put(x))});
+  await crLoad();return x;
 }
 /* v152: ادغام چند درس هم‌موضوع در یک درس (با نگه‌داشتن شناسه‌ی درس/سؤال، پیشرفت، خطاها و آزمون‌ها؛ با امکان برگشت) */
 async function mergeCourses(newId,title,srcIds){
@@ -651,14 +679,17 @@ function vCourses(){
 }
 function vCourse(){
   const c=course(),L=lessonsOf(c.id);
-  let h='<div class="c"><div class="row"><button data-a="crs_back">‹ فهرست دوره‌ها</button><h3 class="sp" dir="auto">'+E_(c.title)+'</h3></div><p dir="auto">'+E_(c.description)+'</p>';
+  let h='<div class="c"><div class="row"><button data-a="crs_back">‹ فهرست دوره‌ها</button><h3 class="sp" dir="auto">'+E_(c.title)+'</h3><button class="chip sm" data-a="acd4_ren" data-t="c" data-c="'+E_(c.id)+'" data-i="'+E_(c.id)+'" aria-label="Rename">✎</button></div><p dir="auto">'+E_(c.description)+'</p>';
   if(c.goals&&c.goals.length)h+='<b>اهداف یادگیری</b><ul dir="auto">'+c.goals.map(g=>'<li>'+inl(g)+'</li>').join('')+'</ul>';
   if(c.prerequisites&&c.prerequisites.length)h+='<div class="m">پیش‌نیاز: '+c.prerequisites.map(x=>E_(x)).join('، ')+'</div>';
   h+='</div>';
   if(window.daniAcd4){const t=window.daniAcd4.courseTabs(c);h+=t.bar;if(t.body!=null)return h+t.body}
-  c.chapters.forEach(ch=>{const ls=L.filter(l=>l.chapterId===ch.id),d=ls.filter(l=>{const p=CR.ix.progress.get(l.id);return p&&p.done}).length;
-    h+='<div class="c"><div class="row"><h3 class="sp" dir="auto">'+E_(ch.title)+'</h3><span class="m">'+faN(d)+'/'+faN(ls.length)+'</span><button data-a="crs_qstart" data-c="'+E_(c.id)+'" data-s="chapter:'+E_(ch.id)+'" data-m="practice">تمرین فصل</button><button data-a="crs_qstart" data-c="'+E_(c.id)+'" data-s="chapter:'+E_(ch.id)+'" data-m="exam">آزمون فصل</button></div>'+bar(ls.length?d/ls.length*100:0)+(window.daniAcd4?window.daniAcd4.chapterInfo(c.id,ch,ls):'')+
-    (ls.length?ls.map(l=>{const p=CR.ix.progress.get(l.id),bm=CR.ix.bookmarks.has('b_lesson_'+l.id);return'<div class="cwr"><span>'+(p&&p.done?'✅ ':'⬜ ')+'<a data-a="crs_open" data-c="'+E_(c.id)+'" data-l="'+E_(l.id)+'" tabindex="0" style="cursor:pointer;color:var(--ac)" dir="auto">'+E_(l.title)+'</a> '+(bm?'★ ':'')+stBadge(l)+ctBadge(l)+(window.daniAcd4?window.daniAcd4.lessonChip(l):'')+'</span></div>'}).join(''):'<p class="m">این فصل هنوز درسی ندارد.</p>')+'</div>'});
+  CR.chOpen=CR.chOpen||{};
+  const ren=(t,id,cid)=>'<button class="chip sm" data-a="acd4_ren" data-t="'+t+'" data-c="'+E_(cid)+'" data-i="'+E_(id)+'" title="'+TT('تغییر نام','Rename')+'" aria-label="'+TT('تغییر نام','Rename')+'">✎</button>';
+  c.chapters.forEach((ch,ci)=>{const ls=L.filter(l=>l.chapterId===ch.id),d=ls.filter(l=>{const p=CR.ix.progress.get(l.id);return p&&p.done}).length,open=CR.chOpen[ch.id]!==undefined?CR.chOpen[ch.id]:c.chapters.length<=3;
+    h+='<div class="c"><div class="row"><button data-a="crs_chtog" data-k="'+E_(ch.id)+'" aria-expanded="'+open+'">'+(open?'▾':'◂')+'</button><span class="badge">'+TT('فصل','Ch.')+' '+faN(ci+1)+'</span><h3 class="sp" dir="auto">'+E_(ch.title)+'</h3>'+ren('ch',ch.id,c.id)+'<span class="m">'+faN(d)+'/'+faN(ls.length)+'</span></div>'+bar(ls.length?d/ls.length*100:0)+
+    (open?'<div class="row" style="margin-top:6px"><button data-a="crs_qstart" data-c="'+E_(c.id)+'" data-s="chapter:'+E_(ch.id)+'" data-m="practice">'+TT('تمرین فصل','Chapter practice')+'</button><button data-a="crs_qstart" data-c="'+E_(c.id)+'" data-s="chapter:'+E_(ch.id)+'" data-m="exam">'+TT('آزمون فصل','Chapter exam')+'</button></div>'+(window.daniAcd4?window.daniAcd4.chapterInfo(c.id,ch,ls):'')+
+    (ls.length?ls.map(l=>{const p=CR.ix.progress.get(l.id),bm=CR.ix.bookmarks.has('b_lesson_'+l.id);return'<div class="cwr"><span>'+(p&&p.done?'✅ ':'⬜ ')+'<a data-a="crs_open" data-c="'+E_(c.id)+'" data-l="'+E_(l.id)+'" tabindex="0" style="cursor:pointer;color:var(--ac)" dir="auto">'+E_(l.title)+'</a> '+(bm?'★ ':'')+stBadge(l)+ctBadge(l)+(window.daniAcd4?window.daniAcd4.lessonChip(l):'')+'</span>'+ren('l',l.id,c.id)+'</div>'}).join(''):'<p class="m">'+TT('این فصل هنوز مبحثی ندارد.','No topics yet.')+'</p>'):'')+'</div>'});
   return h;
 }
 function vStudy(){
@@ -982,6 +1013,7 @@ hh('retry',()=>{if(IDB.mem&&(CR.cache.courses.length||CR.cache.progress.length)&
 hh('open',el=>{stopStudy();const c=el.dataset.c,l=el.dataset.l;CR.tab='courses';CR.courseId=c;CR.lessonId=l||'';CR.msg=null;
   return crAssets(c).then(()=>{if(l)CR.studyAt=Date.now();rerender();window.scrollTo(0,0)})});
 hh('back',()=>{stopStudy();CR.courseId='';CR.lessonId='';rerender()});
+hh('chtog',el=>{CR.chOpen=CR.chOpen||{};const k=el.dataset.k,c=CR.ix.courses.get(CR.courseId),def=c?c.chapters.length<=3:true;CR.chOpen[k]=!(CR.chOpen[k]!==undefined?CR.chOpen[k]:def);rerender()});
 hh('mz',el=>{CR.mz=Math.min(2,Math.max(.7,+(CR.mz+(+el.dataset.d)*.15).toFixed(2)));try{localStorage.setItem('crs_mz',CR.mz)}catch(e){}rerender()});
 hh('zoom',el=>{const u=assetUrl(el.dataset.p);if(u)modal('<div class="crs-zm"><img src="'+u+'" alt=""></div><div class="row"><button data-a="cl">بستن</button></div>')});
 hh('ack',el=>{const l=CR.ix.lessons.get(el.dataset.l);return saveProg(l,{doneHash:l.hash,reviewedAt:Date.now()}).then(rerender)});
@@ -1217,7 +1249,7 @@ function mount(){
     return'<div class="c"><h3>'+BH('Academy','آکادمی')+'</h3>'+acdTabs()+'</div>'+crsView()};
   if(!zMS.acd.tab||zMS.acd.tab==='review')zMS.acd.tab='courses'; /* تب پیش‌فرضی که خود پلنر گذاشته (مثلاً learn) تغییر نمی‌کند */
   crLoad().then(()=>{if(inCrs())rerender()});
-  window.daniCourses={buildEverything,prepEverything,rehydrateHost,hostSnap,state:CR,validatePack,loadPackZip,zipRead,zipWrite,tex2mml,grade,inl,blocks,IDB,planPack,normalizePack,commitPack,importFile,buildCourseZip,startQuiz,submitQuiz,userExport,planUser,version:CRV,api:{latestResults,questionsOf,lessonsOf,courseProg,mastery,pool,blk,merge:mergeCourses,undoMerge,mergeUndoInfo}};
+  window.daniCourses={buildEverything,prepEverything,rehydrateHost,hostSnap,state:CR,validatePack,loadPackZip,zipRead,zipWrite,tex2mml,grade,inl,blocks,IDB,planPack,normalizePack,commitPack,importFile,buildCourseZip,startQuiz,submitQuiz,userExport,planUser,version:CRV,api:{renameItem,reapplyRen,addQuestion,latestResults,questionsOf,lessonsOf,courseProg,mastery,pool,blk,merge:mergeCourses,undoMerge,mergeUndoInfo}};
 }
 mount();
 })();
