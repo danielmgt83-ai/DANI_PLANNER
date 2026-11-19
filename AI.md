@@ -656,3 +656,4 @@ html[data-mx=1] فقط وقتی db.set.mx!==0 و تم ساده است (بدون 
 (v148) acd3.js: ناوبری آکادمی در ۴ گروه؛ نماها V[key,group,zMS tab,CR.tab]؛ academy.js کارت‌های کهنه حذف.
 (v149) look3.js: ۵ زبانه برای ظاهر و تم؛ core.js: th='auto' با daniThMode().
 (v150) acd4.js: مجموعه‌ها/درخت آکادمی، تسلط، فلش‌کارت مبحث (cards.lid)؛ courses.js: api export + hookها. مرحله‌ی بعد: فلش‌کارت در ZIP، آزمون‌ساز بین‌درسی، ادغام دوره‌ها.
+(v151) acd3 نوار ۴گروهی؛ acd4: courseTabs/formulaBook/crumb/placed/zipCards؛ ZIP: `flashcards/*.json` و `manifest.collection` اختیاری؛ بلوک‌ها `name`/`page` اختیاری. باقی: آزمون‌ساز بین‌درسی، ادغام دوره‌ها، بسته‌ی جامع.
