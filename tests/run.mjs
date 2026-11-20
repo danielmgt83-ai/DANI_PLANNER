@@ -400,5 +400,12 @@ await test('فلش‌کارت v155: املا، جای‌خالی، مثال، س
  A.cards.length=0;A.nl=20;page='home';render();return o});
  if(r.cap!==2||!r.ctl||!r.inp||!r.ok||r.n!==1||!r.cl||!r.back||r.cap2!==0||r.n2!==2)throw new Error(JSON.stringify(r))});
 
+await test('منوی کشویی v157: زدن بیرون و دکمه‌ی برگشت آن را می‌بندد',async pg=>{const r=await pg.evaluate(async()=>{const o={},w=()=>new Promise(x=>setTimeout(x,250)),n=document.getElementById('nav');page='home';render();
+ n.classList.add('o');await w();o.pushed=!!(history.state&&history.state.danimenu);
+ document.querySelector('main').click();await w();o.out=!n.classList.contains('o');
+ n.classList.add('o');await w();history.back();await w();o.back=!n.classList.contains('o');
+ n.classList.add('o');await w();document.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape'}));await w();o.esc=!n.classList.contains('o');await w();return o});
+ if(!r.pushed||!r.out||!r.back||!r.esc)throw new Error(JSON.stringify(r))});
+
 console.log('\n'+results.map(r=>r.join(' ')).join('\n')+'\n\n'+(results.length-fails)+' / '+results.length+' موفق');
 await browser.close();srv.close();process.exit(fails?1:0);
