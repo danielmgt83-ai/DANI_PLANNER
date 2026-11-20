@@ -15,7 +15,7 @@ async function fresh(extra){const ctx=await browser.newContext({viewport:{width:
  await pg.goto(URL);await pg.waitForFunction(()=>typeof render==='function'&&typeof db==='object',null,{timeout:15000});await pg.waitForTimeout(800);
  await pg.evaluate(()=>{db.set.gd=Object.assign(db.set.gd||{},{fin:1});const g=document.getElementById('gd2');if(g)g.remove()});
  return {pg,errs,ctx}}
-async function test(name,fn){let o;try{o=await fresh();await fn(o.pg);if(o.errs.length)throw new Error(o.errs.slice(0,3).join(' | '));results.push(['✅',name])}catch(e){fails++;results.push(['❌',name+' — '+e.message.slice(0,300)])}finally{if(o)await o.ctx.close()}}
+async function test(name,fn){if(process.env.ONLY&&!name.includes(process.env.ONLY))return;let o;try{o=await fresh();await fn(o.pg);if(o.errs.length)throw new Error(o.errs.slice(0,3).join(' | '));results.push(['✅',name])}catch(e){fails++;results.push(['❌',name+' — '+e.message.slice(0,300)])}finally{if(o)await o.ctx.close()}}
 const ok=(c,m)=>{if(!c)throw new Error(m)};
 
 await test('بارگذاری و بدون خطای کنسول',async pg=>{ok(await pg.evaluate(()=>typeof db.entries==='object'),'db')});
@@ -341,7 +341,7 @@ await test('آکادمی v151: زبانه‌های درون درس، دفترچ�
  daniAcd4.placed('m1','MBA');o.pl=zAC().cols.some(c=>c.title==='MBA'&&c.cids.includes('m1'));
  zMS.acd.tab='courses';C.tab='sources';render();o.src=/لینک‌ها و منابع شخصی من/.test(html())&&/<details class="c"><summary><b dir="auto">ریاضی/.test(html());
  C.tab='home';page='home';render();return o});
- if(r.top!==4||!r.today||!r.mgmt||!r.noB||r.tabs!==6||!r.fm||!r.er||!r.ex||!r.extra||r.zc!==2||r.zc2!==2||!r.pl||!r.src)throw new Error(JSON.stringify(r))});
+ if(r.top!==4||!r.today||!r.mgmt||!r.noB||r.tabs!==7||!r.fm||!r.er||!r.ex||!r.extra||r.zc!==2||r.zc2!==2||!r.pl||!r.src)throw new Error(JSON.stringify(r))});
 
 await test('آکادمی v152: پیشنهاد ادغام درس‌های هم‌موضوع (ریاضی ۳ تایی، انگلیسی ۲ تایی)',async pg=>{const r=await pg.evaluate(async()=>{const C=daniCourses.state,o={};
  C.cache.courses.length=0;C.cache.lessons.length=0;C.cache.questions.length=0;
@@ -421,6 +421,40 @@ await test('فروشگاه v159: بسته‌های کامل (تم + آیکون +
  o.ap=skId()==='dani'&&db.set.lay2==='float'&&db.set.icx.frame==='neon'&&document.documentElement.getAttribute('data-icf')==='neon';
  H.lk_undo();await w();o.un=skId()===s0&&(db.set.lay2||'')===l0&&JSON.stringify(db.set.icx||{})===f0;page='home';render();return o});
  if(r.n<12||!r.m||!r.ap||!r.un)throw new Error(JSON.stringify(r))});
+
+await test('آکادمی v160: کسر، دلار، SVG، حذف تکی، ادغام zip جزئی، ترتیب و نام آزمون',async pg=>{const r=await pg.evaluate(async()=>{const D=daniCourses,A=D.api,o={};
+ o.f=A.numParse('7/6').toFixed(3)==='1.167'&&A.numParse('۱/۳').toFixed(2)==='0.33'&&A.numParse('2.5')===2.5&&isNaN(A.numParse('1/0'));
+ o.g=D.grade({type:'numeric',answer:{value:'7/6',tol:0.01}},'1.1667').ok===true&&D.grade({type:'numeric',answer:{value:'1'}},'7/6').ok===false;
+ const h1=D.inl('قیمت $5 و $6 است'),h2=D.inl('فرمول $x^2$ خوب'),h3=D.inl('هزینه \\$7 است');
+ o.d=!/crs-im/.test(h1)&&/\$5/.test(h1)&&/crs-im/.test(h2)&&/\$7/.test(h3)&&!/crs-im/.test(h3);
+ o.ex=A.normExam('  آزمون   ۹۸ي ')==='آزمون ۹۸ی';
+ const Q=(id,l,ex,t)=>({id,type:'single',difficulty:2,lessonIds:[l],topicIds:t||['ta'],exam:ex,src:'exam'===0?'':'jozve',stem:'س '+id,choices:[{id:'a',text:'x'},{id:'b',text:'y'}],answer:{choice:'a'},solution:'ح'});
+ const L=(id,ch,role)=>({id,chapterId:ch,title:'م '+id,blocks:[{type:'p',text:'x'}],status:'approved',role});
+ const mk=(v,over)=>({manifest:{format:'dani-course',templateVersion:D.version.template,contentVersion:v,...(over.mf||{})},course:{id:'t160',title:'آزمایشی',language:'fa',kind:'math',unit:'جلسه',chapters:[{id:'c1',title:'ج۱'},{id:'c2',title:'ج۲'}],topics:[{id:'ta',title:'الف'}],...(over.course||{})},lessons:over.lessons||[L('l1','c1','core'),L('l2','c2')],questions:over.questions||[Q('q1','l1','آزمون ۹۸'),Q('q2','l1','آزمون ۹۸ '),Q('q3','l2','آزمون ۹۸')],flashcards:[],sources:[],sourceIds:new Set(),assets:new Map(),names:[],fileErrors:[]});
+ const put=async P=>{const rep=D.validatePack(P,D.state.ix.courses.get('t160')||null);if(rep.errors.length)throw new Error(rep.errors.join(' / '));D.normalizePack(P);await D.commitPack(P,D.planPack(P));return rep};
+ await put(mk('1.0',{}));const C=D.state;
+ o.n1=C.cache.questions.filter(q=>q.courseId==='t160').length===3;
+ o.ex1=new Set(A.questionsOf('t160').map(q=>q.exam)).size===1;
+ const bad=D.validatePack(mk('1.1',{lessons:[L('l1','c1','core'),L('l9','c1','aid')],questions:[Q('qa','l9','x')]}),C.ix.courses.get('t160'));o.aid=bad.errors.some(e=>/کمکی/.test(e));
+ const bad2=D.validatePack(mk('1.1',{questions:[{...Q('qz','l1','x'),src:'nope'}]}),C.ix.courses.get('t160'));o.src=bad2.errors.some(e=>/src/.test(e));
+ await put(mk('1.1',{course:{topics:[{id:'tb',title:'ب'}],chapters:[]},lessons:[],questions:[]}));
+ o.top=C.ix.courses.get('t160').topics.length===2&&C.ix.courses.get('t160').chapters.length===2&&C.ix.courses.get('t160').unit==='جلسه';
+ await A.deleteQuestion('q3');await put(mk('1.2',{}));
+ o.dq=!C.ix.questions.get('q3')&&!!C.ix.questions.get('q1');
+ await A.moveQuestion('q1','l2');await put(mk('1.3',{}));
+ o.mv=C.ix.questions.get('q1').lessonIds[0]==='l2';
+ await put(mk('1.4',{mf:{remove:{questions:['q2']}},questions:[Q('q1','l1','آزمون ۹۸'),Q('q2','l1','آزمون ۹۸')]}));
+ o.rm=!C.ix.questions.get('q2');
+ await A.deleteLesson('l2');await put(mk('1.5',{}));
+ o.dl=!C.ix.lessons.get('l2')&&!C.ix.questions.get('q1')&&!!C.ix.lessons.get('l1');
+ await A.deleteChapter('t160','c2');o.dc=C.ix.courses.get('t160').chapters.length===1;
+ await A.savePath('t160',{id:'p1',title:'جلسه ۱',items:['l1']});
+ C.courseId='t160';C.lessonId='';C.tab='courses';page='acd';zMS.acd.tab='courses';render();let h=document.getElementById('pg').innerHTML;
+ o.unit=/جلسه 1|جلسه ۱/.test(h)&&/acd4_dch/.test(h)&&/acd4_cfg/.test(h);
+ daniAcd4.courseTabs&&0;H.acd4_ct({dataset:{c:'t160',k:'pt'}});h=document.getElementById('pg').innerHTML;o.pth=/acd4_pgo/.test(h)&&/acd4_pdel/.test(h);
+ C.lessonId='l1';render();h=document.getElementById('pg').innerHTML;o.mng=/acd4_dl/.test(h);
+ await D.api.deleteChapter&&0;page='home';render();return o});
+ if(!Object.values(r).every(Boolean))throw new Error(JSON.stringify(r))});
 
 console.log('\n'+results.map(r=>r.join(' ')).join('\n')+'\n\n'+(results.length-fails)+' / '+results.length+' موفق');
 await browser.close();srv.close();process.exit(fails?1:0);
