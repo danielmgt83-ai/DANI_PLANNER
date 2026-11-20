@@ -6,7 +6,7 @@
 (function(){
 const T=window.daniT;
 const FX=()=>{const s=db.set;if(!s.fx||typeof s.fx!=='object')s.fx={};if(s.fx.hap===undefined)s.fx.hap=1;if(s.fx.anim===undefined)s.fx.anim=1;return s.fx};
-const VER='2026.11.118';
+const VER='2026.11.119';
 /* ---------- لرزش و پاپ ---------- */
 const HAP=/^(qk_go|nx_go|nx_sw|pf_add|tp_ap|bin_rs|ex_save|ab_now|ql_|pm_|tm_|tstart|tfinish|hab|ob_log|ob_go|dnd_set|ls_now|dk_)/;
 const reduce=()=>{try{return matchMedia('(prefers-reduced-motion: reduce)').matches}catch(e){return false}};
@@ -19,6 +19,7 @@ st.textContent='@keyframes fxpop{0%{transform:scale(1)}40%{transform:scale(.92)}
 document.head.appendChild(st);
 /* ---------- چه چیزی تازه است ---------- */
 const WN=[
+ ['🎁','فروشگاه: «بسته‌های کامل» — ۱۴ بسته که قالب، آیکون‌ها و شکل منو را با هم عوض می‌کنند (مثلاً «نیمه‌شبِ نئونی»). پیش‌نمایش دارد و با «↩ برگشت» همه‌چیز به قبل برمی‌گردد.','Store: “Full bundles” — 14 bundles that set theme, icons and menu style together, with preview and one-tap undo.'],
  ['🔣','فروشگاه حالا بخش «نمادها (آیکون‌ها)» دارد: ۱۳ بستهٔ آیکون با پیش‌نمایش (خطی، پررنگ، دایره‌ای، کاشی رنگارنگ، شش‌ضلعی، ایموجی…) و سه مدل تازه: براق، نئون و خمیری سه‌بعدی. یک‌ضربه طرح، قاب و رنگ را با هم عوض می‌کند.','The store now has “Icon packs”: 13 packs with previews and three new looks (Glossy, Neon, Clay 3D). One tap sets icon set, frame and colour together.'],
  ['☰','منوی کشویی حالا با زدن هر جای بیرون از منو یا دکمهٔ برگشت گوشی بسته می‌شود؛ لازم نیست حتماً گزینه‌ای را انتخاب کنی.','The slide-out menu now closes when you tap outside it or press the phone’s Back button; no need to pick an item.'],
  ['🛍','تنظیمات تم حالا چهار بخش دارد: «فروشگاه» (قالب‌ها با پیش‌نمایش و انتخاب شکل منو؛ یک‌ضربه همه‌چیز عوض می‌شود)، «سفارشی» (شکل منو: پایین، شناور، بالا، کناری، فقط آیکون + رنگ و آیکون‌ها)، «تم‌های من» (فهرست فشرده) و «استودیو». بخش «پس‌زمینه» برداشته شد.','Theme settings now has four tabs: Store (templates with preview and menu style), Customize (menu style: bottom, floating, top, side, icons-only + colours & icons), My themes, Studio. The “Background” section was removed.'],
