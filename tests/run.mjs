@@ -407,5 +407,13 @@ await test('منوی کشویی v157: زدن بیرون و دکمه‌ی برگ�
  n.classList.add('o');await w();document.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape'}));await w();o.esc=!n.classList.contains('o');await w();return o});
  if(!r.pushed||!r.out||!r.back||!r.esc)throw new Error(JSON.stringify(r))});
 
+await test('فروشگاه نمادها v158: ۱۳ بسته، اعمال بسته، قاب‌های تازه',async pg=>{const r=await pg.evaluate(async()=>{const o={},w=()=>new Promise(x=>setTimeout(x,300));page='set';stt='look';render();await w();
+ H.lk3_p({dataset:{k:'st'}});H.lk_sec({dataset:{v:'icons'}});await w();o.n=document.querySelectorAll('#lkstore .stc2').length;o.pv=document.querySelectorAll('#lkstore .ipv svg.ic,#lkstore .ipv .icem').length>=60;
+ H.lk_ip({dataset:{id:'p8'}});await w();o.frame=document.documentElement.getAttribute('data-icf');o.fam=db.set.icx.fam;
+ H.lk_ip({dataset:{id:'p9'}});await w();o.neon=document.documentElement.getAttribute('data-icf');
+ H.lk_ip({dataset:{id:'p0'}});await w();o.reset=!document.documentElement.getAttribute('data-icf')&&!db.set.icst;
+ H.lk_sec({dataset:{v:'themes'}});page='home';render();return o});
+ if(r.n!==13||!r.pv||r.frame!=='gloss'||r.fam!=='solid'||r.neon!=='neon'||!r.reset)throw new Error(JSON.stringify(r))});
+
 console.log('\n'+results.map(r=>r.join(' ')).join('\n')+'\n\n'+(results.length-fails)+' / '+results.length+' موفق');
 await browser.close();srv.close();process.exit(fails?1:0);
