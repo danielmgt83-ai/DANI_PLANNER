@@ -279,7 +279,7 @@ await test('ظاهر و تم v156: فروشگاه، سفارشی، تم‌های
  const ic=[...document.querySelectorAll('#lk3 .stsec')].map(s=>s.closest('.lk3p').dataset.p);o.ic=ic.join();
  o.dash=!!document.querySelector('#lk3 .lk3p[data-p=cu] details');
  o.lf=!!document.querySelector('#lk3 .lk3p[data-p=cu] [data-f=th]');
- o.store=document.querySelectorAll('#lkstore .stc').length;o.menu=document.querySelectorAll('#lkmenu .lkm').length;o.moods=!document.querySelector('#lk3 .lk3p:not([hidden]) #moodcard');
+ H.lk_sec({dataset:{v:'themes'}});o.store=document.querySelectorAll('#lkstore .stc').length;o.menu=document.querySelectorAll('#lkmenu .lkm').length;o.moods=!document.querySelector('#lk3 .lk3p:not([hidden]) #moodcard');
  const sk0=skId();H.lk_lay({dataset:{v:'top'}});o.lay=document.documentElement.dataset.lay;H.lk_lay({dataset:{v:'float'}});o.flt=document.documentElement.dataset.navf;H.lk_lay({dataset:{v:''}});
  const other=Object.keys(SKINS).find(k=>k!==sk0&&!SKINS[k].custom);H.lk_pv({dataset:{id:other}});o.pv=!!document.getElementById('lkpm');H.lk_ap({dataset:{id:other}});o.ap=skId()===other&&db.set.prevTheme.skin===sk0;H.lk_undo();o.un=skId()===sk0;
  H.lk3_p({dataset:{k:'cu'}});o.vis=[...document.querySelectorAll('#lk3 .lk3p')].filter(p=>!p.hidden).map(p=>p.dataset.p).join();
@@ -414,6 +414,13 @@ await test('فروشگاه نمادها v158: ۱۳ بسته، اعمال بست�
  H.lk_ip({dataset:{id:'p0'}});await w();o.reset=!document.documentElement.getAttribute('data-icf')&&!db.set.icst;
  H.lk_sec({dataset:{v:'themes'}});page='home';render();return o});
  if(r.n!==13||!r.pv||r.frame!=='gloss'||r.fam!=='solid'||r.neon!=='neon'||!r.reset)throw new Error(JSON.stringify(r))});
+
+await test('فروشگاه v159: بسته‌های کامل (تم + آیکون + منو) و برگشت',async pg=>{const r=await pg.evaluate(async()=>{const o={},w=()=>new Promise(x=>setTimeout(x,300));page='set';stt='look';render();await w();
+ H.lk3_p({dataset:{k:'st'}});await w();o.n=document.querySelectorAll('#lkstore .stc2').length;const s0=skId(),l0=db.set.lay2||'',f0=JSON.stringify(db.set.icx||{});
+ H.lk_bv({dataset:{id:'b7'}});o.m=!!document.querySelector('[data-a=lk_ba]');H.lk_ba({dataset:{id:'b7'}});await w();
+ o.ap=skId()==='dani'&&db.set.lay2==='float'&&db.set.icx.frame==='neon'&&document.documentElement.getAttribute('data-icf')==='neon';
+ H.lk_undo();await w();o.un=skId()===s0&&(db.set.lay2||'')===l0&&JSON.stringify(db.set.icx||{})===f0;page='home';render();return o});
+ if(r.n<12||!r.m||!r.ap||!r.un)throw new Error(JSON.stringify(r))});
 
 console.log('\n'+results.map(r=>r.join(' ')).join('\n')+'\n\n'+(results.length-fails)+' / '+results.length+' موفق');
 await browser.close();srv.close();process.exit(fails?1:0);
