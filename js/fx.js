@@ -6,7 +6,7 @@
 (function(){
 const T=window.daniT;
 const FX=()=>{const s=db.set;if(!s.fx||typeof s.fx!=='object')s.fx={};if(s.fx.hap===undefined)s.fx.hap=1;if(s.fx.anim===undefined)s.fx.anim=1;return s.fx};
-const VER='2026.11.116';
+const VER='2026.11.117';
 /* ---------- لرزش و پاپ ---------- */
 const HAP=/^(qk_go|nx_go|nx_sw|pf_add|tp_ap|bin_rs|ex_save|ab_now|ql_|pm_|tm_|tstart|tfinish|hab|ob_log|ob_go|dnd_set|ls_now|dk_)/;
 const reduce=()=>{try{return matchMedia('(prefers-reduced-motion: reduce)').matches}catch(e){return false}};
@@ -19,6 +19,7 @@ st.textContent='@keyframes fxpop{0%{transform:scale(1)}40%{transform:scale(.92)}
 document.head.appendChild(st);
 /* ---------- چه چیزی تازه است ---------- */
 const WN=[
+ ['☰','منوی کشویی حالا با زدن هر جای بیرون از منو یا دکمهٔ برگشت گوشی بسته می‌شود؛ لازم نیست حتماً گزینه‌ای را انتخاب کنی.','The slide-out menu now closes when you tap outside it or press the phone’s Back button; no need to pick an item.'],
  ['🛍','تنظیمات تم حالا چهار بخش دارد: «فروشگاه» (قالب‌ها با پیش‌نمایش و انتخاب شکل منو؛ یک‌ضربه همه‌چیز عوض می‌شود)، «سفارشی» (شکل منو: پایین، شناور، بالا، کناری، فقط آیکون + رنگ و آیکون‌ها)، «تم‌های من» (فهرست فشرده) و «استودیو». بخش «پس‌زمینه» برداشته شد.','Theme settings now has four tabs: Store (templates with preview and menu style), Customize (menu style: bottom, floating, top, side, icons-only + colours & icons), My themes, Studio. The “Background” section was removed.'],
  ['✎','مداد تغییر نام درس و فصل درست شد. دکمه‌های ❓ دیگر روی متن و منو نمی‌افتند: «سؤال از این درس» یک دکمهٔ کوچک بالای درس است و برای پرسیدن از یک بخش، روی همان بخش بزن تا دکمهٔ کوچکش بیاید.','Rename pencil fixed. ❓ buttons no longer overlap text or the menu: a small “Ask about this lesson” chip at the top; tap a section to reveal its small ask button.'],
  ['🔊','فلش‌کارت قوی‌تر: 🔊 تلفظ انگلیسی با صدای خود گوشی (و 🐢 آهسته)، «حالت املا» (بشنو و بنویس)، کارت جای‌خالی با {{ }}، مثال/تلفظ زیر پاسخ، و سقف کارت جدید در روز.','Stronger flashcards: 🔊 English pronunciation using your phone\'s voice (🐢 slow), spelling mode, cloze cards with {{ }}, example/pronunciation line, and a daily new-card cap.'],
