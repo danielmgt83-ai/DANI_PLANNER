@@ -2,6 +2,11 @@
 
 > هر تحویل یک خط در اینجا. جدیدترین بالا. (هوش مصنوعی‌ها: هر بار که فایلی را عوض می‌کنید، این‌جا یک خط بنویسید.)
 
+## (۱۵۹) v160 — آکادمی: حذف تکی، مسیرها، قانون محتوا، ایمنی
+- `courses.js`: `deleteQuestion/moveQuestion/deleteLesson/deleteChapter` (+ tombstone در `zAC().del` و `zAC().mv` تا با zip برنگردند)، `manifest.remove`، ادغام `topics/goals/prerequisites/paths` در zip جزئی، `numParse` (کسر ۷/۶)، `normExam`، ترتیب اصلی آزمون و آمار چیپ آزمون، «تمرین اشتباهات» از همه درس‌ها، SVG ناامن رد می‌شود و نمایش تصویر بدون target=_blank، `inflateRaw` با سقف اندازه، `\$` و قاعده‌ی `$…$`، ذخیره‌ی زمان آزمون هر ۱۰ ثانیه، فیلدهای `lesson.role`، `question.src`، `course.kind/unit/paths` در اعتبارسنج.
+- `acd4.js`: مدیریت مبحث (حذف/انتقال سؤال)، حذف فصل، تب «مسیرها»، انتخاب نوع درس و نام دسته، «ساخت کارت» در دفترچه فرمول، placeholder کارت بر اساس نوع درس، نشان «کمکی».
+- AI-PACK: `09-CONTENT-RULES.md`، `val.js` دوباره ساخته شد.
+
 ## (۱۵۸) v159 — بسته‌های کامل فروشگاه
 - `look3.js`: `BND` (۱۴ بسته: skin + پیش‌تنظیم آیکون + منو)، `lk_bv`/`lk_ba`، برگشت شامل آیکون‌ها (`prevTheme.ic`).
 
