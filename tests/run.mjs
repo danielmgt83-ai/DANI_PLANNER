@@ -46,7 +46,7 @@ await test('تنظیمات یکپارچه‌ی موعد: hub، طرح جدا ب�
   db.set.dlh.nag=true;let nag=true;try{Notifier.sync&&Notifier.sync()}catch(e){nag=false}
   page='set';stt='look';render();const link=!document.querySelector('#set-pg [data-a="dl_hub"],#pg>.c [data-a="dl_hub"]')||true;return [hub,old,sel,ring,steps,nag,link]});
  ok(r.every(Boolean),'نتیجه '+r)});
-await test('زیرمرحله‌های موعد و رنگ موعد در تقویم',async pg=>{const r=await pg.evaluate(()=>{const t=todayISO();const D=zmg('dl',()=>({v:1}));D.items=[{id:'dS',title:'گزارش',dt:addD(t,2),tm:'10:00',al:[],cat:'',cr:Date.now()-864e5,sub:[{id:'s1',t:'پیش‌نویس',d:false},{id:'s2',t:'بازبینی',d:true}]}];save();
+await test('زیرمرحله‌های موعد و رنگ موعد در تقویم',async pg=>{const r=await pg.evaluate(()=>{const t=todayISO();const D=zmg('dl',()=>({v:1}));D.items=[{id:'dS',title:'گزارش',dt:t,tm:'23:59',al:[],cat:'',cr:Date.now()-864e5,sub:[{id:'s1',t:'پیش‌نویس',d:false},{id:'s2',t:'بازبینی',d:true}]}];save();
   zMA.dl.sub('dS:s1');const x=D.items[0];const n=x.sub.filter(z=>z.d).length;
   page='dl';render();const row=/▣/.test(document.getElementById('pg').innerHTML);
   const card=/2\/2|۲\/۲/.test(daniDlCard.home());
@@ -273,17 +273,20 @@ await test('آکادمی v148: ۴ بخش، زیرزبانه‌ها همه‌ی �
  H.acd3_go({dataset:{k:'quiz'}});await w();o.crsNav=getComputedStyle(document.querySelector('#crs>.c')).display==='none';
  zMS.acd.tab='review';page='home';render();return o});
  if(r.top!==4||!r.all||!r.clean||!r.addRes||!r.crsNav)throw new Error(JSON.stringify(r))});
-await test('ظاهر و تم v149: ۵ زبانه، هر کارت قدیمی جای مشخص دارد، تم خودکار و مقدار قدیمی روشن/تیره می‌ماند',async pg=>{const r=await pg.evaluate(async()=>{const o={};const w=()=>new Promise(x=>setTimeout(x,300));page='set';stt='look';render();await w();
+await test('ظاهر و تم v156: فروشگاه، سفارشی، تم‌های من، استودیو؛  هر کارت قدیمی جای مشخص دارد، تم خودکار و مقدار قدیمی روشن/تیره می‌ماند',async pg=>{const r=await pg.evaluate(async()=>{const o={};const w=()=>new Promise(x=>setTimeout(x,300));page='set';stt='look';render();await w();
  o.tabs=document.querySelectorAll('#lk3 .lk3tabs .chip').length;const where=id=>{const e=document.querySelector(id);const p=e&&e.closest('.lk3p');return p?p.dataset.p:''};
  o.skin=where('#skincard');o.thmx=where('#thmx');o.mx=where('#mxcard');o.fx=where('#fxcard');
  const ic=[...document.querySelectorAll('#lk3 .stsec')].map(s=>s.closest('.lk3p').dataset.p);o.ic=ic.join();
- o.dash=!!document.querySelector('#lk3 .lk3p[data-p=fx] details');
- o.lf=!!document.querySelector('#lk3 .lk3p[data-p=co] [data-f=th]');
- H.lk3_p({dataset:{k:'ic'}});o.vis=[...document.querySelectorAll('#lk3 .lk3p')].filter(p=>!p.hidden).map(p=>p.dataset.p).join();
- H.lk3_p({dataset:{k:'th'}});
+ o.dash=!!document.querySelector('#lk3 .lk3p[data-p=cu] details');
+ o.lf=!!document.querySelector('#lk3 .lk3p[data-p=cu] [data-f=th]');
+ o.store=document.querySelectorAll('#lkstore .stc').length;o.menu=document.querySelectorAll('#lkmenu .lkm').length;o.moods=!document.querySelector('#lk3 .lk3p:not([hidden]) #moodcard');
+ const sk0=skId();H.lk_lay({dataset:{v:'top'}});o.lay=document.documentElement.dataset.lay;H.lk_lay({dataset:{v:'float'}});o.flt=document.documentElement.dataset.navf;H.lk_lay({dataset:{v:''}});
+ const other=Object.keys(SKINS).find(k=>k!==sk0&&!SKINS[k].custom);H.lk_pv({dataset:{id:other}});o.pv=!!document.getElementById('lkpm');H.lk_ap({dataset:{id:other}});o.ap=skId()===other&&db.set.prevTheme.skin===sk0;H.lk_undo();o.un=skId()===sk0;
+ H.lk3_p({dataset:{k:'cu'}});o.vis=[...document.querySelectorAll('#lk3 .lk3p')].filter(p=>!p.hidden).map(p=>p.dataset.p).join();
+ H.lk3_p({dataset:{k:'st'}});
  const old=db.set.th;db.set.th='dark';render();o.dk=document.documentElement.dataset.th;db.set.th='auto';render();o.au=['light','dark'].includes(document.documentElement.dataset.th);db.set.th='light';render();o.lt=document.documentElement.dataset.th;db.set.th=old;
  o.def=daniThMode&&true;page='home';render();return o});
- if(r.tabs!==5||r.skin!=='th'||r.thmx!=='th'||r.mx!=='co'||r.fx!=='fx'||!/ic/.test(r.ic)||!r.dash||!r.lf||r.vis!=='ic'||r.dk!=='dark'||!r.au||r.lt!=='light')throw new Error(JSON.stringify(r))});
+ if(r.tabs!==4||r.skin!=='cu'||r.thmx!=='lab'||r.mx!=='cu'||r.fx!=='cu'||!/cu/.test(r.ic)||!r.dash||!r.lf||r.vis!=='cu'||r.store<5||r.menu!==6||r.lay!=='top'||r.flt!=='1'||!r.pv||!r.ap||!r.un||r.dk!=='dark'||!r.au||r.lt!=='light')throw new Error(JSON.stringify(r))});
 await test('مسیر روشن v144: پیش‌فرض خاموش؛ چهار قدم، ذخیره، پایان و ثبت شدت بعد',async pg=>{const r=await pg.evaluate(async()=>{const o={};page='day';render();o.off=!DANI_DY().hide.includes('wp')&&!!document.getElementById('cpcard');DANI_DY().hide=DANI_DY().hide.filter(k=>k!=='wp');db.set.cpw={list:[]};render();const q=(a,n)=>document.querySelector('#cpcard [data-a='+a+']'+(n?'[data-n="'+n+'"]':''));q('cp_new').click();const t=document.getElementById('cp-t');t.value='نگرانی آزمون';t.dispatchEvent(new Event('input',{bubbles:true}));q('cp_n1').click();q('cp_n2').click();document.querySelector('#cpcard [data-n=ctl]').click();q('cp_n3').click();const s=document.getElementById('cp-s');s.value='حل ده تست';s.dispatchEvent(new Event('input',{bubbles:true}));q('cp_save').click();o.n=db.set.cpw.list.length;q('cp_end').click?0:0;document.querySelector('#cpcard [data-a=cp_end][data-st=done]').click();document.querySelector('#cpcard [data-a=cp_s1][data-n="2"]').click();const w=db.set.cpw.list[0];o.w=[w.st,w.s0,w.s1];DANI_DY().hide.push('wp');db.set.cpw={list:[]};page='home';render();return o});if(!r.off||r.n!==1||r.w[0]!=='done'||r.w[2]!==2)throw new Error(JSON.stringify(r))});
 await test('پروژه‌ها v145: سوییچ پروژه/موعد، ردیف بسته‌ی پروژه، چهار زبانه و سه گروه موعد',async pg=>{const r=await pg.evaluate(async()=>{const w=()=>new Promise(x=>setTimeout(x,350));const o={};const t=todayISO();const z=zDL();z.items.push({id:'t3d1',name:'x',dt:addD(t,20)});const a=db.acts.filter(x=>x.cat==='learn')[0];db.mods.pj.items.push({id:'t3p1',name:'پروژه‌ی تست',due:addD(t,30),hrs:20,from:addD(t,-2),parts:a?[{id:'t3x',a:a.id,s:[],hrs:20}]:[]});
  daniPj3.seg='pj';daniPj3.open='';page='pj';render();await w();const q=s=>document.querySelector(s);
