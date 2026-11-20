@@ -72,7 +72,7 @@ function builder(l){const o=ui.bo===l.id;
  const inp=(id,ph)=>'<input id="'+id+'" dir="auto" placeholder="'+ph+'" style="width:100%;margin:3px 0">';
  return'<details class="c a4bld"'+(o?' open':'')+'><summary><b>🛠 '+T('ساخت در این مبحث','Build in this topic')+'</b></summary>'
   +'<p class="m">'+T('هرچه اینجا بسازی همین‌جا به مبحث وصل می‌شود و با به‌روزرسانی دوره پاک نمی‌شود.','Whatever you build here attaches to this topic and survives course updates.')+'</p>'
-  +'<h4>'+T('فلش‌کارت','Flashcard')+'</h4>'+inp('a4b-fq',T('پرسش (روی کارت)','Question (front)'))+inp('a4b-fa',T('پاسخ (پشت کارت)','Answer (back)'))
+  +'<h4>'+T('فلش‌کارت','Flashcard')+'</h4>'+(()=>{const k=(CRs().ix.courses.get(l.courseId)||{}).kind;const P={language:['کلمه یا عبارت','معنی + مثال'],math:['موقعیت / نوع مسئله (مثلاً مجموع n جمله‌ی حسابی)','فرمول + شرط استفاده، یا تله‌ی رایج'],gmat:['الگوی سؤال یا قانون','راهبرد / میان‌بر / تلهٔ رایج']}[k]||['پرسش (روی کارت)','پاسخ (پشت کارت)'];return inp('a4b-fq',T(P[0],'Front'))+inp('a4b-fa',T(P[1],'Back'))})()
   +'<button data-a="acd4_bcard" data-l="'+E(l.id)+'">＋ '+T('افزودن کارت','Add card')+'</button>'
   +'<h4 style="margin-top:12px">'+T('سؤال چهارگزینه‌ای','Multiple-choice question')+'</h4><textarea id="a4b-qs" rows="2" dir="auto" placeholder="'+T('متن سؤال','Question text')+'" style="width:100%"></textarea>'
   +[1,2,3,4].map(i=>inp('a4b-o'+i,T('گزینه ','Option ')+F(i))).join('')
@@ -102,7 +102,7 @@ function tree(){const C=CRs();if(!C)return'';const cs=C.cache.courses,used=new S
 
 /* ---- داخل دوره/مبحث ---- */
 function chapterInfo(cid,ch,ls){const st=stat(cid,new Set(ls.map(l=>l.id)));return'<div class="m" style="margin:4px 0">'+chip(st.p)+' '+F(st.total)+' '+T('سؤال','questions')+'</div>'}
-function lessonChip(l){const st=stat(l.courseId,new Set([l.id])),n=cardsOf(c=>c.lid===l.id).length;if(st.p==null&&!n)return'';return' <span class="m">'+(st.p==null?'':chip(st.p))+(n?' 🃏'+F(n):'')+'</span>'}
+function lessonChip(l){const st=stat(l.courseId,new Set([l.id])),n=cardsOf(c=>c.lid===l.id).length,aid=l.role==='aid'?' <span class="m" title="'+T('فقط برای فهم؛ سؤال و کارت ندارد','Understanding only; no questions or cards')+'">💡 '+T('کمکی','aid')+'</span>':'';if(st.p==null&&!n)return aid;return' <span class="m">'+(st.p==null?'':chip(st.p))+(n?' 🃏'+F(n):'')+'</span>'+aid}
 function lessonCards(l){const cs=cardsOf(c=>c.lid===l.id),t=todayISO(),due=cs.filter(c=>c.due<=t).length;
  return'<div class="c a4cards"><h3>'+T('فلش‌کارت‌های این مبحث','Flashcards of this topic')+'</h3>'
   +'<div class="m">'+F(cs.length)+' '+T('کارت','cards')+(due?' · <b>'+F(due)+'</b> '+T('برای مرور امروز','due today'):'')+'</div>'
@@ -143,7 +143,7 @@ function todayCard(){const C=CRq(),d=dueN(),er=openErr(),bm=C?C.cache.bookmarks.
   +'<div class="row" style="margin-top:6px">'+(d?'<button class="p" data-a="acd4_rev">🔁 '+T('مرور امروز','Review now')+'</button>':'')
   +'<button class="chip" data-a="acd3_go" data-k="cards">🃏 '+T('همه‌ی کارت‌ها','All cards')+'</button><button class="chip" data-a="acd3_go" data-k="errors">⚠ '+T('دفترچه خطا','Errors')+(er?' ('+F(er)+')':'')+'</button><button class="chip" data-a="acd3_go" data-k="bm">🔖 '+T('نشانک و یادداشت','Bookmarks')+(bm?' ('+F(bm)+')':'')+'</button></div>'
   +'<p class="m">'+T('کارت‌ها، خطاها و نشانک‌ها داخل خود هر درس و مبحث هم هستند؛ اینجا فقط نمای کلی همه‌ی درس‌هاست.','Cards, mistakes and bookmarks also live inside each subject/topic; this is the all-subjects overview.')+'</p></div>'}
-const CT=[['ch','📖','فصل‌ها','Chapters'],['fm','📐','فرمول‌ها','Formulas'],['cd','🃏','کارت‌ها','Cards'],['er','⚠','خطاها','Mistakes'],['bm','🔖','نشانک‌ها','Bookmarks'],['ex','🎯','آزمون','Exam']];
+const CT=[['ch','📖','فصل‌ها','Chapters'],['pt','🧭','مسیرها','Paths'],['fm','📐','فرمول‌ها','Formulas'],['cd','🃏','کارت‌ها','Cards'],['er','⚠','خطاها','Mistakes'],['bm','🔖','نشانک‌ها','Bookmarks'],['ex','🎯','آزمون','Exam']];
 const inCourse=(c,id)=>{const C=CRq(),q=C.ix.questions.get(id);return q&&q.courseId===c.id?q:null};
 function lk(l,txt){return'<a data-a="crs_open" data-c="'+E(l.courseId)+'" data-l="'+E(l.id)+'" tabindex="0" style="cursor:pointer;color:var(--ac)" dir="auto">'+E(txt||l.title)+'</a>'}
 const qText=q=>typeof q.stem==='string'?q.stem:(Array.isArray(q.stem)?q.stem.map(b=>b&&b.text||'').join(' '):'');
@@ -155,7 +155,7 @@ function formulaBook(c){const a=API(),C=CRq(),all=fbItems(c),f=ui.ft||'all',lim=
  if(!list.length)return h+'<div class="c"><p class="m">'+T('هنوز فرمولی در متن درس‌ها نیست. از هوش مصنوعی بخواه درس‌ها را با بلوک formula/rule/theorem بسازد.','No formulas yet.')+'</p></div>';
  list.slice(0,lim).forEach(x=>{const l=x.l,ch=(c.chapters||[]).find(k=>k.id===l.chapterId),pg=x.b.page||(x.b.source&&x.b.source.page)||(l.sourceRef&&l.sourceRef.page),nq=a.questionsOf(c.id).filter(q=>q.lessonIds.includes(l.id)).length,nc=cardsOf(k=>k.lid===l.id).length;
   h+='<div class="c a4fm"><div class="m" dir="auto">'+[ch&&ch.title,l.title].filter(Boolean).map(E).join(' › ')+(pg?' · '+T('جزوه ص','Handout p.')+F(pg):'')+(x.b.name?' · <b>'+E(x.b.name)+'</b>':'')+'</div>'+a.blk(x.b,0)
-   +'<div class="row" style="margin-top:6px"><button class="p" data-a="crs_open" data-c="'+E(c.id)+'" data-l="'+E(l.id)+'">📖 '+T('تدریس کامل','Full teaching')+'</button>'+(nq?'<button data-a="crs_qstart" data-c="'+E(c.id)+'" data-s="lesson:'+E(l.id)+'" data-m="practice">✍ '+T('تمرین','Practice')+' ('+F(nq)+')</button>':'')+(nc?'<span class="m">🃏 '+F(nc)+'</span>':'')+'</div></div>'});
+   +'<div class="row" style="margin-top:6px"><button class="p" data-a="crs_open" data-c="'+E(c.id)+'" data-l="'+E(l.id)+'">📖 '+T('تدریس کامل','Full teaching')+'</button>'+(nq?'<button data-a="crs_qstart" data-c="'+E(c.id)+'" data-s="lesson:'+E(l.id)+'" data-m="practice">✍ '+T('تمرین','Practice')+' ('+F(nq)+')</button>':'')+(nc?'<span class="m">🃏 '+F(nc)+'</span>':'')+(l.role==='aid'?'':'<button data-a="acd4_mkc" data-c="'+E(c.id)+'" data-i="'+all.indexOf(x)+'">🃏 '+T('ساخت کارت','Make card')+'</button>')+'</div></div>'});
  if(list.length>lim)h+='<div class="c"><button data-a="acd4_fn">'+T('نمایش بیشتر','Show more')+' ('+F(list.length-lim)+')</button></div>';
  return h}
 function courseCards(c){const t=todayISO(),cs=cardsOf(x=>x.cid===c.id),C=CRq();let h='<div class="c"><h3>🃏 '+T('فلش‌کارت‌های این درس','Flashcards of this subject')+'</h3><div class="m">'+F(cs.length)+' '+T('کارت','cards')+' · '+F(cs.filter(x=>x.due<=t).length)+' '+T('برای مرور امروز','due today')+'</div><div class="row" style="margin-top:6px">'+(cs.some(x=>x.due<=t)?'<button class="p" data-a="acd4_rev">🔁 '+T('مرور امروز','Review now')+'</button>':'')+'</div><p class="m">'+T('کارت تازه را داخل صفحه‌ی هر مبحث بساز، یا هوش مصنوعی آن‌ها را داخل فایل درس می‌دهد.','Add cards inside each topic, or have the AI put them in the course file.')+'</p></div>';
@@ -176,14 +176,16 @@ function courseBm(c){const C=CRq(),l=C.cache.bookmarks.filter(b=>{const r=b.kind
 function courseExam(c){const a=API(),st=stat(c.id);
  return'<div class="c"><h3>🎯 '+T('آزمون این درس','Exams of this subject')+'</h3><div class="m">'+F(st.total)+' '+T('سؤال در بانک','questions in bank')+(st.p!=null?' · '+T('تسلط','mastery')+' '+F(st.p)+'٪':'')+'</div>'
   +'<div class="row" style="margin-top:8px"><button class="p" data-a="acd4_exam" data-c="'+E(c.id)+'">'+T('مرکز آزمون (انتخاب فصل و مبحث)','Exam centre (pick chapters/topics)')+'</button><button data-a="crs_qstart" data-c="'+E(c.id)+'" data-s="all" data-m="exam">'+T('آزمون جامع','Full exam')+'</button></div></div>'}
-function courseTabs(c){const t=ui.ct[c.id]||'ch',cnt={fm:fbItems(c).length,cd:cardsOf(x=>x.cid===c.id).length,er:CRq().cache.errors.filter(e=>!e.resolved&&inCourse(c,e.qid)).length};
- const bar='<div class="c a4tabs"><div class="mrow">'+CT.map(x=>'<button class="chip '+(t===x[0]?'on':'')+'" data-a="acd4_ct" data-c="'+E(c.id)+'" data-k="'+x[0]+'">'+x[1]+' '+T(x[2],x[3])+(cnt[x[0]]?' ('+F(cnt[x[0]])+')':'')+'</button>').join('')+'</div></div>';
- const f={fm:formulaBook,cd:courseCards,er:courseErrors,bm:courseBm,ex:courseExam}[t];return{bar,body:f?f(c):null}}
+function courseTabs(c){const t=ui.ct[c.id]||'ch',cnt={fm:fbItems(c).length,cd:cardsOf(x=>x.cid===c.id).length,er:CRq().cache.errors.filter(e=>!e.resolved&&inCourse(c,e.qid)).length,pt:(c.paths||[]).length};
+ const bar='<div class="c a4tabs"><div class="mrow">'+CT.map(x=>'<button class="chip '+(t===x[0]?'on':'')+'" data-a="acd4_ct" data-c="'+E(c.id)+'" data-k="'+x[0]+'">'+x[1]+' '+(x[0]==='ch'&&c.unit&&c.unit!=='فصل'?E(c.unit)+'‌ها':T(x[2],x[3]))+(cnt[x[0]]?' ('+F(cnt[x[0]])+')':'')+'</button>').join('')+'</div></div>';
+ const kk={language:T('زبان','Language'),math:T('ریاضی','Math'),gmat:T('جیمت','GMAT'),general:T('عمومی','General')}[c.kind||'general'];
+ const cfg='<div class="m" style="margin-top:6px">'+T('نوع درس: ','Type: ')+kk+' · '+T('نام دسته‌ها: ','Groups called: ')+E(c.unit||'فصل')+' <button class="chip sm" data-a="acd4_cfg" data-c="'+E(c.id)+'">⚙</button></div>';
+ const f={fm:formulaBook,cd:courseCards,er:courseErrors,bm:courseBm,ex:courseExam,pt:pathsTab}[t];return{bar:bar.replace(/<\/div><\/div>$/,'</div>'+cfg+'</div>'),body:f?f(c):null}}
 function crumb(l){const C=CRq(),c=C.ix.courses.get(l.courseId),col=cols().find(k=>k.cids.includes(l.courseId)),ch=c&&c.chapters.find(x=>x.id===l.chapterId);
  return'<div class="m a4cr" dir="auto">'+[col&&col.title,c&&c.title,ch&&ch.title,l.title].filter(Boolean).map(E).join(' › ')+'</div>'}
 function lessonExtra(l){const C=CRq(),er=C.cache.errors.filter(e=>{const q=C.ix.questions.get(e.qid);return q&&(q.lessonIds||[]).includes(l.id)}),op=er.filter(e=>!e.resolved).length,c=C.ix.courses.get(l.courseId),nf=fbItems(c).filter(x=>x.l.id===l.id).length;
- if(!er.length&&!nf)return builder(l);
- return builder(l)+'<div class="c"><div class="row">'+(nf?'<button class="chip" data-a="acd4_goct" data-c="'+E(l.courseId)+'" data-k="fm">📐 '+F(nf)+' '+T('فرمول در این مبحث','formulas here')+'</button>':'')+(er.length?'<button class="chip" data-a="acd4_goct" data-c="'+E(l.courseId)+'" data-k="er">⚠ '+F(op)+' '+T('اشتباه باز از','open mistakes of')+' '+F(er.length)+'</button>':'')+'</div></div>'}
+ if(!er.length&&!nf)return builder(l)+manage(l);
+ return builder(l)+manage(l)+'<div class="c"><div class="row">'+(nf?'<button class="chip" data-a="acd4_goct" data-c="'+E(l.courseId)+'" data-k="fm">📐 '+F(nf)+' '+T('فرمول در این مبحث','formulas here')+'</button>':'')+(er.length?'<button class="chip" data-a="acd4_goct" data-c="'+E(l.courseId)+'" data-k="er">⚠ '+F(op)+' '+T('اشتباه باز از','open mistakes of')+' '+F(er.length)+'</button>':'')+'</div></div>'}
 function myLinks(){let h='';try{h=_acdRes()}catch(e){return''}
  return'<details class="c"><summary><b>🔗 '+T('لینک‌ها و منابع شخصی من','My personal links')+'</b></summary><p class="m">'+T('جای لینک و فایل‌هایی که خودت جمع می‌کنی (ویدیوی استاد، PDF، سایت). چیزی از دوره‌ها در این بخش نیست.','Your own links/files (videos, PDFs, sites). Course material is not here.')+'</p>'+h+'</details>'}
 function askPlace(cid){const C=CRq(),c=C&&C.ix.courses.get(cid);if(!c)return;const l=cols();
@@ -280,6 +282,51 @@ H.acd4_xset=e=>{xsync();const S=xb(),k=e.dataset.k,v=e.dataset.v;if(k==='diff'){
 H.acd4_xgo=e=>{xsync();const S=xb(),kon=!!e.dataset.k;if(!S.sel.length){toast(T('اول چیزی انتخاب کن','Pick something first'),1);return}
  const items=S.sel.map(t=>({cid:t.slice(0,t.indexOf('|')),scope:t.slice(t.indexOf('|')+1)})),n=Math.max(0,parseInt(S.count,10)||0);
  API().startMulti({items,diffs:S.diffs,count:kon&&!n?0:n,order:kon?'shuffle':S.order,mode:kon?'exam':S.mode,timed:kon||S.timed,minutes:kon?Math.max(10,Math.round((n||60))):S.min,neg:kon||S.neg,konkur:kon}).catch(x=>toast(String(x.message||x),1))};
+/* v160: مدیریت مبحث: حذف تکی سؤال/مبحث و انتقال سؤال */
+function manage(l){const a=API(),qs=a.questionsOf(l.courseId).filter(q=>(q.lessonIds||[]).includes(l.id));
+ return'<details class="c a4mng"><summary><b>⚙ '+T('مدیریت این مبحث','Manage this topic')+'</b> <span class="m">('+F(qs.length)+' '+T('سؤال','questions')+')</span></summary>'
+  +(qs.length?qs.slice(0,60).map(q=>'<div class="cwr"><span dir="auto" class="m">'+E(S_(qText(q).replace(/\$/g,''),70))+'</span><span><button class="chip sm" data-a="acd4_mvq" data-q="'+E(q.id)+'" title="'+T('انتقال به مبحث دیگر','Move')+'">↗</button><button class="chip sm d" data-a="acd4_dq" data-q="'+E(q.id)+'" title="'+T('حذف سؤال','Delete')+'">🗑</button></span></div>').join('')+(qs.length>60?'<div class="m">'+T('۶۰ سؤال اول نشان داده شد','First 60 shown')+'</div>':''):'<p class="m">'+T('سؤالی ندارد.','No questions.')+'</p>')
+  +'<div class="row" style="margin-top:8px"><button class="d" data-a="acd4_dl" data-l="'+E(l.id)+'">🗑 '+T('حذف کل این مبحث','Delete this topic')+'</button></div></details>'}
+const afterDel=()=>{const C=CRq();if(C&&C.lessonId&&!C.ix.lessons.get(C.lessonId))C.lessonId='';rr()};
+H.acd4_dq=e=>{if(!confirm(T('این سؤال حذف شود؟ با به‌روزرسانی zip هم برنمی‌گردد.','Delete this question? It will stay deleted after zip updates.')))return;API().deleteQuestion(e.dataset.q).then(()=>{toast(T('سؤال حذف شد','Question deleted'));rr()}).catch(x=>toast(String(x.message||x),1))};
+H.acd4_dl=e=>{const a=API(),l=CRq().ix.lessons.get(e.dataset.l);if(!l)return;const i=a.lessonDelInfo(l.id);
+ if(!confirm(T('مبحث «'+l.title+'» حذف شود؟\n'+F(i.own.length)+' سؤال که فقط به همین مبحث وصل است هم پاک می‌شود. با به‌روزرسانی zip هم برنمی‌گردد.','Delete topic “'+l.title+'”?\n'+i.own.length+' questions that belong only to it are deleted too. It stays deleted after zip updates.')))return;
+ a.deleteLesson(l.id).then(()=>{toast(T('مبحث حذف شد','Topic deleted'));afterDel()}).catch(x=>toast(String(x.message||x),1))};
+H.acd4_dch=e=>{const a=API(),C=CRq(),c=C.ix.courses.get(e.dataset.c),ch=c&&c.chapters.find(x=>x.id===e.dataset.i);if(!ch)return;const ls=a.lessonsOf(c.id).filter(l=>l.chapterId===ch.id);
+ if(!confirm(T('«'+ch.title+'» با '+F(ls.length)+' مبحث و سؤال‌های وابسته‌اش حذف شود؟ با به‌روزرسانی zip هم برنمی‌گردد.','Delete “'+ch.title+'” with '+ls.length+' topics and their questions? It stays deleted after zip updates.')))return;
+ a.deleteChapter(c.id,ch.id).then(()=>{toast(T('حذف شد','Deleted'));rr()}).catch(x=>toast(String(x.message||x),1))};
+H.acd4_mvq=e=>{const C=CRq(),a=API(),q=C.ix.questions.get(e.dataset.q);if(!q)return;const c=C.ix.courses.get(q.courseId);
+ modal('<h3>'+T('انتقال سؤال به…','Move question to…')+'</h3>'+(c.chapters||[]).map(ch=>{const ls=a.lessonsOf(c.id).filter(l=>l.chapterId===ch.id);return ls.length?'<details><summary class="m" dir="auto">'+E(ch.title)+'</summary>'+ls.map(l=>'<button class="chip" style="margin:3px" data-a="acd4_mvdo" data-q="'+E(q.id)+'" data-l="'+E(l.id)+'">'+E(l.title)+'</button>').join('')+'</details>':''}).join('')+'<div class="row"><button data-a="cl">'+T('بستن','Close')+'</button></div>')};
+H.acd4_mvdo=e=>{API().moveQuestion(e.dataset.q,e.dataset.l).then(()=>{closeM();toast(T('منتقل شد','Moved'));rr()}).catch(x=>toast(String(x.message||x),1))};
+/* تنظیم نوع درس و نام دسته‌ها */
+H.acd4_cfg=e=>{const c=CRq().ix.courses.get(e.dataset.c);if(!c)return;const U=['فصل','جلسه','بخش','هفته','مبحث'];
+ modal('<h3>'+T('نوع درس و نام دسته‌ها','Subject type & group name')+'</h3><label>'+T('نوع درس (روی شکل کارت‌ها اثر دارد)','Type (shapes the flashcards)')+'</label><select id="a4c-k">'+[['general','عمومی','General'],['language','زبان / لغت','Language'],['math','ریاضی','Math'],['gmat','جیمت / آزمون استاندارد','GMAT']].map(x=>'<option value="'+x[0]+'" '+((c.kind||'general')===x[0]?'selected':'')+'>'+T(x[1],x[2])+'</option>').join('')+'</select><label>'+T('دسته‌ها را چه بنامیم؟','What to call the groups?')+'</label><select id="a4c-u">'+U.map(u=>'<option '+((c.unit||'فصل')===u?'selected':'')+'>'+u+'</option>').join('')+'</select><div class="row" style="margin-top:10px"><button class="p" data-a="acd4_cfgok" data-c="'+E(c.id)+'">'+T('ذخیره','Save')+'</button><button data-a="cl">'+T('بستن','Close')+'</button></div>')};
+H.acd4_cfgok=e=>{API().setUnit(e.dataset.c,document.getElementById('a4c-u').value,document.getElementById('a4c-k').value).then(()=>{closeM();rr()})};
+/* مسیرهای مطالعه */
+function pathsTab(c){const a=API(),C=CRq(),ps=c.paths||[];
+ let h='<div class="c"><div class="row"><h3 class="sp">🧭 '+T('مسیرهای مطالعه','Study paths')+'</h3><button class="p" data-a="acd4_pnew" data-c="'+E(c.id)+'">＋ '+T('مسیر تازه','New path')+'</button></div><p class="m">'+T('یک فهرست مرتب از مبحث‌ها، مثلاً «جلسه ۱ تا ۳» یا «مرور هفته‌ی آخر». مبحث‌ها تکرار نمی‌شوند؛ فقط ارجاع‌اند.','An ordered list of topics, e.g. “Sessions 1–3” or “Last-week review”. Topics are not copied.')+'</p></div>';
+ if(!ps.length)h+='<div class="c"><p class="m">'+T('هنوز مسیری نیست. هوش مصنوعی هم می‌تواند در course.json مسیر بگذارد.','No paths yet. The AI can add paths in course.json too.')+'</p></div>';
+ ps.forEach((p,pi)=>{const ls=p.items.map(i=>C.ix.lessons.get(i)).filter(Boolean),d=ls.filter(l=>{const g=C.ix.progress.get(l.id);return g&&g.done}).length;
+  h+='<div class="c"><div class="row"><h3 class="sp" dir="auto">'+E(p.title)+'</h3><span class="m">'+F(d)+'/'+F(ls.length)+'</span>'+(p.u?'<button class="chip sm d" data-a="acd4_pdel" data-c="'+E(c.id)+'" data-i="'+E(p.id)+'">🗑</button>':'')+'</div>'+bar(ls.length?d/ls.length*100:0)
+   +ls.map((l,i)=>{const g=C.ix.progress.get(l.id);return'<div class="cwr"><span>'+(g&&g.done?'✅ ':'⬜ ')+F(i+1)+'. '+lk(l)+'</span></div>'}).join('')
+   +'<div class="row" style="margin-top:6px"><button data-a="acd4_pgo" data-c="'+E(c.id)+'" data-i="'+pi+'" data-m="practice">'+T('تمرین مسیر','Practice')+'</button><button data-a="acd4_pgo" data-c="'+E(c.id)+'" data-i="'+pi+'" data-m="exam">'+T('آزمون مسیر','Exam')+'</button></div></div>'});
+ return h}
+H.acd4_pgo=e=>{const c=CRq().ix.courses.get(e.dataset.c),p=c&&(c.paths||[])[+e.dataset.i];if(!p)return;window.daniCourses.startQuiz({courseId:c.id,scope:p.items.map(i=>'lesson:'+i),mode:e.dataset.m,diffs:[1,2,3],count:e.dataset.m==='exam'?20:0,timed:false})};
+H.acd4_pnew=e=>{const C=CRq(),a=API(),c=C.ix.courses.get(e.dataset.c);if(!c)return;
+ modal('<h3>'+T('مسیر تازه','New path')+'</h3><input id="a4p-t" dir="auto" placeholder="'+T('نام مسیر (مثلاً جلسه ۱ تا ۳)','Path name')+'" style="width:100%">'+(c.chapters||[]).map(ch=>{const ls=a.lessonsOf(c.id).filter(l=>l.chapterId===ch.id);return ls.length?'<details><summary class="m" dir="auto">'+E(ch.title)+'</summary>'+ls.map(l=>'<label class="row"><input type="checkbox" class="a4pl" value="'+E(l.id)+'"> <span dir="auto">'+E(l.title)+'</span></label>').join('')+'</details>':''}).join('')+'<div class="row" style="margin-top:8px"><button class="p" data-a="acd4_pok" data-c="'+E(c.id)+'">'+T('ساخت','Create')+'</button><button data-a="cl">'+T('بستن','Close')+'</button></div>')};
+H.acd4_pok=e=>{const t=(document.getElementById('a4p-t').value||'').trim().slice(0,60),items=[...document.querySelectorAll('.a4pl:checked')].map(x=>x.value);if(!t||!items.length){toast(T('نام و حداقل یک مبحث لازم است','Name and at least one topic'),1);return}
+ API().savePath(e.dataset.c,{id:'p'+uid(),title:t,items}).then(()=>{closeM();ui.ct[e.dataset.c]='pt';rr()})};
+H.acd4_pdel=e=>{if(!confirm(T('این مسیر حذف شود؟ مبحث‌ها پاک نمی‌شوند.','Delete this path? Topics stay.')))return;API().savePath(e.dataset.c,{id:e.dataset.i}).then(()=>rr())};
+/* کارت از فرمول/قاعده، متناسب با نوع درس */
+const kindOf=c=>c&&c.kind||'general';
+H.acd4_mkc=e=>{const C=CRq(),c=C.ix.courses.get(e.dataset.c),it=fbItems(c)[+e.dataset.i];if(!it)return;const b=it.b,l=it.l,A=zAX(),t=todayISO(),k=kindOf(c);
+ const tex=b.tex||(Array.isArray(b.lines)?b.lines.join(' ; '):''),txt=[b.text,b.statement,b.note].filter(x=>typeof x==='string'&&x).join(' ');
+ const nm=b.name||S_(txt||l.title,60),fid='fb:'+l.id+':'+S_((b.name||'')+tex+txt,50);
+ if(A.cards.some(x=>x.fid===fid)){toast(T('این کارت قبلاً ساخته شده','Card already exists'),1);return}
+ if(A.cards.length>=2000){toast(T('حداکثر ۲۰۰۰ کارت','Max 2000 cards'),1);return}
+ const front=(k==='math'||k==='gmat')?(b.type==='formula'?T('چه زمانی و چطور: ','When & how: ')+nm:nm+' — '+T('قاعده را بگو','state the rule')):nm;
+ const back=(tex?'$'+tex+'$':'')+(txt?(tex?' — ':'')+S_(txt,300):'');
+ A.cards.push({id:'c'+uid(),fid,deck:S_((c.title||'')+' › '+l.title,60),cid:c.id,lid:l.id,q:S_(front,300),a:S_(back||nm,600),ease:2.5,ivl:0,reps:0,lap:0,due:t,created:t,ag:''});zcommit();toast(T('کارت ساخته شد','Card created'));rr()};
 try{API()&&API().mergeUndoInfo().then(i=>{ui.undo=!!i})}catch(e){}
 window.daniAcd4={xbuilder,xtoggle,tree,chapterInfo,lessonChip,lessonCards,stat,cols,groups,courseTabs,crumb,lessonExtra,myLinks,placed,zipCards,todayCard};
 })();

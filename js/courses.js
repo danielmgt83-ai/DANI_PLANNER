@@ -20,10 +20,12 @@ const extOf=p=>(String(p).split('.').pop()||'').toLowerCase();
 const CT=(()=>{const t=new Uint32Array(256);for(let n=0;n<256;n++){let c=n;for(let k=0;k<8;k++)c=c&1?0xEDB88320^(c>>>1):c>>>1;t[n]=c>>>0}return t})();
 function crc32b(u8){let c=0xFFFFFFFF;for(let i=0;i<u8.length;i++)c=CT[(c^u8[i])&255]^(c>>>8);return (c^0xFFFFFFFF)>>>0}
 const LIM={zip:300*1024*1024,entry:80*1024*1024,json:8*1024*1024,entries:6000};
-async function inflateRaw(u8){
+async function inflateRaw(u8,max){
   if(typeof DecompressionStream==='undefined')throw new Error('این مرورگر فشرده‌سازی ZIP را پشتیبانی نمی‌کند؛ از Chrome/Edge/Safari جدید استفاده کنید');
-  const s=new Blob([u8]).stream().pipeThrough(new DecompressionStream('deflate-raw'));
-  return new Uint8Array(await new Response(s).arrayBuffer());
+  const s=new Blob([u8]).stream().pipeThrough(new DecompressionStream('deflate-raw')),rd=s.getReader(),parts=[];let n=0;
+  /* v160: بازکردن تکه‌تکه با سقف اندازه؛ ZIP بمب قبل از پرشدن حافظه رد می‌شود */
+  for(;;){const r=await rd.read();if(r.done)break;n+=r.value.length;if(max!=null&&n>max){try{rd.cancel()}catch(e){}throw new Error('فایل داخل ZIP بزرگ‌تر از اندازه‌ی اعلام‌شده است (ZIP ناسالم)')}parts.push(r.value)}
+  const out=new Uint8Array(n);let o=0;parts.forEach(x=>{out.set(x,o);o+=x.length});return out;
 }
 async function zipRead(buf){
   if(buf.byteLength>LIM.zip)throw new Error('حجم فایل بیش از حد مجاز است');
@@ -51,7 +53,7 @@ async function zipRead(buf){
     const st=x.lo+30+dv.getUint16(x.lo+26,true)+dv.getUint16(x.lo+28,true);
     if(st+x.cs>buf.byteLength)throw new Error('فایل ناقص است (کوتاه‌شده): '+name);
     const raw=u8.subarray(st,st+x.cs);let out;
-    if(x.meth===0)out=raw.slice();else if(x.meth===8)out=await inflateRaw(raw);else throw new Error('روش فشرده‌سازی پشتیبانی نمی‌شود: '+name);
+    if(x.meth===0)out=raw.slice();else if(x.meth===8)out=await inflateRaw(raw,x.us);else throw new Error('روش فشرده‌سازی پشتیبانی نمی‌شود: '+name);
     if(out.length!==x.us)throw new Error('اندازه‌ی فایل با فهرست نمی‌خواند: '+name);
     if(crc32b(out)!==x.crc)throw new Error('بررسی صحت (CRC) ناموفق: '+name);
     return out}};
@@ -283,12 +285,13 @@ const assetUrl=p=>CR.urls.get(String(p))||(CR.pv&&CR.pv.get(String(p)))||'';
 /* ---------- renderer: بلوک‌های نوع‌دار؛ هیچ HTML خامی اجرا نمی‌شود ---------- */
 const BLK_TYPES=new Set(['p','h','formula','list','table','note','tip','warning','pitfall','def','rule','theorem','quote','example','image','figure','summary','code']);
 const CALL={note:['📝','نکته'],tip:['💡','نکته‌ی مهم'],warning:['⚠️','هشدار'],pitfall:['🚧','اشتباه رایج / دام آزمونی'],def:['📘','تعریف'],rule:['📐','قاعده'],theorem:['🧩','قضیه'],quote:['❝','نقل‌قول'],summary:['✅','جمع‌بندی']};
-function plainRun(p){return p.split(/([A-Za-z][A-Za-z0-9'’\-]*(?:[ ]+[A-Za-z0-9][A-Za-z0-9'’\-]*)*)/g).map((x,i)=>i%2?'<bdi dir="ltr">'+E_(x)+'</bdi>':E_(x)).join('')}
+function plainRun(p){p=String(p).replace(/\uE000/g,'$');return p.split(/([A-Za-z][A-Za-z0-9'’\-]*(?:[ ]+[A-Za-z0-9][A-Za-z0-9'’\-]*)*)/g).map((x,i)=>i%2?'<bdi dir="ltr">'+E_(x)+'</bdi>':E_(x)).join('')}
 function mathInline(tex){try{return'<bdi dir="ltr" class="crs-im" title="'+E_(tex)+'">'+tex2mml(tex,false)+'</bdi>'}catch(e){return'<code class="crs-bad" dir="ltr" title="'+E_(e.message)+'">$'+E_(tex)+'$</code>'}}
 function inl(text){
-  const s=String(text==null?'':text);
-  return s.split(/(\$[^$\n]+\$)/g).map(p=>{
-    if(p.length>2&&p[0]==='$'&&p.endsWith('$'))return mathInline(p.slice(1,-1));
+  /* v160: \$ یعنی علامت دلار ساده؛ و «$5 و $6» فرمول حساب نمی‌شود (داخل $…$ نباید اول/آخرش فاصله باشد و بعد از $ بسته نباید رقم بیاید) */
+  const s=String(text==null?'':text).replace(/\\\$/g,'\uE000');
+  return s.split(/(\$[^$\s](?:[^$\n]*?[^$\s])?\$(?!\d))/g).map((p,pi)=>{
+    if(pi%2&&p.length>2)return mathInline(p.slice(1,-1));
     return p.split(/(\*\*[^*]+\*\*|`[^`]+`)/g).map(q=>{
       if(q.startsWith('**')&&q.endsWith('**')&&q.length>4)return'<b>'+plainRun(q.slice(2,-2))+'</b>';
       if(q.startsWith('`')&&q.endsWith('`')&&q.length>2)return'<code dir="ltr">'+E_(q.slice(1,-1))+'</code>';
@@ -304,7 +307,7 @@ function blocks(list,d){
 function textOrBlocks(b,d){return b.blocks?blocks(b.blocks,d+1):(b.text!=null?'<p dir="auto">'+inl(b.text)+'</p>':'')}
 function figHTML(b){
   const u=assetUrl(b.asset);
-  const img=u?'<a href="'+u+'" target="_blank" rel="noopener" class="crs-orig" title="باز کردن تصویر اصلی"><img src="'+u+'" alt="'+E_(b.alt||'')+'" loading="lazy"></a>':'<div class="crs-bad">تصویر در دسترس نیست: <bdi dir="ltr">'+E_(b.asset)+'</bdi></div>';
+  const img=u?'<span class="crs-orig" data-a="crs_zoom" data-p="'+E_(b.asset)+'" title="بزرگ‌نمایی"><img src="'+u+'" alt="'+E_(b.alt||'')+'" loading="lazy"></span>':'<div class="crs-bad">تصویر در دسترس نیست: <bdi dir="ltr">'+E_(b.asset)+'</bdi></div>';
   const src=b.source&&b.source.sourceId?'<span class="m"> · منبع: '+E_(srcName(b.source.sourceId))+(b.source.page!=null?' ، ص '+E_(b.source.page):'')+'</span>':'';
   return'<figure class="crs-fig">'+img+'<figcaption>'+(b.caption?inl(b.caption):'')+src+(u?' <button class="crs-mini" data-a="crs_zoom" data-p="'+E_(b.asset)+'">🔍 بزرگ‌نمایی</button> <a class="crs-mini" href="'+u+'" download="'+E_(String(b.asset).split('/').pop())+'">⬇ تصویر اصلی</a>':'')+'</figcaption></figure>';
 }
@@ -344,6 +347,14 @@ function walkBlocks(list,fn,d){if(!Array.isArray(list)||(d||0)>6)return;list.for
   (Array.isArray(b.steps)?b.steps:[]).forEach(s=>{if(s&&typeof s==='object'){fn({type:'_step',...s});if(s.blocks)walkBlocks(s.blocks,fn,(d||0)+1)}});
   (Array.isArray(b.alt)?b.alt:[]).forEach(a=>(Array.isArray(a.steps)?a.steps:[]).forEach(s=>{if(s&&typeof s==='object'){fn({type:'_step',...s});if(s.blocks)walkBlocks(s.blocks,fn,(d||0)+1)}}));
   (Array.isArray(b.items)?b.items:[]).forEach(x=>{if(x&&x.blocks)walkBlocks(x.blocks,fn,(d||0)+1)})})}
+/* v160: عدد با کسر (7/6)، ممیز و ارقام فارسی */
+function numParse(x){let s=normDigits(String(x==null?'':x)).replace(/[\s\u200c]/g,'').replace(/[−–]/g,'-').replace(/٪|%/g,'');
+  let m=s.match(/^([-+]?\d+(?:\.\d+)?)[\/÷]([-+]?\d+(?:\.\d+)?)$/);if(m){const d=+m[2];return d?+m[1]/d:NaN}
+  m=s.match(/^([-+]?)(\d+)\s*[\/]\s*(\d+)$/);if(s.includes('/'))return NaN;
+  return parseFloat(s)}
+/* v160: نام آزمون یکدست (ي/ك عربی، فاصله‌ی اضافه) تا یک آزمون دو تا نشود */
+const normExam=s=>String(s==null?'':s).replace(/ي/g,'ی').replace(/ى/g,'ی').replace(/ك/g,'ک').replace(/\s+/g,' ').trim();
+const SRCK=new Set(['jozve','konkur','exercise','example','generated']),KINDS=new Set(['language','math','gmat','general']);
 function validatePack(P,existing){
   const err=[],warn=[];const E=(m)=>err.push(m),W=(m)=>warn.push(m);
   const M=P.manifest,C=P.course;
@@ -354,10 +365,14 @@ function validatePack(P,existing){
   if(M&&C&&M.id&&M.id!==C.id)E('شناسه‌ی دوره در manifest و course یکی نیست');
   if(!M||!M.contentVersion||!/^\d+(\.\d+){0,3}$/.test(String(M.contentVersion)))E('manifest.json: contentVersion باید مثل 1.0.0 باشد');
   if(C&&!['fa','en','fa-en'].includes(C.language))W('زبان دوره (language) باید fa، en یا fa-en باشد');
+  if(C&&C.kind!=null&&!KINDS.has(C.kind))E('course.json: kind باید language | math | gmat | general باشد');
+  if(C&&C.unit!=null&&(typeof C.unit!=='string'||!C.unit.trim()||C.unit.length>14))E('course.json: unit (نام دسته‌ها، مثل «فصل» یا «جلسه») باید متن کوتاه باشد');
+  if(C&&C.paths!=null){if(!Array.isArray(C.paths))E('course.json: paths باید فهرست باشد');else C.paths.forEach(pt=>{if(!pt||!okId(pt.id)||!pt.title||!Array.isArray(pt.items))E('مسیر مطالعه‌ی نامعتبر (id، title و items لازم است)');else pt.items.forEach(i=>{if(!P.lessons.some(l=>l.id===i)&&!CR.cache.lessons.some(l=>l.id===i&&C&&l.courseId===C.id))W('مسیر «'+pt.id+'»: درس ناموجود «'+i+'»')})})}
+  {const nosrc=P.questions.filter(q=>q&&q.src==null).length;if(P.questions.length&&nosrc)W(nosrc+' سؤال منبع (src) ندارد؛ بهتر است jozve، konkur، exercise یا example باشد')}
   P.fileErrors.forEach(E);
   const chIds=new Set(),dup=(set,id,what)=>{if(set.has(id))E('شناسه‌ی تکراری ('+what+'): '+id);set.add(id)};
   const chap=(C&&Array.isArray(C.chapters))?C.chapters:[];
-  if(!chap.length)E('course.json: هیچ فصلی تعریف نشده است');
+  if(!chap.length&&!(existing&&existing.chapters&&existing.chapters.length))E('course.json: هیچ فصلی تعریف نشده است');
   chap.forEach(c=>{if(!c||!okId(c.id))E('شناسه‌ی فصل نامعتبر: '+(c&&c.id));else dup(chIds,c.id,'فصل');if(c&&!c.title)W('فصل بدون عنوان: '+(c&&c.id))});
   const exCh=new Set(existing?existing.chapters.map(c=>c.id):[]);
   const lIds=new Set(),qIds=new Set(),sIds=new Set(),assets=P.assets;
@@ -380,6 +395,7 @@ function validatePack(P,existing){
     if(!l||!okId(l.id)){E('شناسه‌ی درس نامعتبر: '+(l&&l.id));return}
     dup(lIds,l.id,'درس');if(otherL.has(l.id))E(w+': این شناسه در دوره‌ی دیگری نصب است');
     if(!l.title)E(w+': عنوان ندارد');
+    if(l.role!=null&&l.role!=='core'&&l.role!=='aid')E(w+': role باید core (امتحانی) یا aid (کمکی) باشد');
     if(!chIds.has(l.chapterId)&&!exCh.has(l.chapterId))E(w+': فصل «'+l.chapterId+'» وجود ندارد');
     else if(!chIds.has(l.chapterId))W(w+': فصل «'+l.chapterId+'» در این بسته نیست و از نسخه‌ی نصب‌شده استفاده می‌شود');
     if(!Array.isArray(l.blocks)||!l.blocks.length)W(w+': محتوای درس خالی است');
@@ -402,6 +418,11 @@ function validatePack(P,existing){
     if(!lids.length)W(w+': به هیچ درسی پیوند ندارد');
     lids.forEach(id=>{if(!lIds.has(id)&&!exLessons.has(id)&&!P.lessons.some(l=>l.id===id))E(w+': ارجاع به درس ناموجود «'+id+'»')});
     chkRef(q.sourceRef,w);
+    if(q.exam&&q.exam!==normExam(q.exam))W(w+': نام آزمون فاصله‌ی اضافه یا حرف عربی دارد؛ «'+normExam(q.exam)+'» در نظر گرفته می‌شود');
+    {const TS=new Set([...(P.course&&Array.isArray(P.course.topics)?P.course.topics:[]),...(existing&&existing.topics||[])].map(t=>t&&t.id));
+     (Array.isArray(q.topicIds)?q.topicIds:[]).forEach(id=>{if(!TS.has(id))W(w+': مبحثِ برچسب «'+id+'» در course.topics نیست')});
+     if(q.src!=null&&!SRCK.has(q.src))E(w+': src باید یکی از jozve | konkur | exercise | example | generated باشد');
+     if(lids.length&&lids.every(id=>{const l=P.lessons.find(x=>x.id===id)||(CR.ix&&CR.ix.lessons.get(id));return l&&l.role==='aid'}))E(w+': این سؤال فقط به درسِ «کمکی» (role:aid) وصل است؛ درس کمکی سؤال و تست نمی‌گیرد')}
     chkBlocks(Array.isArray(q.stem)?q.stem:[{type:'p',text:q.stem}],w);
     if(q.solution)chkBlocks(Array.isArray(q.solution)?q.solution:[{type:'p',text:q.solution}],w);
     else W(w+': پاسخ تشریحی (solution) ندارد');
@@ -416,7 +437,7 @@ function validatePack(P,existing){
         if(c&&c.blocks)chkBlocks(c.blocks,w)});
       if(q.type==='single'){if(!a||a.choice==null||!cid.has(String(a.choice)))E(w+': پاسخ صحیح (answer.choice) معتبر نیست')}
       else{if(!a||!Array.isArray(a.choices)||!a.choices.length||a.choices.some(x=>!cid.has(String(x))))E(w+': پاسخ صحیح (answer.choices) معتبر نیست')}
-    }else if(q.type==='numeric'){if(!a||!isFinite(parseFloat(normDigits(a.value))))E(w+': پاسخ عددی (answer.value) معتبر نیست');else if(a.tol!=null&&!(+a.tol>=0))E(w+': tol نامعتبر')}
+    }else if(q.type==='numeric'){if(!a||!isFinite(numParse(a.value)))E(w+': پاسخ عددی (answer.value) معتبر نیست');else if(a.tol!=null&&!(+a.tol>=0))E(w+': tol نامعتبر')}
     else if(q.type==='short'){if(!a||!Array.isArray(a.accepted)||!a.accepted.filter(x=>String(x).trim()).length)E(w+': فهرست پاسخ‌های پذیرفته (answer.accepted) خالی است')}
     else if(q.type==='match'){const p=Array.isArray(q.pairs)?q.pairs:[];if(p.length<2||p.some(x=>!x||x.l==null||x.r==null))E(w+': تطبیق حداقل دو جفت معتبر (pairs) می‌خواهد')}
     else if(q.type==='essay'){if(!q.solution&&!q.modelAnswer)W(w+': سؤال تشریحی بدون پاسخ نمونه؛ تصحیح فقط با خودارزیابی است')}
@@ -424,7 +445,7 @@ function validatePack(P,existing){
   assets.forEach((a,p)=>{if(!refAssets.has(p))W('فایل بدون استفاده در بسته: '+p)});
   // ارجاع درس‌ها به فصل‌های تهی
   chap.forEach(c=>{if(c&&c.id&&!P.lessons.some(l=>l.chapterId===c.id)&&!(existing&&CR.cache.lessons.some(l=>l.courseId===existing.id&&l.chapterId===c.id)))W('فصل «'+c.id+'» هیچ درسی ندارد')});
-  (P.flashcards||[]).forEach((f,i)=>{if(!f||!f.id||!f.q||!f.a)W('فلش‌کارت شماره‌ی '+(i+1)+': باید id، q و a داشته باشد');else if(f.lessonId&&!P.lessons.some(l=>l.id===f.lessonId)&&!(existing&&CR.cache.lessons.some(l=>l.id===f.lessonId)))W('فلش‌کارت «'+f.id+'»: lessonId ناشناخته است')});
+  (P.flashcards||[]).forEach((f,i)=>{if(!f||!f.id||!f.q||!f.a)W('فلش‌کارت شماره‌ی '+(i+1)+': باید id، q و a داشته باشد');else if(f.lessonId&&!P.lessons.some(l=>l.id===f.lessonId)&&!(existing&&CR.cache.lessons.some(l=>l.id===f.lessonId)))W('فلش‌کارت «'+f.id+'»: lessonId ناشناخته است');else if(f&&f.lessonId&&(P.lessons.find(l=>l.id===f.lessonId)||{}).role==='aid')W('فلش‌کارت «'+f.id+'» روی درس کمکی (aid) است؛ کارت فقط برای محتوای امتحانی باشد')});
   return{errors:err,warnings:warn};
 }
 /* ---------- خواندن بسته از ZIP ---------- */
@@ -448,15 +469,23 @@ async function loadPackZip(z){
   P.sources.forEach(s=>s&&s.id&&P.sourceIds.add(s.id));
   for(const n of P.names){if(!n.startsWith('assets/'))continue;const ext=extOf(n);
     if(!MIME[ext]){P.fileErrors.push('نوع فایل مجاز نیست (فقط png/jpg/gif/webp/svg): '+n);continue}
-    try{const u=await z.read(n);P.assets.set(n,{path:n,mime:MIME[ext],data:u})}catch(e){P.fileErrors.push(e.message)}}
+    try{const u=await z.read(n);
+      if(ext==='svg'&&/<\s*script|<\s*foreignObject|\son[a-z]+\s*=|javascript:|<\s*iframe|<\s*embed|<\s*object|data:text\/html/i.test(dec.decode(u))){P.fileErrors.push('تصویر SVG ناامن است (اسکریپت یا محتوای فعال دارد): '+n);continue}
+      P.assets.set(n,{path:n,mime:MIME[ext],data:u})}catch(e){P.fileErrors.push(e.message)}}
   P.sizeKB=Math.round([...P.assets.values()].reduce((s,a)=>s+a.data.length,0)/1024);
   return P;
 }
 /* ---------- برنامه‌ی ورود / به‌روزرسانی ---------- */
 const lhash=o=>hashStr(JSON.stringify(o));
 const normLesson=(l,i)=>({...l,order:+l.order||i+1,topics:Array.isArray(l.topics)?l.topics:[],status:l.status||'needs_review'});
-const normQuestion=q=>({...q,difficulty:[1,2,3].includes(+q.difficulty)?+q.difficulty:2,lessonIds:Array.isArray(q.lessonIds)?q.lessonIds:[],topicIds:Array.isArray(q.topicIds)?q.topicIds:[]});
-function normalizePack(P){P.lessons=P.lessons.map(normLesson);P.questions=P.questions.map(normQuestion)}
+const normQuestion=q=>({...q,exam:q.exam?normExam(q.exam):q.exam,difficulty:[1,2,3].includes(+q.difficulty)?+q.difficulty:2,lessonIds:Array.isArray(q.lessonIds)?q.lessonIds:[],topicIds:Array.isArray(q.topicIds)?q.topicIds:[]});
+/* v160: حذف‌های دستی (tombstone) و جابه‌جایی‌های دستی سؤال با به‌روزرسانی zip برنمی‌گردد */
+const tomb=cid=>{const A=zAC();if(!A.del||typeof A.del!=='object'||Array.isArray(A.del))A.del={};const d=A.del[cid]=A.del[cid]||{};['l','q','ch'].forEach(k=>{if(!Array.isArray(d[k]))d[k]=[]});if(!A.mv||typeof A.mv!=='object'||Array.isArray(A.mv))A.mv={};return d};
+function normalizePack(P){const cid=P.course&&P.course.id,d=cid?tomb(cid):{l:[],q:[],ch:[]},mv=zAC().mv||{};
+  const dl=new Set(d.l),dq=new Set(d.q);
+  P.lessons=P.lessons.filter(l=>!dl.has(l.id)).map(normLesson);
+  P.questions=P.questions.filter(q=>!dq.has(q.id)).map(q=>mv[q.id]&&!dl.has(mv[q.id])?{...q,lessonIds:[mv[q.id]]}:q).map(normQuestion);
+  if(P.course&&Array.isArray(P.course.chapters)&&d.ch.length){const dc=new Set(d.ch);P.course.chapters=P.course.chapters.filter(c=>!dc.has(c.id))}}
 function planPack(P){
   const C=P.course,ex=CR.ix.courses.get(C.id)||null;
   const pl={mode:ex?'update':'new',existing:ex,newV:P.manifest.contentVersion,oldV:ex&&ex.contentVersion,
@@ -472,13 +501,18 @@ function planPack(P){
   pl.nothing=ex&&!pl.L.n&&!pl.L.u&&!pl.Q.n&&!pl.Q.u&&cmpVer(pl.newV,pl.oldV)===0;
   return pl;
 }
+const uniq=a=>[...new Set(a)];
+/* آیتم‌های جدید روی قدیمی با همان id می‌نشینند؛ آیتم‌های قدیمیِ غایب می‌مانند */
+const mergeBy=(old,nw)=>{const m=new Map(old.map(x=>[x.id,x]));nw.forEach(x=>m.set(x.id,x));return[...m.values()]};
 async function commitPack(P,pl){
   const C=P.course,now=nowISO(),ex=pl.existing;
   const chMap=new Map((ex?ex.chapters:[]).map(c=>[c.id,c]));
   (C.chapters||[]).forEach((c,i)=>chMap.set(c.id,{id:c.id,title:String(c.title||c.id),description:c.description?String(c.description):'',order:+c.order||i+1}));
   const chapters=[...chMap.values()].sort((a,b)=>a.order-b.order);
   const course={id:C.id,title:String(C.title),description:String(C.description||''),language:C.language||'fa',contentVersion:String(P.manifest.contentVersion),templateVersion:P.manifest.templateVersion,
-    topics:Array.isArray(C.topics)?C.topics.filter(t=>t&&t.id).map(t=>({id:String(t.id),title:String(t.title||t.id)})):(ex?ex.topics||[]:[]),goals:Array.isArray(C.goals)?C.goals.map(String):(ex?ex.goals:[]),prerequisites:Array.isArray(C.prerequisites)?C.prerequisites.map(String):(ex?ex.prerequisites:[]),chapters,
+    topics:mergeBy(ex?ex.topics||[]:[],Array.isArray(C.topics)?C.topics.filter(t=>t&&t.id).map(t=>({id:String(t.id),title:String(t.title||t.id)})):[]),goals:uniq([...(ex?ex.goals||[]:[]),...(Array.isArray(C.goals)?C.goals.map(String):[])]),prerequisites:uniq([...(ex?ex.prerequisites||[]:[]),...(Array.isArray(C.prerequisites)?C.prerequisites.map(String):[])]),chapters,
+    kind:KINDS.has(C.kind)?C.kind:(ex&&ex.kind||'general'),unit:(typeof C.unit==='string'&&C.unit.trim()?C.unit.trim():(ex&&ex.unit||'فصل')),
+    paths:[...(ex&&ex.paths||[]).filter(x=>x&&x.u),...mergeBy((ex&&ex.paths||[]).filter(x=>x&&!x.u),Array.isArray(C.paths)?C.paths.filter(x=>x&&x.id&&Array.isArray(x.items)).map(x=>({id:String(x.id),title:String(x.title||x.id),items:x.items.map(String)})):[])],
     importedAt:ex?ex.importedAt:now,updatedAt:now,log:[...(ex?ex.log||[]:[]),{at:now,version:String(P.manifest.contentVersion),mode:pl.mode,lessons:pl.L,questions:pl.Q}].slice(-30)};
   const lessons=P.lessons.map(l=>{const x={...l,courseId:C.id,hash:l.__h,v:course.contentVersion};delete x.__h;return x});
   const questions=P.questions.map(q=>{const x={...q,courseId:C.id,hash:q.__h,v:course.contentVersion};delete x.__h;return x});
@@ -492,7 +526,16 @@ async function commitPack(P,pl){
     for(const x of questions)await rq(t.objectStore('questions').put(x));
     for(const x of sources)await rq(t.objectStore('sources').put(x));
     for(const x of assets)await rq(t.objectStore('assets').put(x));
+    const RM=(P.manifest&&P.manifest.remove)||(C.remove)||null;
+    if(RM&&typeof RM==='object'){
+      for(const id of (Array.isArray(RM.questions)?RM.questions:[]))await rq(t.objectStore('questions').delete(String(id)));
+      for(const id of (Array.isArray(RM.lessons)?RM.lessons:[])){await rq(t.objectStore('lessons').delete(String(id)));const qs=await rq(t.objectStore('questions').index('courseId').getAll(C.id));for(const q of qs){if((q.lessonIds||[]).length&&q.lessonIds.every(i=>i===String(id)))await rq(t.objectStore('questions').delete(q.id))}}
+    }
   });
+  try{const RM=(P.manifest&&P.manifest.remove)||(C.remove)||null;
+    if(RM&&typeof RM==='object'&&Array.isArray(RM.chapters)&&RM.chapters.length){await crLoad();const c2=CR.ix.courses.get(C.id);if(c2){const used=new Set(CR.cache.lessons.filter(l=>l.courseId===C.id).map(l=>l.chapterId));c2.chapters=c2.chapters.filter(ch=>!(RM.chapters.includes(ch.id)&&!used.has(ch.id)));await IDB.tx(['courses'],'readwrite',async t=>{await rq(t.objectStore('courses').put(c2))})}}
+    if(RM&&Array.isArray(RM.topics)&&RM.topics.length){await crLoad();const c2=CR.ix.courses.get(C.id);if(c2){c2.topics=(c2.topics||[]).filter(x=>!RM.topics.includes(x.id));await IDB.tx(['courses'],'readwrite',async t=>{await rq(t.objectStore('courses').put(c2))})}}
+  }catch(e){console.error(e)}
   CR.assetCourse='';
   await crLoad();
   try{await reapplyRen(C.id)}catch(e){console.error(e)}
@@ -535,6 +578,33 @@ async function addQuestion(q){
   await IDB.tx(['questions'],'readwrite',async t=>{await rq(t.objectStore('questions').put(x))});
   await crLoad();return x;
 }
+/* v160: حذف تکی و جابه‌جایی سؤال */
+async function delQ(ids){ids=[...ids];if(!ids.length)return;const set=new Set(ids);
+  await IDB.tx(['questions','errors','bookmarks'],'readwrite',async t=>{
+    for(const id of ids)await rq(t.objectStore('questions').delete(id));
+    const er=await rq(t.objectStore('errors').getAll());for(const e of er)if(set.has(e.qid))await rq(t.objectStore('errors').delete(e.id));
+    const bm=await rq(t.objectStore('bookmarks').getAll());for(const b of bm)if(b.kind==='question'&&set.has(b.refId))await rq(t.objectStore('bookmarks').delete(b.id))});
+}
+async function deleteQuestion(qid){const q=CR.ix.questions.get(qid);if(!q)return;const d=tomb(q.courseId);if(!d.q.includes(qid))d.q.push(qid);await delQ([qid]);zcommit();await crLoad()}
+async function moveQuestion(qid,lid){const q=CR.ix.questions.get(qid),l=CR.ix.lessons.get(lid);if(!q||!l||l.courseId!==q.courseId)throw new Error('مقصد نامعتبر');
+  const x={...q,lessonIds:[lid],hash:'m'+hashStr(JSON.stringify([q.hash,lid]))};tomb(q.courseId);zAC().mv[qid]=lid;zcommit();await IDB.tx(['questions'],'readwrite',async t=>{await rq(t.objectStore('questions').put(x))});zcommit();await crLoad()}
+/* حذف مبحث: سؤال‌هایی که فقط به همین مبحث وصل‌اند هم پاک می‌شوند؛ بقیه فقط از آن جدا می‌شوند */
+function lessonDelInfo(lid){const l=CR.ix.lessons.get(lid);if(!l)return{own:[],shared:[]};const qs=questionsOf(l.courseId).filter(q=>(q.lessonIds||[]).includes(lid));return{own:qs.filter(q=>q.lessonIds.every(i=>i===lid)),shared:qs.filter(q=>q.lessonIds.some(i=>i!==lid))}}
+async function deleteLesson(lid,inner){const l=CR.ix.lessons.get(lid);if(!l)return;const d=tomb(l.courseId),info=lessonDelInfo(lid);
+  if(!d.l.includes(lid))d.l.push(lid);
+  info.own.forEach(q=>{if(!d.q.includes(q.id))d.q.push(q.id)});await delQ(info.own.map(q=>q.id));
+  await IDB.tx(['lessons','questions','progress'],'readwrite',async t=>{
+    await rq(t.objectStore('lessons').delete(lid));await rq(t.objectStore('progress').delete(lid));
+    for(const q of info.shared){await rq(t.objectStore('questions').put({...q,lessonIds:q.lessonIds.filter(i=>i!==lid)}))}});
+  zcommit();if(!inner)await crLoad()}
+async function deleteChapter(cid,chId){const c=CR.ix.courses.get(cid);if(!c)return;
+  for(const l of lessonsOf(cid).filter(x=>x.chapterId===chId))await deleteLesson(l.id,true);
+  await crLoad();const c2=CR.ix.courses.get(cid);c2.chapters=c2.chapters.filter(x=>x.id!==chId);
+  const d=tomb(cid);if(!d.ch.includes(chId))d.ch.push(chId);zcommit();
+  await IDB.tx(['courses'],'readwrite',async t=>{await rq(t.objectStore('courses').put(c2))});await crLoad()}
+/* مسیرهای مطالعه‌ی کاربر (جلسه‌ها / مرور امتحان …) */
+async function savePath(cid,path){const c=CR.ix.courses.get(cid);if(!c)return;c.paths=(c.paths||[]).filter(x=>x.id!==path.id);if(path.items)c.paths.push({...path,u:true});await IDB.tx(['courses'],'readwrite',async t=>{await rq(t.objectStore('courses').put(c))});await crLoad()}
+async function setUnit(cid,unit,kind){const c=CR.ix.courses.get(cid);if(!c)return;if(unit)c.unit=String(unit).trim().slice(0,14);if(kind&&KINDS.has(kind))c.kind=kind;await IDB.tx(['courses'],'readwrite',async t=>{await rq(t.objectStore('courses').put(c))});await crLoad()}
 /* v152: ادغام چند درس هم‌موضوع در یک درس (با نگه‌داشتن شناسه‌ی درس/سؤال، پیشرفت، خطاها و آزمون‌ها؛ با امکان برگشت) */
 async function mergeCourses(newId,title,srcIds){
   const src=srcIds.map(id=>CR.ix.courses.get(id)).filter(Boolean);
@@ -608,7 +678,7 @@ function grade(q,a){
   try{
     if(q.type==='single')return{auto:true,ok:String(a)===String(q.answer.choice)};
     if(q.type==='multi'){const x=[...a].map(String).sort().join('|'),y=q.answer.choices.map(String).sort().join('|');return{auto:true,ok:x===y}}
-    if(q.type==='numeric'){const v=parseFloat(normDigits(q.answer.value)),u=parseFloat(normDigits(a));if(!isFinite(u))return{auto:true,ok:false};const tol=+q.answer.tol||0,rel=+q.answer.rel||0;return{auto:true,ok:Math.abs(u-v)<=Math.max(tol,rel*Math.abs(v),1e-9)}}
+    if(q.type==='numeric'){const v=numParse(q.answer.value),u=numParse(a);if(!isFinite(u))return{auto:true,ok:false};const tol=+q.answer.tol||0,rel=+q.answer.rel||0;return{auto:true,ok:Math.abs(u-v)<=Math.max(tol,rel*Math.abs(v),1e-9)}}
     if(q.type==='short'){const u=normTxt(a);return{auto:true,ok:q.answer.accepted.some(x=>normTxt(x)===u)}}
     if(q.type==='match'){return{auto:true,ok:q.pairs.every((p,i)=>a[i]!=null&&String(a[i])===String(p.r))}}
   }catch(e){}
@@ -687,8 +757,8 @@ function vCourse(){
   CR.chOpen=CR.chOpen||{};
   const ren=(t,id,cid)=>'<button class="chip sm" data-a="acd4_rn" data-t="'+t+'" data-c="'+E_(cid)+'" data-i="'+E_(id)+'" title="'+TT('تغییر نام','Rename')+'" aria-label="'+TT('تغییر نام','Rename')+'">✎</button>';
   c.chapters.forEach((ch,ci)=>{const ls=L.filter(l=>l.chapterId===ch.id),d=ls.filter(l=>{const p=CR.ix.progress.get(l.id);return p&&p.done}).length,open=CR.chOpen[ch.id]!==undefined?CR.chOpen[ch.id]:c.chapters.length<=3;
-    h+='<div class="c"><div class="row"><button data-a="crs_chtog" data-k="'+E_(ch.id)+'" aria-expanded="'+open+'">'+(open?'▾':'◂')+'</button><span class="badge">'+TT('فصل','Ch.')+' '+faN(ci+1)+'</span><h3 class="sp" dir="auto">'+E_(ch.title)+'</h3>'+ren('ch',ch.id,c.id)+'<span class="m">'+faN(d)+'/'+faN(ls.length)+'</span></div>'+bar(ls.length?d/ls.length*100:0)+
-    (open?'<div class="row" style="margin-top:6px"><button data-a="crs_qstart" data-c="'+E_(c.id)+'" data-s="chapter:'+E_(ch.id)+'" data-m="practice">'+TT('تمرین فصل','Chapter practice')+'</button><button data-a="crs_qstart" data-c="'+E_(c.id)+'" data-s="chapter:'+E_(ch.id)+'" data-m="exam">'+TT('آزمون فصل','Chapter exam')+'</button></div>'+(window.daniAcd4?window.daniAcd4.chapterInfo(c.id,ch,ls):'')+
+    h+='<div class="c"><div class="row"><button data-a="crs_chtog" data-k="'+E_(ch.id)+'" aria-expanded="'+open+'">'+(open?'▾':'◂')+'</button><span class="badge">'+(c.unit&&c.unit!=='فصل'?E_(c.unit):TT('فصل','Ch.'))+' '+faN(ci+1)+'</span><h3 class="sp" dir="auto">'+E_(ch.title)+'</h3>'+ren('ch',ch.id,c.id)+'<span class="m">'+faN(d)+'/'+faN(ls.length)+'</span></div>'+bar(ls.length?d/ls.length*100:0)+
+    (open?'<div class="row" style="margin-top:6px"><button data-a="crs_qstart" data-c="'+E_(c.id)+'" data-s="chapter:'+E_(ch.id)+'" data-m="practice">'+TT('تمرین','Practice')+' '+E_(c.unit||'فصل')+'</button><button data-a="crs_qstart" data-c="'+E_(c.id)+'" data-s="chapter:'+E_(ch.id)+'" data-m="exam">'+TT('آزمون','Exam')+' '+E_(c.unit||'فصل')+'</button><button class="chip sm d" data-a="acd4_dch" data-c="'+E_(c.id)+'" data-i="'+E_(ch.id)+'" title="'+TT('حذف','Delete')+'">🗑</button></div>'+(window.daniAcd4?window.daniAcd4.chapterInfo(c.id,ch,ls):'')+
     (ls.length?ls.map(l=>{const p=CR.ix.progress.get(l.id),bm=CR.ix.bookmarks.has('b_lesson_'+l.id);return'<div class="cwr"><span>'+(p&&p.done?'✅ ':'⬜ ')+'<a data-a="crs_open" data-c="'+E_(c.id)+'" data-l="'+E_(l.id)+'" tabindex="0" style="cursor:pointer;color:var(--ac)" dir="auto">'+E_(l.title)+'</a> '+(bm?'★ ':'')+stBadge(l)+ctBadge(l)+(window.daniAcd4?window.daniAcd4.lessonChip(l):'')+'</span>'+ren('l',l.id,c.id)+'</div>'}).join(''):'<p class="m">'+TT('این فصل هنوز مبحثی ندارد.','No topics yet.')+'</p>'):'')+'</div>'});
   return h;
 }
@@ -798,7 +868,7 @@ function pool1(cid,scope,diffs){
   let Q=questionsOf(cid);scope=scope||'all';
   if(scope==='studied'){const ids=new Set(lessonsOf(cid).filter(l=>{const p=CR.ix.progress.get(l.id);return p&&p.done}).map(l=>l.id));Q=Q.filter(q=>q.lessonIds.some(i=>ids.has(i)))}
   else if(scope==='weak'){const w=new Set(mastery(cid).filter(m=>m.p<60&&m.t!=='_none').map(m=>m.t));Q=Q.filter(q=>q.topicIds.some(t=>w.has(t)))}
-  else if(scope.startsWith('exam:'))Q=Q.filter(q=>String(q.exam||'')===scope.slice(5));
+  else if(scope.startsWith('exam:'))Q=Q.filter(q=>normExam(q.exam)===normExam(scope.slice(5)));
   else if(scope.startsWith('chapter:')){const ids=new Set(lessonsOf(cid).filter(l=>l.chapterId===scope.slice(8)).map(l=>l.id));Q=Q.filter(q=>q.lessonIds.some(i=>ids.has(i)))}
   else if(scope.startsWith('lesson:'))Q=Q.filter(q=>q.lessonIds.includes(scope.slice(7)));
   else if(scope.startsWith('topic:'))Q=Q.filter(q=>q.topicIds.includes(scope.slice(6)));
@@ -833,9 +903,9 @@ async function startMulti(o){
 }
 const curItem=()=>{const q=CR.quiz;const id=q.qids[CR.qi];return q.items[id]||(q.items[id]={answer:null,ms:0,flag:false,checked:false,ok:null})};
 function touchQ(){if(!CR.quiz||!CR.qStart)return;const it=curItem(),ms=Date.now()-CR.qStart;if(ms<3600e3)it.ms=(it.ms||0)+ms;CR.qStart=Date.now()}
-let persistT=0;function persistSoon(){clearTimeout(persistT);persistT=setTimeout(()=>{if(CR.quiz)putUser('attempts',CR.quiz).catch(e=>toast(storeErr(e),1))},400)}
+let persistT=0;function persistSoon(){clearTimeout(persistT);persistT=setTimeout(()=>{if(CR.quiz){CR.quiz.used=usedMs();CR.resumedAt=Date.now()}if(CR.quiz)putUser('attempts',CR.quiz).catch(e=>toast(storeErr(e),1))},400)}
 const usedMs=()=>CR.quiz?(CR.quiz.used||0)+(Date.now()-(CR.resumedAt||Date.now())):0;
-function armTimer(){clearInterval(CR.tmr);CR.tmr=null;if(CR.quiz&&CR.quiz.timed){CR.tmr=setInterval(()=>{if(!CR.quiz){clearInterval(CR.tmr);return}const left=Math.max(0,CR.quiz.limitSec*1000-usedMs()),e=document.getElementById('crs-timer');if(e){const s=Math.ceil(left/1000);e.textContent=faN(String(Math.floor(s/60)).padStart(2,'0'))+':'+faN(String(s%60).padStart(2,'0'));e.classList.toggle('crs-low',s<60)}if(left<=0){clearInterval(CR.tmr);toast('زمان آزمون تمام شد؛ پاسخ‌ها تصحیح شد');submitQuiz(true)}},500)}}
+function armTimer(){clearInterval(CR.tmr);CR.tmr=null;if(CR.quiz&&CR.quiz.timed){CR.tmr=setInterval(()=>{if(!CR.quiz){clearInterval(CR.tmr);return}if(Date.now()-(CR.lastSave||0)>10000){CR.lastSave=Date.now();persistSoon()}const left=Math.max(0,CR.quiz.limitSec*1000-usedMs()),e=document.getElementById('crs-timer');if(e){const s=Math.ceil(left/1000);e.textContent=faN(String(Math.floor(s/60)).padStart(2,'0'))+':'+faN(String(s%60).padStart(2,'0'));e.classList.toggle('crs-low',s<60)}if(left<=0){clearInterval(CR.tmr);toast('زمان آزمون تمام شد؛ پاسخ‌ها تصحیح شد');submitQuiz(true)}},500)}}
 async function resumeQuiz(id){const a=CR.ix.attempts.get(id);if(!a||a.status!=='active')return;await crAssets(a.courseId);CR.quiz=a;CR.qi=Math.min(a.qi||0,a.qids.length-1);CR.qStart=Date.now();CR.resumedAt=Date.now();CR.tab='quiz';CR.keyId='';armTimer();rerender()}
 function leaveQuiz(){if(!CR.quiz)return;touchQ();CR.quiz.used=usedMs();CR.quiz.qi=CR.qi;CR.resumedAt=Date.now();clearTimeout(persistT);putUser('attempts',CR.quiz).catch(()=>{})}
 async function recordErrors(a){
@@ -909,7 +979,7 @@ function vQuizSetup(){
   let tk=Array.isArray(S.tokens)&&S.tokens.length?S.tokens:['all'];if(S.scope&&!Array.isArray(S.tokens)&&S.scope!=='all')tk=[S.scope];
   const on=t=>tk.includes(t),cnt=t=>pool(cid,[t],S.diffs||[1,2,3]).length;
   const n=pool(cid,tk,S.diffs||[1,2,3]).length;
-  const exams=[...new Set(questionsOf(cid).map(q=>q.exam).filter(Boolean))];
+  const exams=[...new Set(questionsOf(cid).map(q=>normExam(q.exam)).filter(Boolean))];
   const ck=(t,lbl)=>'<label class="crs-ck"><input type="checkbox" data-crs-tk="'+E_(t)+'" '+(on(t)?'checked':'')+'> '+lbl+' <span class="m">('+faN(cnt(t))+')</span></label>';
   const chip=(t,lbl)=>'<button class="chip '+(on(t)?'on':'')+'" data-a="crs_tk" data-t="'+E_(t)+'">'+lbl+' ('+faN(cnt(t))+')</button>';
   const chs=c.chapters||[],tps=c.topics||[],lss=lessonsOf(cid);
@@ -923,11 +993,11 @@ function vQuizSetup(){
    +(chs.length?grp('فصل‌ها',['chapter:'],chs.map(x=>ck('chapter:'+x.id,E_(x.title))).join('')):'')
    +(tps.length?grp('مبحث‌ها',['topic:'],tps.map(x=>ck('topic:'+x.id,E_(x.title))).join('')):'')
    +(lss.length?grp('درس‌های مشخص',['lesson:'],lss.map(x=>ck('lesson:'+x.id,E_(x.title))).join('')):'')
-   +(exams.length?'<label>آزمون‌های سال‌های گذشته / مجموعه‌ها</label><div class="row" style="flex-wrap:wrap">'+exams.map(x=>chip('exam:'+x,E_(x))).join('')+'</div>':'')
+   +(exams.length?'<label>آزمون‌های سال‌های گذشته / مجموعه‌ها (با ترتیب اصلی)</label><div class="row" style="flex-wrap:wrap">'+exams.map(x=>{const att=CR.cache.attempts.filter(a=>a.status==='done'&&a.scope==='exam:'+x&&a.score&&a.score.total),best=att.reduce((m,a)=>Math.max(m,Math.round(a.score.ok/a.score.total*100)),-1),nn=pool(cid,['exam:'+x],[1,2,3]).length;return'<button class="chip '+(on('exam:'+x)?'on':'')+'" data-a="crs_tk" data-t="'+E_('exam:'+x)+'">'+E_(x)+' ('+faN(nn)+' سؤال'+(att.length?' · '+faN(att.length)+' بار · بهترین '+faN(best)+'٪':'')+')</button>'}).join('')+'</div>':'')
    +'<div class="m" style="margin-top:6px"><b>'+faN(n)+'</b> سؤال با این انتخاب موجود است.</div>'
    +'<label>۲) سطح دشواری</label><div class="row">'+[1,2,3].map(d=>'<label class="crs-ck"><input type="checkbox" data-crs-diff="'+d+'" '+((S.diffs||[1,2,3]).includes(d)?'checked':'')+'> '+['آسان','متوسط','دشوار'][d-1]+'</label>').join('')+'</div>'
    +'<label>۳) شکل آزمون</label><div class="row"><div><label>تعداد سؤال</label><input type="number" min="1" id="crsq-count" value="'+(S.count||Math.min(10,Math.max(1,n)))+'" style="width:90px"></div><div><label>نوع</label><select data-crs-set="mode"><option value="exam" '+(S.mode!=='practice'?'selected':'')+'>آزمون (تصحیح در پایان)</option><option value="practice" '+(S.mode==='practice'?'selected':'')+'>تمرین (بررسی فوری)</option></select></div></div>'
-   +'<div class="row" style="flex-wrap:wrap"><label class="crs-ck"><input type="checkbox" id="crsq-timed" '+(S.timed?'checked':'')+' data-crs-set="timed"> زمان‌دار</label><input type="number" min="1" id="crsq-min" value="'+(S.minutes||20)+'" style="width:80px"> دقیقه<label class="crs-ck"><input type="checkbox" data-crs-set="neg" '+(S.neg?'checked':'')+'> نمره‌ی منفی (هر غلط ⅓)</label></div>'
+   +'<div class="row" style="flex-wrap:wrap"><label class="crs-ck"><input type="checkbox" id="crsq-timed" '+(S.timed?'checked':'')+' data-crs-set="timed"> زمان‌دار</label><input type="number" min="1" id="crsq-min" value="'+(S.minutes||20)+'" style="width:80px"> دقیقه<label class="crs-ck"><input type="checkbox" data-crs-set="neg" '+(S.neg?'checked':'')+'> نمره‌ی منفی (هر غلط ⅓)</label>'+(tk.some(t=>t.startsWith('exam:'))?'<label class="crs-ck"><input type="checkbox" data-crs-set="orig" '+(S.orig===false?'':'checked')+'> ترتیب اصلی سؤال‌ها</label>':'')+'</div>'
    +'<div class="row" style="margin-top:10px"><button class="p" data-a="crs_qbegin" '+(n?'':'disabled')+'>شروع</button><button data-a="crs_konkur" '+(n?'':'disabled')+' title="زمان‌دار، نمره‌ی منفی، ترتیب تصادفی، تقریباً ۱ دقیقه برای هر سؤال">🎯 شبیه‌ساز کنکور</button>'+(n?'':'<span class="m">با این شرایط سؤالی نیست.</span>')+'</div></div>';
   return h;
 }
@@ -1044,7 +1114,7 @@ hh('notedel',el=>{if(confirm('این یادداشت حذف شود؟'))return del
 hh('qstart',el=>{const d=el.dataset;return startQuiz({courseId:d.c,scope:d.s,mode:d.m,diffs:d.d?[+d.d]:[1,2,3],count:d.m==='exam'?20:0,timed:false})});
 hh('resume',el=>resumeQuiz(el.dataset.id));
 hh('abandon',el=>{if(confirm('این آزمون نیمه‌تمام حذف شود؟'))return delUser('attempts',el.dataset.id).then(rerender)});
-hh('errprac',()=>{const cs=[...new Set(CR.cache.errors.filter(e=>!e.resolved).map(e=>e.courseId))];if(!cs.length){toast('اشتباه بازی نیست');return}return startQuiz({courseId:cs[0],scope:'wrong',mode:'practice',diffs:[1,2,3],count:0})});
+hh('errprac',()=>{const cs=[...new Set(CR.cache.errors.filter(e=>!e.resolved).map(e=>e.courseId))];if(!cs.length){toast('اشتباه بازی نیست');return}return cs.length===1?startQuiz({courseId:cs[0],scope:'wrong',mode:'practice',diffs:[1,2,3],count:0}):startMulti({items:cs.map(c=>({cid:c,scope:'wrong'})),order:'pick',mode:'practice',diffs:[1,2,3],count:0})});
 hh('flagprac',()=>{const f=new Set();CR.cache.attempts.forEach(a=>Object.entries(a.items||{}).forEach(([q,i])=>{if(i.flag)f.add(q)}));const q=CR.ix.questions.get([...f][0]);if(!q)return;return startQuiz({courseId:q.courseId,scope:'flagged',mode:'practice',diffs:[1,2,3],count:0})});
 hh('ev',el=>{CR.ev=el.dataset.k;rerender()});
 hh('esres',el=>{const e=CR.ix.errors.get(CR.es),k=el.dataset.k;if(e&&k!==''){const ok=k==='1';CR.es='';return putUser('errors',{...e,selfN:(e.selfN||0)+1,selfK:(e.selfK||0)+(ok?1:0),correctStreak:ok?(e.correctStreak||0)+1:0}).then(rerender)}CR.es='';rerender()});
@@ -1057,7 +1127,7 @@ function toggleTk(t){const S=CR.setup;let tk=Array.isArray(S.tokens)&&S.tokens.l
 hh('konkur',()=>{const S=CR.setup,cid=S.courseId||CR.cache.courses[0].id,tk=S.tokens&&S.tokens.length?S.tokens:['all'],diffs=S.diffs||[1,2,3],n=pool(cid,tk,diffs).length,cnt=Math.max(1,Math.min(parseInt(document.getElementById('crsq-count').value,10)||n,n));
   return startQuiz({courseId:cid,scope:tk,diffs,count:cnt,mode:'exam',timed:true,minutes:cnt,neg:true,konkur:true})});
 hh('qbegin',()=>{const S=CR.setup,cid=S.courseId||CR.cache.courses[0].id,diffs=[...document.querySelectorAll('[data-crs-diff]')].filter(x=>x.checked).map(x=>+x.dataset.crsDiff),timed=document.getElementById('crsq-timed').checked;
-  return startQuiz({courseId:cid,scope:S.tokens&&S.tokens.length?S.tokens:(S.scope||'all'),diffs,count:Math.max(1,parseInt(document.getElementById('crsq-count').value,10)||10),mode:S.mode||'exam',timed,minutes:parseInt(document.getElementById('crsq-min').value,10)||20,neg:!!S.neg})});
+  return startQuiz({courseId:cid,scope:S.tokens&&S.tokens.length?S.tokens:(S.scope||'all'),diffs,count:Math.max(1,parseInt(document.getElementById('crsq-count').value,10)||10),mode:S.mode||'exam',timed,minutes:parseInt(document.getElementById('crsq-min').value,10)||20,neg:!!S.neg,shuffle:!((S.tokens||[]).some(t=>String(t).startsWith('exam:'))&&S.orig!==false)})});
 hh('qgo',el=>{touchQ();CR.qi=+el.dataset.n;persistSoon();rerender();window.scrollTo(0,0)});
 hh('qnext',el=>{touchQ();CR.qi=Math.max(0,Math.min(CR.quiz.qids.length-1,CR.qi+(+el.dataset.n)));persistSoon();rerender();window.scrollTo(0,0)});
 hh('qflag',()=>{const it=curItem();it.flag=!it.flag;persistSoon();rerender()});
@@ -1080,7 +1150,7 @@ document.addEventListener('change',e=>{
   if(t.matches('[data-crs-bk]')){CR.bk[t.dataset.crsBk]=t.checked;return}
   if(t.matches('[data-crs-ev]')){const ev=CR.everything;if(t.dataset.crsEv==='host')ev.doHost=t.checked;else ev.doAcademy=t.checked;rerender();return}
   if(t.matches('[data-crs-evsafe]')){CR.everything.safety=t.checked;return}
-  if(t.matches('[data-crs-set]')){const k=t.dataset.crsSet;if(k==='courseId'){CR.setup={...CR.setup,courseId:t.value,scope:'all',tokens:['all']}}else if(k==='timed')CR.setup.timed=t.checked;else if(k==='neg')CR.setup.neg=t.checked;else CR.setup[k]=t.value;rerender();return}
+  if(t.matches('[data-crs-set]')){const k=t.dataset.crsSet;if(k==='courseId'){CR.setup={...CR.setup,courseId:t.value,scope:'all',tokens:['all']}}else if(k==='timed')CR.setup.timed=t.checked;else if(k==='neg')CR.setup.neg=t.checked;else if(k==='orig')CR.setup.orig=t.checked;else CR.setup[k]=t.value;rerender();return}
   if(t.matches('[data-crs-tk]')){toggleTk(t.dataset.crsTk);return}
   if(t.matches('[data-crs-diff]')){CR.setup.diffs=[...document.querySelectorAll('[data-crs-diff]')].filter(x=>x.checked).map(x=>+x.dataset.crsDiff);rerender();return}
   if(t.matches('[data-crs-down]')){CR.pending.down=t.checked;rerender();return}
@@ -1265,7 +1335,7 @@ function mount(){
     return'<div class="c"><h3>'+BH('Academy','آکادمی')+'</h3>'+acdTabs()+'</div>'+crsView()};
   if(!zMS.acd.tab||zMS.acd.tab==='review')zMS.acd.tab='courses'; /* تب پیش‌فرضی که خود پلنر گذاشته (مثلاً learn) تغییر نمی‌کند */
   crLoad().then(()=>{if(inCrs())rerender()});
-  window.daniCourses={buildEverything,prepEverything,rehydrateHost,hostSnap,state:CR,validatePack,loadPackZip,zipRead,zipWrite,tex2mml,grade,inl,blocks,IDB,planPack,normalizePack,commitPack,importFile,buildCourseZip,startQuiz,submitQuiz,userExport,planUser,version:CRV,api:{startMulti,pool,renameItem,reapplyRen,addQuestion,latestResults,questionsOf,lessonsOf,courseProg,mastery,pool,blk,merge:mergeCourses,undoMerge,mergeUndoInfo}};
+  window.daniCourses={buildEverything,prepEverything,rehydrateHost,hostSnap,state:CR,validatePack,loadPackZip,zipRead,zipWrite,tex2mml,grade,inl,blocks,IDB,planPack,normalizePack,commitPack,importFile,buildCourseZip,startQuiz,submitQuiz,userExport,planUser,version:CRV,api:{deleteQuestion,moveQuestion,deleteLesson,lessonDelInfo,deleteChapter,savePath,setUnit,normExam,numParse,startMulti,pool,renameItem,reapplyRen,addQuestion,latestResults,questionsOf,lessonsOf,courseProg,mastery,pool,blk,merge:mergeCourses,undoMerge,mergeUndoInfo}};
 }
 mount();
 })();

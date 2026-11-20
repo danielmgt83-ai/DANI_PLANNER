@@ -6,7 +6,7 @@
 (function(){
 const T=window.daniT;
 const FX=()=>{const s=db.set;if(!s.fx||typeof s.fx!=='object')s.fx={};if(s.fx.hap===undefined)s.fx.hap=1;if(s.fx.anim===undefined)s.fx.anim=1;return s.fx};
-const VER='2026.11.119';
+const VER='2026.11.120';
 /* ---------- لرزش و پاپ ---------- */
 const HAP=/^(qk_go|nx_go|nx_sw|pf_add|tp_ap|bin_rs|ex_save|ab_now|ql_|pm_|tm_|tstart|tfinish|hab|ob_log|ob_go|dnd_set|ls_now|dk_)/;
 const reduce=()=>{try{return matchMedia('(prefers-reduced-motion: reduce)').matches}catch(e){return false}};
@@ -19,6 +19,9 @@ st.textContent='@keyframes fxpop{0%{transform:scale(1)}40%{transform:scale(.92)}
 document.head.appendChild(st);
 /* ---------- چه چیزی تازه است ---------- */
 const WN=[
+ ['🧹','آکادمی: حالا می‌توانی مبحث، فصل و تک‌تک سؤال‌ها را حذف کنی و سؤال را به مبحث دیگر ببری (با به‌روزرسانی zip برنمی‌گردند). پاسخ عددی به شکل کسر مثل ۷/۶ هم درست تصحیح می‌شود.','Academy: you can now delete single topics, chapters and questions and move a question to another topic (they stay deleted after zip updates). Numeric answers like 7/6 are graded correctly.'],
+ ['🧭','هر دوره می‌تواند دسته‌هایش را «جلسه»، «بخش» یا «هفته» بنامد، و «مسیرهای مطالعه» دارد: فهرست مرتبی از مبحث‌ها (مثل جلسه ۱ تا ۳) بدون شلوغی. نوع درس (زبان، ریاضی، جیمت) شکل فلش‌کارت را عوض می‌کند و در دفترچه فرمول «ساخت کارت» هست.','Each course can call its groups “session”, “section” or “week”, and has Study paths — ordered lists of topics. The subject type (language, math, GMAT) shapes flashcards, and the formula notebook has “Make card”.'],
+ ['🛡','ایمنی: تصویر SVG ناامن رد می‌شود، zip بمب قبل از پرشدن حافظه متوقف می‌شود، «$5 و $6» در متن فرمول حساب نمی‌شود، و زمان آزمون بعد از بسته‌شدن ناگهانی برنامه درست برمی‌گردد.','Safety: unsafe SVG images are rejected, zip bombs stop before filling memory, “$5 and $6” is no longer treated as a formula, and exam time is restored correctly after an abrupt close.'],
  ['🎁','فروشگاه: «بسته‌های کامل» — ۱۴ بسته که قالب، آیکون‌ها و شکل منو را با هم عوض می‌کنند (مثلاً «نیمه‌شبِ نئونی»). پیش‌نمایش دارد و با «↩ برگشت» همه‌چیز به قبل برمی‌گردد.','Store: “Full bundles” — 14 bundles that set theme, icons and menu style together, with preview and one-tap undo.'],
  ['🔣','فروشگاه حالا بخش «نمادها (آیکون‌ها)» دارد: ۱۳ بستهٔ آیکون با پیش‌نمایش (خطی، پررنگ، دایره‌ای، کاشی رنگارنگ، شش‌ضلعی، ایموجی…) و سه مدل تازه: براق، نئون و خمیری سه‌بعدی. یک‌ضربه طرح، قاب و رنگ را با هم عوض می‌کند.','The store now has “Icon packs”: 13 packs with previews and three new looks (Glossy, Neon, Clay 3D). One tap sets icon set, frame and colour together.'],
  ['☰','منوی کشویی حالا با زدن هر جای بیرون از منو یا دکمهٔ برگشت گوشی بسته می‌شود؛ لازم نیست حتماً گزینه‌ای را انتخاب کنی.','The slide-out menu now closes when you tap outside it or press the phone’s Back button; no need to pick an item.'],
