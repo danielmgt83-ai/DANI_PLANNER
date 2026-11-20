@@ -23,7 +23,7 @@ const has=(n,sel)=>n.matches(sel)||!!n.querySelector(sel);
 function cls(tab,n){
  if(n.classList.contains('tabs')||n.id==='sqbox'||n.id==='snv')return'_';
  if(has(n,'[data-a="gp_t"]'))return'adv';
- if(tab==='look'){if(has(n,'#langcard'))return'lang';if(n.id==='sntg')return'quote';if(n.id==='menux'||n.id==='homex')return'menu';return'look'}
+ if(tab==='look'){if(has(n,'#langcard'))return'lang';if(n.id==='sntg')return'quote';if(n.id==='menux'||n.id==='homex'||n.id==='fxcard'||n.id==='dashx')return'menu';return'look'}
  if(tab==='time'){if(has(n,'#hfcard'))return'widget';if(has(n,'#excard'))return'exam';return'notif'}
  if(has(n,'#lkcard'))return'sec';if(has(n,'#errcard,#extcard,#uchx'))return'adv';return'bk'}
 const ar=()=>document.documentElement.dir==='rtl'||/^fa|ar/.test(document.documentElement.lang||'fa');

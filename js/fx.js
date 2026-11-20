@@ -6,7 +6,7 @@
 (function(){
 const T=window.daniT;
 const FX=()=>{const s=db.set;if(!s.fx||typeof s.fx!=='object')s.fx={};if(s.fx.hap===undefined)s.fx.hap=1;if(s.fx.anim===undefined)s.fx.anim=1;return s.fx};
-const VER='2026.11.120';
+const VER='2026.11.121';
 /* ---------- لرزش و پاپ ---------- */
 const HAP=/^(qk_go|nx_go|nx_sw|pf_add|tp_ap|bin_rs|ex_save|ab_now|ql_|pm_|tm_|tstart|tfinish|hab|ob_log|ob_go|dnd_set|ls_now|dk_)/;
 const reduce=()=>{try{return matchMedia('(prefers-reduced-motion: reduce)').matches}catch(e){return false}};
@@ -19,6 +19,8 @@ st.textContent='@keyframes fxpop{0%{transform:scale(1)}40%{transform:scale(.92)}
 document.head.appendChild(st);
 /* ---------- چه چیزی تازه است ---------- */
 const WN=[
+ ['🛍','ظاهر و تم ساده شد: فقط سه زبانه «فروشگاه | سفارشی | بسته‌های تم». در فروشگاه تم‌ها (با پوشه‌ها، پوشهٔ ایتاچی هم دوباره باز می‌شود) و نمادها هست. زدن روی هر تم پیش‌نمایش باز می‌کند: حالت، رنگ، شکل منو، گوشه‌ها و نمادها، و پیش‌فرض هر چیز مال خودِ همان تم است و روی تم بعدی نمی‌ماند.','Look & themes simplified: just three tabs — Store | Customize | Theme packs. The store has themes (with folders; the Itachi folder opens again) and icons. Tapping a theme opens a preview: mode, colour, menu, corners and icons; every default belongs to that theme and does not carry over to the next one.'],
+ ['🔣','نمادها: مجموعه‌های آیکونِ واقعیِ تم‌ها (مثل Eren، Itachi) روی هر تمی قابل استفاده‌اند؛ استودیوی آیکون زیرش است. «بسته‌های کامل»، «قالب‌ها»، «تم‌های من»، «استودیو تم»، «شکل منو» و «Look & Feel» حذف شدند؛ کارت‌های داشبورد و حس برنامه به «منو و صفحهٔ خانه» رفتند. در سابقهٔ بسته‌ها می‌توانی نام تم و متن سربرگ را عوض کنی.','Icons: real theme icon sets (Eren, Itachi…) usable on any theme, with Icon Studio below. Removed: Full bundles, Templates, My themes, Theme Studio, Menu style and Look & Feel; Dashboard cards and App feel moved to “Menu & home”. In the pack history you can rename a theme and its header text.'],
  ['🧹','آکادمی: حالا می‌توانی مبحث، فصل و تک‌تک سؤال‌ها را حذف کنی و سؤال را به مبحث دیگر ببری (با به‌روزرسانی zip برنمی‌گردند). پاسخ عددی به شکل کسر مثل ۷/۶ هم درست تصحیح می‌شود.','Academy: you can now delete single topics, chapters and questions and move a question to another topic (they stay deleted after zip updates). Numeric answers like 7/6 are graded correctly.'],
  ['🧭','هر دوره می‌تواند دسته‌هایش را «جلسه»، «بخش» یا «هفته» بنامد، و «مسیرهای مطالعه» دارد: فهرست مرتبی از مبحث‌ها (مثل جلسه ۱ تا ۳) بدون شلوغی. نوع درس (زبان، ریاضی، جیمت) شکل فلش‌کارت را عوض می‌کند و در دفترچه فرمول «ساخت کارت» هست.','Each course can call its groups “session”, “section” or “week”, and has Study paths — ordered lists of topics. The subject type (language, math, GMAT) shapes flashcards, and the formula notebook has “Make card”.'],
  ['🛡','ایمنی: تصویر SVG ناامن رد می‌شود، zip بمب قبل از پرشدن حافظه متوقف می‌شود، «$5 و $6» در متن فرمول حساب نمی‌شود، و زمان آزمون بعد از بسته‌شدن ناگهانی برنامه درست برمی‌گردد.','Safety: unsafe SVG images are rejected, zip bombs stop before filling memory, “$5 and $6” is no longer treated as a formula, and exam time is restored correctly after an abrupt close.'],
