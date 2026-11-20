@@ -4,7 +4,7 @@
 if(typeof iconStudio!=='function')return;
 const T=window.daniT,X=()=>db.set.icx||(db.set.icx={});
 const FAM=[['','مطابق تم','Match theme'],['std','خطی یکسان','Uniform line'],['solid','توپُر','Solid'],['emoji','ایموجی رنگی','Colour emoji']];
-const FRM=[['','بدون قاب','None'],['circle','دایره','Circle'],['squircle','گرد','Rounded'],['hex','شش‌ضلعی','Hexagon'],['tile','کاشی رنگی','Colour tile']];
+const FRM=[['','بدون قاب','None'],['circle','دایره','Circle'],['squircle','گرد','Rounded'],['hex','شش‌ضلعی','Hexagon'],['tile','کاشی رنگی','Colour tile'],['gloss','براق','Glossy'],['neon','نئون','Neon'],['clay','خمیری سه‌بعدی','Clay 3D']];
 const COL=[['','مطابق تم','Match theme'],['ac','رنگ اصلی','Accent'],['rb','رنگارنگ','Colourful']];
 const css=document.createElement('style');css.id='icx-css';css.textContent=`
 nav a .icem,.tabs .icem{width:18px;height:18px;font-size:15px;margin-inline-end:7px;flex:none}
@@ -15,6 +15,10 @@ html[data-icf=squircle] nav a svg.ic,html[data-icf=squircle] nav a .icem,html[da
 html[data-icf=hex] nav a svg.ic,html[data-icf=hex] nav a .icem,html[data-icf=hex] .tabs .ic{clip-path:polygon(50% 0,93% 25%,93% 75%,50% 100%,7% 75%,7% 25%)}
 html[data-icf=tile] nav a svg.ic,html[data-icf=tile] nav a .icem,html[data-icf=tile] .tabs .ic{border-radius:30%;background:var(--icc,var(--ac,#2563eb))}
 html[data-icf=tile] nav a svg.ic,html[data-icf=tile] .tabs svg.ic{color:#fff!important}
+html[data-icf=gloss] nav a svg.ic,html[data-icf=gloss] nav a .icem,html[data-icf=gloss] .tabs .ic{border-radius:30%;background:linear-gradient(145deg,color-mix(in srgb,var(--icc,var(--ac,#2563eb)) 65%,#fff),var(--icc,var(--ac,#2563eb)));box-shadow:inset 0 1px 2px rgba(255,255,255,.7),0 3px 8px rgba(0,0,0,.28)}
+html[data-icf=gloss] nav a svg.ic,html[data-icf=gloss] .tabs svg.ic,html[data-icf=clay] nav a svg.ic,html[data-icf=clay] .tabs svg.ic{color:#fff!important}
+html[data-icf=neon] nav a svg.ic,html[data-icf=neon] nav a .icem,html[data-icf=neon] .tabs .ic{border-radius:30%;background:transparent;border:1.5px solid var(--icc,var(--ac,#2563eb));color:var(--icc,var(--ac,#2563eb));box-shadow:0 0 9px var(--icc,var(--ac,#2563eb)),inset 0 0 6px color-mix(in srgb,var(--icc,var(--ac,#2563eb)) 45%,transparent)}
+html[data-icf=clay] nav a svg.ic,html[data-icf=clay] nav a .icem,html[data-icf=clay] .tabs .ic{border-radius:38%;background:color-mix(in srgb,var(--icc,var(--ac,#2563eb)) 88%,#fff);box-shadow:inset -3px -3px 6px rgba(0,0,0,.25),inset 3px 3px 6px rgba(255,255,255,.5),0 4px 9px rgba(0,0,0,.25)}
 html[data-icf] nav a.on svg.ic,html[data-icf] nav a.on .icem{background:color-mix(in srgb,var(--ac,#888) 34%,transparent)}
 html[data-icf=tile] nav a.on svg.ic,html[data-icf=tile] nav a.on .icem{background:var(--icc,var(--ac,#2563eb));box-shadow:0 0 0 2px color-mix(in srgb,var(--ac,#888) 40%,transparent)}
 html[data-icsoft] svg.ic{fill:currentColor;fill-opacity:.22}
