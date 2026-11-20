@@ -127,8 +127,8 @@ await test('مرکز اعلان: همه‌ی کارت‌ها در ۵ بخش و �
   const secs=b.querySelectorAll(':scope>details[data-nk]').length;const perm=b.querySelectorAll('[data-a="notif"],[data-a="nt_perm"]').length;
   return JSON.stringify({ids,secs,perm,dup:document.querySelectorAll('#ntc').length})});
  const o=JSON.parse(r);ok(o.ids.length===0&&o.secs===5&&o.perm<=1&&o.dup===1,'نتیجه '+r)});
-await test('استودیو و بسته‌های تم: یک کارت، واردکردن/خروجی و بسته‌ها سر جا',async pg=>{const r=await pg.evaluate(async()=>{page='set';stt='look';render();await new Promise(r=>setTimeout(r,300));render();await new Promise(r=>setTimeout(r,200));
-  const b=document.getElementById('thmx');if(!b)return 'no';return JSON.stringify([document.querySelectorAll('#thmx').length,!!b.querySelector('[data-skthemefile]'),!!b.querySelector('[data-skexp]'),!!b.querySelector('#studiocard'),!!b.querySelector('details[data-tk] #pkcard'),!document.querySelector('#skincard [data-skthemefile]')])});
+await test('بسته‌های تم v161: بارگذاری بسته و تم (فایل)، خروجی، سابقه؛ استودیو و کارت تکراری رفته',async pg=>{const r=await pg.evaluate(async()=>{page='set';stt='look';window.daniSetSub='look';render();await new Promise(r=>setTimeout(r,300));render();await new Promise(r=>setTimeout(r,200));
+  const b=document.querySelector('.lk3p[data-p=lab]');if(!b)return 'no';return JSON.stringify([document.querySelectorAll('#pkcard').length,!!b.querySelector('[data-skthemefile]'),!!b.querySelector('[data-skexp]'),!!b.querySelector('[data-pkfile]'),!!b.querySelector('.lkhist'),!document.querySelector('#studiocard,#thmx')])});
  ok(r==='[1,true,true,true,true,true]','نتیجه '+r)});
 await test('منو و بخش‌ها / نمایش خانه: همه‌ی کنترل‌ها هست و هرکدام یک‌بار',async pg=>{const r=await pg.evaluate(async()=>{page='set';stt='look';render();await new Promise(r=>setTimeout(r,300));render();await new Promise(r=>setTimeout(r,200));
   const A={cm_mg:1,cm_mo:1,cm_ws:1,cm_fd:1,cm_fdr:1,lg_t:1,bd_all:1,bd_q:1,bd_pg:4,dk_on:1,dk_c:1};const bad=Object.keys(A).filter(a=>document.querySelectorAll('[data-a="'+a+'"]').length!==A[a]);
@@ -273,20 +273,6 @@ await test('آکادمی v148: ۴ بخش، زیرزبانه‌ها همه‌ی �
  H.acd3_go({dataset:{k:'quiz'}});await w();o.crsNav=getComputedStyle(document.querySelector('#crs>.c')).display==='none';
  zMS.acd.tab='review';page='home';render();return o});
  if(r.top!==4||!r.all||!r.clean||!r.addRes||!r.crsNav)throw new Error(JSON.stringify(r))});
-await test('ظاهر و تم v156: فروشگاه، سفارشی، تم‌های من، استودیو؛  هر کارت قدیمی جای مشخص دارد، تم خودکار و مقدار قدیمی روشن/تیره می‌ماند',async pg=>{const r=await pg.evaluate(async()=>{const o={};const w=()=>new Promise(x=>setTimeout(x,300));page='set';stt='look';render();await w();
- o.tabs=document.querySelectorAll('#lk3 .lk3tabs .chip').length;const where=id=>{const e=document.querySelector(id);const p=e&&e.closest('.lk3p');return p?p.dataset.p:''};
- o.skin=where('#skincard');o.thmx=where('#thmx');o.mx=where('#mxcard');o.fx=where('#fxcard');
- const ic=[...document.querySelectorAll('#lk3 .stsec')].map(s=>s.closest('.lk3p').dataset.p);o.ic=ic.join();
- o.dash=!!document.querySelector('#lk3 .lk3p[data-p=cu] details');
- o.lf=!!document.querySelector('#lk3 .lk3p[data-p=cu] [data-f=th]');
- H.lk_sec({dataset:{v:'themes'}});o.store=document.querySelectorAll('#lkstore .stc').length;o.menu=document.querySelectorAll('#lkmenu .lkm').length;o.moods=!document.querySelector('#lk3 .lk3p:not([hidden]) #moodcard');
- const sk0=skId();H.lk_lay({dataset:{v:'top'}});o.lay=document.documentElement.dataset.lay;H.lk_lay({dataset:{v:'float'}});o.flt=document.documentElement.dataset.navf;H.lk_lay({dataset:{v:''}});
- const other=Object.keys(SKINS).find(k=>k!==sk0&&!SKINS[k].custom);H.lk_pv({dataset:{id:other}});o.pv=!!document.getElementById('lkpm');H.lk_ap({dataset:{id:other}});o.ap=skId()===other&&db.set.prevTheme.skin===sk0;H.lk_undo();o.un=skId()===sk0;
- H.lk3_p({dataset:{k:'cu'}});o.vis=[...document.querySelectorAll('#lk3 .lk3p')].filter(p=>!p.hidden).map(p=>p.dataset.p).join();
- H.lk3_p({dataset:{k:'st'}});
- const old=db.set.th;db.set.th='dark';render();o.dk=document.documentElement.dataset.th;db.set.th='auto';render();o.au=['light','dark'].includes(document.documentElement.dataset.th);db.set.th='light';render();o.lt=document.documentElement.dataset.th;db.set.th=old;
- o.def=daniThMode&&true;page='home';render();return o});
- if(r.tabs!==4||r.skin!=='cu'||r.thmx!=='lab'||r.mx!=='cu'||r.fx!=='cu'||!/cu/.test(r.ic)||!r.dash||!r.lf||r.vis!=='cu'||r.store<5||r.menu!==6||r.lay!=='top'||r.flt!=='1'||!r.pv||!r.ap||!r.un||r.dk!=='dark'||!r.au||r.lt!=='light')throw new Error(JSON.stringify(r))});
 await test('مسیر روشن v144: پیش‌فرض خاموش؛ چهار قدم، ذخیره، پایان و ثبت شدت بعد',async pg=>{const r=await pg.evaluate(async()=>{const o={};page='day';render();o.off=!DANI_DY().hide.includes('wp')&&!!document.getElementById('cpcard');DANI_DY().hide=DANI_DY().hide.filter(k=>k!=='wp');db.set.cpw={list:[]};render();const q=(a,n)=>document.querySelector('#cpcard [data-a='+a+']'+(n?'[data-n="'+n+'"]':''));q('cp_new').click();const t=document.getElementById('cp-t');t.value='نگرانی آزمون';t.dispatchEvent(new Event('input',{bubbles:true}));q('cp_n1').click();q('cp_n2').click();document.querySelector('#cpcard [data-n=ctl]').click();q('cp_n3').click();const s=document.getElementById('cp-s');s.value='حل ده تست';s.dispatchEvent(new Event('input',{bubbles:true}));q('cp_save').click();o.n=db.set.cpw.list.length;q('cp_end').click?0:0;document.querySelector('#cpcard [data-a=cp_end][data-st=done]').click();document.querySelector('#cpcard [data-a=cp_s1][data-n="2"]').click();const w=db.set.cpw.list[0];o.w=[w.st,w.s0,w.s1];DANI_DY().hide.push('wp');db.set.cpw={list:[]};page='home';render();return o});if(!r.off||r.n!==1||r.w[0]!=='done'||r.w[2]!==2)throw new Error(JSON.stringify(r))});
 await test('پروژه‌ها v145: سوییچ پروژه/موعد، ردیف بسته‌ی پروژه، چهار زبانه و سه گروه موعد',async pg=>{const r=await pg.evaluate(async()=>{const w=()=>new Promise(x=>setTimeout(x,350));const o={};const t=todayISO();const z=zDL();z.items.push({id:'t3d1',name:'x',dt:addD(t,20)});const a=db.acts.filter(x=>x.cat==='learn')[0];db.mods.pj.items.push({id:'t3p1',name:'پروژه‌ی تست',due:addD(t,30),hrs:20,from:addD(t,-2),parts:a?[{id:'t3x',a:a.id,s:[],hrs:20}]:[]});
  daniPj3.seg='pj';daniPj3.open='';page='pj';render();await w();const q=s=>document.querySelector(s);
@@ -407,20 +393,35 @@ await test('منوی کشویی v157: زدن بیرون و دکمه‌ی برگ�
  n.classList.add('o');await w();document.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape'}));await w();o.esc=!n.classList.contains('o');await w();return o});
  if(!r.pushed||!r.out||!r.back||!r.esc)throw new Error(JSON.stringify(r))});
 
-await test('فروشگاه نمادها v158: ۱۳ بسته، اعمال بسته، قاب‌های تازه',async pg=>{const r=await pg.evaluate(async()=>{const o={},w=()=>new Promise(x=>setTimeout(x,300));page='set';stt='look';render();await w();
- H.lk3_p({dataset:{k:'st'}});H.lk_sec({dataset:{v:'icons'}});await w();o.n=document.querySelectorAll('#lkstore .stc2').length;o.pv=document.querySelectorAll('#lkstore .ipv svg.ic,#lkstore .ipv .icem').length>=60;
- H.lk_ip({dataset:{id:'p8'}});await w();o.frame=document.documentElement.getAttribute('data-icf');o.fam=db.set.icx.fam;
- H.lk_ip({dataset:{id:'p9'}});await w();o.neon=document.documentElement.getAttribute('data-icf');
- H.lk_ip({dataset:{id:'p0'}});await w();o.reset=!document.documentElement.getAttribute('data-icf')&&!db.set.icst;
- H.lk_sec({dataset:{v:'themes'}});page='home';render();return o});
- if(r.n!==13||!r.pv||r.frame!=='gloss'||r.fam!=='solid'||r.neon!=='neon'||!r.reset)throw new Error(JSON.stringify(r))});
-
-await test('فروشگاه v159: بسته‌های کامل (تم + آیکون + منو) و برگشت',async pg=>{const r=await pg.evaluate(async()=>{const o={},w=()=>new Promise(x=>setTimeout(x,300));page='set';stt='look';render();await w();
- H.lk3_p({dataset:{k:'st'}});await w();o.n=document.querySelectorAll('#lkstore .stc2').length;const s0=skId(),l0=db.set.lay2||'',f0=JSON.stringify(db.set.icx||{});
- H.lk_bv({dataset:{id:'b7'}});o.m=!!document.querySelector('[data-a=lk_ba]');H.lk_ba({dataset:{id:'b7'}});await w();
- o.ap=skId()==='dani'&&db.set.lay2==='float'&&db.set.icx.frame==='neon'&&document.documentElement.getAttribute('data-icf')==='neon';
- H.lk_undo();await w();o.un=skId()===s0&&(db.set.lay2||'')===l0&&JSON.stringify(db.set.icx||{})===f0;page='home';render();return o});
- if(r.n<12||!r.m||!r.ap||!r.un)throw new Error(JSON.stringify(r))});
+await test('ظاهر و تم v160: سه زبانه، فروشگاه با پوشه‌ها، پیش‌نمایش، پیش‌فرض هر تم، سابقه و جابه‌جایی کارت‌ها',async pg=>{const r=await pg.evaluate(async()=>{const o={},w=()=>new Promise(x=>setTimeout(x,300));
+ page='set';stt='look';window.daniSetSub='look';render();await w();
+ o.tabs=[...document.querySelectorAll('#lk3 .lk3tabs .chip')].length===3;
+ o.noOld=!document.getElementById('studiocard')&&!document.getElementById('mxcard')&&!document.getElementById('thmx')&&!document.querySelector('#lkmenu,#lkmy');
+ o.grid=document.querySelectorAll('#lkthemes .skb[data-sk]').length>=20;
+ const fh=document.querySelector('#lkthemes .uch-fh');if(fh){fh.click();await w()}
+ o.folder=!fh||(document.querySelector('#lkthemes .uch-fbody:not([hidden]) .skb')!==null);
+ /* پیش‌نمایش و پیش‌فرض هر تم */
+ H.lk_pv({dataset:{id:'dani'}});o.pv=!!document.getElementById('lkpvb')&&document.querySelectorAll('#lkpvb [data-a=lk_pk]').length>12;
+ H.lk_pk({dataset:{v:'lay:float'}});H.lk_pk({dataset:{v:'ac:#8b5cf6'}});H.lk_pk({dataset:{v:'rad:round'}});H.lk_pk({dataset:{v:'m:light'}});H.lk_pk({dataset:{v:'ic:t:itu1'}});H.lk_ap({dataset:{id:'dani'}});await w();
+ const h=document.documentElement;o.ap=skId()==='dani'&&h.dataset.navf==='1'&&db.set.lay2==='float'&&getComputedStyle(h).getPropertyValue('--ac').trim()==='#8b5cf6'&&db.set.icx.set==='itu1'&&getComputedStyle(h).getPropertyValue('--bg').trim()==='#f4f6fb';
+ /* رفتن به تم دیگر → پیش‌فرض همان تم، نه انتخاب قبلی */
+ H.lk_pv({dataset:{id:'barcelona'}});H.lk_ap({dataset:{id:'barcelona'}});await w();
+ o.def=skId()==='barcelona'&&!db.set.lay2&&!(db.set.icx&&db.set.icx.set)&&h.dataset.navf==='0'&&getComputedStyle(h).getPropertyValue('--ac').trim()!=='#8b5cf6';
+ /* برگشت به dani: انتخاب‌های خودش برمی‌گردد */
+ H.lk_pv({dataset:{id:'dani'}});o.back=document.querySelector('#lkpvb .lkm.on small').textContent.length>0;H.lk_x();
+ db.set.skin='dani';save();render();await w();o.back2=db.set.lay2==='float';
+ /* آیکون: مجموعه‌ی واقعیِ تم */
+ H.lk_sec({dataset:{v:'icons'}});await w();o.ic=document.querySelectorAll('#lkstore .stc2').length>=8&&!!document.querySelector('#lkicons .stsec,#lkicons details');
+ H.lk_ip({dataset:{id:''}});await w();o.ic0=!(db.set.icx&&db.set.icx.set);
+ /* سفارشی و بسته‌ها */
+ H.lk3_p({dataset:{k:'cu'}});o.cu=!!document.getElementById('skincard')&&!!document.querySelector('.lk3p[data-p=cu] input');
+ H.lk3_p({dataset:{k:'lab'}});o.lab=!!document.querySelector('.lk3p[data-p=lab] #pkcard')&&!!document.querySelector('.lkhist');
+ const hs=document.querySelector('.lkh1');if(hs){hs.open=true;const id=hs.querySelector('[data-a=lk_rn]').dataset.id;document.getElementById('lkrn-n-'+id).value='نام تازه';document.getElementById('lkrn-t-'+id).value='متن تازه';H.lk_rn({dataset:{id}});await w();o.rn=SKINS[id].name==='نام تازه'&&SKINS[id].tag==='متن تازه'}else o.rn=true;
+ /* کارت‌های داشبورد و حس برنامه ← منو و صفحه‌ی خانه */
+ window.daniSetSub='menu';render();await w();o.moved=!!document.getElementById('fxcard')&&!document.getElementById('fxcard').classList.contains('snv-x')&&!!document.getElementById('dashx');
+ window.daniSetSub='look';render();await w();o.hid=document.getElementById('fxcard').classList.contains('snv-x');
+ page='home';render();return o});
+ if(!Object.values(r).every(Boolean))throw new Error(JSON.stringify(r))});
 
 await test('آکادمی v160: کسر، دلار، SVG، حذف تکی، ادغام zip جزئی، ترتیب و نام آزمون',async pg=>{const r=await pg.evaluate(async()=>{const D=daniCourses,A=D.api,o={};
  o.f=A.numParse('7/6').toFixed(3)==='1.167'&&A.numParse('۱/۳').toFixed(2)==='0.33'&&A.numParse('2.5')===2.5&&isNaN(A.numParse('1/0'));
