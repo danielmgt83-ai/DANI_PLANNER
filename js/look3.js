@@ -14,6 +14,9 @@ const RADS=[['','پیش‌فرض تم','Theme default'],['sharp','تیز','Sharp
 const ACS=['#ef4444','#f59e0b','#22c55e','#06b6d4','#3b82f6','#8b5cf6','#ec4899'];
 const DK={bg:'#0f172a',c:'#1e293b',t:'#e5e7eb',m:'#94a3b8',b:'#334155',sb:'#0b1220'},LT={bg:'#f4f6fb',c:'#ffffff',t:'#111827',m:'#6b7280',b:'#e5e7eb',sb:'#ffffff'};
 const canMode=s=>!!s&&!s.hero&&!s.pack&&!s.qchar;
+/* حالت واقعی تم: تم‌های بدون پالت خودشان (کلاسیک، هیبرید) از «حالت برنامه» (روشن/تیره/خودکار) پیروی می‌کنند؛ پس «روشنِ» ثبت‌شده در SKINS همیشه درست نیست */
+const appDark=()=>{try{return daniThMode()==='dark'}catch(e){return false}};
+const effDark=s=>!!s.dark||(!((s.vars||{}).bg)&&canMode(s)&&appDark());
 const ownMenu=s=>{const m=MENUS.find(x=>x[0]===s.lay);return m?T(m[1],m[2]):T('کناری','Side')};
 /* ---- تنظیمات هر تم جدا (skx) و همگام‌سازی با «سراسری‌های» فعلی (lay2 / icst / icx) ---- */
 const SKX=()=>{const S=db.set;if(!S.skx||typeof S.skx!=='object'||Array.isArray(S.skx))S.skx={};return S.skx};
@@ -28,7 +31,8 @@ const reIcons=()=>{try{document.querySelectorAll('#nav a[data-p] .ic,#pg [data-a
   try{const S=SKINS[skId()],h=document.documentElement,st=h.style,o=SKX()[skId()]||{},L=db.set.lay2;
    if(L&&['bottom','float','top','side','rail'].includes(L)){h.dataset.lay=L==='float'?'bottom':L;h.dataset.navf=L==='float'?'1':'0'}else h.dataset.navf='0';
    const rd=RADS.find(x=>x[0]&&x[0]===o.rad);if(rd){st.setProperty('--rad',rd[3]+'px');st.setProperty('--radb',rd[4]+'px')}
-   if(o.m&&canMode(S)&&((o.m==='dark')!==!!S.dark)){const p=o.m==='dark'?DK:LT;Object.entries(p).forEach(([k,v])=>st.setProperty('--'+k,v));h.dataset.dk=o.m==='dark'?'1':'0';st.colorScheme=o.m==='dark'?'dark':'';h.dataset.th=o.m}
+   if(o.m&&canMode(S)&&((o.m==='dark')!==effDark(S))){const p=o.m==='dark'?DK:LT;Object.entries(p).forEach(([k,v])=>st.setProperty('--'+k,v));h.dataset.dk=o.m==='dark'?'1':'0';st.colorScheme=o.m==='dark'?'dark':'';h.dataset.th=o.m;h.dataset.thx='1'}
+   else if(h.dataset.thx){delete h.dataset.thx;try{h.dataset.th=daniThMode()}catch(e){}}
    if(o.ac)st.setProperty('--ac',o.ac);
    if(ch){reIcons();try{decorateIcons()}catch(x){}}}catch(e){console.error('look3 apply',e)}
   return r}}
@@ -44,7 +48,7 @@ function iconsHTML(){const cur=icKey(snap().ic);return'<div class="strow2">'+icS
 H.lk_ip=e=>{const p=icSets().find(x=>x[0]===e.dataset.id);if(!p)return;db.set.icst=p[3].st||'';db.set.icx=Object.assign({},p[3].x||{});if(save()){reIcons();render();try{decorateIcons()}catch(x){}toast(T('آیکون‌ها عوض شد','Icons changed'))}};
 H.lk_sec=e=>{ST.sec=e.dataset.v;render()};
 /* ---- فروشگاه ---- */
-function thumb(s,big,o){const v=s.vars||{};o=o||{};let dk=o.m?o.m==='dark':!!s.dark;const pal=o.m&&canMode(s)?(o.m==='dark'?DK:LT):null,bg=(pal||v).bg||(dk?'#0f172a':'#f4f6fb'),c=(pal||v).c||(dk?'#1e293b':'#ffffff'),ac=o.ac||v.ac||'#2563eb';
+function thumb(s,big,o){const v=s.vars||{};o=o||{};let dk=o.m?o.m==='dark':effDark(s);const pal=o.m&&canMode(s)?(o.m==='dark'?DK:LT):null,bg=(pal||v).bg||(dk?'#0f172a':'#f4f6fb'),c=(pal||v).c||(dk?'#1e293b':'#ffffff'),ac=o.ac||v.ac||'#2563eb';
  const rd=RADS.find(x=>x[0]&&x[0]===o.rad),rr=rd?rd[3]:(s.rad||16),r=rr>=20?'16px':(rr>=12?'12px':'6px');
  return'<div class="stth'+(big?' big':'')+'" style="background:'+bg+'"><i style="background:'+ac+';border-radius:'+r+'"></i><i style="background:'+c+';border-radius:'+r+'"></i><i style="background:'+c+';border-radius:'+r+'"></i><i style="background:'+ac+';opacity:.5;border-radius:'+r+'"></i></div>'}
 function storeHTML(){const sec=ST.sec||'themes',tg='<div class="row" style="margin:4px 0 8px;flex-wrap:wrap"><button class="chip '+(sec==='themes'?'on':'')+'" data-a="lk_sec" data-v="themes">🎨 '+T('تم‌ها','Themes')+'</button><button class="chip '+(sec==='icons'?'on':'')+'" data-a="lk_sec" data-v="icons">🔣 '+T('نمادها (آیکون‌ها)','Icons')+'</button></div>';
@@ -59,7 +63,7 @@ function pvInit(s){const X=SKX(),cur=s.id===skId(),o=cur?Object.assign({},X[s.id
  PV.id=s.id;PV.m=o.m||'';PV.ac=o.ac||'';PV.rad=o.rad||'';PV.lay=o.lay||'';PV.ic=JSON.parse(JSON.stringify(o.ic||{st:'',x:{}}))}
 const chip=(on,a,v,l)=>'<button class="chip sm'+(on?' on':'')+'" data-a="'+a+'" data-v="'+E(v)+'">'+l+'</button>';
 function pvBody(){const s=SKINS[PV.id];if(!s)return'';const sets=icSets();
- const modes=canMode(s)?'<div class="row lkr2">'+chip(!PV.m,'lk_pk','m:',T('پیش‌فرض تم','Theme default')+' ('+(s.dark?T('تیره','dark'):T('روشن','light'))+')')+chip(PV.m==='light','lk_pk','m:light','☀ '+T('روشن','Light'))+chip(PV.m==='dark','lk_pk','m:dark','🌙 '+T('تیره','Dark'))+'</div>':'<p class="m">'+T('این تم ظاهر و رنگ‌های ثابتِ خودش را دارد؛ فقط رنگ تأکید را می‌شود عوض کرد.','This theme has its own fixed look; only the accent colour can change.')+'</p>';
+ const modes=canMode(s)?'<div class="row lkr2">'+chip(!PV.m,'lk_pk','m:',T('پیش‌فرض تم','Theme default')+' ('+(effDark(s)?T('تیره','dark'):T('روشن','light'))+')')+chip(PV.m==='light','lk_pk','m:light','☀ '+T('روشن','Light'))+chip(PV.m==='dark','lk_pk','m:dark','🌙 '+T('تیره','Dark'))+'</div>':'<p class="m">'+T('این تم ظاهر و رنگ‌های ثابتِ خودش را دارد؛ فقط رنگ تأکید را می‌شود عوض کرد.','This theme has its own fixed look; only the accent colour can change.')+'</p>';
  return thumb(s,true,{m:PV.m,ac:PV.ac,rad:PV.rad})
   +'<div class="m" style="margin-top:8px">'+T('حالت','Mode')+'</div>'+modes
   +'<div class="m">'+T('رنگ تأکید','Accent colour')+'</div><div class="row lkr2">'+chip(!PV.ac,'lk_pk','ac:',T('پیش‌فرض تم','Theme default'))+ACS.map(c=>'<button class="lkac'+(PV.ac===c?' on':'')+'" style="background:'+c+'" data-a="lk_pk" data-v="ac:'+c+'" aria-label="'+c+'"></button>').join('')+'</div>'
