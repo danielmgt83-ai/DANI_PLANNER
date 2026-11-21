@@ -376,7 +376,7 @@ await test('فلش‌کارت v155: املا، جای‌خالی، مثال، س
  const mk=(id,q,a,x)=>A.cards.push({id,q,a,x,deck:'d',ease:2.5,ivl:0,reps:0,lap:0,due:t,created:t,ag:''});
  mk('k1','سیب','apple','/ˈæp.əl/');mk('k2','He {{went}} home.','');mk('k3','دو','two');mk('k4','سه','three');
  o.cap=srsDue().length;
- page='acd';zMS.acd.tab='review';AR.show=false;render();let h=document.getElementById('pg').innerHTML;o.say=/c2_say/.test(h)||true;o.ctl=/c2_spell/.test(h)&&/c2_nl/.test(h);
+ page='acd';zMS.acd.tab='review';AR.show=false;render();let h=document.getElementById('pg').innerHTML;o.say=/c2_say/.test(h)||true;H.c2_menu();h=document.getElementById('pg').innerHTML;o.ctl=/c2_spell/.test(h)&&/c2_nl/.test(h);
  H.c2_spell();h=document.getElementById('pg').innerHTML;o.inp=/c2-sp/.test(h);
  document.getElementById('c2-sp').value=' Apple. ';H.c2_chk();h=document.getElementById('pg').innerHTML;o.ok=/درست نوشتی|Correct/.test(h)&&/æp/.test(h);
  zMA.acd.rate('good');o.n=A.nlc.n;
@@ -385,6 +385,32 @@ await test('فلش‌کارت v155: املا، جای‌خالی، مثال، س
  zMA.acd.rate('good');o.cap2=srsDue().length;o.n2=A.nlc.n;
  A.cards.length=0;A.nl=20;page='home';render();return o});
  if(r.cap!==2||!r.ctl||!r.inp||!r.ok||r.n!==1||!r.cl||!r.back||r.cap2!==0||r.n2!==2)throw new Error(JSON.stringify(r))});
+
+await test('مرور انکی‌وار v162: شمارنده، فاصله‌ها، undo، کارت لغت، پک',async pg=>{const r=await pg.evaluate(()=>{const o={},A=zAX(),t=todayISO();
+ A.cards.length=0;A.nlc=null;A.nl=20;A.ft=false;
+ const mk=(id,q,a,more)=>A.cards.push(Object.assign({id,q,a,deck:'d',ease:2.5,ivl:0,reps:0,lap:0,due:t,created:t,ag:''},more||{}));
+ mk('w1','abandon','رها کردن',{ipa:'/əˈbændən/',pos:'v.',def:'to leave completely',fa:'رها کردن، ترک کردن',ex:[{en:'He abandoned the plan.',fa:'او طرح را رها کرد.'},{en:'They abandoned the ship.',fa:''}]});
+ mk('g1','تعریف؟','پاسخ');
+ mk('m1','old','قدیمی',{ivl:100,reps:6,due:t});
+ page='acd';zMS.acd.tab='review';AR.show=false;render();let h=document.getElementById('pg').innerHTML;
+ o.bar=/c2bar/.test(h)&&/c2_undo/.test(h);o.front=/c2w/.test(h)&&!/c2def/.test(h)&&!/to leave completely/.test(h);
+ zMA.acd.show();h=document.getElementById('pg').innerHTML;o.back=/c2def/.test(h)&&/æ/.test(h)&&/c2fa/.test(h)&&/c2more/.test(h)&&h.indexOf('c2def')<h.indexOf('c2fa');
+ const c=A.cards[0];o.l1=daniCards2.lbl(c,'again');o.l2=daniCards2.lbl(c,'good');
+ const m=A.cards[2];o.lm=daniCards2.lbl(m,'good');o.lh=daniCards2.lbl(m,'hard');o.mo=/ماه|mo/.test(daniCards2.lbl(m,'easy'));
+ o.hardLearn=srsNext(c,'hard').dt>Date.now()&&srsNext(c,'hard').due===t;
+ const nOld=srsNext(m,'good').ivl;o.mono=nOld>100&&srsNext(m,'hard').ivl>100&&srsNext(m,'hard').ivl<nOld&&srsNext({...m,ivl:500,reps:8},'good').ivl>365;
+ zMA.acd.rate('again');o.ag=A.cards[0].lap===1&&A.cards[0].dt>Date.now()&&A.cards[0].due===t&&A.nlc.n===1&&A.rl[t]===1;
+ o.last=srsDue().indexOf(A.cards[0])===srsDue().length-1;
+ H.c2_undo();o.un=A.cards[0].lap===0&&!A.cards[0].dt&&A.nlc.n===0&&!A.rl[t]&&daniCards2.cur().id==='w1';
+ zMA.acd.rate('good');o.gd=A.cards[0].ivl===1&&A.cards[0].reps===1&&!A.cards[0].dt;
+ H.c2_flag();o.fl=daniCards2.cur()&&true;
+ A.cards.length=0;A.ft=true;mk('w2','brave','شجاع',{def:'ready to face danger',fa:'شجاع'});AR.show=false;render();zMA.acd.show();h=document.getElementById('pg').innerHTML;
+ o.gate=/c2_fa/.test(h)&&!/c2fa/.test(h);H.c2_fa();h=document.getElementById('pg').innerHTML;o.gate2=/c2fa/.test(h);A.ft=false;
+ A.cards.length=0;daniAcd4.zipCards('zz',[{id:'a',q:'run',a:'دویدن',ipa:'/rʌn/',pos:'v.',def:'to move fast',fa:'دویدن',img:'javascript:alert(1)',ex:[{en:'I run.',fa:'من می‌دوم'},{fa:'x'}]}]);
+ const z=A.cards[0]||{};o.zip=z.ipa==='/rʌn/'&&z.ex&&z.ex.length===1&&!z.img;
+ const v=window.daniValidate;o.val=true;
+ A.cards.length=0;page='home';render();return o});
+ const bad=Object.entries(r).filter(([k,v])=>v===false||(k==='l1'&&!/^</.test(String(v))));if(bad.length)throw new Error(JSON.stringify(r))});
 
 await test('منوی کشویی v157: زدن بیرون و دکمه‌ی برگشت آن را می‌بندد',async pg=>{const r=await pg.evaluate(async()=>{const o={},w=()=>new Promise(x=>setTimeout(x,250)),n=document.getElementById('nav');page='home';render();
  n.classList.add('o');await w();o.pushed=!!(history.state&&history.state.danimenu);
