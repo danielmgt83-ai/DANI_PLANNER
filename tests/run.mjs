@@ -542,5 +542,59 @@ await test('آکادمی v160: کسر، دلار، SVG، حذف تکی، ادغ�
  await D.api.deleteChapter&&0;page='home';render();return o});
  if(!Object.values(r).every(Boolean))throw new Error(JSON.stringify(r))});
 
+await test('v163: متن مشترک، کلوز چندجای‌خالی، جای‌گذاری جمله، ds، راهنما، متغیر، آزمون/اسلات',async pg=>{const r=await pg.evaluate(async()=>{const o={},D=daniCourses,w=ms=>new Promise(x=>setTimeout(x,ms));
+ const base=()=>({id:'x',type:'single',difficulty:2,lessonIds:['pl1'],topicIds:[],src:'jozve',stem:'س',choices:[{id:'a',text:'x'},{id:'b',text:'y'}],answer:{choice:'a'},solution:'ح'});
+ const qs=[
+  {...base(),id:'p1',passageId:'ps1',stem:'متن را بخوان؛ پاسخ؟',exam:'کنکور ۹۹',timeSec:50},
+  {...base(),id:'p2',passageId:'ps1',stem:'سؤال دوم متن',answer:{choice:'b'},exam:'کنکور ۹۹',timeSec:50},
+  {...base(),id:'cz',type:'cloze',stem:'He {{1}} to school and {{2}} home.',blanks:[{accepted:['went','go']},{accepted:['came']}],choices:undefined,answer:undefined},
+  {...base(),id:'pl',type:'place',stem:'جمله‌ی [1] را بگذار',slots:4,answer:{pos:3},choices:undefined},
+  {...base(),id:'ds1',type:'ds',stem:'x>0؟',statements:['x=2','x²=4'],answer:{choice:'A'},choices:undefined},
+  {...base(),id:'vr',type:'numeric',stem:'{{a}} + {{b}} = ؟ ({{=a*2}})',vars:{a:{min:2,max:9},b:{min:1,max:5},c:{expr:'a+b'}},answer:{value:'c'},choices:undefined,hints:['اول جمع','بعد پاسخ']}];
+ const P={manifest:{format:'dani-course',templateVersion:D.version.template,contentVersion:'1.0'},course:{id:'t163',title:'نو',language:'fa',kind:'gmat',unit:'فصل',chapters:[{id:'c1',title:'ج'}],topics:[],
+  passages:[{id:'ps1',title:'متن ۱',blocks:[{type:'p',text:'TEXT-PASSAGE-BODY'}]}],exams:[{name:'کنکور ۹۹',year:'1399',minutes:7,penalty:0.25}],slots:[{id:'soon1',chapterId:'c1',title:'درس آینده'},{id:'pl1',chapterId:'c1',title:'پر شده'}]},
+  lessons:[{id:'pl1',chapterId:'c1',title:'درس',blocks:[{type:'p',text:'x'}],status:'approved',role:'core'}],questions:qs,sources:[],flashcards:[],assets:new Map(),sourceIds:new Set(),fileErrors:[]};
+ const rep=D.validatePack(P,null);o.valid=rep.errors.length===0;o.errs=rep.errors.join('|');
+ // خطاهای عمدی
+ const bad=(f)=>{const Q=JSON.parse(JSON.stringify(qs));f(Q);return D.validatePack({...P,questions:Q},null).errors.join('|')};
+ o.eCloze=/blanks|accepted/.test(bad(Q=>{Q[2].blanks=[]}));o.ePlace=/answer.pos/.test(bad(Q=>{Q[3].answer.pos=9}));o.eDs=/A تا E/.test(bad(Q=>{Q[4].answer.choice='Z'}));
+ o.ePass=/passageId/.test(bad(Q=>{Q[0].passageId='nope'}));o.eVar=/vars|متغیر/.test(bad(Q=>{Q[5].vars.c.expr='a+zz'}));o.eEval=/vars|عبارت/.test(bad(Q=>{Q[5].answer.value='a+(b'}));
+ o.safe=(()=>{try{D.exprEval('constructor',{});return false}catch(e){return true}})()&&(()=>{try{D.exprEval('alert(1)',{});return false}catch(e){return true}})();
+ o.math=D.exprEval('2+3*4^2-(10/4)',{})===47.5&&D.exprEval('sqrt(a)+max(1,b)',{a:9,b:2})===5;
+ D.normalizePack(P);await D.commitPack(P,D.planPack(P));
+ const C=D.state.ix.courses.get('t163');o.stored=C.passages.length===1&&C.exams[0].minutes===7&&C.slots.length===2;
+ // اجرا (تمرین)
+ page='acd';zMS.acd.tab='courses';o.poolN=D.api.pool('t163',['all'],[1,2,3]).length;o.qN=D.api.questionsOf('t163').length;await D.startQuiz({courseId:'t163',scope:['all'],diffs:[1,2,3],count:0,mode:'practice',shuffle:false});
+ if(!D.state.quiz)throw new Error(JSON.stringify(o));const qz=D.state.quiz;o.group=qz.qids.indexOf('p1')+1===qz.qids.indexOf('p2');
+ const go=id=>{if(!D.state.quiz)throw new Error('quiz-null@'+id);D.state.qi=D.state.quiz.qids.indexOf(id);D.state.tab='quiz';page='acd';zMS.acd.tab='courses';render()};
+ const html=()=>document.getElementById('pg').innerHTML;
+ go('p2');await w(80);o.pass=/TEXT-PASSAGE-BODY/.test(html())&&/acf-pin/.test(html());
+ go('cz');await w(80);o.czIn=document.querySelectorAll('input[data-crq=cloze]').length===2;
+ const i1=document.querySelector('input[data-crq=cloze][data-i="1"]');i1.value='Went';i1.dispatchEvent(new Event('input',{bubbles:true}));
+ const i2=document.querySelector('input[data-crq=cloze][data-i="2"]');i2.value='came';i2.dispatchEvent(new Event('input',{bubbles:true}));
+ const cq=D.state.ix.questions.get('cz'),it=D.state.quiz.items.cz;o.czGrade=D.grade(cq,it.answer).ok===true&&D.grade(cq,{1:'x',2:'came'}).ok===false&&D.grade(cq,{}).skipped===true;
+ go('pl');await w(80);o.plc=document.querySelectorAll('.crs-plc input').length===4;
+ o.plG=D.grade(D.state.ix.questions.get('pl'),'3').ok&&!D.grade(D.state.ix.questions.get('pl'),'2').ok;
+ go('ds1');await w(80);o.ds=document.querySelectorAll('.crs-ch').length===5&&/crs-ds/.test(html());
+ go('vr');await w(80);
+ const vq=D.state.ix.questions.get('vr'),res=D.QR(vq,D.state.quiz.items.vr);o.varStem=!/\{\{/.test(JSON.stringify(res.stem));o.varAns=isFinite(+res.answer.value);
+ const m=res.stem.match?0:0;const txt=JSON.stringify(res.stem);const nums=txt.match(/\d+/g).map(Number);o.varOk=(nums[0]+nums[1])===+res.answer.value&&nums[2]===nums[0]*2;
+ o.varStable=JSON.stringify(D.QR(vq,D.state.quiz.items.vr))===JSON.stringify(res);
+ o.hintBtn=/crs_hint/.test(html());H.crs_hint();await w(50);o.hint1=/اول جمع/.test(html())&&!/بعد پاسخ/.test(html());
+ D.state.quiz.items.vr.answer=String(res.answer.value);
+ await D.submitQuiz();await w(80);const a=[...D.state.cache.attempts].pop();
+ o.score=a.score.total>=5&&a.items.vr.ok===true&&a.items.cz.ok===true&&a.items.pl.ok===false;
+ o.hintSaved=a.items.vr.hints===1;
+ // کنکور با متادیتا
+ D.state.keyId='';D.state.quiz=null;D.state.tab='quiz';D.state.setup={courseId:'t163',tokens:['exam:کنکور ۹۹'],diffs:[1,2,3]};page='acd';zMS.acd.tab='courses';render();
+ o.chip=/۷ دقیقه/.test(html())&&/1399/.test(html().replace(/[۰-۹]/g,d=>'۰۱۲۳۴۵۶۷۸۹'.indexOf(d)));
+ // اسلات در فهرست دوره
+ D.state.courseId='t163';D.state.lessonId='';D.state.tab='courses';zMS.acd.tab='courses';render();o.slot=/درس آینده/.test(html())&&!/پر شده/.test(html());
+ // خروجی zip
+ const z=await D.buildCourseZip('t163');const R=await D.zipRead(await z.arrayBuffer());const cj=JSON.parse(new TextDecoder().decode(await R.read('course.json')));
+ o.exp=cj.kind==='gmat'&&cj.passages.length===1&&cj.exams.length===1&&cj.slots.length===2;
+ page='home';render();return o});
+ {const bad=Object.entries(r).filter(([k,v])=>v!==true&&typeof v!=='string'&&k!=='poolN'&&k!=='qN');if(bad.length)throw new Error('FAIL: '+bad.map(b=>b[0]+'='+b[1]).join(','))}});
+
 console.log('\n'+results.map(r=>r.join(' ')).join('\n')+'\n\n'+(results.length-fails)+' / '+results.length+' موفق');
 await browser.close();srv.close();process.exit(fails?1:0);
