@@ -113,3 +113,7 @@ nav small.bi b{direction:ltr;unicode-bidi:isolate;display:block}nav small.bi i{d
 .c2w{font-size:34px;font-weight:800;padding:14px 4px 4px;word-break:break-word}.c2ipa{opacity:.7;margin-bottom:6px}.c2def{font-size:15px;opacity:.9;margin:6px 0;text-align:start}.c2def b{color:#f59e0b}
 .c2fa{font-size:21px;font-weight:700;margin:8px 0}.c2img{max-width:100%;max-height:150px;border-radius:12px;margin:8px auto;display:block}
 .c2ex{text-align:start;font-size:14px;margin-top:8px}.c2ex i{display:block;font-style:normal;opacity:.7;font-size:12px;text-align:right}.c2more{text-align:start;margin-top:6px}.c2more summary{cursor:pointer;opacity:.8;font-size:13px}
+/* v162.2 — قاب نماد تم: نمادهای بی‌نماد اختصاصی هم‌ریتم می‌شوند */
+svg.ic.icfr .icfrm{stroke:var(--ac);stroke-width:1.25;fill:none;fill-opacity:1;opacity:.85}
+svg.ic.icfr .icfg{stroke-width:calc(var(--icw,1.7)*.85px)}
+svg.ic.icfr .icfg *{vector-effect:non-scaling-stroke}

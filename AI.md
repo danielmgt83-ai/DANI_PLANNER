@@ -665,6 +665,7 @@ html[data-mx=1] فقط وقتی db.set.mx!==0 و تم ساده است (بدون 
 (v156) look3.js: فروشگاه/سفارشی/تم‌های من/استودیو؛ db.set.lay2 و db.set.prevTheme؛ applySkin توسط look3 پوشش داده می‌شود. قالب‌های بسته‌ای (آیکون+رنگ+منو) هنوز ساخته نشده‌اند.
 (v155.1) نام handler ها یکتا باشد (H.acd4_ren مجموعه؛ H.acd4_rn درس/فصل/مبحث). ❓ درس: .crs-lessonbar-ask درون‌صفحه، .crs-ask با انتخاب .crs-bq.sel.
 (v155) cards2.js: srsDue با سقف روزانه‌ی کارت جدید؛ کارت: x (مثال)، cloze {{…}}، TTS؛ فلش‌کارت ZIP می‌تواند x داشته باشد.
+(v162.2) menureg.js: `daniMenu` منبع واحد کلیدهای منو/نماد؛ هر آیتم تازه در ICONS/NAV خودکار در همهٔ تم‌ها دیده می‌شود. icon() در themes-engine برای ست‌های تم قاب `icfr` می‌گذارد. look3.js: `icSets` گروه‌بندی‌شده، `daniLook3.{icSets,icKey}`. ترتیب بارگذاری: themes-engine ← menureg ← look3.
 (v162.1) keepopen.js: `daniKeepOpen` (حالت details تاشو بعد از render؛ باید آخرین wrapper رندر باشد، قبل از boot.js). look3.js: `effDark/appDark`؛ تم‌های بدون `vars.bg` از `daniThMode()` پیروی می‌کنند.
 (v162) cards2.js بازنویسی (مرور انکی‌وار): `srsNext` تازه با `dt` (زمان یادگیری، ms)، `lbl(c,q)` برچسب فاصله، `srsDue` با کارت‌های یادگیری آخرِ صف، `st.undo` (حافظه‌ای، ۲۰ مرحله)، `c.flag` ۰–۴، `A.ft` (فارسی با لمس دوم). کارت لغت: `isWord`؛ فیلدهای اختیاری کارت `ipa,pos,def,fa,img,ex:[{en,fa}]` (پاک‌سازی `daniAcd4.wf`؛ `img` فقط https/data:image). handlerها `c2_*`؛ کلاس‌ها `.c2*`. بعد از تغییر `courses.js` دوباره `make_validator.py`.
 (v154) exam builder: CR.setup.multi → daniAcd4.xbuilder؛ api.startMulti({items:[{cid,scope}],order,count,...}); attempt.courses=[cid…].
