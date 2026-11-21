@@ -6,7 +6,7 @@
 (function(){
 const T=window.daniT;
 const FX=()=>{const s=db.set;if(!s.fx||typeof s.fx!=='object')s.fx={};if(s.fx.hap===undefined)s.fx.hap=1;if(s.fx.anim===undefined)s.fx.anim=1;return s.fx};
-const VER='2026.11.124';
+const VER='2026.11.125';
 /* ---------- لرزش و پاپ ---------- */
 const HAP=/^(qk_go|nx_go|nx_sw|pf_add|tp_ap|bin_rs|ex_save|ab_now|ql_|pm_|tm_|tstart|tfinish|hab|ob_log|ob_go|dnd_set|ls_now|dk_)/;
 const reduce=()=>{try{return matchMedia('(prefers-reduced-motion: reduce)').matches}catch(e){return false}};
@@ -19,6 +19,7 @@ st.textContent='@keyframes fxpop{0%{transform:scale(1)}40%{transform:scale(.92)}
 document.head.appendChild(st);
 /* ---------- چه چیزی تازه است ---------- */
 const WN=[
+ ['🎯','تمرکز در آکادمی: وقتی داخل درس، آزمون یا مرور فلش‌کارت هستی همهٔ شلوغی‌ها (Good morning، زبانه‌ها، منو) کنار می‌رود و فقط یک نوار باریک می‌ماند: ← برگشت، عنوان و پیشرفت، و ⋮ (نمایش منو، خروج از تمرکز، خاموش کردن). صورت سؤال را با 📌 بالای صفحه سنجاق کن تا موقع اسکرول ثابت بماند.','Academy focus: inside a lesson, exam or flashcard review everything else (Good morning, tabs, menu) is hidden and only a slim bar stays: ← Back, title/progress and ⋮ (show menu, leave focus, turn off). Pin the question stem with 📌 so it stays while you scroll.'],
  ['🧩','نمادها یکدست‌تر شدند: هر نمادی که تم برایش نماد اختصاصی ندارد حالا داخل قاب هم‌رنگ تم می‌آید و ریتم تم به‌هم نمی‌خورد. ست‌های نمادِ یکسان فقط یک‌بار نشان داده می‌شوند («استفاده در N تم»). هر آیتم تازهٔ منو خودکار در همهٔ تم‌ها وارد می‌شود. نمادهای اختصاصی کامل‌تر بعداً می‌آید.','Icons are now consistent: any icon a theme has no custom art for sits in a theme-coloured frame so the rhythm holds. Identical icon sets show once (“used in N themes”). Any new menu item joins all themes automatically. Fully custom icons come later.'],
  ['🛠','دو باگ رفع شد: (۱) در تنظیمات، با زدن روی یک گزینه (مثلاً انتخاب آهنگ) بخش/کارت دیگر جمع نمی‌شود و حالت باز/بسته‌ای که خودت گذاشتی می‌ماند. (۲) تم‌های روشن بدون پالت (کلاسیک، هیبرید) وقتی حالت برنامه تیره/خودکار است تیره می‌شدند و دکمه‌ی «روشن» برای آن‌ها اثر نداشت؛ حالا اثر دارد و برچسب «پیش‌فرض تم» درست است.','Two bugs fixed: (1) in Settings, tapping an option (e.g. picking a ringtone) no longer collapses the section — the open/closed state you chose is kept. (2) Light themes without their own palette (Classic, Hybrid) turned dark when the app mode was dark/auto and the “Light” button did nothing; it now works and the “theme default” label is accurate.'],
  ['🃏','مرور فلش‌کارت مثل انکی شد: شمارنده‌ی جدید/یادگیری/مرور، فاصله‌ی بعدی روی هر دکمه (دقیقه، روز، ماه)، «دوباره» همان روز برمی‌گردد، برگشت (↩)، پرچم و منوی ⋮. کارت لغت: اول فقط لغت و صدا، بعد IPA، معنی انگلیسی، فارسی، مثال. هیچ قابلیتی حذف نشد.','Flashcard review is now Anki-style: New/Learning/Review counters, next interval on every button, “Again” returns the same day, undo (↩), flag and a ⋮ menu. Word cards: word + audio first, then IPA, English meaning, Persian, examples. Nothing removed.'],
