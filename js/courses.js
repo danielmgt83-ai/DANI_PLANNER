@@ -446,6 +446,10 @@ function validatePack(P,existing){
   // ارجاع درس‌ها به فصل‌های تهی
   chap.forEach(c=>{if(c&&c.id&&!P.lessons.some(l=>l.chapterId===c.id)&&!(existing&&CR.cache.lessons.some(l=>l.courseId===existing.id&&l.chapterId===c.id)))W('فصل «'+c.id+'» هیچ درسی ندارد')});
   (P.flashcards||[]).forEach((f,i)=>{if(!f||!f.id||!f.q||!f.a)W('فلش‌کارت شماره‌ی '+(i+1)+': باید id، q و a داشته باشد');else if(f.lessonId&&!P.lessons.some(l=>l.id===f.lessonId)&&!(existing&&CR.cache.lessons.some(l=>l.id===f.lessonId)))W('فلش‌کارت «'+f.id+'»: lessonId ناشناخته است');else if(f&&f.lessonId&&(P.lessons.find(l=>l.id===f.lessonId)||{}).role==='aid')W('فلش‌کارت «'+f.id+'» روی درس کمکی (aid) است؛ کارت فقط برای محتوای امتحانی باشد')});
+  (P.flashcards||[]).forEach(f=>{if(!f||!f.id)return;const w=m=>W('فلش‌کارت «'+f.id+'»: '+m),st=(k,n)=>{if(f[k]!=null&&(typeof f[k]!=='string'||f[k].length>n))w(k+' باید متن حداکثر '+n+' نویسه باشد')};
+   st('ipa',80);st('pos',20);st('def',300);st('fa',200);
+   if(f.img!=null&&!(typeof f.img==='string'&&/^(https:\/\/[^\s"'<>]{4,500}|data:image\/(?:png|jpe?g|webp|gif);base64,[A-Za-z0-9+\/=]{20,60000})$/i.test(f.img)))w('img باید نشانی https یا data:image کوتاه باشد (فایل داخل assets پشتیبانی نمی‌شود)');
+   if(f.ex!=null){if(!Array.isArray(f.ex))w('ex باید آرایه‌ی {en,fa} باشد');else{if(f.ex.length>6)w('ex حداکثر ۶ مثال');f.ex.forEach(x=>{if(!x||typeof x!=='object'||typeof x.en!=='string'||!x.en.trim())w('هر مثال در ex باید en داشته باشد')})}}});
   return{errors:err,warnings:warn};
 }
 /* ---------- خواندن بسته از ZIP ---------- */

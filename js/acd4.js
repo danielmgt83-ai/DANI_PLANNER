@@ -193,10 +193,16 @@ function askPlace(cid){const C=CRq(),c=C&&C.ix.courses.get(cid);if(!c)return;con
 function placed(cid,name){try{const L=cols();if(L.some(c=>c.cids.includes(cid)))return;
  if(typeof name==='string'&&name.trim()){let k=L.find(c=>c.title===name.trim());if(!k){k={id:'k'+uid(),title:name.trim().slice(0,40),cids:[]};L.push(k)}k.cids.push(cid);zcommit();toast(T('درس در مجموعه‌ی «'+k.title+'» قرار گرفت','Placed in “'+k.title+'”'));return}
  setTimeout(()=>{if(!cols().some(c=>c.cids.includes(cid)))askPlace(cid)},500)}catch(e){console.error(e)}}
+const IMGOK=/^(https:\/\/[^\s"'<>]{4,500}|data:image\/(?:png|jpe?g|webp|gif);base64,[A-Za-z0-9+\/=]{20,60000})$/i,WK=['ipa','pos','def','fa','img','ex'];
+function wf(f){const o={},s=(v,n)=>S_(String(v==null?'':v),n).trim();f=f||{};
+ if(f.ipa&&s(f.ipa,80))o.ipa=s(f.ipa,80);if(f.pos&&s(f.pos,20))o.pos=s(f.pos,20);if(f.def&&s(f.def,300))o.def=s(f.def,300);if(f.fa&&s(f.fa,200))o.fa=s(f.fa,200);
+ if(f.img&&IMGOK.test(String(f.img).trim()))o.img=String(f.img).trim();
+ if(Array.isArray(f.ex)){const e=f.ex.slice(0,6).map(x=>x&&typeof x==='object'?{en:s(x.en,200),fa:s(x.fa,200)}:null).filter(x=>x&&x.en);if(e.length)o.ex=e}
+ return o}
 function zipCards(cid,list){const C=CRq(),A=zAX(),c=C.ix.courses.get(cid),t=todayISO();let n=0,u=0;
  (list||[]).forEach(f=>{if(!f||!f.q||!f.a||!f.id)return;const fid=cid+':'+f.id,q=S_(String(f.q),300),a=S_(String(f.a),600),l=f.lessonId&&C.ix.lessons.get(f.lessonId),lid=l?l.id:'';
-  const o=A.cards.find(x=>x.fid===fid);if(o){o.q=q;o.a=a;if(f.x)o.x=S_(String(f.x),200);if(lid)o.lid=lid;u++;return}
-  if(A.cards.length>=2000)return;A.cards.push({id:'c'+uid(),fid,deck:S_((c?c.title:cid)+(l?' › '+l.title:''),60),cid,lid,q,a,x:f.x?S_(String(f.x),200):undefined,ease:2.5,ivl:0,reps:0,lap:0,due:t,created:t,ag:''});n++});
+  const o=A.cards.find(x=>x.fid===fid);if(o){o.q=q;o.a=a;if(f.x)o.x=S_(String(f.x),200);WK.forEach(k=>delete o[k]);Object.assign(o,wf(f));if(lid)o.lid=lid;u++;return}
+  if(A.cards.length>=2000)return;A.cards.push({id:'c'+uid(),fid,deck:S_((c?c.title:cid)+(l?' › '+l.title:''),60),cid,lid,q,a,x:f.x?S_(String(f.x),200):undefined,...wf(f),ease:2.5,ivl:0,reps:0,lap:0,due:t,created:t,ag:''});n++});
  if(n||u){zcommit();toast(F(n)+' '+T('فلش‌کارت از فایل درس اضافه شد','flashcards added from the course file')+(u?' · '+F(u)+' '+T('به‌روز','updated'):''))}}
 H.acd4_ct=e=>{ui.ct[e.dataset.c]=e.dataset.k;rr()};
 H.acd4_goct=e=>{ui.ct[e.dataset.c]=e.dataset.k;const C=CRq();C.lessonId='';C.courseId=e.dataset.c;rr();window.scrollTo(0,0)};
@@ -328,5 +334,5 @@ H.acd4_mkc=e=>{const C=CRq(),c=C.ix.courses.get(e.dataset.c),it=fbItems(c)[+e.da
  const back=(tex?'$'+tex+'$':'')+(txt?(tex?' — ':'')+S_(txt,300):'');
  A.cards.push({id:'c'+uid(),fid,deck:S_((c.title||'')+' › '+l.title,60),cid:c.id,lid:l.id,q:S_(front,300),a:S_(back||nm,600),ease:2.5,ivl:0,reps:0,lap:0,due:t,created:t,ag:''});zcommit();toast(T('کارت ساخته شد','Card created'));rr()};
 try{API()&&API().mergeUndoInfo().then(i=>{ui.undo=!!i})}catch(e){}
-window.daniAcd4={xbuilder,xtoggle,tree,chapterInfo,lessonChip,lessonCards,stat,cols,groups,courseTabs,crumb,lessonExtra,myLinks,placed,zipCards,todayCard};
+window.daniAcd4={xbuilder,xtoggle,tree,chapterInfo,lessonChip,lessonCards,stat,cols,groups,courseTabs,crumb,lessonExtra,myLinks,placed,zipCards,todayCard,wf};
 })();
