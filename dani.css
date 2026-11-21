@@ -117,3 +117,12 @@ nav small.bi b{direction:ltr;unicode-bidi:isolate;display:block}nav small.bi i{d
 svg.ic.icfr .icfrm{stroke:var(--ac);stroke-width:1.25;fill:none;fill-opacity:1;opacity:.85}
 svg.ic.icfr .icfg{stroke-width:calc(var(--icw,1.7)*.85px)}
 svg.ic.icfr .icfg *{vector-effect:non-scaling-stroke}
+/* v162.3 — تمرکز در آکادمی */
+html[data-acf="1"] #hero,html[data-acf="1"] #atrow,html[data-acf="1"] #pgband,html[data-acf="1"] .acf-h{display:none!important}
+html[data-acf="1"][data-acfn="0"] #nav,html[data-acf="1"][data-acfn="0"] #mb{display:none!important}
+html[data-acf="1"][data-acfn="0"] .app{padding-bottom:12px!important}
+.acfbar{position:sticky;top:0;z-index:35;display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:8px 10px;margin:0 0 8px;background:var(--c);border:1px solid var(--b);border-radius:14px;box-shadow:0 4px 14px rgba(0,0,0,.18)}
+.acfb{min-height:38px;padding:6px 12px;font-weight:700}.acft{flex:1;min-width:0}.acft b{display:block;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.acft small{display:block;opacity:.7;font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.acfm{flex-basis:100%;display:flex;flex-wrap:wrap;gap:6px;padding-top:6px;border-top:1px solid var(--b)}
+.acf-on{margin:0 0 6px;text-align:end}
+.acf-pb{float:inline-end;margin:0 0 4px 6px}.acf-pin.on{position:sticky;top:64px;z-index:25;max-height:38vh;overflow:auto;background:var(--c);border-bottom:2px solid var(--ac);padding-bottom:6px}
