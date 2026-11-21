@@ -432,6 +432,18 @@ await test('تم روشنِ بدون پالت (کلاسیک/هیبرید) با �
  db.set.th='light';db.set.skin='dani';page='home';render();return o});
  if(!Object.values(r).every(Boolean))throw new Error(JSON.stringify(r))});
 
+await test('منبع واحد منو و نماد v162.2: ادغام ست‌های یکسان، قاب نماد، آیتم تازه خودکار',async pg=>{const r=await pg.evaluate(()=>{const o={},M=daniMenu;
+ const g=M.sets();o.dedupe=g.length<Object.keys(PK_IC).length&&g.length>=6;o.rep=M.repOf('aoe2')===M.repOf('aotW')&&M.repOf('aoe2')!=='aoe2'||M.repOf('aoe2')==='aoe2';
+ const icSets=daniLook3.icSets,icKey=daniLook3.icKey;const sets=icSets().filter(p=>p[0][0]==='t');o.chips=sets.length===g.length&&sets.some(p=>p[4]>1);
+ o.keys=M.keys().includes('today')&&M.keys().includes('plan2');o.miss=M.missing('itv2').length>=10&&!M.missing('itv2').includes('home');
+ const sv=Object.assign({},db.set.icx);db.set.icx={set:'itv2'};
+ o.framed=/icfr/.test(icon('today'))&&/icfr/.test(icon('home'))&&/icfrm/.test(icon('today'));
+ db.set.icx={fam:'std'};o.std=!/icfr/.test(icon('today'));
+ db.set.icx={set:'aoe2'};o.key=icKey({x:{set:'aoe2'}})==='t:'+M.repOf('aoe2');
+ ICONS.zz_new='<circle cx="12" cy="12" r="5"/>';db.set.icx={set:'itv2'};o.newItem=M.keys().includes('zz_new')&&M.missing('itv2').includes('zz_new')&&/icfr/.test(icon('zz_new'));delete ICONS.zz_new;
+ db.set.icx=sv;return o});
+ if(!Object.values(r).every(Boolean))throw new Error(JSON.stringify(r))});
+
 await test('منوی کشویی v157: زدن بیرون و دکمه‌ی برگشت آن را می‌بندد',async pg=>{const r=await pg.evaluate(async()=>{const o={},w=()=>new Promise(x=>setTimeout(x,250)),n=document.getElementById('nav');page='home';render();
  n.classList.add('o');await w();o.pushed=!!(history.state&&history.state.danimenu);
  document.querySelector('main').click();await w();o.out=!n.classList.contains('o');
