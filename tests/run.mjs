@@ -444,6 +444,33 @@ await test('منبع واحد منو و نماد v162.2: ادغام ست‌ها�
  db.set.icx=sv;return o});
  if(!Object.values(r).every(Boolean))throw new Error(JSON.stringify(r))});
 
+await test('تمرکز آکادمی v162.3: درس/آزمون/مرور تمام‌صفحه، برگشت، سنجاق، خاموش/روشن',async pg=>{const r=await pg.evaluate(async()=>{const o={},D=daniCourses,w=ms=>new Promise(x=>setTimeout(x,ms)),h=document.documentElement;
+ const Q=id=>({id,type:'single',difficulty:2,lessonIds:['fl1'],topicIds:['ta'],exam:'',src:'jozve',stem:'سؤال '+id,choices:[{id:'a',text:'x'},{id:'b',text:'y'}],answer:{choice:'a'},solution:'ح'});
+ const P={manifest:{format:'dani-course',templateVersion:D.version.template,contentVersion:'1.0'},course:{id:'fcs',title:'تمرکز',language:'fa',kind:'math',unit:'جلسه',chapters:[{id:'c1',title:'ج'}],topics:[{id:'ta',title:'الف'}]},lessons:[{id:'fl1',chapterId:'c1',title:'درس تمرکز',blocks:[{type:'p',text:'x'}],status:'approved',role:'core'}],questions:[Q('fq1'),Q('fq2'),Q('fq3')],flashcards:[],sources:[],sourceIds:new Set(),assets:new Map(),names:[],fileErrors:[]};
+ D.validatePack(P,null);D.normalizePack(P);await D.commitPack(P,D.planPack(P));
+ db.set.acf=1;page='acd';zMS.acd.tab='courses';D.state.tab='courses';D.state.courseId='fcs';D.state.lessonId='';render();await w(150);
+ o.list=h.dataset.acf==='0'&&!document.getElementById('acfbar');
+ H.crs_open({dataset:{c:'fcs',l:'fl1'}});await w(500);
+ o.lesson=h.dataset.acf==='1'&&!!document.getElementById('acfbar')&&/درس تمرکز/.test(document.getElementById('acfbar').textContent);
+ o.hidden=getComputedStyle(document.getElementById('hero')).display==='none'&&getComputedStyle(document.getElementById('nav')).display==='none';
+ H.acf_menu();o.menu=!!document.querySelector('#acfbar .acfm');H.acf_nav();o.navOn=getComputedStyle(document.getElementById('nav')).display!=='none';H.acf_nav();H.acf_menu();
+ H.acf_back();await w(300);o.back=D.state.lessonId===''&&h.dataset.acf==='0';
+ await D.startQuiz({courseId:'fcs',mode:'practice',count:3,ids:['fq1','fq2','fq3']});await w(500);
+ o.quiz=h.dataset.acf==='1'&&/سؤال/.test(document.getElementById('acfbar').textContent);
+ const stem=document.querySelector('.crs-stem');o.stem=!!stem&&!!stem.querySelector('.acf-pb')&&!stem.classList.contains('on');
+ H.acf_pin(stem.querySelector('.acf-pb'));o.pin=document.querySelector('.crs-stem').classList.contains('on')&&getComputedStyle(document.querySelector('.crs-stem')).position==='sticky';
+ H.acf_pin(document.querySelector('.crs-stem .acf-pb'));o.unpin=!document.querySelector('.crs-stem').classList.contains('on');
+ H.acf_back();await w(400);o.qback=!D.state.quiz&&h.dataset.acf==='0';
+ const A=zAX(),t=todayISO();A.cards.length=0;A.cards.push({id:'fc1',q:'a',a:'b',deck:'d',ease:2.5,ivl:0,reps:0,lap:0,due:t,created:t,ag:''});A.nl=20;
+ page='acd';zMS.acd.tab='cards';render();zMS.acd.tab='review';AR.show=false;render();await w(200);
+ o.review=h.dataset.acf==='1'&&/فلش/.test(document.getElementById('acfbar').textContent);
+ H.acf_back();await w(200);o.rback=zMS.acd.tab==='cards'&&h.dataset.acf==='0';
+ zMS.acd.tab='review';render();H.acf_exit();o.exit=h.dataset.acf==='0';
+ zMS.acd.tab='review';render();
+ H.acf_tog();await w(100);o.off=db.set.acf===0&&h.dataset.acf==='0'&&!!document.getElementById('acfon');H.acf_tog();await w(100);o.on2=db.set.acf===1&&h.dataset.acf==='1';
+ A.cards.length=0;page='home';render();o.cleanup=h.dataset.acf==='0';return o});
+ if(!Object.values(r).every(Boolean))throw new Error(JSON.stringify(r))});
+
 await test('منوی کشویی v157: زدن بیرون و دکمه‌ی برگشت آن را می‌بندد',async pg=>{const r=await pg.evaluate(async()=>{const o={},w=()=>new Promise(x=>setTimeout(x,250)),n=document.getElementById('nav');page='home';render();
  n.classList.add('o');await w();o.pushed=!!(history.state&&history.state.danimenu);
  document.querySelector('main').click();await w();o.out=!n.classList.contains('o');
