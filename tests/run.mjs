@@ -412,6 +412,26 @@ await test('مرور انکی‌وار v162: شمارنده، فاصله‌ها�
  A.cards.length=0;page='home';render();return o});
  const bad=Object.entries(r).filter(([k,v])=>v===false||(k==='l1'&&!/^</.test(String(v))));if(bad.length)throw new Error(JSON.stringify(r))});
 
+await test('تنظیمات v162: حالت باز/بسته‌ی بخش‌ها بعد از render می‌ماند (کلیک داخل کارت)',async pg=>{const r=await pg.evaluate(async()=>{const o={},w=ms=>new Promise(x=>setTimeout(x,ms));
+ window.daniSetSub='notif';window.daniSetFresh=1;stt='time';page='set';render();await w(300);
+ const ds=()=>[...document.querySelectorAll('#pg details')].filter(d=>d.dataset.nk||d.dataset.gk);
+ let d=ds().find(x=>x.dataset.nk);o.has=!!d;if(!d)return o;const k=d.dataset.nk,was=d.open;
+ d.querySelector(':scope>summary').click();await w(50);const want=!was;o.toggled=d.open===want;
+ render();await w(300);const d2=ds().find(x=>x.dataset.nk===k);o.kept=!!d2&&d2.open===want;
+ render();await w(300);o.kept2=ds().find(x=>x.dataset.nk===k).open===want;
+ const e=ds().find(x=>x.dataset.nk===k);e.querySelector(':scope>summary').click();await w(50);render();await w(300);o.back=ds().find(x=>x.dataset.nk===k).open===was;
+ page='home';render();return o});
+ if(!r.has||!r.toggled||!r.kept||!r.kept2||!r.back)throw new Error(JSON.stringify(r))});
+
+await test('تم روشنِ بدون پالت (کلاسیک/هیبرید) با حالت تیره‌ی برنامه: «روشن» اجباری کار می‌کند و برگشت درست است',async pg=>{const r=await pg.evaluate(async()=>{const o={},w=ms=>new Promise(x=>setTimeout(x,ms));
+ const bg=()=>getComputedStyle(document.body).backgroundColor,h=document.documentElement;
+ db.set.th='dark';db.set.skin='classic';db.set.skx={};page='day';render();await w(80);o.dkDefault=bg()==='rgb(14, 21, 34)';
+ db.set.skx={classic:{m:'light'}};render();await w(80);o.forcedLight=bg()==='rgb(244, 246, 251)'&&h.dataset.th==='light';
+ db.set.skin='mist';render();await w(80);o.other=h.dataset.th==='dark'&&!h.dataset.thx;
+ db.set.skin='classic';db.set.skx={};render();await w(80);o.back=bg()==='rgb(14, 21, 34)';
+ db.set.th='light';db.set.skin='dani';page='home';render();return o});
+ if(!Object.values(r).every(Boolean))throw new Error(JSON.stringify(r))});
+
 await test('منوی کشویی v157: زدن بیرون و دکمه‌ی برگشت آن را می‌بندد',async pg=>{const r=await pg.evaluate(async()=>{const o={},w=()=>new Promise(x=>setTimeout(x,250)),n=document.getElementById('nav');page='home';render();
  n.classList.add('o');await w();o.pushed=!!(history.state&&history.state.danimenu);
  document.querySelector('main').click();await w();o.out=!n.classList.contains('o');
