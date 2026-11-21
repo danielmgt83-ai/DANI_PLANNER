@@ -38,13 +38,14 @@ const reIcons=()=>{try{document.querySelectorAll('#nav a[data-p] .ic,#pg [data-a
   return r}}
 /* ---- فهرست مجموعه‌های آیکونِ واقعیِ تم‌ها ---- */
 const BASE=[['std','خطی استاندارد','Standard line',{x:{fam:'std'}}],['solid','توپُر','Solid',{x:{fam:'solid'}}],['emoji','ایموجی','Emoji',{x:{fam:'emoji'}}]];
-function icSets(){const ids=[...new Set([...Object.keys(typeof PK_IC!=='undefined'?PK_IC:{}).filter(k=>Object.keys(PK_IC[k]||{}).length>=6),...Object.keys(typeof ITU_IC!=='undefined'?ITU_IC:{})])].filter(k=>SKINS[k]);
- return[['','پیش‌فرض تم','Theme default',{}],...ids.map(k=>['t:'+k,SKINS[k].name,SKINS[k].name,{x:{set:k}}]),...BASE.map(b=>['f:'+b[0],b[1],b[2],b[3]])]}
-const icKey=ic=>{const x=(ic&&ic.x)||{};if(x.set)return't:'+x.set;if(!(ic&&ic.st)&&!x.fam&&!x.frame&&!x.col)return'';if(!(ic&&ic.st)&&x.fam&&!x.frame&&!x.col&&!x.soft)return'f:'+x.fam;return'*'};
+function icSets(){const g=window.daniMenu?daniMenu.sets():[];
+ return[['','پیش‌فرض تم','Theme default',{}],...g.map(o=>['t:'+o.rep,SKINS[o.rep].name,SKINS[o.rep].name,{x:{set:o.rep}},o.ids.length]),...BASE.map(b=>['f:'+b[0],b[1],b[2],b[3]])]}
+const icKey=ic=>{const x=(ic&&ic.x)||{};if(x.set)return't:'+(window.daniMenu?daniMenu.repOf(x.set):x.set);if(!(ic&&ic.st)&&!x.fam&&!x.frame&&!x.col)return'';if(!(ic&&ic.st)&&x.fam&&!x.frame&&!x.col&&!x.soft)return'f:'+x.fam;return'*'};
+window.daniLook3={icSets,icKey};
 function ipThumb(p,n){const o={st:db.set.icst,x:db.set.icx},x=Object.assign({},p[3].x||{});let h='';
  try{db.set.icst=p[3].st||'';db.set.icx=x;h=['day','plan2','pj','res','acd','set'].slice(0,n||6).map(k=>'<i class="ipi">'+icon(k)+'</i>').join('')}catch(e){}finally{db.set.icst=o.st;db.set.icx=o.x}
  return'<div class="ipv" style="--icw:1.7;'+((n||6)<6?'grid-template-columns:repeat('+n+',minmax(0,1fr))':'')+'">'+h+'</div>'}
-function iconsHTML(){const cur=icKey(snap().ic);return'<div class="strow2">'+icSets().map(p=>'<div class="stc2'+(cur===p[0]?' on':'')+'" role="button" tabindex="0" data-a="lk_ip" data-id="'+E(p[0])+'">'+ipThumb(p)+'<b>'+T(p[1],p[2])+'</b><span>'+(cur===p[0]?'✓ '+T('فعال','Active'):(p[0]&&p[0][0]==='t'?T('مجموعهٔ آیکون تم','Theme icon set'):''))+'</span></div>').join('')+'</div><p class="m">'+T('هر مجموعه فقط شکل آیکون‌ها را عوض می‌کند و روی هر تمی کار می‌کند. زیرش «استودیوی آیکون» برای قاب، رنگ و اندازه است.','A set only changes the icon shapes and works on any theme. Below it, Icon Studio sets frame, colour and size.')+'</p>'}
+function iconsHTML(){const cur=icKey(snap().ic);return'<div class="strow2">'+icSets().map(p=>'<div class="stc2'+(cur===p[0]?' on':'')+'" role="button" tabindex="0" data-a="lk_ip" data-id="'+E(p[0])+'">'+ipThumb(p)+'<b>'+T(p[1],p[2])+'</b><span>'+(cur===p[0]?'✓ '+T('فعال','Active'):(p[0]&&p[0][0]==='t'?T('مجموعهٔ آیکون تم','Theme icon set')+(p[4]>1?' · '+T('استفاده در '+p[4]+' تم','used in '+p[4]+' themes'):''):''))+'</span></div>').join('')+'</div><p class="m">'+T('هر مجموعه فقط شکل آیکون‌ها را عوض می‌کند و روی هر تمی کار می‌کند. زیرش «استودیوی آیکون» برای قاب، رنگ و اندازه است.','A set only changes the icon shapes and works on any theme. Below it, Icon Studio sets frame, colour and size.')+'</p>'}
 H.lk_ip=e=>{const p=icSets().find(x=>x[0]===e.dataset.id);if(!p)return;db.set.icst=p[3].st||'';db.set.icx=Object.assign({},p[3].x||{});if(save()){reIcons();render();try{decorateIcons()}catch(x){}toast(T('آیکون‌ها عوض شد','Icons changed'))}};
 H.lk_sec=e=>{ST.sec=e.dataset.v;render()};
 /* ---- فروشگاه ---- */
