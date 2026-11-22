@@ -128,7 +128,7 @@ await test('مرکز اعلان: همه‌ی کارت‌ها در ۵ بخش و �
   return JSON.stringify({ids,secs,perm,dup:document.querySelectorAll('#ntc').length})});
  const o=JSON.parse(r);ok(o.ids.length===0&&o.secs===5&&o.perm<=1&&o.dup===1,'نتیجه '+r)});
 await test('بسته‌های تم v161: بارگذاری بسته و تم (فایل)، خروجی، سابقه؛ استودیو و کارت تکراری رفته',async pg=>{const r=await pg.evaluate(async()=>{page='set';stt='look';window.daniSetSub='look';render();await new Promise(r=>setTimeout(r,300));render();await new Promise(r=>setTimeout(r,200));
-  const b=document.querySelector('.lk3p[data-p=lab]');if(!b)return 'no';return JSON.stringify([document.querySelectorAll('#pkcard').length,!!b.querySelector('[data-skthemefile]'),!!b.querySelector('[data-skexp]'),!!b.querySelector('[data-pkfile]'),!!b.querySelector('.lkhist'),!document.querySelector('#studiocard,#thmx')])});
+  const b=document.querySelector('.lk3p[data-p=lab]');if(!b)return 'no';return JSON.stringify([document.querySelectorAll('#pkcard').length,!!b.querySelector('[data-skthemefile]'),!!b.querySelector('[data-skexp]'),!!b.querySelector('[data-pkfile]'),!!b.querySelector('.lkhist'),!document.querySelector('#thmx')&&!!document.querySelector('.lk3p[data-p=cu] #studiocard')])});
  ok(r==='[1,true,true,true,true,true]','نتیجه '+r)});
 await test('منو و بخش‌ها / نمایش خانه: همه‌ی کنترل‌ها هست و هرکدام یک‌بار',async pg=>{const r=await pg.evaluate(async()=>{page='set';stt='look';render();await new Promise(r=>setTimeout(r,300));render();await new Promise(r=>setTimeout(r,200));
   const A={cm_mg:1,cm_mo:1,cm_ws:1,cm_fd:1,cm_fdr:1,lg_t:1,bd_all:1,bd_q:1,bd_pg:4,dk_on:1,dk_c:1};const bad=Object.keys(A).filter(a=>document.querySelectorAll('[data-a="'+a+'"]').length!==A[a]);
@@ -481,7 +481,7 @@ await test('منوی کشویی v157: زدن بیرون و دکمه‌ی برگ�
 await test('ظاهر و تم v160: سه زبانه، فروشگاه با پوشه‌ها، پیش‌نمایش، پیش‌فرض هر تم، سابقه و جابه‌جایی کارت‌ها',async pg=>{const r=await pg.evaluate(async()=>{const o={},w=()=>new Promise(x=>setTimeout(x,300));
  page='set';stt='look';window.daniSetSub='look';render();await w();
  o.tabs=[...document.querySelectorAll('#lk3 .lk3tabs .chip')].length===3;
- o.noOld=!document.getElementById('studiocard')&&!document.getElementById('mxcard')&&!document.getElementById('thmx')&&!document.querySelector('#lkmenu,#lkmy');
+ o.noOld=document.querySelectorAll('#studiocard').length===1&&!!document.querySelector('.lk3p[data-p=cu] #studiocard')&&!document.getElementById('mxcard')&&!document.getElementById('thmx')&&!document.querySelector('#lkmenu,#lkmy');
  o.grid=document.querySelectorAll('#lkthemes .skb[data-sk]').length>=20;
  const fh=document.querySelector('#lkthemes .uch-fh');if(fh){fh.click();await w()}
  o.folder=!fh||(document.querySelector('#lkthemes .uch-fbody:not([hidden]) .skb')!==null);
@@ -623,6 +623,12 @@ await test('v163.2: استودیوی نماد — تعویض و اندازه م�
  db.set.skin=A;render();await w(400);o.backA=db.set.icmap.home==='🦉'&&db.set.icsz===1.4;
  db.set.skin=B;render();await w(400);o.backB=db.set.icmap.home==='🐺'&&!db.set.icsz;
  return o});const bad=Object.entries(r).filter(([k,v])=>v!==true);if(bad.length)throw new Error('FAIL '+bad.map(b=>b[0]).join(','))});
+
+await test('v163.3: استودیوی تم در «سفارشی» در دسترس است (ساخت/ویرایش)',async pg=>{const r=await pg.evaluate(async()=>{const o={},w=ms=>new Promise(x=>setTimeout(x,ms));
+ db.set.skin='classic';page='set';stt='look';render();await w(400);H.lk3_p({dataset:{k:'cu'}});await w(300);
+ const pane=document.querySelector('#lk3 .lk3p[data-p=cu]');o.card=!!(pane&&pane.querySelector('#studiocard'));o.newBtn=!!(pane&&pane.querySelector('[data-a=st][data-m=new]'));
+ H.st({dataset:{m:'new'}});await w(400);const p2=document.querySelector('#lk3 .lk3p[data-p=cu]');o.form=!!(p2&&p2.querySelector('.stform'));
+ H.st({dataset:{m:'cancel'}});await w(200);return o});const bad=Object.entries(r).filter(([k,v])=>v!==true);if(bad.length)throw new Error('FAIL '+bad.map(b=>b[0]).join(','))});
 
 console.log('\n'+results.map(r=>r.join(' ')).join('\n')+'\n\n'+(results.length-fails)+' / '+results.length+' موفق');
 await browser.close();srv.close();process.exit(fails?1:0);
