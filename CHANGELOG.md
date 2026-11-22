@@ -2,6 +2,10 @@
 
 > هر تحویل یک خط در اینجا. جدیدترین بالا. (هوش مصنوعی‌ها: هر بار که فایلی را عوض می‌کنید، این‌جا یک خط بنویسید.)
 
+## (۱۶۹) v165 — شش کار کوچک پک (AI-PACK 1.4)
+- `courses.js`: `exprEval` با ln/log/log2/exp/pow/sin/cos/tan/asin/acos/atan/sind/cosd/tand/rad/deg و ثابت pi/e و √ و π؛ `numAny` (جواب هم‌ارز، در grade/validator/resolveQ)؛ `trap` روی سؤال و گزینه (`trapsOf`، خط 🪤 در feedback، `errors[].traps` و `trapLine` در دفترچه‌ی خطا)؛ `video:{url,t}` روی درس و سؤال (`vidBtn`، `chkVid` داخل validatePack).
+- `acd4.js` `wf`/`WK` و `cards2.js` (نمایش و فرم افزودن): split/syn/ant/fam/col/mn. سقف فلش‌کارت ۲۰۰۰→۶۰۰۰ (acd4/academy/extensions/i18n). تست v165. AI-PACK 1.4 (docs 02/03/06 + val.js).
+
 ## (۱۶۸) v164/164.1 — کارت منو + خروجی کامل تم
 - `js/menucard.js` (تازه): کارت `#menucard` در پنل `cu` (look3 آن را اول می‌گذارد). تنظیم هر تم در `db.set.skx[id].mn={sz,lb,w,hd,hide[]}`؛ `hide` فهرست سیاه است پس آیتم تازه‌ی NAV خودکار دیده می‌شود؛ home/day/set قفل‌اند. اندازه با `--nvs` و `zoom` روی `#nav a`؛ برچسب‌ها با `html[data-nvlb|nvw|nvhd]`. `apply()` بعد از `applySkin` و `render`.
 - `js/themefull.js` (تازه): `H.pk_full` / `daniThemeFull.build()` بستهٔ `dani-themepack` از تم فعلی می‌سازد (قاعده‌های CSS با `data-skin=ID` از CSSOM، آیکون‌ها، تصویرها→assets، جمله‌ها، و js/assets اصلی اگر تم بسته‌ی واردشده است). دکمه در بسته‌های تم (look3). تست‌های v164 و v164.1.

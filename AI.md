@@ -665,6 +665,7 @@ html[data-mx=1] فقط وقتی db.set.mx!==0 و تم ساده است (بدون 
 (v156) look3.js: فروشگاه/سفارشی/تم‌های من/استودیو؛ db.set.lay2 و db.set.prevTheme؛ applySkin توسط look3 پوشش داده می‌شود. قالب‌های بسته‌ای (آیکون+رنگ+منو) هنوز ساخته نشده‌اند.
 (v155.1) نام handler ها یکتا باشد (H.acd4_ren مجموعه؛ H.acd4_rn درس/فصل/مبحث). ❓ درس: .crs-lessonbar-ask درون‌صفحه، .crs-ask با انتخاب .crs-bq.sel.
 (v155) cards2.js: srsDue با سقف روزانه‌ی کارت جدید؛ کارت: x (مثال)، cloze {{…}}، TTS؛ فلش‌کارت ZIP می‌تواند x داشته باشد.
+(v165) courses.js: `numAny` (جواب هم‌ارز)، `trapsOf`/`trapLine`، `vidBtn`/`chkVid`؛ کارت لغت split/syn/ant/fam/col/mn در `wf`؛ سقف کارت ۶۰۰۰؛ AI-PACK 1.4.
 (v164.1) `themefull.js`: `daniThemeFull.build()`→{o,sum}؛ خروجی باید از `pkVet` بگذرد؛ تم داخلی js ندارد (کدش در js/theme-*.js است).
 (v164) `menucard.js`: `db.set.skx[id].mn={sz 70–140,lb ''|none|fa|en,w,hd:0,hide[]}`؛ `daniMenuCard.node()/apply()`؛ آیتم جدید NAV خودکار؛ شکل منو همچنان در پیش‌نمایش تم است.
 (v163.3) `#studiocard` را look3 در پنل `cu` نگه می‌دارد؛ هرگز حذفش نکن (قاعده: Theme Studio حذف نشود).
