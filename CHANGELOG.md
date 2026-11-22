@@ -2,6 +2,9 @@
 
 > هر تحویل یک خط در اینجا. جدیدترین بالا. (هوش مصنوعی‌ها: هر بار که فایلی را عوض می‌کنید، این‌جا یک خط بنویسید.)
 
+## (۱۷۰) v166 — صفحه‌ی ابزارها
+- `js/tools.js` (تازه): صفحه‌ی `tools` (آیتم منو بعد از plan2 با wrapper روی `syncNav`، `BI_NAV/ICONS/EXT_PAGES`). سه ابزار: مسیر روشن (`daniClearPath.card()` تازه‌صادرشده از clearpath.js)، آیزنهاور (`db.set.tls.ei`، افزودن از `zDL().items`، `planSend`)، قانون ۲ دقیقه (`db.set.tls.two`، تایمر ۲ دقیقه‌ای). `DANI_SECS.wp` روی خانه به چیپ کوچک «ابزارها» تبدیل شد. بلوک زمانی جدا ساخته نشد (خط زمانی روز). تست v166.
+
 ## (۱۶۹) v165 — شش کار کوچک پک (AI-PACK 1.4)
 - `courses.js`: `exprEval` با ln/log/log2/exp/pow/sin/cos/tan/asin/acos/atan/sind/cosd/tand/rad/deg و ثابت pi/e و √ و π؛ `numAny` (جواب هم‌ارز، در grade/validator/resolveQ)؛ `trap` روی سؤال و گزینه (`trapsOf`، خط 🪤 در feedback، `errors[].traps` و `trapLine` در دفترچه‌ی خطا)؛ `video:{url,t}` روی درس و سؤال (`vidBtn`، `chkVid` داخل validatePack).
 - `acd4.js` `wf`/`WK` و `cards2.js` (نمایش و فرم افزودن): split/syn/ant/fam/col/mn. سقف فلش‌کارت ۲۰۰۰→۶۰۰۰ (acd4/academy/extensions/i18n). تست v165. AI-PACK 1.4 (docs 02/03/06 + val.js).
