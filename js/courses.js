@@ -505,6 +505,10 @@ function validatePack(P,existing){
   // ارجاع درس‌ها به فصل‌های تهی
   chap.forEach(c=>{if(c&&c.id&&!P.lessons.some(l=>l.chapterId===c.id)&&!(existing&&CR.cache.lessons.some(l=>l.courseId===existing.id&&l.chapterId===c.id)))W('فصل «'+c.id+'» هیچ درسی ندارد')});
   (P.flashcards||[]).forEach((f,i)=>{if(!f||!f.id||!f.q||!f.a)W('فلش‌کارت شماره‌ی '+(i+1)+': باید id، q و a داشته باشد');else if(f.lessonId&&!P.lessons.some(l=>l.id===f.lessonId)&&!(existing&&CR.cache.lessons.some(l=>l.id===f.lessonId)))W('فلش‌کارت «'+f.id+'»: lessonId ناشناخته است');else if(f&&f.lessonId&&(P.lessons.find(l=>l.id===f.lessonId)||{}).role==='aid')W('فلش‌کارت «'+f.id+'» روی درس کمکی (aid) است؛ کارت فقط برای محتوای امتحانی باشد')});
+  {const rg=P.course&&P.course.reviewGroups;if(rg!=null){if(!Array.isArray(rg))W('course.json: reviewGroups باید فهرست {id,title,lessonIds?} باشد');else{const gi=new Set();rg.forEach(g=>{if(!g||typeof g.id!=='string'||!g.id||g.id.length>40||!g.title){W('reviewGroups: هر گروه id (حداکثر ۴۰ نویسه) و title می‌خواهد');return}if(gi.has(g.id))W('reviewGroups: id تکراری «'+g.id+'»');gi.add(g.id);if(g.lessonIds!=null&&(!Array.isArray(g.lessonIds)||g.lessonIds.some(x=>!P.lessons.some(l=>l.id===x))))W('reviewGroups «'+g.id+'»: lessonIds باید شناسه‌ی درس‌های همین بسته باشد')});
+   (P.flashcards||[]).forEach(f=>{if(f&&Array.isArray(f.groups)&&f.groups.some(x=>!gi.has(x)))W('فلش‌کارت «'+f.id+'»: groups به گروهی اشاره می‌کند که در reviewGroups نیست')})}}
+   const nl=(P.flashcards||[]).filter(f=>f&&f.id&&!f.lessonId).length;if(nl)W(nl+' فلش‌کارت lessonId ندارد؛ فلش‌کارت باید به درس خودش وصل باشد تا بعد از مطالعه‌ی آن درس در مرور بیاید');
+   const tc=(P.flashcards||[]).filter(f=>f&&typeof f.q==='string'&&(f.q.length>220||/(حل کن|محاسبه کن|به دست آور|calculate|solve|compute)/i.test(f.q))).length;if(tc)W(tc+' فلش‌کارت شبیه سؤال تدریس/حل‌کردنی است؛ فلش‌کارت فقط برای سنجش (تعریف، معنی، مفهوم کوتاه) است و سؤال حل‌کردنی باید در questions برود')}
   (P.flashcards||[]).forEach(f=>{if(!f||!f.id)return;const w=m=>W('فلش‌کارت «'+f.id+'»: '+m),st=(k,n)=>{if(f[k]!=null&&(typeof f[k]!=='string'||f[k].length>n))w(k+' باید متن حداکثر '+n+' نویسه باشد')};
    st('ipa',80);st('pos',20);st('def',300);st('fa',200);st('split',100);st('syn',150);st('ant',150);st('fam',200);st('col',200);st('mn',300);
    if(f.img!=null&&!(typeof f.img==='string'&&/^(https:\/\/[^\s"'<>]{4,500}|data:image\/(?:png|jpe?g|webp|gif);base64,[A-Za-z0-9+\/=]{20,60000})$/i.test(f.img)))w('img باید نشانی https یا data:image کوتاه باشد (فایل داخل assets پشتیبانی نمی‌شود)');
@@ -605,7 +609,7 @@ async function commitPack(P,pl){
   CR.assetCourse='';
   await crLoad();
   try{await reapplyRen(C.id)}catch(e){console.error(e)}
-  try{if(window.daniAcd4){if(P.flashcards&&P.flashcards.length)window.daniAcd4.zipCards(C.id,P.flashcards);window.daniAcd4.placed(C.id,P.manifest.collection)}}catch(e){console.error(e)}
+  try{if(window.daniAcd4){if(P.flashcards&&P.flashcards.length)window.daniAcd4.zipCards(C.id,P.flashcards,P.course&&P.course.reviewGroups);window.daniAcd4.placed(C.id,P.manifest.collection)}}catch(e){console.error(e)}
 }
 async function deleteCourse(id,withUser){
   const stores=[...COURSE_STORES,...(withUser?USER_STORES:[])];

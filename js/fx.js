@@ -6,7 +6,7 @@
 (function(){
 const T=window.daniT;
 const FX=()=>{const s=db.set;if(!s.fx||typeof s.fx!=='object')s.fx={};if(s.fx.hap===undefined)s.fx.hap=1;if(s.fx.anim===undefined)s.fx.anim=1;return s.fx};
-const VER='2026.11.131';
+const VER='2026.11.132';
 /* ---------- لرزش و پاپ ---------- */
 const HAP=/^(qk_go|nx_go|nx_sw|pf_add|tp_ap|bin_rs|ex_save|ab_now|ql_|pm_|tm_|tstart|tfinish|hab|ob_log|ob_go|dnd_set|ls_now|dk_)/;
 const reduce=()=>{try{return matchMedia('(prefers-reduced-motion: reduce)').matches}catch(e){return false}};
@@ -19,6 +19,7 @@ st.textContent='@keyframes fxpop{0%{transform:scale(1)}40%{transform:scale(.92)}
 document.head.appendChild(st);
 /* ---------- چه چیزی تازه است ---------- */
 const WN=[
+ ['🔁','مرور تازه شد: کارتِ هر مبحث فقط بعد از باز/مطالعه‌کردن همان درس در مرور می‌آید. بالای مرور می‌توانی محدوده را انتخاب کنی: همه‌ی بازشده‌ها، یک دوره، یک مبحث (حتی کارت‌های موعدنرسیده)، یا «بسته‌ی پیشنهادی سازنده». آخر هر درس بخش «خودت را بسنج» هست. سازنده‌ی پک می‌تواند گروه مرور بسازد.','Review reworked: a topic\'s cards only enter review after you open/study that lesson. Pick the scope on top: all opened, a course, a topic (even cards not yet due) or a builder-suggested pack. Every lesson ends with «Test yourself». Pack builders can define review groups.'],
  ['🧰','آیتم تازه‌ی منو «Tools / ابزارها» (بعد از «برنامه»): مسیر روشن (از صفحه‌ی خانه به اینجا آمد؛ روی خانه فقط یک چیپ کوچک مانده که پنهان‌شدنی است)، ماتریس آیزنهاور (چهار خانه، افزودن از موعدها، فرستادن به برنامه‌ی امروز) و قانون ۲ دقیقه (تایمر؛ کار بزرگ‌تر به آیزنهاور می‌رود). با «Menu / منو» می‌توانی این آیتم را پنهان کنی.','New menu item «Tools» (after Plan): Clear Path (moved off Home, a small hideable chip stays), Eisenhower matrix (four boxes, add from deadlines, send to today\'s plan) and the 2-minute rule (timer; longer tasks go to Eisenhower). You can hide the item from the Menu card.'],
  ['🧮','پک آموزشی: (۱) در متغیرها و پاسخ عددی حالا ln، log، sin، cos، tan، exp، pow، pi، e و √ هم کار می‌کند؛ (۲) جواب هم‌ارز پذیرفته می‌شود (۲/√۳ همان ۱٫۱۵۴۷ است)؛ (۳) برچسب «تله» روی سؤال و گزینه: بعد از اشتباه دیده می‌شود و در دفترچه‌ی خطا شمرده می‌شود؛ (۴) کارت لغت: اجزا، مترادف، متضاد، خانواده، هم‌نشین، یادیار؛ (۵) سقف فلش‌کارت ۶۰۰۰ شد؛ (۶) درس و سؤال می‌توانند دکمه‌ی ویدیو با زمان شروع داشته باشند.','Course packs: (1) ln, log, sin, cos, tan, exp, pow, pi, e and √ work in variables and numeric answers; (2) equivalent answers are accepted (2/√3 equals 1.1547); (3) a «trap» tag on questions and choices shows after a mistake and is counted in the error notebook; (4) word cards: parts, synonyms, antonyms, family, collocations, memory aid; (5) flashcard cap is now 6000; (6) lessons and questions can have a video button with a start time.'],
  ['☰','کارت «Menu / منو» در «ظاهر و تم ← سفارشی»: اندازه‌ی منو (٧٠ تا ١۴٠٪ مثل دکمه‌ی راهنما)، برچسب زیر آیتم (فارسی + English / فقط یکی / بدون برچسب)، متن ضخیم، پنهان‌کردن سربرگ و پنهان/نمایان‌کردن آیتم‌ها. همه‌چیز جدا برای هر تم است و آیتم تازه‌ی منو خودکار نمایان می‌شود. «خانه» و «تنظیمات» همیشه می‌مانند.','New «Menu» card in Theme ← Customize: menu size (70–140%, like the help button), label under item (both / one language / none), bold text, hide header and hide/show items. Everything is per theme and new menu items appear automatically; Home and Settings always stay.'],

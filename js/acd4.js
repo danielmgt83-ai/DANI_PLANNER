@@ -104,11 +104,11 @@ function tree(){const C=CRs();if(!C)return'';const cs=C.cache.courses,used=new S
 function chapterInfo(cid,ch,ls){const st=stat(cid,new Set(ls.map(l=>l.id)));return'<div class="m" style="margin:4px 0">'+chip(st.p)+' '+F(st.total)+' '+T('سؤال','questions')+'</div>'}
 function lessonChip(l){const st=stat(l.courseId,new Set([l.id])),n=cardsOf(c=>c.lid===l.id).length,aid=l.role==='aid'?' <span class="m" title="'+T('فقط برای فهم؛ سؤال و کارت ندارد','Understanding only; no questions or cards')+'">💡 '+T('کمکی','aid')+'</span>':'';if(st.p==null&&!n)return aid;return' <span class="m">'+(st.p==null?'':chip(st.p))+(n?' 🃏'+F(n):'')+'</span>'+aid}
 function lessonCards(l){const cs=cardsOf(c=>c.lid===l.id),t=todayISO(),due=cs.filter(c=>c.due<=t).length;
- return'<div class="c a4cards"><h3>'+T('فلش‌کارت‌های این مبحث','Flashcards of this topic')+'</h3>'
+ return(cs.length?'<div class="c a4self" style="border:1px dashed var(--ac,#7db0ff)"><h3>'+window.daniH('🧪','خودت را بسنج','Test yourself')+'</h3><p class="m">'+T('بدون نگاه‌کردن به درس بگو؛ بعد پاسخ را ببین و خودت نمره بده.','Answer without looking at the lesson, then check and rate yourself.')+' ('+F(cs.length)+' '+T('کارت','cards')+')</p><button class="p" data-a="rv_self" data-l="'+E(l.id)+'">▶ '+T('شروع','Start')+'</button></div>':'')+'<div class="c a4cards"><h3>'+T('فلش‌کارت‌های این مبحث','Flashcards of this topic')+'</h3>'
   +'<div class="m">'+F(cs.length)+' '+T('کارت','cards')+(due?' · <b>'+F(due)+'</b> '+T('برای مرور امروز','due today'):'')+'</div>'
   +(cs.length?cs.slice(0,30).map(c=>'<div class="cwr"><span dir="auto"><b>'+E(S_(c.q,100))+'</b> <span class="m">'+E(S_(c.a,120))+'</span></span><button class="d" data-a="acd4_delc" data-id="'+E(c.id)+'">✕</button></div>').join(''):'')
   +'<label>'+T('افزودن گروهی (هر خط: پرسش | پاسخ)','Add cards (one per line: question | answer)')+'</label><textarea id="a4-b" rows="3" dir="auto" placeholder="ephemeral | زودگذر"></textarea>'
-  +'<div class="row"><button class="p" data-a="acd4_addc" data-l="'+E(l.id)+'">'+T('افزودن کارت‌ها','Add cards')+'</button>'+(due?'<button data-a="acd4_rev">'+T('مرور امروز','Review now')+'</button>':'')+'</div></div>'}
+  +'<div class="row"><button class="p" data-a="acd4_addc" data-l="'+E(l.id)+'">'+T('افزودن کارت‌ها','Add cards')+'</button>'+'</div></div>'}
 
 /* ---- رویدادها ---- */
 const rr=()=>{try{render()}catch(e){console.error(e)}};
@@ -199,10 +199,12 @@ function wf(f){const o={},s=(v,n)=>S_(String(v==null?'':v),n).trim();f=f||{};
  if(f.img&&IMGOK.test(String(f.img).trim()))o.img=String(f.img).trim();
  if(Array.isArray(f.ex)){const e=f.ex.slice(0,6).map(x=>x&&typeof x==='object'?{en:s(x.en,200),fa:s(x.fa,200)}:null).filter(x=>x&&x.en);if(e.length)o.ex=e}
  return o}
-function zipCards(cid,list){const C=CRq(),A=zAX(),c=C.ix.courses.get(cid),t=todayISO();let n=0,u=0;
+function zipCards(cid,list,rgl){const C=CRq(),A=zAX(),c=C.ix.courses.get(cid),t=todayISO();let n=0,u=0;
+ if(Array.isArray(rgl)){if(!A.rg||typeof A.rg!=='object'||Array.isArray(A.rg))A.rg={};A.rg[cid]=rgl.filter(g=>g&&typeof g.id==='string'&&g.id.length<=40).slice(0,30).map(g=>({id:g.id,t:S_(String(g.title||g.id),60),en:g.en?S_(String(g.en),60):'',l:Array.isArray(g.lessonIds)?g.lessonIds.filter(x=>typeof x==='string').slice(0,200):[]}))}
+ const gOf=f=>Array.isArray(f.groups)?f.groups.filter(x=>typeof x==='string'&&x.length<=40).slice(0,8):undefined;
  (list||[]).forEach(f=>{if(!f||!f.q||!f.a||!f.id)return;const fid=cid+':'+f.id,q=S_(String(f.q),300),a=S_(String(f.a),600),l=f.lessonId&&C.ix.lessons.get(f.lessonId),lid=l?l.id:'';
-  const o=A.cards.find(x=>x.fid===fid);if(o){o.q=q;o.a=a;if(f.x)o.x=S_(String(f.x),200);WK.forEach(k=>delete o[k]);Object.assign(o,wf(f));if(lid)o.lid=lid;u++;return}
-  if(A.cards.length>=6000)return;A.cards.push({id:'c'+uid(),fid,deck:S_((c?c.title:cid)+(l?' › '+l.title:''),60),cid,lid,q,a,x:f.x?S_(String(f.x),200):undefined,...wf(f),ease:2.5,ivl:0,reps:0,lap:0,due:t,created:t,ag:''});n++});
+  const o=A.cards.find(x=>x.fid===fid);if(o){o.q=q;o.a=a;if(f.x)o.x=S_(String(f.x),200);WK.forEach(k=>delete o[k]);Object.assign(o,wf(f));if(lid)o.lid=lid;const g0=gOf(f);if(g0&&g0.length)o.g=g0;else delete o.g;u++;return}
+  if(A.cards.length>=6000)return;A.cards.push({id:'c'+uid(),fid,deck:S_((c?c.title:cid)+(l?' › '+l.title:''),60),cid,lid,q,a,x:f.x?S_(String(f.x),200):undefined,g:(gOf(f)&&gOf(f).length)?gOf(f):undefined,...wf(f),ease:2.5,ivl:0,reps:0,lap:0,due:t,created:t,ag:''});n++});
  if(n||u){zcommit();toast(F(n)+' '+T('فلش‌کارت از فایل درس اضافه شد','flashcards added from the course file')+(u?' · '+F(u)+' '+T('به‌روز','updated'):''))}}
 H.acd4_ct=e=>{ui.ct[e.dataset.c]=e.dataset.k;rr()};
 H.acd4_goct=e=>{ui.ct[e.dataset.c]=e.dataset.k;const C=CRq();C.lessonId='';C.courseId=e.dataset.c;rr();window.scrollTo(0,0)};
