@@ -630,5 +630,22 @@ await test('v163.3: استودیوی تم در «سفارشی» در دسترس 
  H.st({dataset:{m:'new'}});await w(400);const p2=document.querySelector('#lk3 .lk3p[data-p=cu]');o.form=!!(p2&&p2.querySelector('.stform'));
  H.st({dataset:{m:'cancel'}});await w(200);return o});const bad=Object.entries(r).filter(([k,v])=>v!==true);if(bad.length)throw new Error('FAIL '+bad.map(b=>b[0]).join(','))});
 
+await test('v164: کارت منو — اندازه، برچسب، پنهان‌کردن آیتم، جدا برای هر تم، آیتم تازه خودکار',async pg=>{const r=await pg.evaluate(async()=>{const o={},w=ms=>new Promise(x=>setTimeout(x,ms));
+ db.set.skin='classic';page='set';stt='look';render();await w(400);H.lk3_p({dataset:{k:'cu'}});await w(300);
+ const pane=document.querySelector('#lk3 .lk3p[data-p=cu]');o.card=!!(pane&&pane.querySelector('#menucard'));o.slider=!!(pane&&pane.querySelector('#menucard [data-mnr=sz]'));
+ const sl=document.querySelector('#menucard [data-mnr=sz]');sl.value='120';sl.dispatchEvent(new Event('input',{bubbles:true}));sl.dispatchEvent(new Event('change',{bubbles:true}));
+ o.size=getComputedStyle(document.documentElement).getPropertyValue('--nvs').trim()==='1.2';o.saved=db.set.skx.classic.mn.sz===120;
+ H.mn_set({dataset:{k:'lb',v:'none'}});o.lbNone=document.documentElement.dataset.nvlb==='none';
+ H.mn_set({dataset:{k:'hide',v:'dl'}});o.hid=document.getElementById('nvm-hide').textContent.indexOf('data-p="dl"')>=0;
+ H.mn_set({dataset:{k:'hide',v:'home'}});H.mn_set({dataset:{k:'hide',v:'set'}});o.prot=document.getElementById('nvm-hide').textContent.indexOf('"home"')<0&&document.getElementById('nvm-hide').textContent.indexOf('"set"')<0;
+ db.set.skin='eren';applySkin();o.perTheme=!document.documentElement.dataset.nvlb&&!document.documentElement.style.getPropertyValue('--nvs');
+ db.set.skin='classic';applySkin();o.back=document.documentElement.dataset.nvlb==='none';
+ NAV.push(['zz_new','تازه']);o.auto=document.getElementById('nvm-hide').textContent.indexOf('zz_new')<0;NAV.pop();
+ H.mn_reset();o.reset=!document.documentElement.dataset.nvlb&&!document.documentElement.style.getPropertyValue('--nvs');
+ return o});const bad=Object.entries(r).filter(([k,v])=>v!==true);if(bad.length)throw new Error('FAIL '+bad.map(b=>b[0]).join(','))});
+
+await test('v164.1: خروجی کامل تم — بستهٔ معتبر با css/آیکون/تصویر برای همه‌ی تم‌ها',async pg=>{const r=await pg.evaluate(async()=>{const bad=[];let withCss=0;for(const id of Object.keys(SKINS)){db.set.skin=id;applySkin();const{o}=await daniThemeFull.build();const e=pkVet(o);if(e)bad.push(id+':'+e);if(o.css)withCss++;if(o.format!=='dani-themepack'||SK_BUILTIN.has(o.id))bad.push(id+':id')}
+ return{bad,withCss,btn:typeof H.pk_full==='function'}});if(r.bad.length)throw new Error(r.bad.join(' | '));if(!r.btn||r.withCss<5)throw new Error('no export '+JSON.stringify(r))});
+
 console.log('\n'+results.map(r=>r.join(' ')).join('\n')+'\n\n'+(results.length-fails)+' / '+results.length+' موفق');
 await browser.close();srv.close();process.exit(fails?1:0);
