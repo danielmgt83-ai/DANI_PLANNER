@@ -665,6 +665,8 @@ html[data-mx=1] فقط وقتی db.set.mx!==0 و تم ساده است (بدون 
 (v156) look3.js: فروشگاه/سفارشی/تم‌های من/استودیو؛ db.set.lay2 و db.set.prevTheme؛ applySkin توسط look3 پوشش داده می‌شود. قالب‌های بسته‌ای (آیکون+رنگ+منو) هنوز ساخته نشده‌اند.
 (v155.1) نام handler ها یکتا باشد (H.acd4_ren مجموعه؛ H.acd4_rn درس/فصل/مبحث). ❓ درس: .crs-lessonbar-ask درون‌صفحه، .crs-ask با انتخاب .crs-bq.sel.
 (v155) cards2.js: srsDue با سقف روزانه‌ی کارت جدید؛ کارت: x (مثال)، cloze {{…}}، TTS؛ فلش‌کارت ZIP می‌تواند x داشته باشد.
+(v163.2) icmap و icsz مال هر تم‌اند (`db.set.skx[id].ic.{map,sz}` با `restore()` در look3.js)؛ فهرست تعویض آیکون از `daniMenu.keys()`.
+(v163.1) ادغام درس‌ها فقط در vManage (`daniAcd4.mergeCard`)؛ snapshot چندتایی `meta.mg_*`؛ `api.mergeList/undoMerge(key)`.
 (v163) courses.js: question.type cloze|place|ds؛ course.passages/exams/slots؛ q.passageId/hints/timeSec/vars (`{{a}}`، `exprEval` امن)؛ `QR(q,it)` سؤال را با seed می‌گشاید و باید قبل از grade/stem/qInput صدا زده شود؛ `groupPass` سؤال‌های هم‌متن را کنار هم می‌گذارد.
 (v162.3) focus.js: تمرکز آکادمی (`daniFocus.mode()`، `data-acf`، `#acfbar`، `db.set.acf`)؛ سنجاق با کلاس `.acf-pin` + `data-pid` (متن مشترک سؤال‌ها در گام بعد). ترتیب: courses ← cards2 ← menureg ← look3 ← focus ← keepopen ← boot.
 (v162.2) menureg.js: `daniMenu` منبع واحد کلیدهای منو/نماد؛ هر آیتم تازه در ICONS/NAV خودکار در همهٔ تم‌ها دیده می‌شود. icon() در themes-engine برای ست‌های تم قاب `icfr` می‌گذارد. look3.js: `icSets` گروه‌بندی‌شده، `daniLook3.{icSets,icKey}`. ترتیب بارگذاری: themes-engine ← menureg ← look3.

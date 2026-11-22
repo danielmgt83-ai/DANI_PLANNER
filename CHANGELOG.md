@@ -2,6 +2,11 @@
 
 > هر تحویل یک خط در اینجا. جدیدترین بالا. (هوش مصنوعی‌ها: هر بار که فایلی را عوض می‌کنید، این‌جا یک خط بنویسید.)
 
+## (۱۶۶) v163.1/163.2 — ادغام در ورود و مدیریت + استودیوی نماد
+- `acd4.js`: `mergeCard()` از `tree()` (یادگیری) برداشته شد و `vManage` در courses.js آن را می‌آورد. تاریخچه‌ی ادغام (`ui.mh` از `api.mergeList()`): تغییر نام (`renameItem('c')`)، افزودن درس (`doMerge` با newId در srcIds)، برگشت هر ادغام (`undoMerge(key)`؛ اگر ادغام بعدی از نتیجه‌اش استفاده کرده رد می‌شود). `zAC().mgh[key]` فقط پیوند کارت‌ها را نگه می‌دارد.
+- `courses.js`: snapshot ها با کلید `mg_<id>` و `titles`، نگه‌داری ۸ تای اخیر؛ `mergeList`.
+- `look3.js`: `snap/restore` حالا `icmap` و `icsz` را هم برای هر تم نگه می‌دارد. `iconswap.js`: فهرست از `daniMenu.keys()`. `dani.css`: `span.ic.icem` هم zoom می‌گیرد. تست‌های تازه v163.1 و v163.2.
+
 ## (۱۶۵) v163 — سؤال‌های آموزشی: متن مشترک، کلوز، جای‌گذاری، ds، راهنما، زمان، آزمون، اسلات، متغیر
 - `courses.js`: انواع تازه `cloze` (blanks + `{{n}}` در stem)، `place` (slots + answer.pos)، `ds` (۵ گزینه‌ی ثابت + statements)؛ `course.passages` + `q.passageId` (سؤال‌های هم‌متن کنار هم می‌آیند، `.crs-pass.acf-pin` در تمرکز سنجاق است)؛ `q.hints` (راهنمای مرحله‌ای، فقط تمرین)، `q.timeSec` (شبیه‌ساز کنکور مدت را از آن می‌سازد)؛ `course.exams` [{name,year,minutes,penalty}]؛ `course.slots` (درس «به‌زودی»)؛ `q.vars` با `{{a}}`/`{{=a*2}}` و تجزیه‌گر امن `exprEval` (بدون eval؛ seed در `it.seed`).
 - `buildCourseZip` حالا kind/unit/paths/passages/exams/slots را هم خروجی می‌دهد. اعتبارسنج برای همه‌ی این‌ها خطا/هشدار دارد. تست تازه. بسته‌ی AI-PACK به‌روز شد.
