@@ -20,10 +20,12 @@ const effDark=s=>!!s.dark||(!((s.vars||{}).bg)&&canMode(s)&&appDark());
 const ownMenu=s=>{const m=MENUS.find(x=>x[0]===s.lay);return m?T(m[1],m[2]):T('کناری','Side')};
 /* ---- تنظیمات هر تم جدا (skx) و همگام‌سازی با «سراسری‌های» فعلی (lay2 / icst / icx) ---- */
 const SKX=()=>{const S=db.set;if(!S.skx||typeof S.skx!=='object'||Array.isArray(S.skx))S.skx={};return S.skx};
-const snap=()=>({lay:db.set.lay2||'',ic:{st:db.set.icst||'',x:Object.assign({},db.set.icx||{})}});
+const snap=()=>({lay:db.set.lay2||'',ic:{st:db.set.icst||'',x:Object.assign({},db.set.icx||{}),map:Object.assign({},db.set.icmap||{}),sz:db.set.icsz||0}});
+/* v163.2: تعویض تک‌تک آیکون‌ها (icmap) و اندازه‌ی آیکون (icsz) هم مال هر تم‌اند و بین تم‌ها نمی‌پرند */
+const restore=o=>{const S=db.set,i=(o&&o.ic)||{};S.lay2=(o&&o.lay)||'';S.icst=i.st||'';S.icx=Object.assign({},i.x||{});S.icmap=Object.assign({},i.map||{});if(i.sz)S.icsz=i.sz;else delete S.icsz};
 function sync(){try{const S=db.set,id=skId(),X=SKX();
- if(S._sk===undefined){if(S.lay2||S.icst||(S.icx&&Object.keys(S.icx).some(k=>S.icx[k])))X[id]=Object.assign({},X[id],snap());S._sk=id;return false}
- if(S._sk!==id){if(S._sk&&SKINS[S._sk])X[S._sk]=Object.assign({},X[S._sk],snap());S._sk=id;const o=X[id]||{};S.lay2=o.lay||'';S.icst=(o.ic&&o.ic.st)||'';S.icx=Object.assign({},(o.ic&&o.ic.x)||{});return true}}catch(e){console.error('look3 sync',e)}return false}
+ if(S._sk===undefined){if(S.lay2||S.icst||(S.icmap&&Object.keys(S.icmap).length)||S.icsz||(S.icx&&Object.keys(S.icx).some(k=>S.icx[k])))X[id]=Object.assign({},X[id],snap());S._sk=id;return false}
+ if(S._sk!==id){if(S._sk&&SKINS[S._sk])X[S._sk]=Object.assign({},X[S._sk],snap());S._sk=id;restore(X[id]);return true}}catch(e){console.error('look3 sync',e)}return false}
 const reIcons=()=>{try{document.querySelectorAll('#nav a[data-p] .ic,#pg [data-a="tab"][data-k] .ic').forEach(el=>el.remove());window.daniIconStyle&&daniIconStyle.apply()}catch(x){}};
 {const _as=applySkin;applySkin=function(){
   try{Object.entries(db.set.skn||{}).forEach(([id,o])=>{const s=SKINS[id];if(s&&o){if(o.name)s.name=o.name;if(o.tag!=null)s.tag=o.tag}})}catch(e){}
@@ -45,7 +47,7 @@ window.daniLook3={icSets,icKey};
 function ipThumb(p,n){const o={st:db.set.icst,x:db.set.icx},x=Object.assign({},p[3].x||{});let h='';
  try{db.set.icst=p[3].st||'';db.set.icx=x;h=['day','plan2','pj','res','acd','set'].slice(0,n||6).map(k=>'<i class="ipi">'+icon(k)+'</i>').join('')}catch(e){}finally{db.set.icst=o.st;db.set.icx=o.x}
  return'<div class="ipv" style="--icw:1.7;'+((n||6)<6?'grid-template-columns:repeat('+n+',minmax(0,1fr))':'')+'">'+h+'</div>'}
-function iconsHTML(){const cur=icKey(snap().ic);return'<div class="strow2">'+icSets().map(p=>'<div class="stc2'+(cur===p[0]?' on':'')+'" role="button" tabindex="0" data-a="lk_ip" data-id="'+E(p[0])+'">'+ipThumb(p)+'<b>'+T(p[1],p[2])+'</b><span>'+(cur===p[0]?'✓ '+T('فعال','Active'):(p[0]&&p[0][0]==='t'?T('مجموعهٔ آیکون تم','Theme icon set')+(p[4]>1?' · '+T('استفاده در '+p[4]+' تم','used in '+p[4]+' themes'):''):''))+'</span></div>').join('')+'</div><p class="m">'+T('هر مجموعه فقط شکل آیکون‌ها را عوض می‌کند و روی هر تمی کار می‌کند. زیرش «استودیوی آیکون» برای قاب، رنگ و اندازه است.','A set only changes the icon shapes and works on any theme. Below it, Icon Studio sets frame, colour and size.')+'</p>'}
+function iconsHTML(){const cur=icKey(snap().ic),nm=Object.keys(db.set.icmap||{}).length;return(nm?'<div class="row m" style="align-items:center;gap:8px"><span>✋ '+T('این تم '+fa(nm)+' آیکون دستی دارد که روی ست بالا می‌نشیند.','This theme has '+fa(nm)+' hand-picked icons that override the set.')+'</span><button class="chip" data-a="ics_reset" data-k="">↺ '+T('پاک‌کردن','Clear')+'</button></div>':'')+'<div class="strow2">'+icSets().map(p=>'<div class="stc2'+(cur===p[0]?' on':'')+'" role="button" tabindex="0" data-a="lk_ip" data-id="'+E(p[0])+'">'+ipThumb(p)+'<b>'+T(p[1],p[2])+'</b><span>'+(cur===p[0]?'✓ '+T('فعال','Active'):(p[0]&&p[0][0]==='t'?T('مجموعهٔ آیکون تم','Theme icon set')+(p[4]>1?' · '+T('استفاده در '+p[4]+' تم','used in '+p[4]+' themes'):''):''))+'</span></div>').join('')+'</div><p class="m">'+T('هر مجموعه فقط شکل آیکون‌ها را عوض می‌کند و روی هر تمی کار می‌کند. زیرش «استودیوی آیکون» برای قاب، رنگ و اندازه است.','A set only changes the icon shapes and works on any theme. Below it, Icon Studio sets frame, colour and size.')+'</p>'}
 H.lk_ip=e=>{const p=icSets().find(x=>x[0]===e.dataset.id);if(!p)return;db.set.icst=p[3].st||'';db.set.icx=Object.assign({},p[3].x||{});if(save()){reIcons();render();try{decorateIcons()}catch(x){}toast(T('آیکون‌ها عوض شد','Icons changed'))}};
 H.lk_sec=e=>{ST.sec=e.dataset.v;render()};
 /* ---- فروشگاه ---- */
@@ -83,11 +85,11 @@ H.lk_ap=e=>{const id=e.dataset.id,s=SKINS[id];if(!s||PV.id!==id)return;const X=S
  db.set.prevTheme={skin:old,x:JSON.parse(JSON.stringify(X[id]||null))};
  if(old!==id&&SKINS[old])X[old]=Object.assign({},X[old],snap());
  X[id]=Object.assign({},X[id],{lay:PV.lay,ic:PV.ic,m:PV.m,ac:PV.ac,rad:PV.rad});
- db.set.skin=id;db.set.lay2=PV.lay;db.set.icst=PV.ic.st||'';db.set.icx=Object.assign({},PV.ic.x||{});db.set._sk=id;
+ db.set.skin=id;db.set.lay2=PV.lay;db.set.icst=PV.ic.st||'';db.set.icx=Object.assign({},PV.ic.x||{});restore({lay:PV.lay,ic:PV.ic});db.set._sk=id;
  if(save()){closeM();reIcons();render();try{decorateIcons()}catch(x){}toast(T('تم اعمال شد','Theme applied'))}};
 H.lk_undo=()=>{const p=db.set.prevTheme;if(!p||!SKINS[p.skin])return;const X=SKX(),old=skId();
  db.set.prevTheme={skin:old,x:JSON.parse(JSON.stringify(X[old]||null))};
- X[old]=Object.assign({},X[old],snap());db.set.skin=p.skin;const o=X[p.skin]||{};db.set.lay2=o.lay||'';db.set.icst=(o.ic&&o.ic.st)||'';db.set.icx=Object.assign({},(o.ic&&o.ic.x)||{});db.set._sk=p.skin;
+ X[old]=Object.assign({},X[old],snap());db.set.skin=p.skin;restore(X[p.skin]);db.set._sk=p.skin;
  if(save()){reIcons();render();try{decorateIcons()}catch(x){}}};
 /* ---- سابقه‌ی تم‌های بارگذاری‌شده: تغییر نام و متن سربرگ ---- */
 function histHTML(){const ids=[...new Set([...Object.keys(window.PK_REC||{}),...Object.values(SKINS).filter(s=>s.custom).map(s=>s.id)])].filter(id=>SKINS[id]),cur=skId();

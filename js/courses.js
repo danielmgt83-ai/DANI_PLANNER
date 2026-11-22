@@ -680,7 +680,7 @@ async function mergeCourses(newId,title,srcIds){
   const inS=o=>srcIds.includes(o.courseId);
   const L=CR.cache.lessons.filter(inS),Q=CR.cache.questions.filter(inS),S=(await IDB.all('sources')).filter(inS),
         PR=CR.cache.progress.filter(inS),AT=CR.cache.attempts.filter(inS),ER=CR.cache.errors.filter(inS);
-  const snap={key:'merge_undo',at:now,newId,srcIds:[...srcIds],courses:cl(src),lessons:cl(L),questions:cl(Q),sources:cl(S),progress:cl(PR),attempts:cl(AT),errors:cl(ER)};
+  const snap={key:'mg_'+Date.now().toString(36),at:now,newId,srcIds:[...srcIds],titles:src.map(c=>String(c.title)),courses:cl(src),lessons:cl(L),questions:cl(Q),sources:cl(S),progress:cl(PR),attempts:cl(AT),errors:cl(ER)};
   const mapT=(cid,a)=>Array.isArray(a)?a.map(t=>tpMap[cid][t]||t):a;
   const nL=L.map(l=>({...l,courseId:newId,chapterId:chMap[l.courseId][l.chapterId]||l.chapterId,topics:mapT(l.courseId,l.topics)}));
   const nQ=Q.map(q=>{const x={...q,courseId:newId,topicIds:mapT(q.courseId,q.topicIds)};if(exam[q.courseId]&&!x.exam)x.exam=exam[q.courseId];return x});
@@ -688,6 +688,8 @@ async function mergeCourses(newId,title,srcIds){
     importedAt:src.map(c=>c.importedAt).filter(Boolean).sort()[0]||now,updatedAt:now,log:[{at:now,version:'1.0.0',mode:'merge',from:[...srcIds],lessons:nL.length,questions:nQ.length}]};
   await IDB.tx(['courses','lessons','questions','sources','progress','attempts','errors','meta'],'readwrite',async t=>{
     await rq(t.objectStore('meta').put(snap));
+    {const olds=(await rq(t.objectStore('meta').getAll())).filter(x=>x&&x.key&&(x.key==='merge_undo'||String(x.key).startsWith('mg_'))&&x.key!==snap.key).sort((a,b)=>String(b.at).localeCompare(String(a.at)));
+     for(const o of olds.slice(7))await rq(t.objectStore('meta').delete(o.key))}
     for(const id of srcIds)if(id!==newId)await rq(t.objectStore('courses').delete(id));
     await rq(t.objectStore('courses').put(course));
     for(const x of nL)await rq(t.objectStore('lessons').put(x));
@@ -698,19 +700,24 @@ async function mergeCourses(newId,title,srcIds){
     for(const x of ER)await rq(t.objectStore('errors').put({...x,courseId:newId}));
   });
   await crLoad();
-  return{lessons:nL.length,questions:nQ.length,chapters:chapters.length}
+  return{lessons:nL.length,questions:nQ.length,chapters:chapters.length,key:snap.key,at:now}
 }
-async function undoMerge(){
-  const sn=await IDB.get('meta','merge_undo');if(!sn)throw new Error('ادغامی برای برگشت نیست');
+const mergeKeys=async()=>{try{return(await IDB.all('meta')).filter(x=>x&&x.key&&(x.key==='merge_undo'||String(x.key).startsWith('mg_'))).sort((a,b)=>String(b.at).localeCompare(String(a.at)))}catch(e){return[]}};
+/* فهرست ادغام‌ها (تازه‌ترین اول). blocked: ادغام بعدی از نتیجه‌ی این استفاده کرده؛ اول آن را برگردان */
+async function mergeList(){const all=await mergeKeys();return all.map(m=>({key:m.key,newId:m.newId,srcIds:m.srcIds,titles:m.titles||(m.courses||[]).map(c=>c.title),at:m.at,exists:CR.ix.courses.has(m.newId),
+  blocked:all.some(n=>String(n.at)>String(m.at)&&n.srcIds.includes(m.newId))}))}
+async function undoMerge(key){
+  const all=await mergeKeys(),sn=key?all.find(x=>x.key===key):all[0];if(!sn)throw new Error('ادغامی برای برگشت نیست');
+  if(all.some(n=>String(n.at)>String(sn.at)&&n.srcIds.includes(sn.newId)))throw new Error('اول ادغام بعدی را که از این درس استفاده کرده برگردان');
   await IDB.tx(['courses','lessons','questions','sources','progress','attempts','errors','meta'],'readwrite',async t=>{
     if(!sn.srcIds.includes(sn.newId))await rq(t.objectStore('courses').delete(sn.newId));
     for(const c of sn.courses)await rq(t.objectStore('courses').put(c));
     for(const [s,k] of [['lessons','lessons'],['questions','questions'],['sources','sources'],['progress','progress'],['attempts','attempts'],['errors','errors']])for(const x of sn[k])await rq(t.objectStore(s).put(x));
-    await rq(t.objectStore('meta').delete('merge_undo'));
+    await rq(t.objectStore('meta').delete(sn.key));
   });
   await crLoad();return sn
 }
-const mergeUndoInfo=async()=>{try{const s=await IDB.get('meta','merge_undo');return s?{newId:s.newId,srcIds:s.srcIds,at:s.at}:null}catch(e){return null}};
+const mergeUndoInfo=async()=>{const a=await mergeKeys();return a[0]?{newId:a[0].newId,srcIds:a[0].srcIds,at:a[0].at}:null};
 /* ---------- helpers ---------- */
 const C_=()=>CR.cache,course=()=>CR.ix.courses.get(CR.courseId);
 const lessonsOf=cid=>CR.cache.lessons.filter(l=>l.courseId===cid).sort((a,b)=>a.order-b.order);
@@ -1136,7 +1143,7 @@ async function applyRestore(){
   await crLoad();return log;
 }
 function vManage(){
-  let h=everythingCard(); 
+  let h=everythingCard(); try{if(window.daniAcd4&&window.daniAcd4.mergeCard)h+=window.daniAcd4.mergeCard()}catch(e){} 
   const pd=CR.pending;
   if(pd){const r=pd.rep,pl=pd.pl,C=pd.P.course||{};
     h+='<div class="c crs-pv"><h3>پیش‌نمایش ورود: '+E_(C.title||pd.name)+'</h3><div class="m">فایل: <bdi dir="ltr">'+E_(pd.name)+'</bdi> · '+faN(pd.P.lessons.length)+' درس · '+faN(pd.P.questions.length)+' سؤال · '+faN(pd.P.assets.size)+' فایل تصویری ('+faN(pd.P.sizeKB)+' کیلوبایت)</div>';
@@ -1421,7 +1428,7 @@ function mount(){
     return'<div class="c"><h3>'+BH('Academy','آکادمی')+'</h3>'+acdTabs()+'</div>'+crsView()};
   if(!zMS.acd.tab||zMS.acd.tab==='review')zMS.acd.tab='courses'; /* تب پیش‌فرضی که خود پلنر گذاشته (مثلاً learn) تغییر نمی‌کند */
   crLoad().then(()=>{if(inCrs())rerender()});
-  window.daniCourses={QR,exprEval,buildEverything,prepEverything,rehydrateHost,hostSnap,state:CR,validatePack,loadPackZip,zipRead,zipWrite,tex2mml,grade,inl,blocks,IDB,planPack,normalizePack,commitPack,importFile,buildCourseZip,startQuiz,submitQuiz,userExport,planUser,version:CRV,api:{deleteQuestion,moveQuestion,deleteLesson,lessonDelInfo,deleteChapter,savePath,setUnit,normExam,numParse,startMulti,pool,renameItem,reapplyRen,addQuestion,latestResults,questionsOf,lessonsOf,courseProg,mastery,pool,blk,merge:mergeCourses,undoMerge,mergeUndoInfo}};
+  window.daniCourses={QR,exprEval,buildEverything,prepEverything,rehydrateHost,hostSnap,state:CR,validatePack,loadPackZip,zipRead,zipWrite,tex2mml,grade,inl,blocks,IDB,planPack,normalizePack,commitPack,importFile,buildCourseZip,startQuiz,submitQuiz,userExport,planUser,version:CRV,api:{deleteQuestion,moveQuestion,deleteLesson,lessonDelInfo,deleteChapter,savePath,setUnit,normExam,numParse,startMulti,pool,renameItem,reapplyRen,addQuestion,latestResults,questionsOf,lessonsOf,courseProg,mastery,pool,blk,merge:mergeCourses,undoMerge,mergeUndoInfo,mergeList}};
 }
 mount();
 })();

@@ -96,7 +96,7 @@ function tree(){const C=CRs();if(!C)return'';const cs=C.cache.courses,used=new S
  h+='<div class="c"><h3>'+T('مجموعه‌ها و درس‌ها','Collections & subjects')+'</h3><p class="m">'+T('هر درس یک فایل است و داخلش فصل ← مبحث ← تدریس، فلش‌کارت، تمرین و آزمون. مجموعه‌ها فقط برای مرتب‌کردن‌اند.','Each subject is one file: chapters → topics → teaching, cards, practice, exams. Collections only group them.')+'</p><button data-a="acd4_new">＋ '+T('مجموعه‌ی تازه','New collection')+'</button></div>';
  cols().forEach(col=>{const l=col.cids.map(id=>cs.find(c=>c.id===id)).filter(Boolean);l.forEach(c=>used.add(c.id));h+=colCard(col,l)});
  const free=cs.filter(c=>!used.has(c.id));
- h+=mergeCard()+suggest(free);
+ h+=suggest(free);
  if(free.length)h+='<div class="c"><h3>'+T('درس‌های بدون مجموعه','Subjects without a collection')+'</h3>'+free.map(c=>rowCourse(c,'')).join('')+'</div>';
  h+=dupCard();return h}
 
@@ -219,19 +219,32 @@ function mergeSugg(cs){const out=[],seen=new Set(),g2={};
  groups(cs.filter(c=>!seen.has(c.id))).forEach(([t,l])=>{if(l.length===2)out.push({id:t==='grammar'?'english-grammar':t,list:l})});
  return out}
 function commonTitle(l){const a=l.map(c=>String(c.title));let p=a[0];a.forEach(x=>{while(p&&!x.startsWith(p))p=p.slice(0,-1)});p=p.replace(/[\s—\-–:·]+$/,'').trim();return p||a[0]}
-function mergeCard(){const C=CRq();if(!C)return'';const cs=C.cache.courses,sg=mergeSugg(cs);let h='';
- if(ui.undo)h+='<div class="c" style="border-color:#16a34a"><h3>↩ '+T('آخرین ادغام قابل برگشت است','Last merge can be undone')+'</h3><p class="m">'+T('اگر نتیجه را نپسندیدی، همه‌چیز (درس‌ها، سؤال‌ها، پیشرفت، خطاها) به حالت قبل برمی‌گردد.','Restores everything to how it was.')+'</p><button data-a="acd4_mgundo">↩ '+T('برگرداندن ادغام','Undo merge')+'</button></div>';
- if(cs.length<2)return h;
- h+='<div class="c"><h3>🧩 '+T('ادغام درس‌های هم‌موضوع','Merge related subjects')+'</h3><p class="m">'+T('مثلاً ریاضی (حد + مشتق + آزمون مخلوط) در یک درس با چند فصل. شناسه‌ی درس‌ها و سؤال‌ها، پیشرفت، خطاها و آزمون‌های قبلی می‌مانند. پیشنهاد: اول یک پشتیبان بگیر (ورود و مدیریت).','E.g. Math (limits + derivatives + mixed exam) as one subject. Ids, progress, mistakes and attempts are kept.')+'</p>'
-  +sg.map(x=>'<div class="row"><span class="sp" dir="auto"><b>'+E(commonTitle(x.list))+'</b> <span class="m">← '+x.list.map(c=>E(c.title)).join(' + ')+'</span></span><button class="p" data-a="acd4_mg" data-n="'+E(x.id)+'" data-c="'+E(x.list.map(c=>c.id).join(','))+'">'+T('ادغام…','Merge…')+'</button></div>').join('')
-  +'<div class="row" style="margin-top:6px"><button data-a="acd4_mgpick">'+T('انتخاب دستی…','Pick manually…')+'</button></div></div>';
- return h}
+const dayF=iso=>{try{return fmtD(String(iso).slice(0,10))}catch(e){return String(iso).slice(0,10)}};
+const mgH=()=>{try{return window.daniH?window.daniH('🧩','ادغام درس‌ها','Merge subjects'):'<h3>🧩 '+T('ادغام درس‌ها','Merge subjects')+'</h3>'}catch(e){return'<h3>🧩 '+T('ادغام درس‌ها','Merge subjects')+'</h3>'}};
+function loadMH(){const a=API();if(!a||ui.mhBusy)return;ui.mhBusy=true;a.mergeList().then(l=>{ui.mh=l;ui.undo=l.length>0}).catch(()=>{ui.mh=[]}).then(()=>{ui.mhBusy=false;rr()})}
+/* بخش ادغام: فقط در «ورود و مدیریت» (courses.js آن را صدا می‌زند) */
+function mergeCard(){const C=CRq();if(!C)return'';if(ui.mh===undefined)loadMH();
+ const cs=C.cache.courses,sg=mergeSugg(cs),mh=ui.mh||[];
+ let h='<details class="c" data-nobi open><summary style="cursor:pointer">'+mgH()+'</summary><p class="m">'+T('چند درس هم‌موضوع را در یک درس جمع کن (مثلاً ریاضی: حد + مشتق + آزمون مخلوط). شناسه‌ی درس‌ها و سؤال‌ها، پیشرفت، خطاها و آزمون‌ها می‌مانند و هر ادغام را می‌توانی برگردانی. پیشنهاد: اول در همین صفحه پشتیبان کامل بگیر.','Combine related subjects into one. Ids, progress, mistakes and attempts are kept and every merge can be undone. Tip: take a full backup on this page first.')+'</p>';
+ if(cs.length>=2){h+='<h4>'+T('پیشنهادها','Suggestions')+'</h4>'+(sg.length?sg.map(x=>'<div class="row"><span class="sp" dir="auto"><b>'+E(commonTitle(x.list))+'</b> <span class="m">← '+x.list.map(c=>E(c.title)).join(' + ')+'</span></span><button class="p" data-a="acd4_mg" data-n="'+E(x.id)+'" data-c="'+E(x.list.map(c=>c.id).join(','))+'">'+T('ادغام…','Merge…')+'</button></div>').join(''):'<p class="m">'+T('پیشنهادی نیست.','No suggestions.')+'</p>')
+  +'<div class="row" style="margin-top:6px"><button data-a="acd4_mgpick">'+T('انتخاب دستی…','Pick manually…')+'</button></div>'}
+ else h+='<p class="m">'+T('برای ادغام حداقل دو درس لازم است.','You need at least two subjects to merge.')+'</p>';
+ h+='<h4 style="margin-top:12px">'+T('ادغام‌های انجام‌شده','Past merges')+' <span class="m">('+F(mh.length)+')</span></h4>';
+ if(!mh.length)h+='<p class="m">'+(ui.mh===undefined?T('در حال خواندن…','Loading…'):T('هنوز ادغامی انجام نشده. بعد از هر ادغام، اینجا می‌بینی‌اش و می‌توانی برش گردانی.','No merges yet. After a merge it appears here so you can undo it.'))+'</p>';
+ mh.forEach(m=>{const cur=C.ix.courses.get(m.newId);
+  h+='<div class="c" style="margin:6px 0"><div dir="auto"><b>'+E(cur?cur.title:m.newId)+'</b> <span class="m">· '+dayF(m.at)+'</span></div><div class="m" dir="auto">'+T('از: ','From: ')+(m.titles||[]).map(E).join(' + ')+'</div>'
+  +(m.blocked?'<div class="m" style="color:#d97706">'+T('ادغام بعدی از این درس استفاده کرده؛ اول آن را برگردان.','A later merge uses this subject; undo that first.')+'</div>':'')
+  +'<div class="row" style="margin-top:6px;flex-wrap:wrap">'+(cur?'<button data-a="acd4_mgren" data-c="'+E(m.newId)+'">✏️ '+T('تغییر نام','Rename')+'</button><button data-a="acd4_mgadd" data-c="'+E(m.newId)+'">➕ '+T('افزودن درس','Add subject')+'</button>':'')
+  +'<button '+(m.blocked?'disabled ':'')+'data-a="acd4_mgundo" data-k="'+E(m.key)+'">↩ '+T('برگرداندن','Undo')+'</button></div></div>'});
+ return h+'</details>'}
 async function doMerge(id,title,ids){const a=API(),A=zAX();
- const cardsBefore=A.cards.filter(c=>ids.indexOf(c.cid)>=0).map(c=>({id:c.id,cid:c.cid})),colsBefore=JSON.parse(JSON.stringify(cols()));
+ const cardsBefore=A.cards.filter(c=>ids.indexOf(c.cid)>=0).map(c=>({id:c.id,cid:c.cid}));
  const r=await a.merge(id,title,ids);
  A.cards.forEach(c=>{if(ids.indexOf(c.cid)>=0)c.cid=id});
  cols().forEach(k=>{if(k.cids.some(i=>ids.indexOf(i)>=0)){const out=[];k.cids.forEach(i=>{if(ids.indexOf(i)>=0){if(out.indexOf(id)<0)out.push(id)}else out.push(i)});k.cids=out}});
- zAC().mergeUndo={newId:id,ids:ids.slice(),cards:cardsBefore,cols:colsBefore};ui.undo=true;zcommit();return r}
+ const R=zAC();if(!R.mgh||typeof R.mgh!=='object')R.mgh={};R.mgh[r.key]={cards:cardsBefore};
+ Object.keys(R.mgh).sort().slice(0,-8).forEach(k=>delete R.mgh[k]);
+ ui.mh=undefined;zcommit();return r}
 H.acd4_mg=e=>{const ids=e.dataset.c.split(','),C=CRq(),l=ids.map(i=>C.ix.courses.get(i)).filter(Boolean);if(l.length<2)return;
  const id=(prompt(T('شناسه‌ی درس تازه (انگلیسی، مثل mba-math):','New subject id (English):'),e.dataset.n)||'').trim();if(!id)return;
  const title=(prompt(T('نام درس تازه:','New subject name:'),commonTitle(l))||'').trim().slice(0,80);if(!title)return;
@@ -239,7 +252,19 @@ H.acd4_mg=e=>{const ids=e.dataset.c.split(','),C=CRq(),l=ids.map(i=>C.ix.courses
  doMerge(id,title,ids).then(r=>toast(T('ادغام شد: ','Merged: ')+F(r.chapters)+' '+T('فصل','chapters')+' · '+F(r.lessons)+' '+T('مبحث','topics')+' · '+F(r.questions)+' '+T('سؤال','questions'))).catch(x=>toast(String(x.message||x),1))};
 H.acd4_mgpick=()=>{const C=CRq();modal('<h3>'+T('کدام درس‌ها ادغام شوند؟','Which subjects?')+'</h3>'+C.cache.courses.map(c=>'<label class="row"><input type="checkbox" class="a4mc" value="'+E(c.id)+'"> <span class="sp" dir="auto">'+E(c.title)+'</span></label>').join('')+'<div class="row"><button class="p" data-a="acd4_mgdo">'+T('ادامه','Next')+'</button><button data-a="cl">'+T('بستن','Close')+'</button></div>')};
 H.acd4_mgdo=()=>{const ids=[...document.querySelectorAll('.a4mc:checked')].map(x=>x.value);if(ids.length<2){toast(T('حداقل دو درس انتخاب کن','Pick at least two'),1);return}closeM();H.acd4_mg({dataset:{c:ids.join(','),n:ids[0]}})};
-H.acd4_mgundo=()=>{if(!confirm(T('ادغام برگردانده شود؟','Undo the merge?')))return;const A=zAX(),u=zAC().mergeUndo;API().undoMerge().then(()=>{if(u){A.cards.forEach(c=>{const o=u.cards.find(x=>x.id===c.id);if(o)c.cid=o.cid});if(u.cols)zAC().cols=u.cols;delete zAC().mergeUndo}ui.undo=false;zcommit();toast(T('ادغام برگشت','Merge undone'))}).catch(x=>toast(String(x.message||x),1))};
+H.acd4_mgren=e=>{const cid=e.dataset.c,c=CRq().ix.courses.get(cid);if(!c)return;const t=(prompt(T('نام تازه‌ی درس:','New subject name:'),c.title)||'').trim().slice(0,80);if(!t)return;
+ API().renameItem('c',cid,cid,t).then(()=>{ui.mh=undefined;rr();toast(T('نام عوض شد','Renamed'))}).catch(x=>toast(String(x.message||x),1))};
+H.acd4_mgadd=e=>{const cid=e.dataset.c,C=CRq(),o=C.cache.courses.filter(c=>c.id!==cid);if(!o.length){toast(T('درس دیگری نیست','No other subject'),1);return}
+ modal('<h3>'+T('کدام درس‌ها به این درس اضافه شوند؟','Add which subjects?')+'</h3><input type="hidden" id="a4mgt" value="'+E(cid)+'">'+o.map(c=>'<label class="row"><input type="checkbox" class="a4ma" value="'+E(c.id)+'"> <span class="sp" dir="auto">'+E(c.title)+'</span></label>').join('')+'<div class="row"><button class="p" data-a="acd4_mgadd2">'+T('اضافه کن','Add')+'</button><button data-a="cl">'+T('بستن','Close')+'</button></div>')};
+H.acd4_mgadd2=()=>{const cid=document.getElementById('a4mgt').value,ids=[...document.querySelectorAll('.a4ma:checked')].map(x=>x.value);if(!ids.length){toast(T('حداقل یک درس انتخاب کن','Pick at least one'),1);return}
+ const c=CRq().ix.courses.get(cid);closeM();doMerge(cid,c.title,[cid,...ids]).then(()=>toast(T('درس‌ها اضافه شدند','Subjects added'))).catch(x=>toast(String(x.message||x),1))};
+H.acd4_mgundo=e=>{const key=e&&e.dataset&&e.dataset.k;if(!confirm(T('این ادغام برگردانده شود؟\nدرس‌ها به حالت قبل از ادغام برمی‌گردند (پیشرفتی که بعد از ادغام ثبت کرده‌ای در درس ترکیبی می‌ماند و برنمی‌گردد).','Undo this merge? Subjects return to how they were before it (progress made after the merge is not carried back).')))return;
+ const A=zAX(),m=(ui.mh||[]).find(x=>x.key===key),u=(zAC().mgh||{})[key];
+ API().undoMerge(key).then(sn=>{const ids=sn.srcIds,nid=sn.newId;
+  if(u)A.cards.forEach(c=>{const o=u.cards.find(x=>x.id===c.id);if(o)c.cid=o.cid});
+  if(!ids.includes(nid))A.cards.forEach(c=>{if(c.cid===nid)c.cid=ids[0]});
+  cols().forEach(k=>{if(k.cids.includes(nid)&&!ids.includes(nid)){const out=[];k.cids.forEach(i=>{if(i===nid)ids.forEach(s=>{if(out.indexOf(s)<0)out.push(s)});else if(out.indexOf(i)<0)out.push(i)});k.cids=out}});
+  if(zAC().mgh)delete zAC().mgh[key];ui.mh=undefined;zcommit();toast(T('ادغام برگشت','Merge undone'))}).catch(x=>toast(String(x.message||x),1))};
 
 /* ===== v154: آزمون‌ساز چنددرسی (مجموعه ← درس ← فصل ← مبحث؛ ترتیب دلخواه؛ ترکیب چند درس) ===== */
 const xb=()=>ui.xb||(ui.xb={sel:[],open:{},diffs:[1,2,3],count:'',order:'pick',mode:'exam',timed:false,min:30,neg:false});
@@ -333,6 +358,5 @@ H.acd4_mkc=e=>{const C=CRq(),c=C.ix.courses.get(e.dataset.c),it=fbItems(c)[+e.da
  const front=(k==='math'||k==='gmat')?(b.type==='formula'?T('چه زمانی و چطور: ','When & how: ')+nm:nm+' — '+T('قاعده را بگو','state the rule')):nm;
  const back=(tex?'$'+tex+'$':'')+(txt?(tex?' — ':'')+S_(txt,300):'');
  A.cards.push({id:'c'+uid(),fid,deck:S_((c.title||'')+' › '+l.title,60),cid:c.id,lid:l.id,q:S_(front,300),a:S_(back||nm,600),ease:2.5,ivl:0,reps:0,lap:0,due:t,created:t,ag:''});zcommit();toast(T('کارت ساخته شد','Card created'));rr()};
-try{API()&&API().mergeUndoInfo().then(i=>{ui.undo=!!i})}catch(e){}
-window.daniAcd4={xbuilder,xtoggle,tree,chapterInfo,lessonChip,lessonCards,stat,cols,groups,courseTabs,crumb,lessonExtra,myLinks,placed,zipCards,todayCard,wf};
+window.daniAcd4={mergeCard,xbuilder,xtoggle,tree,chapterInfo,lessonChip,lessonCards,stat,cols,groups,courseTabs,crumb,lessonExtra,myLinks,placed,zipCards,todayCard,wf};
 })();
