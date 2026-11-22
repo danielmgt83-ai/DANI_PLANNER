@@ -333,10 +333,10 @@ await test('آکادمی v152: پیشنهاد ادغام درس‌های هم‌
  C.cache.courses.length=0;C.cache.lessons.length=0;C.cache.questions.length=0;
  ['mba-math-d1-limit','mba-math-d2-derivative','mba-math-exam-01','gmat-mba','toefl-grammar','grammar-foundation'].forEach(id=>C.cache.courses.push({id,title:id.startsWith('mba-math')?'ریاضی MBA — '+id:id,contentVersion:'1',chapters:[{id:'c'+id,title:'ف'}],topics:[]}));
  C.ix.courses=new Map(C.cache.courses.map(x=>[x.id,x]));C.ix.lessons=new Map();C.ix.questions=new Map();C.loaded=true;zAC().cols=[];
- page='acd';zMS.acd.tab='courses';C.tab='home';C.courseId='';C.lessonId='';render();const h=document.getElementById('pg').innerHTML;
+ page='acd';zMS.acd.tab='courses';C.tab='home';C.courseId='';C.lessonId='';render();o.home=(document.getElementById('pg').innerHTML.match(/acd4_mg/g)||[]).length;C.tab='manage';render();await new Promise(r=>setTimeout(r,200));render();const h=document.getElementById('pg').innerHTML;
  o.btn=(h.match(/data-a="acd4_mg"/g)||[]).length;o.math=/data-n="mba-math"[^>]*data-c="mba-math-d1-limit,mba-math-d2-derivative,mba-math-exam-01"/.test(h);o.en=/data-n="english-grammar"/.test(h);o.pick=/acd4_mgpick/.test(h);
  page='home';render();return o});
- if(r.btn!==2||!r.math||!r.en||!r.pick)throw new Error(JSON.stringify(r))});
+ if(r.home!==0||r.btn!==2||!r.math||!r.en||!r.pick)throw new Error(JSON.stringify(r))});
 
 await test('آکادمی v153: فصل‌های جدا و بازشونده، تغییر نام ماندگار، سازنده داخل مبحث',async pg=>{const r=await pg.evaluate(async()=>{const C=daniCourses.state,o={};
  C.cache.courses.length=0;C.cache.lessons.length=0;C.cache.questions.length=0;
@@ -595,6 +595,34 @@ await test('v163: متن مشترک، کلوز چندجای‌خالی، جای�
  o.exp=cj.kind==='gmat'&&cj.passages.length===1&&cj.exams.length===1&&cj.slots.length===2;
  page='home';render();return o});
  {const bad=Object.entries(r).filter(([k,v])=>v!==true&&typeof v!=='string'&&k!=='poolN'&&k!=='qN');if(bad.length)throw new Error('FAIL: '+bad.map(b=>b[0]+'='+b[1]).join(','))}});
+
+await test('v163.1: تاریخچه‌ی ادغام در ورود و مدیریت (چند ادغام، برگشت به ترتیب، تغییر نام، افزودن)',async pg=>{const r=await pg.evaluate(async()=>{const D=daniCourses,o={},w=ms=>new Promise(x=>setTimeout(x,ms));
+ const mk=id=>({manifest:{format:'dani-course',templateVersion:D.version.template,contentVersion:'1.0'},course:{id,title:'درس '+id,language:'fa',chapters:[{id:'c1',title:'ف'}],topics:[]},lessons:[{id:id+'-l',chapterId:'c1',title:'م',blocks:[{type:'p',text:'x'}],status:'approved',role:'core'}],questions:[{id:id+'-q',type:'single',difficulty:1,lessonIds:[id+'-l'],topicIds:[],src:'jozve',stem:'س',choices:[{id:'a',text:'x'},{id:'b',text:'y'}],answer:{choice:'a'},solution:'ح'}],sources:[],flashcards:[],assets:new Map(),sourceIds:new Set(),fileErrors:[]});
+ for(const id of ['ma','mb','mc']){const P=mk(id);D.normalizePack(P);await D.commitPack(P,D.planPack(P))}
+ const A=D.api;await A.merge('mx','ترکیبی',['ma','mb']);await w(5);await A.merge('mx','ترکیبی',['mx','mc']);
+ let L=await A.mergeList();o.two=L.length===2;o.blocked=L[0].blocked===false;
+ const first=L.find(m=>m.srcIds.length===2&&m.srcIds[1]==='mb');o.firstBlocked=first&&first.blocked===true;
+ let err='';try{await A.undoMerge(first.key)}catch(e){err=e.message}o.refuse=/ادغام بعدی/.test(err);
+ await A.undoMerge(L[0].key);o.s1=D.state.ix.courses.has('mx')&&D.state.ix.courses.has('mc');
+ await A.undoMerge(first.key);o.s2=D.state.ix.courses.has('ma')&&D.state.ix.courses.has('mb')&&!D.state.ix.courses.has('mx')&&(await A.mergeList()).length===0;
+ await A.merge('my','سه',['ma','mb']);
+ page='acd';zMS.acd.tab='courses';D.state.tab='manage';D.state.courseId='';D.state.lessonId='';daniAcd4&&0;render();await w(300);render();
+ const h=document.getElementById('pg').innerHTML;o.ui=/acd4_mgundo/.test(h)&&/acd4_mgren/.test(h)&&/acd4_mgadd/.test(h);
+ page='home';render();return o});
+ const bad=Object.entries(r).filter(([k,v])=>v!==true);if(bad.length)throw new Error('FAIL '+bad.map(b=>b[0]).join(','))});
+
+await test('v163.2: استودیوی نماد — تعویض و اندازه مال هر تم، فهرست از منو، اندازه‌ی ایموجی',async pg=>{const r=await pg.evaluate(async()=>{const o={},w=ms=>new Promise(x=>setTimeout(x,ms));
+ const A='classic',B=Object.keys(SKINS).find(s=>s!==A&&!SKINS[s].custom&&s!=='hybrid');
+ db.set.skin=A;db.set.icmap={};delete db.set.icsz;page='set';stt='look';render();await w(300);H.lk_sec({dataset:{v:'icons'}});await w(300);
+ o.keys=daniIconSwap.keys().length>=16&&document.querySelectorAll('[data-a=ics_pick]').length>=16;
+ H.ics_set({dataset:{k:'home',v:'🦉'}});H.icsz({dataset:{v:'1.4'}});await w(300);
+ o.noteShown=/ics_reset/.test(document.getElementById('lk3').innerHTML);
+ const em=document.querySelector('#nav a[data-p] .icem');o.emojiZoom=em?getComputedStyle(em).zoom==='1.4':false;
+ db.set.skin=B;render();await w(400);o.otherClean=Object.keys(db.set.icmap||{}).length===0&&!db.set.icsz;
+ H.ics_set({dataset:{k:'home',v:'🐺'}});await w(200);
+ db.set.skin=A;render();await w(400);o.backA=db.set.icmap.home==='🦉'&&db.set.icsz===1.4;
+ db.set.skin=B;render();await w(400);o.backB=db.set.icmap.home==='🐺'&&!db.set.icsz;
+ return o});const bad=Object.entries(r).filter(([k,v])=>v!==true);if(bad.length)throw new Error('FAIL '+bad.map(b=>b[0]).join(','))});
 
 console.log('\n'+results.map(r=>r.join(' ')).join('\n')+'\n\n'+(results.length-fails)+' / '+results.length+' موفق');
 await browser.close();srv.close();process.exit(fails?1:0);
