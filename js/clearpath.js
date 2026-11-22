@@ -164,5 +164,6 @@ H.cb_plan=e=>{const b=B().find(x=>x.id===e.dataset.id);if(b&&b.step)planSend(b.s
 H.cb_nudge=()=>{W().nudge=!W().nudge;save();render()};
 H.cb_nn=e=>{W().nudgeN=+e.dataset.n;save();render()};
 document.addEventListener('input',function(e){const t=e.target;if(t&&t.dataset&&t.dataset.cpi){if(CP.r&&CP.r.s)CP.r[t.dataset.cpi]=t.value;else if(CP.step)CP.d[t.dataset.cpi]=t.value}});
+window.daniClearPath={card,planSend};
 try{window.DANI_SECS.wp=[card,T('مسیر روشن: از نگرانی تا اقدام','Clear Path: from worry to action')]}catch(e){console.error('clearpath',e)}
 })();
