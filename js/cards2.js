@@ -43,7 +43,7 @@ srsDue=function(){const l=_due(),lim=nl(),now=Date.now();let left=lim?Math.max(0
 function cur(){if(st.force){const c=zAX().cards.find(x=>x.id===st.force);if(c&&srsOk(c))return c}return srsDue()[0]}
 const CRs=()=>{try{return window.daniCourses&&window.daniCourses.state}catch(e){return null}};
 const isLang=c=>{try{const C=CRs(),k=C&&c.cid&&C.ix.courses.get(c.cid);return !!k&&k.kind==='language'}catch(e){return false}};
-const isWord=c=>!cloze(c)&&latin(c.q)&&!!(c.ipa||c.pos||c.def||c.fa||(c.ex&&c.ex.length)||isLang(c));
+const isWord=c=>!cloze(c)&&latin(c.q)&&!!(c.ipa||c.pos||c.def||c.fa||c.split||c.syn||c.mn||(c.ex&&c.ex.length)||isLang(c));
 const IMGOK=/^(https:\/\/[^\s"'<>]{4,500}|data:image\/(?:png|jpe?g|webp|gif);base64,[A-Za-z0-9+\/=]{20,60000})$/i;
 const FLAG=['','#ef4444','#f59e0b','#34d399','#60a5fa'];
 function reset(){st.res=null;st.typed='';st.fa=false;st.menu=false}
@@ -65,6 +65,8 @@ function wordBack(c){const A=zAX(),fa0=c.fa||c.a,ex=c.ex||[],gate=A.ft&&c.def&&!
  if(!gate){if(c.img&&IMGOK.test(c.img))h+='<img class="c2img" loading="lazy" referrerpolicy="no-referrer" alt="" src="'+E(c.img)+'">';
   const exr=x=>'<div class="c2ex" dir="ltr"><button class="chip sm" data-a="c2_say" data-t="'+E(x.en)+'" aria-label="listen">🔊</button> '+E(x.en)+(x.fa?'<i dir="auto">'+E(x.fa)+'</i>':'')+'</div>';
   if(ex.length)h+=exr(ex[0])+(ex.length>1?'<details class="c2more"><summary>'+T('مثال‌های بیشتر','More examples')+' ('+fa(ex.length-1)+')</summary>'+ex.slice(1).map(exr).join('')+'</details>':'');
+  const fr=(ic,lb,v,rtl)=>v?'<div class="c2fld" dir="'+(rtl?'auto':'ltr')+'"><b>'+ic+' '+lb+'</b> '+E(v)+'</div>':'';
+  h+=fr('🧩',T('اجزا','Parts'),c.split)+fr('≈',T('مترادف','Synonyms'),c.syn)+fr('≠',T('متضاد','Antonyms'),c.ant)+fr('👪',T('خانواده','Family'),c.fam)+fr('🔗',T('هم‌نشین','Collocations'),c.col)+fr('💡',T('یادیار','Memory aid'),c.mn,1);
   if(c.x)h+='<div class="m" style="margin-top:8px" dir="auto">'+E(c.x)+'</div>'}
  return h+'</div>'}
 acdReview=function(){const A=zAX(),t=todayISO(),d=srsDue(),dn=A.rl[t]||0;
@@ -103,10 +105,10 @@ H.c2_chk=()=>{const c=cur(),i=document.getElementById('c2-sp');if(!c||!i)return;
 const _cards=acdCards;
 acdCards=function(){let h=_cards();const inp=(id,l,ph)=>'<label>'+l+'</label><input id="'+id+'" dir="auto" style="width:100%" placeholder="'+E(ph||'')+'">';
  const x='<label>'+T('مثال یا تلفظ (اختیاری، زیر پاسخ دیده می‌شود)','Example / pronunciation (optional)')+'</label><input id="ac-x" maxlength="200" dir="auto" style="width:100%"><p class="m">'+T('نکته: برای کارت جای‌خالی، کلمهٔ پنهان را داخل {{ }} بنویس؛ مثلاً: He {{went}} home.','Tip: for a cloze card put the hidden word in {{ }}, e.g. He {{went}} home.')+'</p>'
-  +'<details class="ckd"><summary>'+T('کارت لغت (اختیاری): IPA، معنی انگلیسی، فارسی، مثال','Word card (optional): IPA, English meaning, Persian, example')+'</summary>'+inp('ac-ipa','IPA','/əˈbændən/')+inp('ac-pos',T('نوع کلمه','Part of speech'),'v. / n. / adj.')+inp('ac-def',T('معنی انگلیسی','English meaning'),'to leave completely')+inp('ac-fa',T('معنی فارسی','Persian meaning'),'')+inp('ac-e1',T('مثال انگلیسی','Example (English)'),'He abandoned the plan.')+inp('ac-e1f',T('ترجمهٔ مثال','Example translation'),'')+'<p class="m">'+T('برای کارت لغت، «پرسش» را همان کلمهٔ انگلیسی بنویس.','For a word card, write the English word as the question.')+'</p></details>';
+  +'<details class="ckd"><summary>'+T('کارت لغت (اختیاری): IPA، معنی انگلیسی، فارسی، مثال','Word card (optional): IPA, English meaning, Persian, example')+'</summary>'+inp('ac-ipa','IPA','/əˈbændən/')+inp('ac-pos',T('نوع کلمه','Part of speech'),'v. / n. / adj.')+inp('ac-def',T('معنی انگلیسی','English meaning'),'to leave completely')+inp('ac-fa',T('معنی فارسی','Persian meaning'),'')+inp('ac-e1',T('مثال انگلیسی','Example (English)'),'He abandoned the plan.')+inp('ac-e1f',T('ترجمهٔ مثال','Example translation'),'')+inp('ac-split',T('اجزای کلمه','Word parts'),'ab- + andon')+inp('ac-syn',T('مترادف‌ها','Synonyms'),'desert, leave')+inp('ac-ant',T('متضادها','Antonyms'),'keep, retain')+inp('ac-fam',T('خانوادهٔ کلمه','Word family'),'abandonment (n), abandoned (adj)')+inp('ac-col',T('هم‌نشین‌ها','Collocations'),'abandon hope, abandon ship')+inp('ac-mn',T('یادیار','Memory aid'),'')+'<p class="m">'+T('برای کارت لغت، «پرسش» را همان کلمهٔ انگلیسی بنویس.','For a word card, write the English word as the question.')+'</p></details>';
  const i=h.indexOf('<div class="row" style="margin-top:8px">');return i>0?h.slice(0,i)+x+h.slice(i):h};
 const _add=zMA.acd.addcard;
-zMA.acd.addcard=function(){const A=zAX(),n=A.cards.length,g=id=>((document.getElementById(id)||{}).value||'').trim(),x=g('ac-x'),f={ipa:g('ac-ipa'),pos:g('ac-pos'),def:g('ac-def'),fa:g('ac-fa')},e1=g('ac-e1'),e1f=g('ac-e1f');
+zMA.acd.addcard=function(){const A=zAX(),n=A.cards.length,g=id=>((document.getElementById(id)||{}).value||'').trim(),x=g('ac-x'),f={ipa:g('ac-ipa'),pos:g('ac-pos'),def:g('ac-def'),fa:g('ac-fa'),split:g('ac-split'),syn:g('ac-syn'),ant:g('ac-ant'),fam:g('ac-fam'),col:g('ac-col'),mn:g('ac-mn')},e1=g('ac-e1'),e1f=g('ac-e1f');
  _add.apply(this,arguments);if(A.cards.length>n){const c=A.cards[A.cards.length-1];if(x)c.x=x.slice(0,200);
   const w=window.daniAcd4&&window.daniAcd4.wf?window.daniAcd4.wf(Object.assign(f,e1?{ex:[{en:e1,fa:e1f}]}:{})):{};Object.assign(c,w);zcommit()}};
 window.daniCards2={speak,norm,spellText,lbl,isWord,cur};

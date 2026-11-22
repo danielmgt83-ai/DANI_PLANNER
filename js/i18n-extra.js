@@ -83,7 +83,7 @@ const I18_EXTRA={
 "کارت برای مرور امروز آماده است؛ چند دقیقه‌ی کوتاه، بیشترین اثر را روی حافظه دارد":"cards are ready for review today; a few short minutes has the biggest effect on memory",
 "شروع مرور":"Start review",
 "پرسش و پاسخ را بنویس":"Write the question and answer",
-"حداکثر ۲۰۰۰ کارت":"Up to 2,000 cards",
+"حداکثر ۶۰۰۰ کارت":"Up to 6,000 cards",
 "هر خط باید به شکل «پرسش | پاسخ» باشد":"Each line must look like \"question | answer\"",
 "کارت اضافه شد":"Card added",
 "این کارت حذف شود؟":"Delete this card?",

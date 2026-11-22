@@ -6,7 +6,7 @@
 (function(){
 const T=window.daniT;
 const FX=()=>{const s=db.set;if(!s.fx||typeof s.fx!=='object')s.fx={};if(s.fx.hap===undefined)s.fx.hap=1;if(s.fx.anim===undefined)s.fx.anim=1;return s.fx};
-const VER='2026.11.129';
+const VER='2026.11.130';
 /* ---------- لرزش و پاپ ---------- */
 const HAP=/^(qk_go|nx_go|nx_sw|pf_add|tp_ap|bin_rs|ex_save|ab_now|ql_|pm_|tm_|tstart|tfinish|hab|ob_log|ob_go|dnd_set|ls_now|dk_)/;
 const reduce=()=>{try{return matchMedia('(prefers-reduced-motion: reduce)').matches}catch(e){return false}};
@@ -19,6 +19,7 @@ st.textContent='@keyframes fxpop{0%{transform:scale(1)}40%{transform:scale(.92)}
 document.head.appendChild(st);
 /* ---------- چه چیزی تازه است ---------- */
 const WN=[
+ ['🧮','پک آموزشی: (۱) در متغیرها و پاسخ عددی حالا ln، log، sin، cos، tan، exp، pow، pi، e و √ هم کار می‌کند؛ (۲) جواب هم‌ارز پذیرفته می‌شود (۲/√۳ همان ۱٫۱۵۴۷ است)؛ (۳) برچسب «تله» روی سؤال و گزینه: بعد از اشتباه دیده می‌شود و در دفترچه‌ی خطا شمرده می‌شود؛ (۴) کارت لغت: اجزا، مترادف، متضاد، خانواده، هم‌نشین، یادیار؛ (۵) سقف فلش‌کارت ۶۰۰۰ شد؛ (۶) درس و سؤال می‌توانند دکمه‌ی ویدیو با زمان شروع داشته باشند.','Course packs: (1) ln, log, sin, cos, tan, exp, pow, pi, e and √ work in variables and numeric answers; (2) equivalent answers are accepted (2/√3 equals 1.1547); (3) a «trap» tag on questions and choices shows after a mistake and is counted in the error notebook; (4) word cards: parts, synonyms, antonyms, family, collocations, memory aid; (5) flashcard cap is now 6000; (6) lessons and questions can have a video button with a start time.'],
  ['☰','کارت «Menu / منو» در «ظاهر و تم ← سفارشی»: اندازه‌ی منو (٧٠ تا ١۴٠٪ مثل دکمه‌ی راهنما)، برچسب زیر آیتم (فارسی + English / فقط یکی / بدون برچسب)، متن ضخیم، پنهان‌کردن سربرگ و پنهان/نمایان‌کردن آیتم‌ها. همه‌چیز جدا برای هر تم است و آیتم تازه‌ی منو خودکار نمایان می‌شود. «خانه» و «تنظیمات» همیشه می‌مانند.','New «Menu» card in Theme ← Customize: menu size (70–140%, like the help button), label under item (both / one language / none), bold text, hide header and hide/show items. Everything is per theme and new menu items appear automatically; Home and Settings always stay.'],
  ['📦','«خروجی کامل تم» (ظاهر و تم ← بسته‌های تم): یک فایل dani-themepack با رنگ و چیدمان، آیکون‌ها، تصویرها، جمله‌ها و CSS (و کد، برای تمی که بسته‌ی واردشده است). با «وارد کردن» دوباره برمی‌گردد. کد تم‌های داخلی در خود برنامه است و در فایل نمی‌آید.','«Full theme export» (Theme ← Theme packs): one dani-themepack file with colours and layout, icons, images, quotes and CSS (and code, for a theme that is an imported pack). Re-import it any time. Built-in themes\' code lives inside the app and is not in the file.'],
  ['🎨','استودیوی تم برگشت: «ساخت از تم فعلی»، ویرایش و کپی تم‌های خودت دوباره در «ظاهر و تم ← سفارشی» است (در یک نسخه‌ی قبل به‌اشتباه از صفحه افتاده بود).','Theme Studio is back: “Create from current theme”, edit and copy your own themes are in Look & themes → Customize again (it was accidentally dropped from the page in an earlier version).'],
