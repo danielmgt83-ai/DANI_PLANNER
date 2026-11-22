@@ -665,6 +665,7 @@ html[data-mx=1] فقط وقتی db.set.mx!==0 و تم ساده است (بدون 
 (v156) look3.js: فروشگاه/سفارشی/تم‌های من/استودیو؛ db.set.lay2 و db.set.prevTheme؛ applySkin توسط look3 پوشش داده می‌شود. قالب‌های بسته‌ای (آیکون+رنگ+منو) هنوز ساخته نشده‌اند.
 (v155.1) نام handler ها یکتا باشد (H.acd4_ren مجموعه؛ H.acd4_rn درس/فصل/مبحث). ❓ درس: .crs-lessonbar-ask درون‌صفحه، .crs-ask با انتخاب .crs-bq.sel.
 (v155) cards2.js: srsDue با سقف روزانه‌ی کارت جدید؛ کارت: x (مثال)، cloze {{…}}، TTS؛ فلش‌کارت ZIP می‌تواند x داشته باشد.
+(v167) `review2.js`: مرور موضوعی. `srsDue` فقط کارت‌های «بازشده» (progress درس / `A.unl` / مرورشده)؛ محدوده `SC={k:all|course|lesson|group}`؛ گروه سازنده `A.rg[cid]` + `card.g`؛ `rv_self` از آخر درس. فلش‌کارت = سنجش (قانون پک 1.5).
 (v166) `tools.js`: صفحه‌ی `tools` در منو؛ `db.set.tls={tab,ei[],two[]}`؛ Clear Path فقط اینجا (روی خانه چیپ `DANI_SECS.wp`).
 (v165) courses.js: `numAny` (جواب هم‌ارز)، `trapsOf`/`trapLine`، `vidBtn`/`chkVid`؛ کارت لغت split/syn/ant/fam/col/mn در `wf`؛ سقف کارت ۶۰۰۰؛ AI-PACK 1.4.
 (v164.1) `themefull.js`: `daniThemeFull.build()`→{o,sum}؛ خروجی باید از `pkVet` بگذرد؛ تم داخلی js ندارد (کدش در js/theme-*.js است).

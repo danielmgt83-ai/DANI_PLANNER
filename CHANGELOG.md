@@ -2,6 +2,12 @@
 
 > هر تحویل یک خط در اینجا. جدیدترین بالا. (هوش مصنوعی‌ها: هر بار که فایلی را عوض می‌کنید، این‌جا یک خط بنویسید.)
 
+## (۱۷۱) v167 — مرور موضوعی + قفل تا مطالعه + «خودت را بسنج» (AI-PACK 1.5)
+- `js/review2.js` (تازه، بعد از cards2): `srsDue` با فیلتر «بازشده» (کارت درسی فقط اگر `CR.ix.progress` درسش هست، یا `A.unl[lid]`، یا قبلاً مرور شده) و محدوده‌ی مرور `all|course|lesson|group` (در محدوده‌ی انتخابی کارت‌های موعدنرسیده هم می‌آیند؛ کارت ردشده در نشست از صف می‌رود جز «دوباره»). کارت `#rvscope` بالای `acdReview`. هندلرها `rv_k, rv_unl, rv_g, rv_self` و `zMA.acd.rvsel`. با خروج از صفحه‌ی acd محدوده به «همه» برمی‌گردد.
+- `acd4.js`: `zipCards(cid,list,reviewGroups)` → `A.rg[cid]=[{id,t,en,l[]}]` و `card.g` از `flashcard.groups`؛ `lessonCards` بالایش بلوک «خودت را بسنج» (`a4self`).
+- `courses.js`: `course.reviewGroups` و `flashcard.groups` در اعتبارسنج؛ هشدار: فلش‌کارت بدون lessonId، فلش‌کارت شبیه سؤال تدریس/حل‌کردنی.
+- تست v167. AI-PACK 1.5: قانون «فلش‌کارت = سنجش» + reviewGroups در docs 02/03/06 و val.js.
+
 ## (۱۷۰) v166 — صفحه‌ی ابزارها
 - `js/tools.js` (تازه): صفحه‌ی `tools` (آیتم منو بعد از plan2 با wrapper روی `syncNav`، `BI_NAV/ICONS/EXT_PAGES`). سه ابزار: مسیر روشن (`daniClearPath.card()` تازه‌صادرشده از clearpath.js)، آیزنهاور (`db.set.tls.ei`، افزودن از `zDL().items`، `planSend`)، قانون ۲ دقیقه (`db.set.tls.two`، تایمر ۲ دقیقه‌ای). `DANI_SECS.wp` روی خانه به چیپ کوچک «ابزارها» تبدیل شد. بلوک زمانی جدا ساخته نشد (خط زمانی روز). تست v166.
 
