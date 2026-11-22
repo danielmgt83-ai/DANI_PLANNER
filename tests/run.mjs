@@ -673,5 +673,28 @@ await test('v166: صفحه‌ی ابزارها — آیتم منو، آیزنه�
  page='day';render();await w(200);o.homeNoBig=!document.querySelector('#pg #cpcard');o.door=!!document.querySelector('#pg [data-a=go][data-p=tools]');
  return o});const bad=Object.entries(r).filter(([k,v])=>v!==true);if(bad.length)throw new Error('FAIL '+bad.map(b=>b[0]).join(',')+' '+JSON.stringify(r))});
 
+await test('v167: مرور موضوعی — قفل تا مطالعه، محدوده، بسته‌ی سازنده، خودت را بسنج',async pg=>{const r=await pg.evaluate(async()=>{const o={},w=ms=>new Promise(x=>setTimeout(x,ms));
+ page='acd';const C=daniCourses.state,A=zAX(),t=todayISO();
+ C.ix.courses.set('c1',{id:'c1',title:'Course1'});['L1','L2'].forEach(id=>C.ix.lessons.set(id,{id,courseId:'c1',title:id}));C.ix.progress.set('L2',{id:'L2',courseId:'c1',done:true,checks:{},timeMs:5000,lastAt:1});
+ const mk=(id,lid)=>({id,fid:'c1:'+id,deck:'Course1 › '+(lid||'x'),cid:lid?'c1':'',lid:lid||'',q:'q'+id,a:'a'+id,ease:2.5,ivl:0,reps:0,lap:0,due:t,created:t,ag:''});
+ A.cards=[mk('k1','L1'),mk('k2','L2'),mk('k3','')];A.unl={};A.rg={};A.nl=0;
+ const ids=()=>srsDue().map(c=>c.id).sort().join(',');
+ o.gate=ids()==='k2,k3';
+ H.rv_unl({dataset:{l:'L1'}});o.unl=ids()==='k1,k2,k3';A.unl={};
+ H.rv_k({dataset:{k:'lesson'}});zMA.acd.rvsel(null,{value:'L2'});o.lesson=ids()==='k2';
+ zMA.acd.rvsel(null,{value:'L1'});o.lockedScope=ids()==='';o.lockMsg=/rv_unl/.test(acdReview());
+ H.rv_self({dataset:{l:'L1'}});o.self=ids()==='k1'&&!!A.unl.L1;
+ zMA.acd.rate('good');o.done=ids()==='';
+ H.rv_k({dataset:{k:'all'}});o.all=ids()==='k2,k3';
+ daniAcd4.zipCards('c1',[{id:'f9',q:'قضیه؟',a:'پاسخ',lessonId:'L2',groups:['g1']}],[{id:'g1',title:'تعریف‌ها',en:'Definitions',lessonIds:['L1']}]);
+ o.rg=A.rg.c1&&A.rg.c1.length===1&&A.rg.c1[0].l[0]==='L1';const f9=A.cards.find(c=>c.fid==='c1:f9');o.g=!!f9&&f9.g[0]==='g1';
+ H.rv_g({dataset:{c:'c1',g:'g1'}});o.grp=ids().split(',').indexOf(f9.id)>=0&&ids().split(',').length===2;
+ o.card=/rvscope/.test(acdReview())&&/تعریف‌ها|Definitions/.test(acdReview());
+ H.rv_k({dataset:{k:'all'}});
+ o.selfBlock=/a4self/.test(daniAcd4.lessonCards({id:'L2',courseId:'c1',title:'L2'}));
+ page='day';render();o.reset=daniReview2.scope.k==='all';
+ return o});const bad=Object.entries(r).filter(([k,v])=>v!==true);if(bad.length)throw new Error('FAIL '+bad.map(b=>b[0]).join(',')+' '+JSON.stringify(r))});
+
+
 console.log('\n'+results.map(r=>r.join(' ')).join('\n')+'\n\n'+(results.length-fails)+' / '+results.length+' موفق');
 await browser.close();srv.close();process.exit(fails?1:0);
