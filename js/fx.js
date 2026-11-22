@@ -6,7 +6,7 @@
 (function(){
 const T=window.daniT;
 const FX=()=>{const s=db.set;if(!s.fx||typeof s.fx!=='object')s.fx={};if(s.fx.hap===undefined)s.fx.hap=1;if(s.fx.anim===undefined)s.fx.anim=1;return s.fx};
-const VER='2026.11.127';
+const VER='2026.11.128';
 /* ---------- لرزش و پاپ ---------- */
 const HAP=/^(qk_go|nx_go|nx_sw|pf_add|tp_ap|bin_rs|ex_save|ab_now|ql_|pm_|tm_|tstart|tfinish|hab|ob_log|ob_go|dnd_set|ls_now|dk_)/;
 const reduce=()=>{try{return matchMedia('(prefers-reduced-motion: reduce)').matches}catch(e){return false}};
@@ -19,6 +19,7 @@ st.textContent='@keyframes fxpop{0%{transform:scale(1)}40%{transform:scale(.92)}
 document.head.appendChild(st);
 /* ---------- چه چیزی تازه است ---------- */
 const WN=[
+ ['🎨','استودیوی تم برگشت: «ساخت از تم فعلی»، ویرایش و کپی تم‌های خودت دوباره در «ظاهر و تم ← سفارشی» است (در یک نسخه‌ی قبل به‌اشتباه از صفحه افتاده بود).','Theme Studio is back: “Create from current theme”, edit and copy your own themes are in Look & themes → Customize again (it was accidentally dropped from the page in an earlier version).'],
  ['🧩','ادغام درس‌ها حالا فقط در «آکادمی ← ورود و مدیریت» است (از صفحه‌ی یادگیری برداشته شد). همه‌ی ادغام‌های قبلی را با تاریخ می‌بینی، هر کدام را جدا برمی‌گردانی (به ترتیب)، نامش را عوض می‌کنی یا درس دیگری به آن اضافه می‌کنی. تا ۸ ادغام اخیر نگه‌داری می‌شود.','Merging subjects now lives only in Academy → Import & manage (removed from Learning). See every past merge with its date, undo any of them (in order), rename it or add another subject to it. The last 8 merges are kept.'],
  ['🎛','استودیوی نماد درست شد: تعویض تک‌تک آیکون‌ها و اندازه‌ی آیکون حالا مال هر تم است و بین تم‌ها نمی‌پرد؛ فهرست آیکون‌های قابل تعویض از منوی برنامه ساخته می‌شود (آیتم تازه خودکار می‌آید)؛ آیکون‌های ایموجی هم با اندازه بزرگ/کوچک می‌شوند؛ اگر آیکون دستی روی ست نماد نشسته باشد اعلام می‌شود و می‌توانی پاکش کنی.','Icon Studio fixed: per-icon swaps and icon size now belong to each theme and no longer leak between themes; the swappable list is built from the app menu (new items appear automatically); emoji icons scale with the size setting; a note shows when hand-picked icons override a set, with a clear button.'],
  ['🧠','سؤال‌های آموزشی هوشمندتر شدند: یک متن مشترک برای چند سؤال (در حالت تمرکز بالای صفحه ثابت می‌ماند)، کلوز با چند جای خالی، جای‌گذاری جمله در [۱] تا [۴]، سؤال کفایت داده، راهنمای مرحله‌ای (💡) در تمرین، زمان پیشنهادی هر سؤال، متادیتای آزمون (مدت، سال، نمره‌ی منفی)، درس‌های «به‌زودی» و سؤال‌های متغیر که هر بار عددشان عوض می‌شود.','Smarter questions: one shared passage for several questions (pinned at the top in focus mode), multi-blank cloze, sentence placement [1]–[4], data sufficiency, step-by-step hints (💡) in practice, suggested time per question, exam metadata (duration, year, penalty), "coming soon" lessons and variable questions whose numbers change each time.'],
