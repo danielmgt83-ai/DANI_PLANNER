@@ -125,11 +125,11 @@ function build(){
   if(skin){const h3=skin.querySelector('h3');if(h3)h3.textContent=T('تصویر و تیرگی تم فعلی','Current theme image & dim');skin.querySelectorAll('p.m').forEach(p=>{if(/همیشه تیره است|always dark/.test(txt(p)))p.remove()});
    [...skin.children].forEach(c=>{if(c.classList&&c.classList.contains('row')&&c.querySelector('[data-skthemefile]'))c.remove()});const tgr=skin.querySelector('.uch-fl');if(tgr)tgr.remove();const g2=skin.querySelector(':scope>.skg');if(g2)g2.remove()}
   if(moods)moods.style.display='none';
-  pane('cu',[$('#studiocard'),skin,fs]); /* v163.3: استودیوی تم (ساخت/ویرایش/کپی) در «سفارشی» می‌ماند؛ قبلاً به‌اشتباه حذف شده بود */
+  pane('cu',[window.daniMenuCard?daniMenuCard.node():null,$('#studiocard'),skin,fs]); /* v163.3: استودیوی تم (ساخت/ویرایش/کپی) در «سفارشی» می‌ماند؛ قبلاً به‌اشتباه حذف شده بود */
   /* بسته‌های تم (حالت توسعه‌دهنده): بارگذاری + سابقه */
   const pk=thmx&&thmx.querySelector('#pkcard'),thmio=thmx&&thmx.querySelector('#thmio');
   if(pk){const rows=[...pk.querySelectorAll('.row')].filter(r=>r.querySelector('[data-a="pk"][data-k^="use:"]'));rows.forEach(r=>r.remove());
-   const imp=[...pk.querySelectorAll('.row')].find(r=>r.querySelector('[data-pkfile]'));if(thmio&&imp){const lab=document.createElement('label');lab.className='btn';lab.style.margin='0';const fi=thmio.querySelector('[data-skthemefile]');if(fi){lab.textContent=T('وارد کردن تم (فایل)','Import theme (file)');lab.appendChild(fi);imp.appendChild(lab)}const ex=thmio.querySelector('[data-skexp]');if(ex)imp.appendChild(ex)}
+   const imp=[...pk.querySelectorAll('.row')].find(r=>r.querySelector('[data-pkfile]'));if(thmio&&imp){const lab=document.createElement('label');lab.className='btn';lab.style.margin='0';const fi=thmio.querySelector('[data-skthemefile]');if(fi){lab.textContent=T('وارد کردن تم (فایل)','Import theme (file)');lab.appendChild(fi);imp.appendChild(lab)}const ex=thmio.querySelector('[data-skexp]');if(ex)imp.appendChild(ex);const fb=document.createElement('button');fb.className='btn';fb.dataset.a='pk_full';fb.style.margin='0';fb.textContent='📦 '+T('خروجی کامل تم (با CSS و کد)','Full theme export (CSS + code)');imp.appendChild(fb)}
    const h=mk(histHTML());const foot=[...pk.querySelectorAll('p.m')].pop();if(foot)pk.insertBefore(h,foot);else pk.appendChild(h);pk.classList.remove('cmf','cmc');pane('lab',[pk])}else pane('lab',[]);if(thmx)thmx.remove();
   /* کارت‌های داشبورد و حس برنامه ← «منو و صفحه‌ی خانه» (کنار شخصی‌سازی خانه) */
   if(mx)mx.remove();if(lf)lf.remove();
