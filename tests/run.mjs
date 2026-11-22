@@ -647,5 +647,17 @@ await test('v164: کارت منو — اندازه، برچسب، پنهان‌�
 await test('v164.1: خروجی کامل تم — بستهٔ معتبر با css/آیکون/تصویر برای همه‌ی تم‌ها',async pg=>{const r=await pg.evaluate(async()=>{const bad=[];let withCss=0;for(const id of Object.keys(SKINS)){db.set.skin=id;applySkin();const{o}=await daniThemeFull.build();const e=pkVet(o);if(e)bad.push(id+':'+e);if(o.css)withCss++;if(o.format!=='dani-themepack'||SK_BUILTIN.has(o.id))bad.push(id+':id')}
  return{bad,withCss,btn:typeof H.pk_full==='function'}});if(r.bad.length)throw new Error(r.bad.join(' | '));if(!r.btn||r.withCss<5)throw new Error('no export '+JSON.stringify(r))});
 
+await test('v165: توابع ریاضی، جواب هم‌ارز، تله، فیلدهای لغت، سقف کارت، ویدیو',async pg=>{const r=await pg.evaluate(()=>{const o={},C=daniCourses,near=(a,b)=>Math.abs(a-b)<1e-6;
+ o.fn=near(C.exprEval('ln(e)+log(100)+sin(pi/2)+cos(0)+sind(30)*2'),1+2+1+1+1)&&near(C.exprEval('2/√3'),1.1547005)&&near(C.exprEval('√(16)+π'),4+Math.PI)&&near(C.exprEval('pow(2,10)+exp(0)+tand(45)'),1024+1+1);
+ let bad=false;try{C.exprEval('constructor')}catch(e){bad=true}o.safe=bad;
+ const q={type:'numeric',answer:{value:'2/√3',tol:0.001}};o.g1=C.grade(q,'1.1547').ok&&C.grade(q,'2/sqrt(3)').ok&&C.grade(q,'۱٫۱۵۴۷').ok&&!C.grade(q,'1.2').ok;
+ const q2={type:'numeric',answer:{value:'0.5'}};o.g2=C.grade(q2,'1/2').ok&&C.grade(q2,'۰٫۵').ok&&!C.grade(q2,'abc').ok;
+ const q3={id:'t1',type:'single',trap:'ضرب به‌جای جمع',choices:[{id:'A',text:'x',trap:'علامت'},{id:'B',text:'y'},{id:'C',text:'z',trap:'واحد'}],answer:{choice:'B'}};
+ o.trap=JSON.stringify(C.trapsOf(q3,'A'))===JSON.stringify(['ضرب به‌جای جمع','علامت'])&&JSON.stringify(C.trapsOf(q3,'B'))===JSON.stringify(['ضرب به‌جای جمع']);
+ const w=daniAcd4.wf({ipa:'/a/',split:'ab-+andon',syn:'leave',ant:'keep',fam:'abandonment (n)',col:'abandon hope',mn:'x'.repeat(400)});o.wf=w.split==='ab-+andon'&&w.syn==='leave'&&w.ant==='keep'&&w.fam&&w.col&&w.mn.length===300;
+ o.vid=C.vidBtn({url:'https://youtu.be/abc',t:125}).includes('t=125s')&&C.vidBtn({url:'javascript:alert(1)'})===''&&C.vidBtn({url:'https://x.com/v.mp4',t:5}).includes('#t=5');
+ o.cap=!document.documentElement.innerHTML.includes('Max 2000');
+ return o});const bad=Object.entries(r).filter(([k,v])=>v!==true);if(bad.length)throw new Error('FAIL '+bad.map(b=>b[0]).join(','))});
+
 console.log('\n'+results.map(r=>r.join(' ')).join('\n')+'\n\n'+(results.length-fails)+' / '+results.length+' موفق');
 await browser.close();srv.close();process.exit(fails?1:0);
