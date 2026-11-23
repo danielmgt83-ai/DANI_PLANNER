@@ -712,5 +712,36 @@ await test('v168: منوی نسخه‌ی ۲ — اندازه‌ی کل نوار�
  H.mn_reset();o.reset=!h.dataset.nvz&&!h.dataset.nvg&&!h.dataset.nvic&&!h.dataset.nvop&&!h.dataset.nvhd&&!h.dataset.nvcr&&!h.dataset.nvsh&&!h.style.getPropertyValue('--nvs');
  return o});const bad=Object.entries(r).filter(([k,v])=>v!==true);if(bad.length)throw new Error('FAIL '+bad.map(b=>b[0]).join(','))});
 
+await test('v169: فایل‌های دوره — فصل ادامه‌دار، جایگزین با پیش‌نمایش، تعارض، حفظ/حذف، تغییر نام و حذف فایل',async pg=>{const r=await pg.evaluate(async()=>{const o={},D=daniCourses,w=ms=>new Promise(x=>setTimeout(x,ms));
+ const Q=(id,l)=>({id,type:'single',difficulty:2,lessonIds:[l],topicIds:['ta'],exam:'',src:'jozve',stem:'سؤال '+id,choices:[{id:'a',text:'x'},{id:'b',text:'y'}],answer:{choice:'a'},solution:'ح'});
+ const mk=(ver,ls,qs,part)=>({manifest:Object.assign({format:'dani-course',templateVersion:D.version.template,contentVersion:ver},part?{part}:{}),course:{id:'flx',title:'دوره فایل',language:'fa',kind:'math',unit:'فصل',chapters:[{id:'c1',title:'ج'}],topics:[{id:'ta',title:'الف'}]},
+   lessons:ls.map(([id,t])=>({id,chapterId:'c1',title:t||id,blocks:[{type:'p',text:'متن '+id+(t||'')}],status:'approved',role:'core'})),questions:qs.map(([q,l])=>Q(q,l)),flashcards:[],sources:[],sourceIds:new Set(),assets:new Map(),names:[],fileErrors:[]});
+ const go=async(P,opt,tweak)=>{D.validatePack(P,D.state.ix.courses.get('flx')||null);D.normalizePack(P);const pl=D.planPack(P,opt);if(tweak)tweak(pl);await D.commitPack(P,pl);return pl};
+ const C=()=>D.state.ix.courses.get('flx'),L=id=>D.state.cache.lessons.find(l=>l.courseId==='flx'&&l.id===id);
+ await go(mk('1.0',[['a1'],['a2']],[['qa1','a1']]),{target:'new',name:'ch1.dani-course.zip'});
+ o.f1=C().files.length===1&&C().files[0].name==='ch1'&&C().files[0].lessons.length===2;
+ const plB=await go(mk('1.0',[['b1'],['b2']],[['qb1','b1']],{id:'ch2',title:'فصل ۲'}),{target:'auto'});
+ o.auto=plB.target==='new'&&C().files.length===2&&C().files[1].name==='فصل ۲'&&C().files[1].partId==='ch2';
+ const f1=C().files[0].id,f2=C().files[1].id;
+ const plA2=D.planPack(mk('1.1',[['a1','عنوان تازه'],['a3']],[['qa1','a1']]),{target:f1});
+ o.orph=plA2.orphL.length===1&&plA2.orphL[0].id==='a2'&&plA2.keptL===1&&plA2.cmp>0;
+ await go(mk('1.1',[['a1','عنوان تازه'],['a3']],[['qa1','a1']]),{target:f1});
+ o.keep=!!L('a2')&&L('a1').title==='عنوان تازه'&&!!L('a3')&&C().files[0].lessons.includes('a2')&&C().files[0].lessons.includes('a3')&&C().contentVersion==='1.1';
+ const pC=mk('1.2',[['b1','دست‌خورده']],[]);D.normalizePack(pC);const plC=D.planPack(pC,{target:f1});
+ o.confl=plC.conflL.length===1&&plC.conflL[0].id==='b1';
+ await D.commitPack(pC,plC);o.noOver=L('b1').title==='b1'&&C().files.find(f=>f.id===f2).lessons.includes('b1');
+ const pC2=mk('1.2',[['b1','دست‌خورده']],[]);D.normalizePack(pC2);const plC2=D.planPack(pC2,{target:f1});plC2.allowOver=true;await D.commitPack(pC2,plC2);
+ o.over=L('b1').title==='دست‌خورده'&&C().files[0].lessons.includes('b1')&&!C().files.find(f=>f.id===f2).lessons.includes('b1');
+ const pD=mk('1.3',[['a1','عنوان تازه']],[['qa1','a1']]);D.normalizePack(pD);const plD=D.planPack(pD,{target:f1});plD.rmOrphans=true;await D.commitPack(pD,plD);
+ o.rmo=!L('a2')&&!L('a3')&&!!L('a1')&&!C().files[0].lessons.includes('a2');
+ const oldP=window.prompt,oldC=window.confirm;window.prompt=()=>'اسم تازه';window.confirm=()=>true;
+ H.crs_frn({dataset:{c:'flx',f:f2}});await w(400);o.rename=C().files.find(f=>f.id===f2).name==='اسم تازه';
+ D.state.tab='manage';page='acd';zMS.acd.tab='courses';render();await w(300);
+ o.ui=!!document.querySelector('.crs-fl')&&/فایل/.test(document.querySelector('.crs-fl summary').textContent)&&!!document.querySelector('[data-crs-add=flx]')&&!!document.querySelector('[data-crs-rep]')&&!!document.querySelector('[data-a=crs_expc]')&&!!document.querySelector('[data-a=crs_delc]');
+ H.crs_frd({dataset:{c:'flx',f:f2}});await w(500);window.prompt=oldP;window.confirm=oldC;
+ o.del=C().files.length===1&&!L('b2')&&!!L('a1');
+ await D.IDB.tx(['courses'],'readwrite',async t=>{const c=C();const x={...c};delete x.files;await new Promise((res,rej)=>{const rq=t.objectStore('courses').put(x);rq.onsuccess=res;rq.onerror=rej})});
+ return o});const bad=Object.entries(r).filter(([k,v])=>v!==true);if(bad.length)throw new Error('FAIL '+bad.map(b=>b[0]).join(',')+' '+JSON.stringify(r))});
+
 console.log('\n'+results.map(r=>r.join(' ')).join('\n')+'\n\n'+(results.length-fails)+' / '+results.length+' موفق');
 await browser.close();srv.close();process.exit(fails?1:0);
