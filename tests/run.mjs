@@ -696,5 +696,21 @@ await test('v167: مرور موضوعی — قفل تا مطالعه، محدو�
  return o});const bad=Object.entries(r).filter(([k,v])=>v!==true);if(bad.length)throw new Error('FAIL '+bad.map(b=>b[0]).join(',')+' '+JSON.stringify(r))});
 
 
+await test('v168: منوی نسخه‌ی ۲ — اندازه‌ی کل نوار، فاصله از لبه، برچسب، سربرگ، گوشه، ریست',async pg=>{const r=await pg.evaluate(async()=>{const o={},w=ms=>new Promise(x=>setTimeout(x,ms)),h=document.documentElement;
+ db.set.skin='classic';page='set';stt='look';applySkin();render();await w(400);H.lk3_p({dataset:{k:'cu'}});await w(300);h.dataset.lay='bottom';h.dataset.navf='0';daniMenuCard.node();
+ const mc=document.querySelector('#menucard');o.sliders=!!(mc&&mc.querySelector('[data-mnr=sz]')&&mc.querySelector('[data-mnr=gp]')&&mc.querySelector('[data-mnr=ic]')&&mc.querySelector('[data-mnr=op]'));
+ const set=(k,v)=>{const s=document.querySelector('#menucard [data-mnr='+k+']');s.value=String(v);s.dispatchEvent(new Event('input',{bubbles:true}));s.dispatchEvent(new Event('change',{bubbles:true}))};
+ set('sz',70);o.sz=h.dataset.nvz==='1'&&h.style.getPropertyValue('--nvs').trim()==='0.7';
+ set('gp',12);o.gp=h.dataset.nvg==='12'&&db.set.skx.classic.mn.gp===12;
+ await w(900);const nb=document.getElementById('nav').getBoundingClientRect();o.gapPx=Math.abs((innerHeight-nb.bottom)-12)<=1.5;
+ set('ic',120);o.ic=h.dataset.nvic==='1';set('op',80);o.op=h.dataset.nvop==='1';
+ H.mn_set({dataset:{k:'hd',v:'t'}});o.hd=h.dataset.nvhd==='t';
+ H.mn_set({dataset:{k:'cr',v:'round'}});o.cr=h.dataset.nvcr==='round'&&db.set.skx.classic.mn.cr==='round';
+ H.mn_set({dataset:{k:'sh',v:'1'}});o.sh=h.dataset.nvsh==='1';
+ h.dataset.lay='side';daniMenuCard.node();o.noGap=!document.querySelector('#menucard [data-mnr=gp]');
+ db.set.skx.classic.mn.hd=0;daniMenuCard.apply();o.legacyHd=h.dataset.nvhd==='none';
+ H.mn_reset();o.reset=!h.dataset.nvz&&!h.dataset.nvg&&!h.dataset.nvic&&!h.dataset.nvop&&!h.dataset.nvhd&&!h.dataset.nvcr&&!h.dataset.nvsh&&!h.style.getPropertyValue('--nvs');
+ return o});const bad=Object.entries(r).filter(([k,v])=>v!==true);if(bad.length)throw new Error('FAIL '+bad.map(b=>b[0]).join(','))});
+
 console.log('\n'+results.map(r=>r.join(' ')).join('\n')+'\n\n'+(results.length-fails)+' / '+results.length+' موفق');
 await browser.close();srv.close();process.exit(fails?1:0);
