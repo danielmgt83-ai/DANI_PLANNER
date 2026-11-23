@@ -400,6 +400,7 @@ function validatePack(P,existing){
   if(!C||!okId(C.id))E('course.json: شناسه‌ی دوره نامعتبر است (فقط حروف انگلیسی، عدد، _ - . و حداکثر ۶۴ نویسه)');
   if(C&&!C.title)E('course.json: عنوان دوره خالی است');
   if(M&&C&&M.id&&M.id!==C.id)E('شناسه‌ی دوره در manifest و course یکی نیست');
+  if(M&&M.part!=null&&(typeof M.part!=='object'||Array.isArray(M.part)||!M.part.title||(M.part.id!=null&&!okId(String(M.part.id)))))W('manifest.part باید {id, title} باشد (مثلاً {"id":"ch2","title":"فصل ۲"}) تا فایل ادامه‌ی دوره نام بگیرد');
   if(!M||!M.contentVersion||!/^\d+(\.\d+){0,3}$/.test(String(M.contentVersion)))E('manifest.json: contentVersion باید مثل 1.0.0 باشد');
   if(C&&!['fa','en','fa-en'].includes(C.language))W('زبان دوره (language) باید fa، en یا fa-en باشد');
   if(C&&C.kind!=null&&!KINDS.has(C.kind))E('course.json: kind باید language | math | gmat | general باشد');
@@ -559,19 +560,37 @@ function normalizePack(P){const cid=P.course&&P.course.id,d=cid?tomb(cid):{l:[],
   P.lessons=P.lessons.filter(l=>!dl.has(l.id)).map(normLesson);
   P.questions=P.questions.filter(q=>!dq.has(q.id)).map(q=>mv[q.id]&&!dl.has(mv[q.id])?{...q,lessonIds:[mv[q.id]]}:q).map(normQuestion);
   if(P.course&&Array.isArray(P.course.chapters)&&d.ch.length){const dc=new Set(d.ch);P.course.chapters=P.course.chapters.filter(c=>!dc.has(c.id))}}
-function planPack(P){
-  const C=P.course,ex=CR.ix.courses.get(C.id)||null;
-  const pl={mode:ex?'update':'new',existing:ex,newV:P.manifest.contentVersion,oldV:ex&&ex.contentVersion,
-    L:{n:0,u:0,s:0},Q:{n:0,u:0,s:0},keptL:0,keptQ:0,chapters:[],progressTouched:[],orphans:[]};
+/* v168: هر دوره چند «فایل» دارد (course.files). دوره‌های قدیمی که files ندارند یک فایل مجازی «فایل اولیه» می‌گیرند. */
+const filesOf=c=>{if(!c)return[];if(Array.isArray(c.files)&&c.files.length)return c.files;
+  const ids=(arr)=>arr.filter(x=>x.courseId===c.id).map(x=>x.id);
+  return[{id:'f0',name:'فایل اولیه',partId:'',ver:String(c.contentVersion||''),at:c.importedAt||'',upd:c.updatedAt||'',lessons:ids(CR.cache.lessons),questions:ids(CR.cache.questions),sources:ids(CR.cache.sources||[]),legacy:true}]};
+const fileNameOf=n=>String(n||'').replace(/\.dani-course\.zip$/i,'').replace(/\.zip$/i,'').replace(/\.json$/i,'').trim();
+function planPack(P,opts){
+  const C=P.course,ex=CR.ix.courses.get(C.id)||null,ofs=ex?filesOf(ex):[];
+  let tg=opts&&opts.target; /* بدون opts = ادغام قدیمی کل دوره ('course') */
+  if(!tg)tg='course';
+  if(tg==='auto'){const pt=P.manifest&&P.manifest.part&&P.manifest.part.id;const m=pt&&ofs.find(f=>f.partId===String(pt));tg=m?m.id:'new'}
+  if(!ex&&tg!=='course')tg='new';
+  if(tg!=='new'&&tg!=='course'&&!ofs.some(f=>f.id===tg))tg='new';
+  const tf=(tg!=='new'&&tg!=='course')?ofs.find(f=>f.id===tg):null;
+  const part=P.manifest&&P.manifest.part;
+  const pl={mode:ex?'update':'new',existing:ex,target:tg,file:tf,fname:(part&&part.title&&String(part.title))||fileNameOf(opts&&opts.name)||('فایل '+faN(ofs.length+1)),newV:P.manifest.contentVersion,oldV:tf?tf.ver:ex&&ex.contentVersion,
+    L:{n:0,u:0,s:0},Q:{n:0,u:0,s:0},keptL:0,keptQ:0,chapters:[],progressTouched:[],orphans:[],orphL:[],orphQ:[],conflL:[],conflQ:[]};
   const exL=new Map(CR.cache.lessons.filter(l=>l.courseId===C.id).map(l=>[l.id,l])),exQ=new Map(CR.cache.questions.filter(q=>q.courseId===C.id).map(q=>[q.id,q]));
   const newLids=new Set(P.lessons.map(l=>l.id)),newQids=new Set(P.questions.map(q=>q.id));
   P.lessons.forEach(l=>{const o=exL.get(l.id),h=lhash(l);Object.defineProperty(l,'__h',{value:h,enumerable:false,writable:true});if(!o)pl.L.n++;else if(o.hash!==h){pl.L.u++;const p=CR.ix.progress.get(l.id);if(p&&p.done)pl.progressTouched.push(l.title||l.id)}else pl.L.s++});
   P.questions.forEach(q=>{const o=exQ.get(q.id),h=lhash(q);Object.defineProperty(q,'__h',{value:h,enumerable:false,writable:true});if(!o)pl.Q.n++;else if(o.hash!==h)pl.Q.u++;else pl.Q.s++});
   exL.forEach((l,id)=>{if(!newLids.has(id))pl.keptL++});exQ.forEach((q,id)=>{if(!newQids.has(id))pl.keptQ++});
+  if(tg!=='course'){const own=new Map();ofs.forEach(f=>{(f.lessons||[]).forEach(i=>own.set('L'+i,f));(f.questions||[]).forEach(i=>own.set('Q'+i,f))});
+    const mine=tf?tf.id:'';
+    P.lessons.forEach(l=>{const f=own.get('L'+l.id);if(exL.has(l.id)&&f&&f.id!==mine)pl.conflL.push({id:l.id,title:l.title||l.id,file:f.name})});
+    P.questions.forEach(q=>{const f=own.get('Q'+q.id);if(exQ.has(q.id)&&f&&f.id!==mine)pl.conflQ.push({id:q.id,file:f.name})});
+    if(tf){pl.orphL=(tf.lessons||[]).filter(i=>exL.has(i)&&!newLids.has(i)).map(i=>({id:i,title:exL.get(i).title||i}));pl.orphQ=(tf.questions||[]).filter(i=>exQ.has(i)&&!newQids.has(i)).map(i=>({id:i}));pl.keptL=pl.orphL.length;pl.keptQ=pl.orphQ.length}
+    else{pl.keptL=0;pl.keptQ=0}}
   (C.chapters||[]).forEach(c=>{const ls=P.lessons.filter(l=>l.chapterId===c.id);const isNew=!ex||!ex.chapters.some(x=>x.id===c.id);
     const changed=ls.some(l=>{const o=exL.get(l.id);return !o||o.hash!==l.__h});pl.chapters.push({id:c.id,title:c.title,lessons:ls.length,state:isNew?'new':changed?'updated':'same'})});
-  pl.cmp=ex?cmpVer(pl.newV,pl.oldV):1;
-  pl.nothing=ex&&!pl.L.n&&!pl.L.u&&!pl.Q.n&&!pl.Q.u&&cmpVer(pl.newV,pl.oldV)===0;
+  pl.cmp=ex?(tg==='new'?1:cmpVer(pl.newV,pl.oldV)):1;
+  pl.nothing=!!(ex&&tg!=='new'&&!pl.L.n&&!pl.L.u&&!pl.Q.n&&!pl.Q.u&&cmpVer(pl.newV,pl.oldV)===0);
   return pl;
 }
 const uniq=a=>[...new Set(a)];
@@ -582,16 +601,33 @@ async function commitPack(P,pl){
   const chMap=new Map((ex?ex.chapters:[]).map(c=>[c.id,c]));
   (C.chapters||[]).forEach((c,i)=>chMap.set(c.id,{id:c.id,title:String(c.title||c.id),description:c.description?String(c.description):'',order:+c.order||i+1}));
   const chapters=[...chMap.values()].sort((a,b)=>a.order-b.order);
-  const course={id:C.id,title:String(C.title),description:String(C.description||''),language:C.language||'fa',contentVersion:String(P.manifest.contentVersion),templateVersion:P.manifest.templateVersion,
+  const course={id:C.id,title:String(C.title),description:String(C.description||''),language:C.language||'fa',contentVersion:((pl.target==='course'||!ex||cmpVer(P.manifest.contentVersion,ex.contentVersion)>=0)?String(P.manifest.contentVersion):ex.contentVersion),templateVersion:P.manifest.templateVersion,
     topics:mergeBy(ex?ex.topics||[]:[],Array.isArray(C.topics)?C.topics.filter(t=>t&&t.id).map(t=>({id:String(t.id),title:String(t.title||t.id)})):[]),goals:uniq([...(ex?ex.goals||[]:[]),...(Array.isArray(C.goals)?C.goals.map(String):[])]),prerequisites:uniq([...(ex?ex.prerequisites||[]:[]),...(Array.isArray(C.prerequisites)?C.prerequisites.map(String):[])]),chapters,
     kind:KINDS.has(C.kind)?C.kind:(ex&&ex.kind||'general'),unit:(typeof C.unit==='string'&&C.unit.trim()?C.unit.trim():(ex&&ex.unit||'فصل')),
     paths:[...(ex&&ex.paths||[]).filter(x=>x&&x.u),...mergeBy((ex&&ex.paths||[]).filter(x=>x&&!x.u),Array.isArray(C.paths)?C.paths.filter(x=>x&&x.id&&Array.isArray(x.items)).map(x=>({id:String(x.id),title:String(x.title||x.id),items:x.items.map(String)})):[])],
     passages:mergeBy(ex&&ex.passages||[],Array.isArray(C.passages)?C.passages.filter(p=>p&&p.id&&Array.isArray(p.blocks)).map(p=>({id:String(p.id),title:p.title?String(p.title):'',blocks:p.blocks})):[]),
     exams:mergeBy((ex&&ex.exams||[]).map(x=>({...x,id:x.id||normExam(x.name)})),Array.isArray(C.exams)?C.exams.filter(x=>x&&x.name).map(x=>({id:normExam(x.name),name:normExam(x.name),year:x.year!=null?String(x.year):'',minutes:+x.minutes>0?+x.minutes:0,penalty:x.penalty!=null?+x.penalty:null,count:+x.count>0?+x.count:0,note:x.note?String(x.note):''})):[]),
     slots:(Array.isArray(C.slots)?C.slots.filter(x=>x&&x.id&&x.title).map(x=>({id:String(x.id),title:String(x.title),chapterId:x.chapterId?String(x.chapterId):'',order:+x.order||0})):(ex&&ex.slots||[])),
-    importedAt:ex?ex.importedAt:now,updatedAt:now,log:[...(ex?ex.log||[]:[]),{at:now,version:String(P.manifest.contentVersion),mode:pl.mode,lessons:pl.L,questions:pl.Q}].slice(-30)};
-  const lessons=P.lessons.map(l=>{const x={...l,courseId:C.id,hash:l.__h,v:course.contentVersion};delete x.__h;return x});
-  const questions=P.questions.map(q=>{const x={...q,courseId:C.id,hash:q.__h,v:course.contentVersion};delete x.__h;return x});
+    importedAt:ex?ex.importedAt:now,updatedAt:now,log:[...(ex?ex.log||[]:[]),{at:now,version:String(P.manifest.contentVersion),mode:pl.mode,lessons:pl.L,questions:pl.Q,file:pl.target==='course'?'':(pl.file?pl.file.name:(pl.fname||''))}].slice(-30)};
+  const pv=String(P.manifest.contentVersion),skL=new Set(),skQ=new Set();
+  if(pl.target!=='course'&&!pl.allowOver){(pl.conflL||[]).forEach(x=>skL.add(x.id));(pl.conflQ||[]).forEach(x=>skQ.add(x.id))}
+  const lessons=P.lessons.filter(l=>!skL.has(l.id)).map(l=>{const x={...l,courseId:C.id,hash:l.__h,v:pv};delete x.__h;return x});
+  const questions=P.questions.filter(q=>!skQ.has(q.id)).map(q=>{const x={...q,courseId:C.id,hash:q.__h,v:pv};delete x.__h;return x});
+  { /* فایل‌های دوره */
+    const nL=lessons.map(x=>x.id),nQ=questions.map(x=>x.id),sL=new Set(nL),sQ=new Set(nQ),sS=new Set(P.sources.map(x=>x.id));
+    let fl=(ex?filesOf(ex):[]).map(f=>({...f,lessons:[...(f.lessons||[])],questions:[...(f.questions||[])],sources:[...(f.sources||[])]}));
+    const part=P.manifest&&P.manifest.part,pid=part&&part.id?String(part.id):'';
+    const tf=(pl.target!=='new'&&pl.target!=='course')?fl.find(f=>f.id===pl.target):null;
+    const dropIn=(f)=>{f.lessons=f.lessons.filter(i=>!sL.has(i));f.questions=f.questions.filter(i=>!sQ.has(i));f.sources=f.sources.filter(i=>!sS.has(i))};
+    const rmL=new Set(pl.rmOrphans?(pl.orphL||[]).map(x=>x.id):[]),rmQ=new Set(pl.rmOrphans?(pl.orphQ||[]).map(x=>x.id):[]);
+    const nm=(pl.fname&&String(pl.fname).trim().slice(0,40))||(part&&part.title&&String(part.title))||('فایل '+(fl.length+1));
+    if(tf){fl.filter(f=>f!==tf).forEach(dropIn);tf.lessons=uniq([...tf.lessons.filter(i=>!rmL.has(i)),...nL]);tf.questions=uniq([...tf.questions.filter(i=>!rmQ.has(i)),...nQ]);tf.sources=uniq([...tf.sources,...sS]);tf.ver=pv;tf.upd=now;if(pid)tf.partId=pid;delete tf.legacy}
+    else if(pl.target==='new'||!fl.length){fl.forEach(dropIn);fl.push({id:'f'+Date.now().toString(36)+Math.random().toString(36).slice(2,5),name:nm,partId:pid,ver:pv,at:now,upd:now,lessons:nL,questions:nQ,sources:[...sS]})}
+    else{const oL=new Set(),oQ=new Set(),oS=new Set();fl.forEach(f=>{f.lessons.forEach(i=>oL.add(i));f.questions.forEach(i=>oQ.add(i));f.sources.forEach(i=>oS.add(i))});
+      const f0=fl[0];f0.lessons=uniq([...f0.lessons,...nL.filter(i=>!oL.has(i))]);f0.questions=uniq([...f0.questions,...nQ.filter(i=>!oQ.has(i))]);f0.sources=uniq([...f0.sources,...[...sS].filter(i=>!oS.has(i))]);f0.upd=now}
+    course.files=fl.filter(f=>f===tf||f.lessons.length||f.questions.length||f.sources.length);
+    pl._rmL=[...rmL];pl._rmQ=[...rmQ];
+  }
   const sources=P.sources.map(s=>({...s,courseId:C.id}));
   const assets=[...P.assets.values()].map(a=>({key:C.id+'/'+a.path,courseId:C.id,path:a.path,mime:a.mime,size:a.data.length,blob:new Blob([a.data],{type:a.mime})}));
   try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist()}catch(e){}
@@ -602,6 +638,8 @@ async function commitPack(P,pl){
     for(const x of questions)await rq(t.objectStore('questions').put(x));
     for(const x of sources)await rq(t.objectStore('sources').put(x));
     for(const x of assets)await rq(t.objectStore('assets').put(x));
+    for(const id of (pl._rmL||[]))await rq(t.objectStore('lessons').delete(id));
+    for(const id of (pl._rmQ||[]))await rq(t.objectStore('questions').delete(id));
     const RM=(P.manifest&&P.manifest.remove)||(C.remove)||null;
     if(RM&&typeof RM==='object'){
       for(const id of (Array.isArray(RM.questions)?RM.questions:[]))await rq(t.objectStore('questions').delete(String(id)));
@@ -1113,16 +1151,19 @@ function vQuizSetup(){
   return h;
 }
 /* ---------- ورود / خروج / انتقال ---------- */
-async function importFile(file){
-  const buf=await readFileBuf(file),name=file.name;let z=null;
+async function importFile(file,opts){
+  opts=opts||{};const buf=await readFileBuf(file),name=file.name;let z=null;
   try{z=await zipRead(buf)}catch(e){if(/\.json$/i.test(name))z=null;else throw e}
   if(!z){let j;try{j=JSON.parse(dec.decode(new Uint8Array(buf)).replace(/^\uFEFF/,''))}catch(e){throw new Error('JSON نامعتبر است: '+e.message)}
     return prepRestore(j,[],name)}
   if(z.ents.has('manifest.json')){
     const P=await loadPackZip(z),ex=P.course&&CR.ix.courses.get(P.course.id)||null,rep=validatePack(P,ex);let pl=null;
-    if(!rep.errors.length){normalizePack(P);pl=planPack(P)}
+    const ad=opts.add||opts.rep&&opts.rep.split('|')[0];
+    if(ad&&P.course&&P.course.id!==ad)throw new Error('این فایل برای دورهٔ «'+P.course.id+'» است، نه «'+ad+'»؛ فایل ادامهٔ همان دوره را انتخاب کن');
+    let tg=ex?'auto':'new';if(opts.add)tg='new';if(opts.rep){const fid=opts.rep.split('|')[1];tg=fid||'auto'}
+    if(!rep.errors.length){normalizePack(P);pl=planPack(P,{target:tg,name})}
     if(CR.pv)CR.pv.forEach(u=>URL.revokeObjectURL(u));CR.pv=new Map();P.assets.forEach((a,p)=>CR.pv.set(p,URL.createObjectURL(new Blob([a.data],{type:a.mime}))));
-    CR.pending={name,P,rep,pl,down:false};CR.restore=null;CR.tab='manage';return}
+    CR.pending={name,P,rep,pl,down:false,over:false,rmo:false,fname:pl?pl.fname:''};CR.restore=null;CR.tab='manage';return}
   if(z.ents.has('user.json')){
     const j=JSON.parse(dec.decode(await z.read('user.json'))),packs=[];
     for(const n of [...z.ents.keys()].filter(n=>/^courses\/.+\.zip$/.test(n))){try{const zz=await zipRead((await z.read(n)).buffer),P=await loadPackZip(zz),ex=P.course&&CR.ix.courses.get(P.course.id)||null,rep=validatePack(P,ex);let pl=null;if(!rep.errors.length){normalizePack(P);pl=planPack(P)}packs.push({n,P,rep,pl})}catch(e){packs.push({n,err:e.message})}}
@@ -1174,6 +1215,10 @@ function vManage(){
     h+='<div class="c crs-pv"><h3>پیش‌نمایش ورود: '+E_(C.title||pd.name)+'</h3><div class="m">فایل: <bdi dir="ltr">'+E_(pd.name)+'</bdi> · '+faN(pd.P.lessons.length)+' درس · '+faN(pd.P.questions.length)+' سؤال · '+faN(pd.P.assets.size)+' فایل تصویری ('+faN(pd.P.sizeKB)+' کیلوبایت)</div>';
     if(r.errors.length)h+='<div class="crs-call crs-warning"><div class="crs-ct">❌ '+faN(r.errors.length)+' خطا — ثبت نهایی ممکن نیست</div><ul>'+r.errors.slice(0,60).map(x=>'<li dir="auto">'+E_(x)+'</li>').join('')+(r.errors.length>60?'<li>… و '+faN(r.errors.length-60)+' مورد دیگر</li>':'')+'</ul></div>';
     if(r.warnings.length)h+='<details class="crs-call crs-note"><summary>⚠️ '+faN(r.warnings.length)+' هشدار (مانع ورود نیست)</summary><ul>'+r.warnings.slice(0,80).map(x=>'<li dir="auto">'+E_(x)+'</li>').join('')+'</ul></details>';
+    if(pl&&pl.existing&&pl.target!=='course'){const ofs=filesOf(pl.existing);
+      h+='<div class="crs-call crs-note"><div class="crs-ct">این فایل چه شود؟</div><select data-crs-tg><option value="new"'+(pl.target==='new'?' selected':'')+'>افزودن به عنوان فایل تازه</option>'+ofs.map(f=>'<option value="'+E_(f.id)+'"'+(pl.target===f.id?' selected':'')+'>جایگزین: '+E_(f.name)+'</option>').join('')+'</select>'+(pl.target==='new'?'<label style="display:block;margin-top:6px">نام فایل <input type="text" data-crs-fname value="'+E_(pd.fname||pl.fname)+'" maxlength="40" dir="auto"></label>':'')+'</div>'}
+    if(pl&&pl.target!=='course'&&(pl.conflL.length||pl.conflQ.length))h+='<div class="crs-call crs-warning"><div class="crs-ct">⚠️ شناسه‌ی تکراری با فایل دیگر</div>'+faN(pl.conflL.length)+' درس و '+faN(pl.conflQ.length)+' سؤال این بسته هم‌شناسه با فایل دیگری از همین دوره است (مثلاً «'+E_((pl.conflL[0]||pl.conflQ[0]).file)+'»). پیش‌فرض: دست نمی‌خورند.<label class="crs-ck"><input type="checkbox" data-crs-over '+(pd.over?'checked':'')+'> روی آن‌ها هم بنویس و به این فایل منتقل شوند</label></div>';
+    if(pl&&pl.file&&(pl.orphL.length||pl.orphQ.length))h+='<details class="crs-call crs-tip"><summary>'+faN(pl.orphL.length)+' درس و '+faN(pl.orphQ.length)+' سؤال در نسخه‌ی تازه‌ی این فایل نیست (پیش‌فرض: نگه داشته می‌شود)</summary><ul>'+pl.orphL.slice(0,30).map(x=>'<li dir="auto">'+E_(x.title)+'</li>').join('')+'</ul><label class="crs-ck"><input type="checkbox" data-crs-rmo '+(pd.rmo?'checked':'')+'> این‌ها حذف شوند (پیشرفت و پاسخ‌های من می‌ماند)</label></details>';
     if(pl){h+='<p>'+(pl.mode==='new'?'<b>دوره‌ی جدید</b> — نسخه‌ی '+E_(pl.newV):'<b>به‌روزرسانی</b> دوره‌ی نصب‌شده: نسخه‌ی '+E_(pl.oldV)+' ← '+E_(pl.newV))+'</p><div class="crs-tw"><table><tr><th></th><th>جدید</th><th>تغییرکرده</th><th>بدون تغییر</th><th>در بسته نیست (حفظ می‌شود)</th></tr><tr><td>درس</td><td>'+faN(pl.L.n)+'</td><td>'+faN(pl.L.u)+'</td><td>'+faN(pl.L.s)+'</td><td>'+faN(pl.keptL)+'</td></tr><tr><td>سؤال</td><td>'+faN(pl.Q.n)+'</td><td>'+faN(pl.Q.u)+'</td><td>'+faN(pl.Q.s)+'</td><td>'+faN(pl.keptQ)+'</td></tr></table></div>'+
       '<div class="m">فصل‌ها: '+pl.chapters.map(c=>E_(c.title)+' ('+({new:'جدید',updated:'به‌روز می‌شود',same:'بدون تغییر'})[c.state]+')').join(' · ')+'</div>'+
       '<div class="crs-call crs-tip"><div class="crs-ct">🛡 سیاست حفظ اطلاعات شما</div>پیشرفت، پاسخ‌ها، نشانک‌ها، یادداشت‌ها و دفترچه‌ی خطا جدا ذخیره می‌شوند و با ورود این بسته تغییر یا حذف نمی‌شوند. درس‌ها و سؤال‌هایی که قبلاً نصب بوده و در این بسته نیستند حذف نمی‌شوند. شناسه‌های هم‌نام فقط محتوای همان درس/سؤال را به‌روز می‌کنند'+(pl.progressTouched.length?'؛ '+faN(pl.progressTouched.length)+' درسِ تکمیل‌شده به‌روز می‌شود و با برچسب «به‌روزشده پس از تکمیل» به شما اطلاع داده می‌شود: '+pl.progressTouched.slice(0,5).map(E_).join('، '):'')+'.</div>';
@@ -1191,7 +1236,10 @@ function vManage(){
      '<label class="crs-ck"><input type="checkbox" data-crs-safety '+((R.safety||R.mode==='replace')?'checked':'')+(R.mode==='replace'?' disabled':'')+'> پیش از اعمال، نسخه‌ی ایمنی از اطلاعات فعلی دانلود شود</label>'+
      '<div class="row" style="margin-top:10px"><button class="p" data-a="crs_rapply">اعمال بازیابی</button><button data-a="crs_rcancel">لغو</button></div></div>'}
   h+='<div class="c"><h3>ورود یا به‌روزرسانی دوره</h3><p class="m">فایل <bdi dir="ltr">.dani-course.zip</bdi> را انتخاب کن. برای افزودن فصل جدید یا به‌روزرسانی یک فصل، بسته‌ای با همان شناسه‌ی دوره و نسخه‌ی بالاتر (فقط شامل آن فصل) وارد کن؛ بقیه‌ی فصل‌ها و پیشرفت شما دست‌نخورده می‌ماند. همیشه ابتدا پیش‌نمایش و گزارش خطا می‌بینی و می‌توانی لغو کنی.</p><label class="btn p" style="display:inline-block;margin:0">انتخاب فایل دوره<input type="file" accept=".zip,.json" data-crs-file="import" hidden></label></div>';
-  h+='<div class="c"><h3>دوره‌های نصب‌شده</h3>'+(CR.cache.courses.length?CR.cache.courses.map(c=>'<div class="cwr"><span dir="auto"><b>'+E_(c.title)+'</b> <small class="m">v'+E_(c.contentVersion)+' · '+faN(lessonsOf(c.id).length)+' درس · '+faN(questionsOf(c.id).length)+' سؤال</small></span><button data-a="crs_expc" data-id="'+E_(c.id)+'">خروجی ZIP</button><button class="d" data-a="crs_delc" data-id="'+E_(c.id)+'">حذف</button></div>').join(''):'<p class="m">دوره‌ای نصب نیست.</p>')+'</div>';
+  h+='<div class="c"><h3>دوره‌های نصب‌شده</h3>'+(CR.cache.courses.length?CR.cache.courses.map(c=>{const fs=filesOf(c),sl=new Set(lessonsOf(c.id).map(l=>l.id)),sq=new Set(questionsOf(c.id).map(q=>q.id)),ci=E_(c.id);
+    return'<details class="crs-fl" style="margin:6px 0"><summary dir="auto" style="cursor:pointer"><b>'+E_(c.title)+'</b> <small class="m">v'+E_(c.contentVersion)+' · '+faN(fs.length)+' فایل · '+faN(lessonsOf(c.id).length)+' درس · '+faN(questionsOf(c.id).length)+' سؤال</small></summary>'
+    +fs.map(f=>{const fi=E_(f.id);return'<div class="cwr"><span dir="auto"><b>'+E_(f.name)+'</b> <small class="m">'+(f.ver?'v'+E_(f.ver)+' · ':'')+faN((f.lessons||[]).filter(i=>sl.has(i)).length)+' درس · '+faN((f.questions||[]).filter(i=>sq.has(i)).length)+' سؤال'+(f.upd?' · '+fmtD(String(f.upd).slice(0,10)):'')+'</small></span><button data-a="crs_frn" data-c="'+ci+'" data-f="'+fi+'" title="تغییر نام">✏️</button><label class="btn" style="margin:0" title="جایگزین کردن با نسخه‌ی کامل‌تر">🔄<input type="file" accept=".zip" data-crs-file="import" data-crs-rep="'+ci+'|'+fi+'" hidden></label><button class="d" data-a="crs_frd" data-c="'+ci+'" data-f="'+fi+'" title="حذف فقط این فایل">🗑</button></div>'}).join('')
+    +'<div class="row" style="margin-top:6px"><label class="btn p" style="margin:0">＋ افزودن فایل<input type="file" accept=".zip" data-crs-file="import" data-crs-add="'+ci+'" hidden></label><button data-a="crs_expc" data-id="'+ci+'">خروجی ZIP کل دوره</button><button class="d" data-a="crs_delc" data-id="'+ci+'">حذف کل دوره</button></div></details>'}).join(''):'<p class="m">دوره‌ای نصب نیست.</p>')+'</div>';
   h+='<div class="c"><h3>انتقال و پشتیبان‌گیری فقط آکادمی</h3><div class="row"><button data-a="crs_expu">خروجی اطلاعات کاربر (JSON)</button><button data-a="crs_expb">پشتیبان فقط آکادمی (دوره‌ها + اطلاعات)</button><label class="btn" style="margin:0">بازیابی پشتیبان آکادمی<input type="file" accept=".zip,.json" data-crs-file="restore" hidden></label></div>'+
    '<div class="crs-call crs-note"><div class="crs-ct">انتقال دستی ≠ همگام‌سازی خودکار</div>اینجا همگام‌سازی آنلاین وجود ندارد. برای رفتن از لپ‌تاپ به گوشی: «پشتیبان کامل» را بگیر، فایل را با ایمیل/تلگرام/فلش منتقل کن و در دستگاه مقصد «بازیابی از فایل» را بزن. هر تغییری که بعد از گرفتن فایل انجام دهی، در دستگاه دیگر نیست تا دوباره منتقل کنی. این اطلاعات داخل IndexedDB مرورگر است و در «پشتیبان JSON» خودِ پلنر (برنامه‌ریزی، عادت‌ها و …) <b>گنجانده نمی‌شود</b>؛ آن را جداگانه از تنظیمات پلنر پشتیبان بگیر.</div><div id="crs-est" class="m"></div></div>';
   return h;
@@ -1248,8 +1296,15 @@ hh('qcheck',()=>{touchQ();const q=CR.ix.questions.get(CR.quiz.qids[CR.qi]),it=cu
 hh('qsubmit',()=>{const a=CR.quiz,un=a.qids.filter(id=>{const t=a.items[id];return!t||t.answer==null||t.answer===''||(Array.isArray(t.answer)&&!t.answer.length)}).length;if(un&&!confirm(faN(un)+' سؤال بی‌پاسخ است. پایان و تصحیح؟'))return;return submitQuiz()});
 hh('qquit',()=>{if(!confirm('آزمون رها و حذف شود؟'))return;const id=CR.quiz.id;clearInterval(CR.tmr);CR.quiz=null;return delUser('attempts',id).then(rerender)});
 hh('qpause',()=>{leaveQuiz();clearInterval(CR.tmr);CR.quiz=null;toast('ذخیره شد؛ از «نیمه‌تمام» ادامه بده');rerender()});
-hh('commit',()=>{const pd=CR.pending;return guard(async()=>{await commitPack(pd.P,pd.pl);CR.pv&&CR.pv.forEach(u=>URL.revokeObjectURL(u));CR.pv=null;CR.pending=null;msg('ok','دوره «'+E_(pd.P.course.title)+'» با موفقیت ثبت شد (نسخه‌ی '+E_(pd.pl.newV)+').')})});
+hh('commit',()=>{const pd=CR.pending;pd.pl.allowOver=!!pd.over;pd.pl.rmOrphans=!!pd.rmo;if(pd.fname)pd.pl.fname=pd.fname;return guard(async()=>{await commitPack(pd.P,pd.pl);CR.pv&&CR.pv.forEach(u=>URL.revokeObjectURL(u));CR.pv=null;CR.pending=null;msg('ok','دوره «'+E_(pd.P.course.title)+'» با موفقیت ثبت شد (نسخه‌ی '+E_(pd.pl.newV)+').')})});
 hh('cancel',()=>{CR.pv&&CR.pv.forEach(u=>URL.revokeObjectURL(u));CR.pv=null;CR.pending=null;toast('ورود لغو شد؛ چیزی ذخیره نشد');rerender()});
+const saveCourse=async c2=>{await IDB.tx(['courses'],'readwrite',async t=>{await rq(t.objectStore('courses').put({...c2,updatedAt:nowISO()}))});await crLoad()};
+hh('frn',el=>{const c=CR.ix.courses.get(el.dataset.c);if(!c)return;const fs=filesOf(c).map(f=>({...f})),f=fs.find(x=>x.id===el.dataset.f);if(!f)return;const n=prompt('نام فایل',f.name);if(n==null)return;const nm=n.trim().slice(0,40);if(!nm)return;f.name=nm;delete f.legacy;return guard(()=>saveCourse({...c,files:fs}),'نام فایل عوض شد')});
+hh('frd',el=>{const c=CR.ix.courses.get(el.dataset.c);if(!c)return;const fs=filesOf(c).map(f=>({...f})),f=fs.find(x=>x.id===el.dataset.f);if(!f)return;
+  const sl=new Set(lessonsOf(c.id).map(l=>l.id)),sq=new Set(questionsOf(c.id).map(q=>q.id)),nl=(f.lessons||[]).filter(i=>sl.has(i)).length,nq=(f.questions||[]).filter(i=>sq.has(i)).length;
+  if(!confirm('فایل «'+f.name+'» حذف شود؟\n'+nl+' درس و '+nq+' سؤال از دوره برداشته می‌شود.\nپیشرفت، پاسخ‌ها، نشانک‌ها و یادداشت‌های تو حذف نمی‌شود.\n(پیش از حذف می‌توانی «خروجی ZIP کل دوره» بگیری.)'))return;
+  if(fs.length===1&&!confirm('این تنها فایل دوره است و دوره خالی می‌ماند. ادامه؟'))return;
+  return guard(async()=>{const rest=fs.filter(x=>x.id!==f.id);await IDB.tx(['courses','lessons','questions'],'readwrite',async t=>{for(const i of (f.lessons||[]))await rq(t.objectStore('lessons').delete(i));for(const i of (f.questions||[]))await rq(t.objectStore('questions').delete(i));await rq(t.objectStore('courses').put({...c,files:rest,updatedAt:nowISO()}))});if(CR.lessonId&&(f.lessons||[]).includes(CR.lessonId))CR.lessonId='';await crLoad()},'فایل حذف شد')});
 hh('expc',el=>guard(async()=>{const c=CR.ix.courses.get(el.dataset.id);download(c.id+'-'+c.contentVersion+'.dani-course.zip',await buildCourseZip(c.id))},'فایل دوره دانلود شد'));
 hh('delc',el=>{const c=CR.ix.courses.get(el.dataset.id);if(!confirm('محتوای دوره «'+c.title+'» حذف شود؟\n(قبل از حذف، «خروجی ZIP» بگیر. پیشرفت و پاسخ‌ها در مرحله‌ی بعد جداگانه پرسیده می‌شود.)'))return;const wu=confirm('پیشرفت، پاسخ‌ها، نشانک‌ها و یادداشت‌های این دوره هم حذف شود؟\nتأیید = همه حذف شود · انصراف = اطلاعات من بماند');return guard(async()=>{if(CR.courseId===c.id){CR.courseId='';CR.lessonId=''}await deleteCourse(c.id,wu)},'دوره حذف شد')});
 hh('expu',()=>{download('dani-academy-user-'+new Date().toISOString().slice(0,10)+'.json',new Blob([JSON.stringify(userExport(),null,1)],{type:'application/json'}));toast('خروجی اطلاعات کاربر آماده شد')});
@@ -1259,7 +1314,11 @@ hh('rapply',()=>{const R=CR.restore;if(R.mode==='replace'&&!confirm('اطلاع�
 document.addEventListener('change',e=>{
   const t=e.target;if(!t||!t.matches)return;
   if(t.matches('[data-crs-file=all]')){const f=t.files&&t.files[0];t.value='';if(!f)return;guard(async()=>{CR.everything=await prepEverything(f);CR.restore=null;CR.pending=null});return}
-  if(t.matches('[data-crs-file]')){const f=t.files&&t.files[0];t.value='';if(!f)return;guard(()=>importFile(f).then(()=>{}));return}
+  if(t.matches('[data-crs-file]')){const f=t.files&&t.files[0],o={add:t.dataset.crsAdd||'',rep:t.dataset.crsRep||''};t.value='';if(!f)return;guard(()=>importFile(f,o).then(()=>{}));return}
+  if(t.matches('[data-crs-tg]')&&CR.pending){const pd=CR.pending;pd.pl=planPack(pd.P,{target:t.value,name:pd.name});pd.over=false;pd.rmo=false;pd.fname=pd.pl.fname;rerender();return}
+  if(t.matches('[data-crs-fname]')&&CR.pending){CR.pending.fname=t.value;return}
+  if(t.matches('[data-crs-over]')&&CR.pending){CR.pending.over=t.checked;return}
+  if(t.matches('[data-crs-rmo]')&&CR.pending){CR.pending.rmo=t.checked;return}
   if(t.matches('[data-crs-bk]')){CR.bk[t.dataset.crsBk]=t.checked;return}
   if(t.matches('[data-crs-ev]')){const ev=CR.everything;if(t.dataset.crsEv==='host')ev.doHost=t.checked;else ev.doAcademy=t.checked;rerender();return}
   if(t.matches('[data-crs-evsafe]')){CR.everything.safety=t.checked;return}
