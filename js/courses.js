@@ -833,6 +833,14 @@ function grade(q,a){
   }catch(e){}
   return{auto:false,ok:null};
 }
+/* v172: «بلد بودم» — برای سؤال‌های نوشتنی (عددی/کوتاه/جای‌خالی/تطبیق) که حل درست بوده ولی جواب اشتباه وارد شده (مثلاً یک رقم) */
+const TYPED=new Set(['numeric','short','cloze','match']);
+const effOk=it=>it.ov==='know'?true:(it.ok!=null?it.ok:(it.self==='right'?true:it.self==='wrong'?false:null));
+function knowHTML(q,it){if(!TYPED.has(q.type))return'';const g=grade(q,it.answer),at=' data-q="'+E_(q.id)+'"';
+  if(it.ov==='know')return'<div class="row crs-know"><span class="m">✅ '+TT('ثبت شد: بلد بودی؛ فقط جواب را اشتباه وارد کردی','Marked: you knew it; only the typed answer was off')+'</span><button class="chip sm" data-a="crs_know"'+at+' data-v="0">↩ '+TT('برگردان','Undo')+'</button></div>';
+  if(g.auto&&g.ok===false&&!g.skipped)return'<div class="row crs-know"><button class="chip sm" data-a="crs_know"'+at+' data-v="1">✓ '+TT('بلد بودم؛ فقط جواب را اشتباه وارد کردم','I knew it; I only typed the answer wrong')+'</button></div><p class="m">'+TT('اگر روی برگه درست حل کردی ولی مثلاً یک رقم را اشتباه نوشتی، این را بزن؛ سؤال درست حساب می‌شود و در دفترچه‌ی خطا نمی‌ماند.','If you solved it right on paper but mistyped (e.g. one digit), tap this: it counts as correct and stays out of the error notebook.')+'</p>';
+  return''}
+function recalcScore(a){let ok=0,tot=0,wrong=0,blank=0,pend=0;a.qids.forEach(id=>{const q=CR.ix.questions.get(id),it=a.items[id]||{};if(!q)return;const g=grade(QR(q,it),it.answer);if(g.auto){tot++;if(g.ok||it.ov==='know')ok++;else if(g.skipped)blank++;else wrong++}else pend++});a.score={...(a.score||{}),ok,total:tot,pending:pend,wrong,blank}}
 const chLabel=c=>String(c.label||c.id);
 function chHTML(c){return'<span class="crs-cl">'+E_(chLabel(c))+'</span><span class="crs-ctx">'+(c.blocks?blocks(c.blocks):(c.text!=null?inl(c.text):''))+(c.image?figHTML({asset:c.image,alt:c.alt||'',caption:''}):'')+'</span>'}
 function ansText(q,a){
@@ -872,7 +880,7 @@ const gArr=(q)=>!!q;
 /* ---------- آمار ---------- */
 function latestResults(cid){ // آخرین نتیجه‌ی هر سؤال
   const m=new Map();
-  CR.cache.attempts.filter(a=>(a.courseId===cid||(a.courses&&a.courses.includes(cid)))&&a.status==='done').sort((a,b)=>a.finishedAt-b.finishedAt).forEach(a=>{Object.entries(a.items||{}).forEach(([qid,it])=>{if(a.courses){const q=CR.ix.questions.get(qid);if(!q||q.courseId!==cid)return}const ok=it.ok!=null?it.ok:(it.self==='right'?true:it.self==='wrong'?false:null);if(ok!=null)m.set(qid,{ok,at:a.finishedAt})})});
+  CR.cache.attempts.filter(a=>(a.courseId===cid||(a.courses&&a.courses.includes(cid)))&&a.status==='done').sort((a,b)=>a.finishedAt-b.finishedAt).forEach(a=>{Object.entries(a.items||{}).forEach(([qid,it])=>{if(a.courses){const q=CR.ix.questions.get(qid);if(!q||q.courseId!==cid)return}const ok=effOk(it);if(ok!=null)m.set(qid,{ok,at:a.finishedAt})})});
   return m;
 }
 function mastery(cid){
@@ -889,7 +897,7 @@ function empty(){return'<div class="c"><h3>هنوز دوره‌ای وارد ن�
 function vHome(){
   const cs=CR.cache.courses;if(!cs.length)return empty();
   const att=CR.cache.attempts.filter(a=>a.status==='done'),last=CR.cache.progress.filter(p=>p.lastAt).sort((a,b)=>b.lastAt-a.lastAt)[0];
-  let tq=0,ok=0;att.forEach(a=>Object.values(a.items||{}).forEach(i=>{if(i.ok!=null){tq++;if(i.ok)ok++}}));
+  let tq=0,ok=0;att.forEach(a=>Object.values(a.items||{}).forEach(i=>{const e=effOk(i);if(e!=null){tq++;if(e)ok++}}));
   const act=CR.cache.attempts.filter(a=>a.status==='active');
   let h='<div class="g g4"><div class="c"><h3>دوره‌ها</h3><div class="big">'+faN(cs.length)+'</div></div><div class="c"><h3>درس‌های کامل‌شده</h3><div class="big">'+faN(CR.cache.progress.filter(p=>p.done).length)+'</div></div><div class="c"><h3>دقت آزمون‌ها</h3><div class="big">'+(tq?faN(Math.round(ok/tq*100))+'٪':'—')+'</div><div class="m" style="text-align:center">'+faN(tq)+' پاسخ تصحیح‌شده</div></div><div class="c"><h3>اشتباهات باز</h3><div class="big">'+faN(unresolved())+'</div></div></div>';
   if(last){const l=CR.ix.lessons.get(last.id);if(l)h+='<div class="c"><h3>ادامه‌ی مطالعه</h3><b dir="auto">'+E_(l.title)+'</b> <span class="m">· '+E_((CR.ix.courses.get(l.courseId)||{}).title||'')+'</span><div class="row" style="margin-top:8px"><button class="p" data-a="crs_open" data-c="'+E_(l.courseId)+'" data-l="'+E_(l.id)+'">ادامه</button></div></div>'}
@@ -1104,14 +1112,14 @@ function leaveQuiz(){if(!CR.quiz)return;touchQ();CR.quiz.used=usedMs();CR.quiz.q
 async function recordErrors(a){
   const now=Date.now();
   for(const qid of a.qids){const it=a.items[qid]||{},q=CR.ix.questions.get(qid);if(!q)continue;
-    const ok=it.ok!=null?it.ok:(it.self==='right'?true:it.self==='wrong'?false:null);const old=CR.ix.errors.get('e_'+qid);
+    const ok=effOk(it);const old=CR.ix.errors.get('e_'+qid);
     if(ok===false){await putUser('errors',{...(old||{}),id:'e_'+qid,qid,courseId:q.courseId||a.courseId,attemptId:a.id,at:(old&&old.at)||now,lastAt:now,count:((old&&old.count)||0)+1,cause:(old&&old.cause)||'',note:(old&&old.note)||'',resolved:false,yourAnswer:it.answer,correctStreak:0,traps:(()=>{const t={...((old&&old.traps)||{})};trapsOf(QR(q,it),it.answer).forEach(k=>{t[k]=(t[k]||0)+1});return Object.keys(t).length?t:undefined})()})}
     else if(ok===true&&old){await putUser('errors',{...old,correctStreak:(old.correctStreak||0)+1})}}
 }
 async function submitQuiz(auto){
   const a=CR.quiz;if(!a)return;touchQ();a.used=usedMs();clearInterval(CR.tmr);
   let ok=0,tot=0,pend=0,wrong=0,blank=0;
-  a.qids.forEach(id=>{const q=CR.ix.questions.get(id),it=a.items[id]||(a.items[id]={answer:null,ms:0,flag:false});if(!q)return;const g=grade(QR(q,it),it.answer);it.ok=g.ok;it.skipped=!!g.skipped;if(g.auto){tot++;if(g.ok)ok++;else if(g.skipped)blank++;else wrong++}else pend++});
+  a.qids.forEach(id=>{const q=CR.ix.questions.get(id),it=a.items[id]||(a.items[id]={answer:null,ms:0,flag:false});if(!q)return;const g=grade(QR(q,it),it.answer);it.ok=g.ok;it.skipped=!!g.skipped;if(g.auto){tot++;if(g.ok||it.ov==='know')ok++;else if(g.skipped)blank++;else wrong++}else pend++});
   a.status='done';a.finishedAt=Date.now();a.score={ok,total:tot,pending:pend,wrong,blank,neg:!!a.neg,pen:a.pen!=null?a.pen:null};
   CR.quiz=null;CR.keyId=a.id;
   await putUser('attempts',a);await recordErrors(a);
@@ -1139,8 +1147,8 @@ function trapsOf(q,a){const o=[];if(typeof q.trap==='string'&&q.trap.trim())o.pu
 const trapLine=e=>{const t=e&&e.traps?Object.entries(e.traps).sort((x,y)=>y[1]-x[1]).slice(0,4):[];return t.length?'<div class="m">🪤 '+TT('تله‌ها: ','Traps: ')+t.map(x=>E_(x[0])+(x[1]>1?' ×'+faN(x[1]):'')).join('، ')+'</div>':''};
 function feedback(q,it){
   q=QR(q,it);const g=grade(q,it.answer);let h='<div class="crs-fb '+(g.auto?(g.ok?'crs-o':'crs-e'):'')+'">';
-  h+=g.auto?(g.ok?'✅ درست':'❌ نادرست'+(g.skipped?' (بدون پاسخ)':'')):'📝 سؤال تشریحی؛ تصحیح قطعی ندارد — خودت پاسخ را با پاسخ نمونه مقایسه کن';
-  h+='<div><b>پاسخ صحیح:</b> '+correctText(q)+'</div>';
+  h+=g.auto?(g.ok?'✅ درست':(it.ov==='know'?'✅ '+TT('بلد بودی (جواب را اشتباه وارد کردی)','You knew it (typed answer was off)'):'❌ نادرست'+(g.skipped?' (بدون پاسخ)':''))):'📝 سؤال تشریحی؛ تصحیح قطعی ندارد — خودت پاسخ را با پاسخ نمونه مقایسه کن';
+  h+='<div><b>پاسخ صحیح:</b> '+correctText(q)+'</div>'+knowHTML(q,it);
   if(g.auto&&!g.ok){const tp=trapsOf(q,it.answer);if(tp.length)h+='<div class="crs-trap">🪤 <b>'+TT('تله:','Trap:')+'</b> '+tp.map(E_).join('، ')+'</div>'}
   if(q.type==='single'||q.type==='multi'){const why=(q.choices||[]).filter(c=>c.why);if(why.length)h+='<div class="crs-why"><b>تحلیل گزینه‌ها:</b>'+why.map(c=>'<div><b>'+E_(chLabel(c))+':</b> '+inl(c.why)+'</div>').join('')+'</div>'}
   if(q.solution)h+='<div class="crs-sol"><b>پاسخ تشریحی:</b>'+blocks(q.solution)+'</div>';
@@ -1166,10 +1174,10 @@ function vKey(){
   let h='<div class="c"><div class="row"><h3 class="sp">پاسخ‌نامه‌ی تشریحی — '+E_(c?c.title:'')+'</h3><button data-a="crs_qnew">آزمون تازه</button></div><div class="big">'+(sc.total?faN(sc.ok)+' / '+faN(sc.total):'—')+'</div><div class="m" style="text-align:center">'+(sc.total?'درصد پاسخ‌های قابل تصحیح خودکار: '+faN(Math.round(sc.ok/sc.total*100))+'٪':'')+(sc.neg&&sc.total?' · درصد با نمره‌ی منفی (هر غلط '+(sc.pen!=null?faN(+(sc.pen).toFixed(2)):'⅓')+' نمره): '+faN(Math.round((sc.ok-(sc.wrong||0)*(sc.pen!=null?sc.pen:1/3))/sc.total*100))+'٪ · درست '+faN(sc.ok)+' · غلط '+faN(sc.wrong||0)+' · نزده '+faN(sc.blank||0):'')+(sc.pending?' · '+faN(sc.pending)+' سؤال تشریحی نیازمند خودارزیابی':'')+' · مجموع زمان '+faN(Math.round(ms/1000))+' ثانیه</div><div class="row" style="margin-top:8px"><button data-a="crs_errprac">تمرین اشتباهات باز</button><button data-a="crs_tab" data-k="errors">دفترچه‌ی خطا</button></div></div>';
   h+='<div class="crs-lesson" data-nobi style="--crs-mz:'+CR.mz+'">';
   a.qids.forEach((id,i)=>{let q=CR.ix.questions.get(id);const it=a.items[id]||{};if(!q){h+='<div class="c">سؤال '+E_(id)+' دیگر نصب نیست.</div>';return}
-    const ok=it.ok!=null?it.ok:(it.self==='right'?true:it.self==='wrong'?false:null),er=CR.ix.errors.get('e_'+id);
+    const ok=effOk(it),er=CR.ix.errors.get('e_'+id);
     const prevQ=i?CR.ix.questions.get(a.qids[i-1]):null,qq=q;q=QR(q,it);
-    h+='<div class="c">'+(qq.passageId&&!(prevQ&&prevQ.passageId===qq.passageId)?'<details class="crs-lesson" data-nobi style="--crs-mz:'+CR.mz+'"><summary>📄 '+TT('متن مشترک','Shared passage')+'</summary>'+passHTML(qq)+'</details>':'')+'<div class="row"><b>سؤال '+faN(i+1)+'</b>'+(ok===true?badge('درست','#16a34a'):ok===false?badge(it.skipped?'بدون پاسخ':'نادرست','#dc2626'):badge('نیازمند خودارزیابی','#ea580c'))+(it.flag?badge('🚩 علامت‌خورده','#64748b'):'')+'<span class="m">'+faN(Math.round((it.ms||0)/1000))+' ثانیه'+(qq.timeSec?' / '+faN(qq.timeSec):'')+'</span>'+(it.hints?badge('💡 '+faN(it.hints),'#0ea5e9'):'')+'</div>'+stemHTML(q)+'<div class="crs-yours"><b>پاسخ شما:</b> '+ansText(q,it.answer)+'</div><div class="crs-ans"><b>پاسخ صحیح:</b> '+correctText(q)+'</div>'+
-     (q.type==='essay'?'<div class="row"><span class="m">خودارزیابی (فقط برای آمار شخصی شما):</span>'+[['right','درست بود'],['wrong','نادرست بود']].map(x=>'<button class="'+(it.self===x[0]?'p':'')+'" data-a="crs_self" data-q="'+E_(id)+'" data-v="'+x[0]+'">'+x[1]+'</button>').join('')+'</div>':'')+
+    h+='<div class="c">'+(qq.passageId&&!(prevQ&&prevQ.passageId===qq.passageId)?'<details class="crs-lesson" data-nobi style="--crs-mz:'+CR.mz+'"><summary>📄 '+TT('متن مشترک','Shared passage')+'</summary>'+passHTML(qq)+'</details>':'')+'<div class="row"><b>سؤال '+faN(i+1)+'</b>'+(ok===true?badge(it.ov==='know'?TT('درست (بلد بودم)','Correct (I knew it)'):'درست','#16a34a'):ok===false?badge(it.skipped?'بدون پاسخ':'نادرست','#dc2626'):badge('نیازمند خودارزیابی','#ea580c'))+(it.flag?badge('🚩 علامت‌خورده','#64748b'):'')+'<span class="m">'+faN(Math.round((it.ms||0)/1000))+' ثانیه'+(qq.timeSec?' / '+faN(qq.timeSec):'')+'</span>'+(it.hints?badge('💡 '+faN(it.hints),'#0ea5e9'):'')+'</div>'+stemHTML(q)+'<div class="crs-yours"><b>پاسخ شما:</b> '+ansText(q,it.answer)+'</div><div class="crs-ans"><b>پاسخ صحیح:</b> '+correctText(q)+'</div>'+
+     knowHTML(q,it)+(q.type==='essay'?'<div class="row"><span class="m">خودارزیابی (فقط برای آمار شخصی شما):</span>'+[['right','درست بود'],['wrong','نادرست بود']].map(x=>'<button class="'+(it.self===x[0]?'p':'')+'" data-a="crs_self" data-q="'+E_(id)+'" data-v="'+x[0]+'">'+x[1]+'</button>').join('')+'</div>':'')+
      ((q.type==='single'||q.type==='multi')&&(q.choices||[]).some(c=>c.why)?'<div class="crs-why"><b>تحلیل گزینه‌ها:</b>'+q.choices.filter(c=>c.why).map(c=>'<div><b>'+E_(chLabel(c))+':</b> '+inl(c.why)+'</div>').join('')+'</div>':'')+
      (q.solution?'<div class="crs-sol"><b>پاسخ تشریحی:</b>'+blocks(q.solution)+'</div>':'')+srcLine(q.sourceRef)+
      (ok===false&&er?'<div class="row" style="margin-top:6px"><select data-crs-cause="'+E_(er.id)+'"><option value="">علت اشتباه…</option>'+['ندانستن مفهوم','اشتباه محاسباتی','بی‌دقتی در خواندن','کمبود زمان','حدس زدن','اشتباه در روش'].map(x=>'<option '+(er.cause===x?'selected':'')+'>'+x+'</option>').join('')+'</select></div>':'')+'</div>'});
@@ -1355,6 +1363,11 @@ hh('qpause',()=>{leaveQuiz();clearInterval(CR.tmr);CR.quiz=null;toast('ذخیر�
 hh('commit',()=>{const pd=CR.pending;pd.pl.allowOver=!!pd.over;pd.pl.rmOrphans=!!pd.rmo;if(pd.fname)pd.pl.fname=pd.fname;return guard(async()=>{await commitPack(pd.P,pd.pl);CR.pv&&CR.pv.forEach(u=>URL.revokeObjectURL(u));CR.pv=null;CR.pending=null;msg('ok','دوره «'+E_(pd.P.course.title)+'» با موفقیت ثبت شد (نسخه‌ی '+E_(pd.pl.newV)+').')})});
 hh('cancel',()=>{CR.pv&&CR.pv.forEach(u=>URL.revokeObjectURL(u));CR.pv=null;CR.pending=null;toast('ورود لغو شد؛ چیزی ذخیره نشد');rerender()});
 const saveCourse=async c2=>{await IDB.tx(['courses'],'readwrite',async t=>{await rq(t.objectStore('courses').put({...c2,updatedAt:nowISO()}))});await crLoad()};
+hh('know',el=>{const qid=el.dataset.q,v=el.dataset.v==='1',act=CR.quiz&&CR.quiz.qids.includes(qid)?CR.quiz:null;
+  if(act){const it=act.items[qid]||(act.items[qid]={});if(v)it.ov='know';else delete it.ov;persistSoon();rerender();return}
+  const a=CR.ix.attempts.get(CR.keyId);if(!a)return;const it=a.items[qid]||(a.items[qid]={});if(v)it.ov='know';else delete it.ov;recalcScore(a);
+  (async()=>{await putUser('attempts',a);const er=CR.ix.errors.get('e_'+qid);
+    if(v){if(er&&er.attemptId===a.id){if((er.count||1)<=1)await delUser('errors',er.id);else await putUser('errors',{...er,count:er.count-1})}}else await recordErrors(a)})().then(rerender).catch(e=>toast(storeErr(e),1))});
 hh('news_ok',el=>{const A=zAX();if(!A.nws||typeof A.nws!=='object'||Array.isArray(A.nws))A.nws={};const c=CR.ix.courses.get(el.dataset.c);if(!c)return;const m=A.nws[c.id]=A.nws[c.id]||{};(c.news||[]).forEach(n=>{m[n.id]=1});zcommit();rerender()});
 hh('catalog',async()=>{const t=catalogText();try{await navigator.clipboard.writeText(t);toast('فهرست دوره‌ها کپی شد؛ در چت سازنده بچسبان')}catch(e){const w=document.createElement('textarea');w.value=t;w.style.cssText='position:fixed;left:-999px';document.body.appendChild(w);w.select();try{document.execCommand('copy');toast('فهرست دوره‌ها کپی شد؛ در چت سازنده بچسبان')}catch(x){toast('کپی نشد',1)}w.remove()}});
 hh('ses_tick',el=>{const d=sesData(el.dataset.c),x=d[el.dataset.s]=d[el.dataset.s]||{p:{}};x.p=x.p||{};const i=el.dataset.i;if(x.p[i])delete x.p[i];else x.p[i]=1;x.t=Date.now();zcommit();rerender()});
