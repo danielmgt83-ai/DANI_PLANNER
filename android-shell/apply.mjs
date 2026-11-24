@@ -101,6 +101,12 @@ function android() {
       '    </application>');
     fs.writeFileSync(mf, x);
   }
+  // خواندن لغت‌ها (v170): از اندروید ۱۱ به بعد برنامه باید «سرویس متن به گفتار» را در مانیفست ببیند
+  x = fs.readFileSync(mf, 'utf8');
+  if (!x.includes('android.intent.action.TTS_SERVICE')) {
+    x = x.replace('</manifest>', '    <queries>\n        <intent><action android:name="android.intent.action.TTS_SERVICE" /></intent>\n    </queries>\n</manifest>');
+    fs.writeFileSync(mf, x);
+  }
   console.log('مجوزها:', add ? 'اضافه شد' : 'از قبل بود', '| res کپی شد | افزونه‌ی DaniNative اضافه شد');
 }
 
