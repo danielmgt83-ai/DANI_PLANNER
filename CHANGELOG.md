@@ -2,6 +2,9 @@
 
 > هر تحویل یک خط در اینجا. جدیدترین بالا. (هوش مصنوعی‌ها: هر بار که فایلی را عوض می‌کنید، این‌جا یک خط بنویسید.)
 
+## (۱۷۶) v172 — «بلد بودم» برای سؤال نوشتنی
+- `js/courses.js`: `it.ov='know'` روی آیتم‌های `numeric|short|cloze|match` با تصحیح خودکارِ غلط (نه بی‌پاسخ). `effOk(it)` جای محاسبه‌ی `ok` در نقشه‌ی تسلط، آمار دوره، `recordErrors` و پاسخ‌نامه؛ `recalcScore(a)` نمره را به‌روز می‌کند؛ هنگام ثبت، خطای همان آزمون از دفترچه برداشته می‌شود (`count>1` → یکی کم)، با «برگردان» دوباره ثبت می‌شود. در تمرین (فوری) و پاسخ‌نامه دکمه هست؛ هنگام پایان آزمون `ov` در نمره حساب می‌شود. تست v172. APK لازم نیست.
+
 ## (۱۷۵) v171 — صدا (بومی)، «تازه‌ها»، فهرست برای هوش مصنوعی، فنداسیون و مرور/آزمون آزمایشی
 - **صدا:** `android-shell/native/DaniNativePlugin.java`: `ttsSpeak/ttsStop/ttsInstall/ttsSettings` با `android.speech.tts.TextToSpeech`؛ `apply.mjs`: `<queries>` برای `TTS_SERVICE` (اندروید ۱۱+). **APK جدید لازم است.** `cards2.js`: زنجیره‌ی `DaniNative.ttsSpeak` ← `speechSynthesis` ← صدای آنلاین اختیاری (`A.onl`، translate_tts)؛ پیام‌های دقیق (`init`/`lang`)، چیپ‌های «صدای آنلاین» و «تنظیم صدا» در منوی ⋮.
 - **تازه‌ها:** `commitPack` برای دوره‌ی نصب‌شده `course.news[]` (حداکثر ۸: `add/upd` با `l,t,c`، `nadd/nupd/nq`، `note` از `manifest.whatsNew`) می‌سازد؛ کارت جمع‌شده‌ی `.crs-news` با «دیدم» (`zAX().nws[cid][newsId]`). پیشرفت دست نمی‌خورد.
