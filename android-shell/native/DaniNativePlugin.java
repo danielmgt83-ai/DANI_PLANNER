@@ -56,6 +56,7 @@ import java.util.TimeZone;
  *  - htmlToPdf     : ساخت PDF واقعی از HTML گزارش و ذخیره در Downloads/DANI
  *  - calendarAdd   : افزودن مستقیم موعد/یادآور به تقویم گوشی (تقویم محلی «DANI»)
  *  - pickAudio / playUri / stopPlay / soundChannel : انتخاب آهنگ از حافظه‌ی گوشی بدون کپی داخل اپ
+ *  - ttsSpeak / ttsStop / ttsInstall / ttsSettings : خواندن لغت‌ها با موتور «متن به گفتار» خود اندروید (بدون وابستگی به WebView؛ v170)
  */
 @CapacitorPlugin(
         name = "DaniNative",
@@ -65,6 +66,9 @@ import java.util.TimeZone;
 public class DaniNativePlugin extends Plugin {
     private static final String TAG_DESC = "[DANI]";
     private MediaPlayer mp;
+    private android.speech.tts.TextToSpeech tts;
+    private boolean ttsReady = false;
+    private boolean ttsIniting = false;
     private WebView pdfView;
 
     /* ---------------------------------------------------------- فایل */
@@ -694,6 +698,108 @@ public class DaniNativePlugin extends Plugin {
             call.resolve();
         } catch (Exception e) {
             call.reject(String.valueOf(e.getMessage()), e);
+        }
+    }
+
+    /* ---------------------------------------------------------- متن به گفتار (v170) */
+    private void ttsSay(String text, String lang, float rate, PluginCall call) {
+        JSObject o = new JSObject();
+        try {
+            java.util.Locale loc = java.util.Locale.forLanguageTag(lang);
+            int r = tts.setLanguage(loc);
+            if (r == android.speech.tts.TextToSpeech.LANG_MISSING_DATA || r == android.speech.tts.TextToSpeech.LANG_NOT_SUPPORTED) {
+                o.put("ok", false);
+                o.put("reason", "lang");
+                call.resolve(o);
+                return;
+            }
+            tts.setSpeechRate(rate);
+            tts.speak(text, android.speech.tts.TextToSpeech.QUEUE_FLUSH, null, "dani");
+            o.put("ok", true);
+            call.resolve(o);
+        } catch (Exception e) {
+            call.reject(String.valueOf(e.getMessage()));
+        }
+    }
+
+    @PluginMethod
+    public void ttsSpeak(final PluginCall call) {
+        final String text = call.getString("text", "");
+        final String lang = call.getString("lang", "en-US");
+        Float rt = call.getFloat("rate", 0.9f);
+        final float rate = (rt == null) ? 0.9f : rt.floatValue();
+        if (text == null || text.trim().length() == 0) {
+            call.reject("empty");
+            return;
+        }
+        try {
+            if (tts != null && ttsReady) {
+                ttsSay(text, lang, rate, call);
+                return;
+            }
+            if (ttsIniting) {
+                JSObject b = new JSObject();
+                b.put("ok", false);
+                b.put("reason", "busy");
+                call.resolve(b);
+                return;
+            }
+            ttsIniting = true;
+            tts = new android.speech.tts.TextToSpeech(getContext().getApplicationContext(), new android.speech.tts.TextToSpeech.OnInitListener() {
+                @Override
+                public void onInit(int status) {
+                    ttsIniting = false;
+                    if (status != android.speech.tts.TextToSpeech.SUCCESS) {
+                        ttsReady = false;
+                        tts = null;
+                        JSObject f = new JSObject();
+                        f.put("ok", false);
+                        f.put("reason", "init");
+                        call.resolve(f);
+                        return;
+                    }
+                    ttsReady = true;
+                    ttsSay(text, lang, rate, call);
+                }
+            });
+        } catch (Exception e) {
+            ttsIniting = false;
+            call.reject(String.valueOf(e.getMessage()));
+        }
+    }
+
+    @PluginMethod
+    public void ttsStop(PluginCall call) {
+        try {
+            if (tts != null && ttsReady) {
+                tts.stop();
+            }
+        } catch (Exception ignored) {
+        }
+        call.resolve();
+    }
+
+    @PluginMethod
+    public void ttsInstall(PluginCall call) {
+        try {
+            Intent i = new Intent(android.speech.tts.TextToSpeech.Engine.ACTION_INSTALL_TTS_DATA);
+            i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            getContext().startActivity(i);
+            call.resolve();
+        } catch (Exception e) {
+            call.reject(String.valueOf(e.getMessage()));
+        }
+    }
+
+    @PluginMethod
+    public void ttsSettings(PluginCall call) {
+        try {
+            Intent i = new Intent("com.android.settings.TTS_SETTINGS");
+            i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            getContext().startActivity(i);
+            call.resolve();
+        } catch (Exception e) {
+            call.reject(String.valueOf(e.getMessage()));
         }
     }
 }
