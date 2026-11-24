@@ -8,12 +8,22 @@ const T=window.daniT||function(a){return a};
 const E=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const latin=s=>/[A-Za-z]{2}/.test(String(s||''))&&!/[؀-ۿ]/.test(String(s||''));
 const st={spell:false,res:null,typed:'',menu:false,fa:false,undo:[],force:''};
-const hasTTS=()=>{try{return typeof speechSynthesis!=='undefined'&&typeof SpeechSynthesisUtterance!=='undefined'}catch(e){return false}};
-function speak(text,slow){if(!hasTTS()){toast(T('این گوشی/مرورگر صدای خواندن ندارد','No speech support on this device'),1);return}
- try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(String(text).replace(/\{\{|\}\}/g,''));const en=latin(text);u.lang=en?'en-US':'fa-IR';u.rate=slow?.6:.9;
-  const v=(speechSynthesis.getVoices()||[]).find(x=>x.lang&&x.lang.toLowerCase().startsWith(en?'en':'fa'));if(v)u.voice=v;
-  else if(en&&speechSynthesis.getVoices().length)toast(T('صدای انگلیسی روی گوشی نصب نیست (تنظیمات گوشی ← متن به گفتار)','No English voice installed (phone settings → text-to-speech)'),1);
-  speechSynthesis.speak(u)}catch(e){console.error(e)}}
+/* v170: زنجیره‌ی صدا: ۱) موتور بومی اندروید (DaniNative.ttsSpeak؛ نیاز به APK جدید) ← ۲) speechSynthesis مرورگر ← ۳) صدای آنلاین (اختیاری، A.onl) */
+const DNp=()=>{try{const c=window.Capacitor,P=c&&c.Plugins&&c.Plugins.DaniNative;return P&&P.ttsSpeak?P:null}catch(e){return null}};
+const hasWebTTS=()=>{try{return typeof speechSynthesis!=='undefined'&&typeof SpeechSynthesisUtterance!=='undefined'}catch(e){return false}};
+const hasTTS=()=>!!DNp()||hasWebTTS()||!!zAX().onl;
+function onlineSay(text,en,slow){try{const a=new Audio('https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl='+(en?'en':'fa')+'&q='+encodeURIComponent(String(text).slice(0,180)));a.playbackRate=slow?.75:1;const p=a.play();if(p&&p.catch)p.catch(()=>toast(T('صدای آنلاین پخش نشد (اینترنت یا فیلتر؟)','Online voice failed (internet or filter?)'),1))}catch(e){toast(T('صدای آنلاین پخش نشد','Online voice failed'),1)}}
+function noVoice(reason,text,en,slow){const A=zAX();
+ if(A.onl){onlineSay(text,en,slow);return}
+ toast(reason==='lang'?T('بسته‌ی صوتی '+(en?'انگلیسی':'فارسی')+' روی گوشی نصب نیست. منوی ⋮ ← «تنظیم صدا»','The voice data is not installed. Menu ⋮ → Voice setup'):T('موتور «متن به گفتار» در این گوشی کار نمی‌کند. منوی ⋮ ← «تنظیم صدا»، یا «صدای آنلاین» را روشن کن','Text-to-speech does not work here. Menu ⋮ → Voice setup, or turn on Online voice'),1)}
+function speak(text,slow){const clean=String(text).replace(/\{\{|\}\}/g,''),en=latin(text),N=DNp();
+ const web=()=>{if(!hasWebTTS()){noVoice('init',clean,en,slow);return}
+  try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(clean);u.lang=en?'en-US':'fa-IR';u.rate=slow?.6:.9;
+   const vs=speechSynthesis.getVoices()||[],v=vs.find(x=>x.lang&&x.lang.toLowerCase().startsWith(en?'en':'fa'));if(v)u.voice=v;
+   else if(vs.length)return noVoice('lang',clean,en,slow);
+   speechSynthesis.speak(u)}catch(e){console.error(e);noVoice('init',clean,en,slow)}};
+ if(N){try{N.ttsSpeak({text:clean,lang:en?'en-US':'fa-IR',rate:slow?.6:.9}).then(r=>{if(r&&r.ok===false&&r.reason!=='busy')noVoice(r.reason,clean,en,slow)}).catch(()=>web())}catch(e){web()}return}
+ web()}
 const snd=b=>b?'<button class="chip sm" data-a="c2_say" data-t="'+E(b)+'" aria-label="listen">🔊</button><button class="chip sm" data-a="c2_say" data-s="1" data-t="'+E(b)+'" aria-label="slow">🐢</button>':'';
 const norm=s=>String(s||'').toLowerCase().replace(/[’‘`´]/g,"'").replace(/[.!?,;:"]+/g,' ').replace(/\s+/g,' ').trim();
 const cloze=c=>/\{\{.+?\}\}/.test(c.q);
@@ -69,7 +79,7 @@ const counts=d=>{let n=0,l=0,r=0;d.forEach(c=>{if(isNew(c))n++;else if(c.ls>=0||
 function bar(d){const k=counts(d),A=zAX(),c=cur(),fl=c&&c.flag?FLAG[c.flag]:'';
  return'<div class="c2bar"><div class="c2cnt"><span style="color:#60a5fa"><b>'+fa(k[0])+'</b><small>'+T('جدید','New')+'</small></span><span style="color:#ef4444"><b>'+fa(k[1])+'</b><small>'+T('یادگیری','Learning')+'</small></span><span style="color:#34d399"><b>'+fa(k[2])+'</b><small>'+T('مرور','Review')+'</small></span></div>'
   +'<div class="c2ic"><button class="chip sm" data-a="c2_undo" '+(st.undo.length?'':'disabled style="opacity:.35" ')+'aria-label="undo" title="'+T('برگشت','Undo')+'">↩</button><button class="chip sm" data-a="c2_flag" aria-label="flag" title="'+T('پرچم','Flag')+'" style="'+(fl?'color:'+fl:'')+'">⚑</button><button class="chip sm '+(st.menu?'on':'')+'" data-a="c2_menu" aria-label="menu">⋮</button></div></div>'}
-function menu(c){const A=zAX();if(!st.menu)return'';return'<div class="c2menu">'+ctl()+'<div class="row" style="flex-wrap:wrap;margin:6px 0"><button class="chip sm '+(A.ft?'on':'')+'" data-a="c2_ft">🇮🇷 '+T('فارسی با یک لمس دیگر','Persian on a second tap')+'</button><button class="chip sm" data-a="c2_edit">✎ '+T('ویرایش کارت','Edit card')+'</button><button class="chip sm" data-a="c2_del">🗑 '+T('حذف کارت','Delete card')+'</button></div></div>'}
+function menu(c){const A=zAX();if(!st.menu)return'';return'<div class="c2menu">'+ctl()+'<div class="row" style="flex-wrap:wrap;margin:6px 0"><button class="chip sm '+(A.ft?'on':'')+'" data-a="c2_ft">🇮🇷 '+T('فارسی با یک لمس دیگر','Persian on a second tap')+'</button><button class="chip sm '+(A.onl?'on':'')+'" data-a="c2_onl">🌐 '+T('صدای آنلاین','Online voice')+'</button><button class="chip sm" data-a="c2_snd">🔊 '+T('تنظیم صدا','Voice setup')+'</button><button class="chip sm" data-a="c2_edit">✎ '+T('ویرایش کارت','Edit card')+'</button><button class="chip sm" data-a="c2_del">🗑 '+T('حذف کارت','Delete card')+'</button></div></div>'}
 function wordBack(c){const A=zAX(),fa0=c.fa||c.a,ex=c.ex||[],gate=A.ft&&c.def&&!st.fa;
  let h='<div class="aca c2back">'+(c.ipa?'<div class="c2ipa" dir="ltr">'+E(c.ipa)+'</div>':'');
  if(c.def||c.pos)h+='<div class="c2def" dir="ltr">'+(c.pos?'<b>'+E(c.pos)+'</b> ':'')+E(c.def||'')+'</div>';
@@ -101,6 +111,9 @@ acdReview=function(){const A=zAX(),t=todayISO(),d=srsDue(),dn=A.rl[t]||0;
  h+='<div class="acbtns">'+[['again','دوباره','#ef4444'],['hard','سخت','#f59e0b'],['good','خوب','#34d399'],['easy','آسان','#60a5fa']].map(x=>'<button class="acb" style="--c:'+x[2]+(sug===x[0]?';outline:3px solid '+x[2]:'')+'" data-m="acd:rate:'+x[0]+'">'+T(x[1],{again:'Again',hard:'Hard',good:'Good',easy:'Easy'}[x[0]])+'<small>'+lbl(c,x[0])+'</small></button>').join('')+'</div><p class="m">اصلاً یادت نبود «دوباره»؛ نیمه‌بلد بودی «سخت» بزن. کارت چند کارت بعد برمی‌گردد، نه پشت سر هم؛ اشتباه کردن یعنی کارت دارد کارش را می‌کند.</p></div>';
  return h};
 function ctl(){const A=zAX();return'<div class="row" style="flex-wrap:wrap;margin:6px 0"><button class="chip sm '+(st.spell?'on':'')+'" data-a="c2_spell">✍ '+T('حالت املا','Spelling mode')+'</button><button class="chip sm '+(A.snd?'on':'')+'" data-a="c2_snd">🔊 '+T('خواندن خودکار پاسخ','Auto-speak answer')+'</button><button class="chip sm" data-a="c2_nl">🆕 '+T('کارت جدید امروز','New today')+': '+fa(nlc().n)+'/'+(nl()||'∞')+' ✎</button></div>'}
+H.c2_onl=()=>{const A=zAX();A.onl=!A.onl;zcommit();render();toast(A.onl?T('صدای آنلاین روشن شد؛ فقط وقتی صدای گوشی کار نکند، خود لغت به سرور گوگل می‌رود','Online voice on: only when the phone voice fails, the word is sent to Google'):T('صدای آنلاین خاموش شد','Online voice off'))};
+H.c2_snd=()=>{const N=DNp();if(N&&N.ttsSettings){N.ttsSettings().catch(()=>N.ttsInstall&&N.ttsInstall().catch(()=>{}));return}
+ toast(T('تنظیمات گوشی ← متن به گفتار ← موتور Google یا Samsung را انتخاب و بسته‌ی صوتی انگلیسی را دانلود کن. اگر باز هم کار نکرد «صدای آنلاین» را روشن کن','Phone settings → Text-to-speech → pick Google/Samsung engine and download English voice data. If it still fails, turn on Online voice'),1)};
 H.c2_go=()=>{const w=srsDue()[0];if(w){st.force=w.id;reset();AR.show=false;render()}};
 H.c2_say=e=>speak(e.dataset.t,!!e.dataset.s);
 H.c2_spell=()=>{st.spell=!st.spell;st.res=null;AR.show=false;render()};

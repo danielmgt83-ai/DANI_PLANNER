@@ -284,6 +284,7 @@ const assetUrl=p=>CR.urls.get(String(p))||(CR.pv&&CR.pv.get(String(p)))||'';
 
 /* ---------- renderer: بلوک‌های نوع‌دار؛ هیچ HTML خامی اجرا نمی‌شود ---------- */
 const BLK_TYPES=new Set(['p','h','formula','list','table','note','tip','warning','pitfall','def','rule','theorem','quote','example','image','figure','summary','code']);
+const SES_KINDS=['review','learn','read','watch','cards','practice','test','wrap'];
 const CALL={note:['📝','نکته'],tip:['💡','نکته‌ی مهم'],warning:['⚠️','هشدار'],pitfall:['🚧','اشتباه رایج / دام آزمونی'],def:['📘','تعریف'],rule:['📐','قاعده'],theorem:['🧩','قضیه'],quote:['❝','نقل‌قول'],summary:['✅','جمع‌بندی']};
 function plainRun(p){p=String(p).replace(/\uE000/g,'$');return p.split(/([A-Za-z][A-Za-z0-9'’\-]*(?:[ ]+[A-Za-z0-9][A-Za-z0-9'’\-]*)*)/g).map((x,i)=>i%2?'<bdi dir="ltr">'+E_(x)+'</bdi>':E_(x)).join('')}
 function mathInline(tex){try{return'<bdi dir="ltr" class="crs-im" title="'+E_(tex)+'">'+tex2mml(tex,false)+'</bdi>'}catch(e){return'<code class="crs-bad" dir="ltr" title="'+E_(e.message)+'">$'+E_(tex)+'$</code>'}}
@@ -400,11 +401,14 @@ function validatePack(P,existing){
   if(!C||!okId(C.id))E('course.json: شناسه‌ی دوره نامعتبر است (فقط حروف انگلیسی، عدد، _ - . و حداکثر ۶۴ نویسه)');
   if(C&&!C.title)E('course.json: عنوان دوره خالی است');
   if(M&&C&&M.id&&M.id!==C.id)E('شناسه‌ی دوره در manifest و course یکی نیست');
+  if(M&&M.whatsNew!=null&&typeof M.whatsNew!=='string'&&!(typeof M.whatsNew==='object'&&(M.whatsNew.fa||M.whatsNew.en)))W('manifest.whatsNew باید متن کوتاه یا {fa,en} باشد');
   if(M&&M.part!=null&&(typeof M.part!=='object'||Array.isArray(M.part)||!M.part.title||(M.part.id!=null&&!okId(String(M.part.id)))))W('manifest.part باید {id, title} باشد (مثلاً {"id":"ch2","title":"فصل ۲"}) تا فایل ادامه‌ی دوره نام بگیرد');
   if(!M||!M.contentVersion||!/^\d+(\.\d+){0,3}$/.test(String(M.contentVersion)))E('manifest.json: contentVersion باید مثل 1.0.0 باشد');
   if(C&&!['fa','en','fa-en'].includes(C.language))W('زبان دوره (language) باید fa، en یا fa-en باشد');
   if(C&&C.kind!=null&&!KINDS.has(C.kind))E('course.json: kind باید language | math | gmat | general باشد');
   if(C&&C.unit!=null&&(typeof C.unit!=='string'||!C.unit.trim()||C.unit.length>14))E('course.json: unit (نام دسته‌ها، مثل «فصل» یا «جلسه») باید متن کوتاه باشد');
+  if(C&&Array.isArray(P.lessons)){const nz=t=>String(t||'').toLowerCase().replace(/[\s‌\-_.:؛،«»()]+/g,'');const oth=new Map();CR.cache.lessons.forEach(l=>{if(l.courseId!==C.id&&l.title)oth.set(nz(l.title),l)});
+    const dup=P.lessons.filter(l=>l.role!=='aid'&&oth.has(nz(l.title)));if(dup.length){const d=oth.get(nz(dup[0].title)),dc=CR.ix.courses.get(d.courseId);W(dup.length+' درس هم‌عنوان درس‌های دوره‌ی دیگری است (مثلاً «'+dup[0].title+'» در «'+(dc?dc.title:d.courseId)+'»)؛ تکراری نساز، در جلسه‌ها/مسیرها به آن ارجاع بده')}}
   if(C&&C.sessions!=null){if(!Array.isArray(C.sessions))E('course.json: sessions باید فهرست باشد');else{const sid=new Set(),inS=new Set(),known=i=>P.lessons.some(l=>l.id===i)||CR.cache.lessons.some(l=>l.id===i);
     C.sessions.forEach(x=>{if(!x||!okId(String(x.id))||!x.title||!Array.isArray(x.parts)||!x.parts.length){E('جلسه‌ی نامعتبر (id، title و parts لازم است)');return}
       if(sid.has(x.id))E('شناسه‌ی جلسه تکراری است: '+x.id);sid.add(x.id);
@@ -414,6 +418,7 @@ function validatePack(P,existing){
         sum+=+p.minutes||0;(Array.isArray(p.lessonIds)?p.lessonIds:[]).forEach(i=>{inS.add(i);if(!known(i))W('جلسه‌ی «'+x.id+'»: درس '+i+' نه در این بسته است نه نصب‌شده')});
         if((p.kind==='learn'||p.kind==='cards'||p.kind==='practice'||p.kind==='test')&&!(p.lessonIds&&p.lessonIds.length))W('جلسه‌ی «'+x.id+'»: بخش '+p.kind+' بدون lessonIds');
         if((p.kind==='read'||p.kind==='watch')&&!p.ref)W('جلسه‌ی «'+x.id+'»: بخش '+p.kind+' باید ref داشته باشد (مثلاً «کتاب، صفحه ۴۰–۴۵»)')});
+      if(x.type!=null&&!['lesson','recap','mock'].includes(x.type))E('جلسه‌ی «'+x.id+'»: type باید lesson | recap | mock باشد');
       if(x.minutes&&sum&&Math.abs(sum-x.minutes)>Math.max(8,x.minutes*.25))W('جلسه‌ی «'+x.id+'»: جمع دقیقه‌ی بخش‌ها ('+sum+') با minutes ('+x.minutes+') فرق زیادی دارد')});
     const miss=P.lessons.filter(l=>l.role!=='aid'&&!inS.has(l.id)).length;if(C.sessions.length&&miss)W(miss+' درس در هیچ جلسه‌ای نیست')}}
   if(C&&C.paths!=null){if(!Array.isArray(C.paths))E('course.json: paths باید فهرست باشد');else C.paths.forEach(pt=>{if(!pt||!okId(pt.id)||!pt.title||!Array.isArray(pt.items))E('مسیر مطالعه‌ی نامعتبر (id، title و items لازم است)');else pt.items.forEach(i=>{if(!P.lessons.some(l=>l.id===i)&&!CR.cache.lessons.some(l=>l.id===i&&C&&l.courseId===C.id))W('مسیر «'+pt.id+'»: درس ناموجود «'+i+'»')})})}
@@ -572,8 +577,7 @@ function normalizePack(P){const cid=P.course&&P.course.id,d=cid?tomb(cid):{l:[],
   P.questions=P.questions.filter(q=>!dq.has(q.id)).map(q=>mv[q.id]&&!dl.has(mv[q.id])?{...q,lessonIds:[mv[q.id]]}:q).map(normQuestion);
   if(P.course&&Array.isArray(P.course.chapters)&&d.ch.length){const dc=new Set(d.ch);P.course.chapters=P.course.chapters.filter(c=>!dc.has(c.id))}}
 /* v169: «جلسه‌ی مطالعه» — course.sessions=[{id,title,minutes,why,parts:[{kind,title,minutes,lessonIds,count,text,ref}]}] */
-const SES_KINDS=['review','learn','read','watch','cards','practice','test','wrap'];
-const normSessions=a=>Array.isArray(a)?a.filter(x=>x&&okId(String(x.id))&&Array.isArray(x.parts)).map((x,i)=>({id:String(x.id),title:String(x.title||x.id).slice(0,120),minutes:Math.max(0,Math.min(300,+x.minutes||0)),why:String(x.why||'').slice(0,300),order:+x.order||i+1,
+const normSessions=a=>Array.isArray(a)?a.filter(x=>x&&okId(String(x.id))&&Array.isArray(x.parts)).map((x,i)=>({type:['lesson','recap','mock'].includes(x.type)?x.type:'lesson',id:String(x.id),title:String(x.title||x.id).slice(0,120),minutes:Math.max(0,Math.min(300,+x.minutes||0)),why:String(x.why||'').slice(0,300),order:+x.order||i+1,
   parts:x.parts.filter(p=>p&&SES_KINDS.includes(p.kind)).slice(0,10).map(p=>({kind:p.kind,title:String(p.title||'').slice(0,120),minutes:Math.max(0,Math.min(180,+p.minutes||0)),lessonIds:Array.isArray(p.lessonIds)?p.lessonIds.map(String):[],count:Math.max(0,Math.min(100,+p.count||0)),text:String(p.text||'').slice(0,600),ref:String(p.ref||'').slice(0,200)}))})):[];
 /* v168: هر دوره چند «فایل» دارد (course.files). دوره‌های قدیمی که files ندارند یک فایل مجازی «فایل اولیه» می‌گیرند. */
 const filesOf=c=>{if(!c)return[];if(Array.isArray(c.files)&&c.files.length)return c.files;
@@ -643,6 +647,12 @@ async function commitPack(P,pl){
       const f0=fl[0];f0.lessons=uniq([...f0.lessons,...nL.filter(i=>!oL.has(i))]);f0.questions=uniq([...f0.questions,...nQ.filter(i=>!oQ.has(i))]);f0.sources=uniq([...f0.sources,...[...sS].filter(i=>!oS.has(i))]);f0.upd=now}
     course.files=fl.filter(f=>f===tf||f.lessons.length||f.questions.length||f.sources.length);
     pl._rmL=[...rmL];pl._rmQ=[...rmQ];
+    if(ex){const oL=new Map(CR.cache.lessons.filter(l=>l.courseId===C.id).map(l=>[l.id,l])),oQ=new Set(CR.cache.questions.filter(q=>q.courseId===C.id).map(q=>q.id));
+      const aL=lessons.filter(l=>!oL.has(l.id)),uL=lessons.filter(l=>oL.has(l.id)&&oL.get(l.id).hash!==l.hash),aQ=questions.filter(q=>!oQ.has(q.id)).length;
+      if(aL.length||uL.length||aQ){const tn=l=>({l:l.id,t:String(l.title||l.id).slice(0,80),c:l.chapterId||''});
+        const wn=P.manifest&&P.manifest.whatsNew,note=typeof wn==='string'?wn:(wn&&typeof wn==='object'?String(wn.fa||wn.en||''):'');
+        course.news=[...(ex.news||[]),{id:'n'+Date.now().toString(36),at:now,ver:pv,file:course.files.find(f=>f===tf)?tf.name:((pl.target==='new')?(course.files[course.files.length-1]||{}).name||'':''),note:note.slice(0,400),add:aL.slice(0,30).map(tn),upd:uL.slice(0,30).map(tn),nadd:aL.length,nupd:uL.length,nq:aQ}].slice(-8)}
+      else course.news=ex.news||[]}
   }
   const sources=P.sources.map(s=>({...s,courseId:C.id}));
   const assets=[...P.assets.values()].map(a=>({key:C.id+'/'+a.path,courseId:C.id,path:a.path,mime:a.mime,size:a.data.length,blob:new Blob([a.data],{type:a.mime})}));
@@ -895,6 +905,22 @@ function vCourses(){
   if(window.daniAcd4)return window.daniAcd4.tree();
   return'<div class="g g2">'+cs.map(c=>{const p=courseProg(c.id);return'<div class="c"><h3 dir="auto">'+E_(c.title)+'</h3><p class="m" dir="auto">'+E_(c.description)+'</p>'+bar(p.p)+'<div class="m">'+faN(c.chapters.length)+' فصل · '+faN(p.n)+' درس · '+faN(questionsOf(c.id).length)+' سؤال · زبان: '+E_(c.language)+'</div><button class="p" data-a="crs_open" data-c="'+E_(c.id)+'" style="margin-top:8px">باز کردن</button></div>'}).join('')+'</div>';
 }
+/* v170: «تازه‌ها» — بعد از به‌روزرسانی دوره‌ی نصب‌شده فقط همین‌ها را نشان می‌دهد (جمع‌شده، با «دیدم») */
+function newsCard(c){const A=zAX(),seen=(A.nws&&A.nws[c.id])||{},ns=(c.news||[]).filter(n=>!seen[n.id]);if(!ns.length)return'';
+ const sum=ns.reduce((a,n)=>({a:a.a+(n.nadd||0),u:a.u+(n.nupd||0),q:a.q+(n.nq||0)}),{a:0,u:0,q:0}),ci=E_(c.id);
+ const chn=id=>{const ch=(c.chapters||[]).find(x=>x.id===id);return ch?E_(ch.title):''};
+ let h='<details class="c crs-news"><summary dir="auto"><b>🆕 '+TT('تازه‌ها','What\'s new')+'</b> <small class="m">'+(sum.a?faN(sum.a)+' '+TT('درس جدید','new lessons')+' · ':'')+(sum.u?faN(sum.u)+' '+TT('درس به‌روز','updated')+' · ':'')+(sum.q?faN(sum.q)+' '+TT('سؤال','questions'):'')+'</small></summary>';
+ ns.slice(-3).reverse().forEach(n=>{h+='<div class="m" dir="auto" style="margin-top:6px"><b>'+(n.file?E_(n.file)+' · ':'')+'v'+E_(n.ver)+'</b>'+(n.note?' — '+E_(n.note):'')+'</div>'
+  +(n.add&&n.add.length?'<div class="row" style="flex-wrap:wrap">'+n.add.slice(0,8).map(x=>'<button class="chip sm" data-a="crs_open" data-c="'+ci+'" data-l="'+E_(x.l)+'" dir="auto">＋ '+E_(x.t)+(chn(x.c)?' · '+chn(x.c):'')+'</button>').join('')+(n.add.length>8?'<span class="m">… '+faN(n.nadd-8)+'</span>':'')+'</div>':'')
+  +(n.upd&&n.upd.length?'<div class="row" style="flex-wrap:wrap">'+n.upd.slice(0,6).map(x=>'<button class="chip sm" data-a="crs_open" data-c="'+ci+'" data-l="'+E_(x.l)+'" dir="auto">↻ '+E_(x.t)+'</button>').join('')+'</div>':'')});
+ return h+'<div class="row" style="margin-top:6px"><button class="chip sm" data-a="crs_news_ok" data-c="'+ci+'">✓ '+TT('دیدم','Got it')+'</button></div><p class="m">'+TT('پیشرفت درس‌های قبلی تو دست‌نخورده است.','Your progress on earlier lessons is untouched.')+'</p></details>'}
+/* فهرست دوره‌ها برای چت سازنده (تا درس تکراری ساخته نشود) */
+function catalogText(){const out=['DANI-CATALOG v1 — فهرست دوره‌های نصب‌شده (برای جلوگیری از درس تکراری؛ این فهرست را به هوش مصنوعی بده)'];
+ CR.cache.courses.forEach(c=>{out.push('');out.push('COURSE '+c.id+' | '+c.title+' | kind='+(c.kind||'')+' | v'+c.contentVersion);
+  filesOf(c).forEach(f=>{out.push('  FILE '+f.id+' | '+f.name+(f.partId?' | part='+f.partId:'')+' | v'+(f.ver||''))});
+  (c.chapters||[]).forEach(ch=>{const ls=lessonsOf(c.id).filter(l=>l.chapterId===ch.id);out.push('  CHAPTER '+ch.id+' | '+ch.title+' | lessons='+ls.length);ls.forEach(l=>out.push('    L '+l.id+' | '+l.title+(l.role==='aid'?' | aid':'')))});
+  out.push('  questions='+questionsOf(c.id).length+' | sessions='+((c.sessions||[]).length))});
+ return out.join('\n')}
 /* v169: کارت «جلسه‌ی مطالعه» در صفحه‌ی دوره (فقط اگر دوره sessions داشته باشد) */
 function sesData(cid){const A=zAX();if(!A.ses||typeof A.ses!=='object'||Array.isArray(A.ses))A.ses={};if(!A.ses[cid]||typeof A.ses[cid]!=='object')A.ses[cid]={};return A.ses[cid]}
 const partDone=(c,sid,i,p)=>{const d=sesData(c.id)[sid];if(d&&d.p&&d.p[i])return true;return p.kind==='learn'&&p.lessonIds.length>0&&p.lessonIds.every(l=>{const g=CR.ix.progress.get(l);return g&&g.done})};
@@ -903,7 +929,7 @@ function sessionCard(c){const ss=(c.sessions||[]).slice().sort((a,b)=>(a.order||
  CR.sesSel=CR.sesSel||{};const nx=ss.find(x=>!sesDone(c,x))||ss[ss.length-1],cur=ss.find(x=>x.id===CR.sesSel[c.id])||nx,k=ss.indexOf(cur)+1,done=sesDone(c,cur),ci=E_(c.id);
  const IC={review:'🔁',learn:'📖',read:'📚',watch:'🎬',cards:'🃏',practice:'✍️',test:'📝',wrap:'🏁'},KT={review:TT('مرور خطاها','Review mistakes'),learn:TT('یادگیری','Learn'),read:TT('مطالعه','Read'),watch:TT('ویدئو','Watch'),cards:TT('فلش‌کارت','Flashcards'),practice:TT('تمرین','Practice'),test:TT('آزمونک','Quiz'),wrap:TT('جمع‌بندی','Wrap-up')};
  const tot=cur.minutes||cur.parts.reduce((a,p)=>a+(p.minutes||0),0);
- let h='<div class="c crs-ses"><div class="row"><b dir="auto" class="sp">'+(done?'✅ ':'▶ ')+TT('جلسه','Session')+' '+faN(k)+' / '+faN(ss.length)+' — '+E_(cur.title)+'</b><span class="m">'+(tot?'~'+faN(tot)+' '+TT('دقیقه','min'):'')+'</span></div>'+(cur.why?'<p class="m" dir="auto">'+E_(cur.why)+'</p>':'');
+ let h='<div class="c crs-ses"><div class="row"><b dir="auto" class="sp">'+(done?'✅ ':'▶ ')+(cur.type==='mock'?'📝 '+TT('آزمون آزمایشی','Mock exam'):cur.type==='recap'?'🔁 '+TT('جلسه‌ی مرور','Recap session'):TT('جلسه','Session'))+' '+faN(k)+' / '+faN(ss.length)+' — '+E_(cur.title)+'</b><span class="m">'+(tot?'~'+faN(tot)+' '+TT('دقیقه','min'):'')+'</span></div>'+(cur.why?'<p class="m" dir="auto">'+E_(cur.why)+'</p>':'');
  cur.parts.forEach((p,i)=>{const d=partDone(c,cur.id,i,p),at=' data-c="'+ci+'" data-s="'+E_(cur.id)+'" data-i="'+i+'"';
   h+='<div class="cwr"><span dir="auto"><button class="chip sm'+(d?' on':'')+'" data-a="crs_ses_tick"'+at+' aria-label="'+TT('انجام شد','Done')+'">'+(d?'☑':'☐')+'</button> '+IC[p.kind]+' <b>'+KT[p.kind]+'</b>'+(p.title?' · '+E_(p.title):'')+(p.minutes?' <small class="m">'+faN(p.minutes)+' '+TT('دق','min')+'</small>':'')+(p.ref?'<div class="m">'+E_(p.ref)+'</div>':'')+(p.text?'<div class="m">'+E_(p.text)+'</div>':'')+'</span>'+((p.kind==='wrap'||p.kind==='read'||p.kind==='watch')?'':'<button class="chip sm" data-a="crs_ses_go"'+at+'>'+TT('شروع','Start')+'</button>')+'</div>'});
  h+='<details style="margin-top:6px"><summary class="m">'+TT('همه‌ی جلسه‌ها','All sessions')+'</summary>'+ss.map((x,j)=>'<div class="cwr"><span dir="auto">'+(sesDone(c,x)?'✅ ':'⬜ ')+faN(j+1)+'. '+E_(x.title)+'</span><button class="chip sm'+(x.id===cur.id?' on':'')+'" data-a="crs_ses_pick" data-c="'+ci+'" data-s="'+E_(x.id)+'">'+TT('باز کن','Open')+'</button></div>').join('')+'</details></div>';
@@ -915,7 +941,7 @@ function vCourse(){
   if(c.prerequisites&&c.prerequisites.length)h+='<div class="m">پیش‌نیاز: '+c.prerequisites.map(x=>E_(x)).join('، ')+'</div>';
   h+='</div>';
   if(window.daniAcd4){const t=window.daniAcd4.courseTabs(c);h+=t.bar;if(t.body!=null)return h+t.body}
-  h+=sessionCard(c);
+  h+=newsCard(c)+sessionCard(c);
   CR.chOpen=CR.chOpen||{};
   const ren=(t,id,cid)=>'<button class="chip sm" data-a="acd4_rn" data-t="'+t+'" data-c="'+E_(cid)+'" data-i="'+E_(id)+'" title="'+TT('تغییر نام','Rename')+'" aria-label="'+TT('تغییر نام','Rename')+'">✎</button>';
   c.chapters.forEach((ch,ci)=>{const ls=L.filter(l=>l.chapterId===ch.id),d=ls.filter(l=>{const p=CR.ix.progress.get(l.id);return p&&p.done}).length,open=CR.chOpen[ch.id]!==undefined?CR.chOpen[ch.id]:c.chapters.length<=3;
@@ -1266,7 +1292,7 @@ function vManage(){
      '<label class="crs-ck"><input type="checkbox" data-crs-safety '+((R.safety||R.mode==='replace')?'checked':'')+(R.mode==='replace'?' disabled':'')+'> پیش از اعمال، نسخه‌ی ایمنی از اطلاعات فعلی دانلود شود</label>'+
      '<div class="row" style="margin-top:10px"><button class="p" data-a="crs_rapply">اعمال بازیابی</button><button data-a="crs_rcancel">لغو</button></div></div>'}
   h+='<div class="c"><h3>ورود یا به‌روزرسانی دوره</h3><p class="m">فایل <bdi dir="ltr">.dani-course.zip</bdi> را انتخاب کن. برای افزودن فصل جدید یا به‌روزرسانی یک فصل، بسته‌ای با همان شناسه‌ی دوره و نسخه‌ی بالاتر (فقط شامل آن فصل) وارد کن؛ بقیه‌ی فصل‌ها و پیشرفت شما دست‌نخورده می‌ماند. همیشه ابتدا پیش‌نمایش و گزارش خطا می‌بینی و می‌توانی لغو کنی.</p><label class="btn p" style="display:inline-block;margin:0">انتخاب فایل دوره<input type="file" accept=".zip,.json" data-crs-file="import" hidden></label></div>';
-  h+='<div class="c"><h3>دوره‌های نصب‌شده</h3>'+(CR.cache.courses.length?CR.cache.courses.map(c=>{const fs=filesOf(c),sl=new Set(lessonsOf(c.id).map(l=>l.id)),sq=new Set(questionsOf(c.id).map(q=>q.id)),ci=E_(c.id);
+  h+='<div class="c"><h3>دوره‌های نصب‌شده</h3>'+(CR.cache.courses.length?'<div class="row"><button class="chip sm" data-a="crs_catalog">📋 '+TT('کپی فهرست برای هوش مصنوعی','Copy list for the AI builder')+'</button></div>':'')+(CR.cache.courses.length?CR.cache.courses.map(c=>{const fs=filesOf(c),sl=new Set(lessonsOf(c.id).map(l=>l.id)),sq=new Set(questionsOf(c.id).map(q=>q.id)),ci=E_(c.id);
     return'<details class="crs-fl" style="margin:6px 0"><summary dir="auto" style="cursor:pointer"><b>'+E_(c.title)+'</b> <small class="m">v'+E_(c.contentVersion)+' · '+faN(fs.length)+' فایل · '+faN(lessonsOf(c.id).length)+' درس · '+faN(questionsOf(c.id).length)+' سؤال</small></summary>'
     +fs.map(f=>{const fi=E_(f.id);return'<div class="cwr"><span dir="auto"><b>'+E_(f.name)+'</b> <small class="m">'+(f.ver?'v'+E_(f.ver)+' · ':'')+faN((f.lessons||[]).filter(i=>sl.has(i)).length)+' درس · '+faN((f.questions||[]).filter(i=>sq.has(i)).length)+' سؤال'+(f.upd?' · '+fmtD(String(f.upd).slice(0,10)):'')+'</small></span><button data-a="crs_frn" data-c="'+ci+'" data-f="'+fi+'" title="تغییر نام">✏️</button><label class="btn" style="margin:0" title="جایگزین کردن با نسخه‌ی کامل‌تر">🔄<input type="file" accept=".zip" data-crs-file="import" data-crs-rep="'+ci+'|'+fi+'" hidden></label><button class="d" data-a="crs_frd" data-c="'+ci+'" data-f="'+fi+'" title="حذف فقط این فایل">🗑</button></div>'}).join('')
     +'<div class="row" style="margin-top:6px"><label class="btn p" style="margin:0">＋ افزودن فایل<input type="file" accept=".zip" data-crs-file="import" data-crs-add="'+ci+'" hidden></label><button data-a="crs_expc" data-id="'+ci+'">خروجی ZIP کل دوره</button><button class="d" data-a="crs_delc" data-id="'+ci+'">حذف کل دوره</button></div></details>'}).join(''):'<p class="m">دوره‌ای نصب نیست.</p>')+'</div>';
@@ -1329,13 +1355,16 @@ hh('qpause',()=>{leaveQuiz();clearInterval(CR.tmr);CR.quiz=null;toast('ذخیر�
 hh('commit',()=>{const pd=CR.pending;pd.pl.allowOver=!!pd.over;pd.pl.rmOrphans=!!pd.rmo;if(pd.fname)pd.pl.fname=pd.fname;return guard(async()=>{await commitPack(pd.P,pd.pl);CR.pv&&CR.pv.forEach(u=>URL.revokeObjectURL(u));CR.pv=null;CR.pending=null;msg('ok','دوره «'+E_(pd.P.course.title)+'» با موفقیت ثبت شد (نسخه‌ی '+E_(pd.pl.newV)+').')})});
 hh('cancel',()=>{CR.pv&&CR.pv.forEach(u=>URL.revokeObjectURL(u));CR.pv=null;CR.pending=null;toast('ورود لغو شد؛ چیزی ذخیره نشد');rerender()});
 const saveCourse=async c2=>{await IDB.tx(['courses'],'readwrite',async t=>{await rq(t.objectStore('courses').put({...c2,updatedAt:nowISO()}))});await crLoad()};
+hh('news_ok',el=>{const A=zAX();if(!A.nws||typeof A.nws!=='object'||Array.isArray(A.nws))A.nws={};const c=CR.ix.courses.get(el.dataset.c);if(!c)return;const m=A.nws[c.id]=A.nws[c.id]||{};(c.news||[]).forEach(n=>{m[n.id]=1});zcommit();rerender()});
+hh('catalog',async()=>{const t=catalogText();try{await navigator.clipboard.writeText(t);toast('فهرست دوره‌ها کپی شد؛ در چت سازنده بچسبان')}catch(e){const w=document.createElement('textarea');w.value=t;w.style.cssText='position:fixed;left:-999px';document.body.appendChild(w);w.select();try{document.execCommand('copy');toast('فهرست دوره‌ها کپی شد؛ در چت سازنده بچسبان')}catch(x){toast('کپی نشد',1)}w.remove()}});
 hh('ses_tick',el=>{const d=sesData(el.dataset.c),x=d[el.dataset.s]=d[el.dataset.s]||{p:{}};x.p=x.p||{};const i=el.dataset.i;if(x.p[i])delete x.p[i];else x.p[i]=1;x.t=Date.now();zcommit();rerender()});
 hh('ses_pick',el=>{CR.sesSel=CR.sesSel||{};CR.sesSel[el.dataset.c]=el.dataset.s;rerender()});
 hh('ses_go',el=>{const c=CR.ix.courses.get(el.dataset.c),x=c&&(c.sessions||[]).find(y=>y.id===el.dataset.s),p=x&&x.parts[+el.dataset.i];if(!p)return;const ids=p.lessonIds.filter(l=>CR.ix.lessons.get(l));
-  if(p.kind==='learn'){const l=ids.find(i=>{const g=CR.ix.progress.get(i);return!(g&&g.done)})||ids[0];if(l)H.crs_open({dataset:{c:c.id,l}});return}
+  const lc=l=>(CR.ix.lessons.get(l)||{}).courseId||c.id;
+  if(p.kind==='learn'){const l=ids.find(i=>{const g=CR.ix.progress.get(i);return!(g&&g.done)})||ids[0];if(l)H.crs_open({dataset:{c:lc(l),l}});return}
   if(p.kind==='cards'){if(window.daniReview2&&window.daniReview2.go){window.daniReview2.unlock(ids);window.daniReview2.setScope('lessons',ids.join(','));window.daniReview2.go()}return}
   if(p.kind==='review'){CR.courseId=c.id;CR.tab='errors';rerender();return}
-  if(p.kind==='practice'||p.kind==='test')return startQuiz({courseId:c.id,scope:ids.length?ids.map(i=>'lesson:'+i):'all',diffs:[1,2,3,4,5],count:p.count||10,mode:p.kind==='test'?'exam':'practice',timed:p.kind==='test',minutes:p.minutes||10})});
+  if(p.kind==='practice'||p.kind==='test'){const cc=ids.length?lc(ids[0]):c.id,same=ids.filter(i=>lc(i)===cc);return startQuiz({courseId:cc,scope:same.length?same.map(i=>'lesson:'+i):'all',diffs:[1,2,3,4,5],count:p.count||10,mode:p.kind==='test'?'exam':'practice',timed:p.kind==='test',minutes:p.minutes||10})}});
 hh('frn',el=>{const c=CR.ix.courses.get(el.dataset.c);if(!c)return;const fs=filesOf(c).map(f=>({...f})),f=fs.find(x=>x.id===el.dataset.f);if(!f)return;const n=prompt('نام فایل',f.name);if(n==null)return;const nm=n.trim().slice(0,40);if(!nm)return;f.name=nm;delete f.legacy;return guard(()=>saveCourse({...c,files:fs}),'نام فایل عوض شد')});
 hh('frd',el=>{const c=CR.ix.courses.get(el.dataset.c);if(!c)return;const fs=filesOf(c).map(f=>({...f})),f=fs.find(x=>x.id===el.dataset.f);if(!f)return;
   const sl=new Set(lessonsOf(c.id).map(l=>l.id)),sq=new Set(questionsOf(c.id).map(q=>q.id)),nl=(f.lessons||[]).filter(i=>sl.has(i)).length,nq=(f.questions||[]).filter(i=>sq.has(i)).length;
@@ -1549,7 +1578,7 @@ function mount(){
     return'<div class="c"><h3>'+BH('Academy','آکادمی')+'</h3>'+acdTabs()+'</div>'+crsView()};
   if(!zMS.acd.tab||zMS.acd.tab==='review')zMS.acd.tab='courses'; /* تب پیش‌فرضی که خود پلنر گذاشته (مثلاً learn) تغییر نمی‌کند */
   crLoad().then(()=>{if(inCrs())rerender()});
-  window.daniCourses={numAny,trapsOf,vidBtn,QR,exprEval,buildEverything,prepEverything,rehydrateHost,hostSnap,state:CR,validatePack,loadPackZip,zipRead,zipWrite,tex2mml,grade,inl,blocks,IDB,planPack,normalizePack,commitPack,importFile,buildCourseZip,startQuiz,submitQuiz,userExport,planUser,version:CRV,api:{deleteQuestion,moveQuestion,deleteLesson,lessonDelInfo,deleteChapter,savePath,setUnit,normExam,numParse,startMulti,pool,renameItem,reapplyRen,addQuestion,latestResults,questionsOf,lessonsOf,courseProg,mastery,pool,blk,merge:mergeCourses,undoMerge,mergeUndoInfo,mergeList}};
+  window.daniCourses={catalogText,numAny,trapsOf,vidBtn,QR,exprEval,buildEverything,prepEverything,rehydrateHost,hostSnap,state:CR,validatePack,loadPackZip,zipRead,zipWrite,tex2mml,grade,inl,blocks,IDB,planPack,normalizePack,commitPack,importFile,buildCourseZip,startQuiz,submitQuiz,userExport,planUser,version:CRV,api:{deleteQuestion,moveQuestion,deleteLesson,lessonDelInfo,deleteChapter,savePath,setUnit,normExam,numParse,startMulti,pool,renameItem,reapplyRen,addQuestion,latestResults,questionsOf,lessonsOf,courseProg,mastery,pool,blk,merge:mergeCourses,undoMerge,mergeUndoInfo,mergeList}};
 }
 mount();
 })();
