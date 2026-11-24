@@ -384,7 +384,7 @@ await test('فلش‌کارت v155: املا، جای‌خالی، مثال، س
  zMA.acd.show();h=document.getElementById('pg').innerHTML;o.back=/«went»/.test(h);
  zMA.acd.rate('good');o.cap2=srsDue().length;o.n2=A.nlc.n;
  A.cards.length=0;A.nl=20;page='home';render();return o});
- if(r.cap!==2||!r.ctl||!r.inp||!r.ok||r.n!==1||!r.cl||!r.back||r.cap2!==0||r.n2!==2)throw new Error(JSON.stringify(r))});
+ if(r.cap!==2||!r.ctl||!r.inp||!r.ok||r.n!==1||!r.cl||!r.back||r.cap2!==2||r.n2!==2)throw new Error(JSON.stringify(r))});
 
 await test('مرور انکی‌وار v162: شمارنده، فاصله‌ها، undo، کارت لغت، پک',async pg=>{const r=await pg.evaluate(()=>{const o={},A=zAX(),t=todayISO();
  A.cards.length=0;A.nlc=null;A.nl=20;A.ft=false;
@@ -399,10 +399,10 @@ await test('مرور انکی‌وار v162: شمارنده، فاصله‌ها�
  const m=A.cards[2];o.lm=daniCards2.lbl(m,'good');o.lh=daniCards2.lbl(m,'hard');o.mo=/ماه|mo/.test(daniCards2.lbl(m,'easy'));
  o.hardLearn=srsNext(c,'hard').dt>Date.now()&&srsNext(c,'hard').due===t;
  const nOld=srsNext(m,'good').ivl;o.mono=nOld>100&&srsNext(m,'hard').ivl>100&&srsNext(m,'hard').ivl<nOld&&srsNext({...m,ivl:500,reps:8},'good').ivl>365;
- zMA.acd.rate('again');o.ag=A.cards[0].lap===1&&A.cards[0].dt>Date.now()&&A.cards[0].due===t&&A.nlc.n===1&&A.rl[t]===1;
+ zMA.acd.rate('again');o.ag=A.cards[0].lap===0&&A.cards[0].ls===0&&A.cards[0].dt>Date.now()&&A.cards[0].due===t&&A.nlc.n===1&&A.rl[t]===1;
  o.last=srsDue().indexOf(A.cards[0])===srsDue().length-1;
  H.c2_undo();o.un=A.cards[0].lap===0&&!A.cards[0].dt&&A.nlc.n===0&&!A.rl[t]&&daniCards2.cur().id==='w1';
- zMA.acd.rate('good');o.gd=A.cards[0].ivl===1&&A.cards[0].reps===1&&!A.cards[0].dt;
+ zMA.acd.rate('good');o.gd=A.cards[0].ls===1&&A.cards[0].ivl===0&&A.cards[0].dt>Date.now();
  H.c2_flag();o.fl=daniCards2.cur()&&true;
  A.cards.length=0;A.ft=true;mk('w2','brave','شجاع',{def:'ready to face danger',fa:'شجاع'});AR.show=false;render();zMA.acd.show();h=document.getElementById('pg').innerHTML;
  o.gate=/c2_fa/.test(h)&&!/c2fa/.test(h);H.c2_fa();h=document.getElementById('pg').innerHTML;o.gate2=/c2fa/.test(h);A.ft=false;
@@ -410,7 +410,7 @@ await test('مرور انکی‌وار v162: شمارنده، فاصله‌ها�
  const z=A.cards[0]||{};o.zip=z.ipa==='/rʌn/'&&z.ex&&z.ex.length===1&&!z.img;
  const v=window.daniValidate;o.val=true;
  A.cards.length=0;page='home';render();return o});
- const bad=Object.entries(r).filter(([k,v])=>v===false||(k==='l1'&&!/^</.test(String(v))));if(bad.length)throw new Error(JSON.stringify(r))});
+ const bad=Object.entries(r).filter(([k,v])=>v===false||(k==='l1'&&!/^~/.test(String(v))));if(bad.length)throw new Error(JSON.stringify(r))});
 
 await test('تنظیمات v162: حالت باز/بسته‌ی بخش‌ها بعد از render می‌ماند (کلیک داخل کارت)',async pg=>{const r=await pg.evaluate(async()=>{const o={},w=ms=>new Promise(x=>setTimeout(x,ms));
  window.daniSetSub='notif';window.daniSetFresh=1;stt='time';page='set';render();await w(300);
@@ -685,7 +685,7 @@ await test('v167: مرور موضوعی — قفل تا مطالعه، محدو�
  zMA.acd.rvsel(null,{value:'L1'});o.lockedScope=ids()==='';o.lockMsg=/rv_unl/.test(acdReview());
  H.rv_self({dataset:{l:'L1'}});o.self=ids()==='k1'&&!!A.unl.L1;
  zMA.acd.rate('good');o.done=ids()==='';
- H.rv_k({dataset:{k:'all'}});o.all=ids()==='k2,k3';
+ H.rv_k({dataset:{k:'all'}});o.all=ids()==='k1,k2,k3';
  daniAcd4.zipCards('c1',[{id:'f9',q:'قضیه؟',a:'پاسخ',lessonId:'L2',groups:['g1']}],[{id:'g1',title:'تعریف‌ها',en:'Definitions',lessonIds:['L1']}]);
  o.rg=A.rg.c1&&A.rg.c1.length===1&&A.rg.c1[0].l[0]==='L1';const f9=A.cards.find(c=>c.fid==='c1:f9');o.g=!!f9&&f9.g[0]==='g1';
  H.rv_g({dataset:{c:'c1',g:'g1'}});o.grp=ids().split(',').indexOf(f9.id)>=0&&ids().split(',').length===2;
@@ -741,6 +741,49 @@ await test('v169: فایل‌های دوره — فصل ادامه‌دار، ج
  H.crs_frd({dataset:{c:'flx',f:f2}});await w(500);window.prompt=oldP;window.confirm=oldC;
  o.del=C().files.length===1&&!L('b2')&&!!L('a1');
  await D.IDB.tx(['courses'],'readwrite',async t=>{const c=C();const x={...c};delete x.files;await new Promise((res,rej)=>{const rq=t.objectStore('courses').put(x);rq.onsuccess=res;rq.onerror=rej})});
+ return o});const bad=Object.entries(r).filter(([k,v])=>v!==true);if(bad.length)throw new Error('FAIL '+bad.map(b=>b[0]).join(',')+' '+JSON.stringify(r))});
+
+await test('v169: مرور فلش‌کارت — قدم‌های یادگیری بر حسب تعداد کارت، بدون پشت‌سرهم، فراموشی کارت قدیمی',async pg=>{const r=await pg.evaluate(async()=>{const o={},w=ms=>new Promise(x=>setTimeout(x,ms));
+ const A=zAX();A.cards=[];A.rn=0;A.rl={};A.nl=0;const t=todayISO();
+ const mk=(id,x)=>Object.assign({id,q:'word'+id,a:'معنی'+id,due:t,ease:2.5,ivl:0,reps:0,lap:0,ag:'',last:'',dt:0},x||{});
+ for(let i=1;i<=9;i++)A.cards.push(mk('c'+i));
+ const C=daniCards2,pick=()=>C.cur();
+ let c=pick();o.first=c&&c.id==='c1';
+ H.acd_rate?0:0;zMA.acd.rate('again');
+ const c1=A.cards.find(x=>x.id==='c1');o.step0=c1.ls===0&&c1.rn===A.rn+5-1+0||c1.ls===0&&c1.rn>A.rn;
+ const order=[];for(let i=0;i<7;i++){const k=pick();order.push(k.id);zMA.acd.rate('good')}
+ o.notBehind=order[0]!=='c1'&&order.indexOf('c1')>=4;
+ o.later=order.indexOf('c1')>=4&&order.indexOf('c1')<=7;
+ /* کارت c1 با «خوب» قدم ۲ را می‌گیرد و دوباره بعد از ~۱۵ کارت */
+ o.hasLs=A.cards.every(x=>x.ls===undefined||x.ls>=-1);
+ /* صف فقط یک کارت در حال یادگیری: آماده نیست → نباید فوراً برگردد */
+ A.cards=[mk('z1')];A.rn=0;zMA.acd.rate('again');const z=A.cards[0];o.waitOnly=C.cur()===undefined;
+ o.goNow=(()=>{H.c2_go();return !!(C.cur()&&C.cur().id==='z1')})();
+ /* کارت قدیمی فراموش‌شده: فاصله ۴۰٪، نه ۱ روز */
+ A.cards=[mk('m1',{ivl:30,reps:5,ease:2.5})];A.rn=0;zMA.acd.rate('again');const m=A.cards[0];o.lapse=m.lap===1&&m.pv===12&&m.ls===0&&m.ease<2.5;
+ for(let k=0;k<2;k++){m.rn=0;m.dt=0;zMA.acd.rate('good')}
+ o.regrad=m.ls===-1&&m.ivl===12&&m.reps>=2&&!m.dt;
+ /* آسان روی کارت تازه: فارغ‌التحصیل */
+ A.cards=[mk('e1')];zMA.acd.rate('easy');o.easy=A.cards[0].ivl===3&&A.cards[0].ls===-1;
+ /* سخت‌گیر */
+ A.cards=[mk('l1',{ivl:10,reps:3,lap:4})];page='acd';zMS.acd.tab='review';render();await w(200);o.leech=/سخت‌گیر|leech/i.test(document.body.textContent);
+ return o});const bad=Object.entries(r).filter(([k,v])=>v!==true);if(bad.length)throw new Error('FAIL '+bad.map(b=>b[0]).join(',')+' '+JSON.stringify(r))});
+
+await test('v169: جلسه‌ی مطالعه — اعتبارسنجی، ذخیره، کارت جلسه، تیک بخش‌ها، شروع بخش فلش‌کارت',async pg=>{const r=await pg.evaluate(async()=>{const o={},D=daniCourses,w=ms=>new Promise(x=>setTimeout(x,ms));
+ const Q=(id,l)=>({id,type:'single',difficulty:2,lessonIds:[l],topicIds:['ta'],exam:'',src:'jozve',stem:'سؤال '+id,choices:[{id:'a',text:'x'},{id:'b',text:'y'}],answer:{choice:'a'},solution:'ح'});
+ const sess=[{id:'s1',title:'گرامر + لغت',minutes:60,why:'اول زمان‌های ساده',parts:[{kind:'review',minutes:6},{kind:'learn',minutes:20,lessonIds:['g1']},{kind:'cards',minutes:10,lessonIds:['g1']},{kind:'practice',minutes:14,lessonIds:['g1'],count:5},{kind:'test',minutes:8,lessonIds:['g1'],count:4},{kind:'wrap',minutes:2,text:'جمع‌بندی'}]},{id:'s2',title:'جلسه دو',minutes:30,why:'ادامه',parts:[{kind:'read',minutes:30,ref:'کتاب، صفحه ۴۰–۴۵'}]}];
+ const P={manifest:{format:'dani-course',templateVersion:D.version.template,contentVersion:'1.0'},course:{id:'ses1',title:'انگلیسی',language:'fa',kind:'language',unit:'جلسه',chapters:[{id:'c1',title:'ج'}],topics:[{id:'ta',title:'الف'}],sessions:sess},
+  lessons:[{id:'g1',chapterId:'c1',title:'درس گرامر',blocks:[{type:'p',text:'x'}],status:'approved',role:'core'},{id:'g2',chapterId:'c1',title:'درس دو',blocks:[{type:'p',text:'x'}],status:'approved',role:'core'}],questions:[Q('q1','g1')],flashcards:[],sources:[],sourceIds:new Set(),assets:new Map(),names:[],fileErrors:[]};
+ const rep=D.validatePack(P,null);o.noErr=!(rep.errors||rep.err||[]).some(e=>/جلسه|sessions|بخش/.test(e));o.warnMiss=(rep.warnings||rep.warn||[]).some(x=>/در هیچ جلسه‌ای نیست/.test(x));
+ const bad=JSON.parse(JSON.stringify(P));bad.course.sessions=[{id:'x',title:'t',parts:[{kind:'zzz'}]}];bad.sourceIds=new Set();bad.assets=new Map();bad.lessons=P.lessons;bad.questions=P.questions;
+ const rb=D.validatePack(bad,null);o.badKind=(rb.errors||rb.err||[]).some(e=>/بخش نامعتبر/.test(e));
+ D.normalizePack(P);await D.commitPack(P,D.planPack(P));
+ const c=D.state.ix.courses.get('ses1');o.saved=Array.isArray(c.sessions)&&c.sessions.length===2&&c.sessions[0].parts.length===6&&c.sessions[1].parts[0].ref.includes('صفحه');
+ const A=zAX();A.ses={};D.state.courseId='ses1';D.state.tab='courses';D.state.lessonId='';page='acd';zMS.acd.tab='courses';render();await w(400);
+ const card=document.querySelector('.crs-ses');o.card=!!card&&/جلسه/.test(card.textContent)&&/گرامر \+ لغت/.test(card.textContent)&&card.querySelectorAll('[data-a=crs_ses_tick]').length===6;
+ const tk=card.querySelector('[data-a=crs_ses_tick]');H.crs_ses_tick({dataset:{c:'ses1',s:'s1',i:'0'}});await w(200);o.tick=!!(zAX().ses.ses1.s1.p[0]);
+ H.crs_ses_go({dataset:{c:'ses1',s:'s1',i:'2'}});await w(300);o.cards=daniReview2.scope.k==='lessons'&&daniReview2.scope.id==='g1'&&!!zAX().unl.g1;
+ daniReview2.setScope('all','');
  return o});const bad=Object.entries(r).filter(([k,v])=>v!==true);if(bad.length)throw new Error('FAIL '+bad.map(b=>b[0]).join(',')+' '+JSON.stringify(r))});
 
 console.log('\n'+results.map(r=>r.join(' ')).join('\n')+'\n\n'+(results.length-fails)+' / '+results.length+' موفق');
