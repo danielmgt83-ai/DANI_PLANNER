@@ -786,5 +786,28 @@ await test('v169: جلسه‌ی مطالعه — اعتبارسنجی، ذخیر
  daniReview2.setScope('all','');
  return o});const bad=Object.entries(r).filter(([k,v])=>v!==true);if(bad.length)throw new Error('FAIL '+bad.map(b=>b[0]).join(',')+' '+JSON.stringify(r))});
 
+await test('v170: تازه‌های دوره‌ی به‌روزشده، فهرست برای هوش مصنوعی، هشدار درس تکراری، صدا (بومی/آنلاین)',async pg=>{const r=await pg.evaluate(async()=>{const o={},D=daniCourses,w=ms=>new Promise(x=>setTimeout(x,ms));
+ const mk=(id,ver,ls,extra)=>({manifest:Object.assign({format:'dani-course',templateVersion:D.version.template,contentVersion:ver},extra||{}),course:{id,title:'دوره '+id,language:'fa',kind:'math',unit:'فصل',chapters:[{id:'c1',title:'فصل یک'}],topics:[{id:'ta',title:'الف'}]},
+   lessons:ls.map(([i,t,x])=>({id:i,chapterId:'c1',title:t||('درس '+i),blocks:[{type:'p',text:'متن '+i+(x||'')}],status:'approved',role:'core'})),questions:[],flashcards:[],sources:[],sourceIds:new Set(),assets:new Map(),names:[],fileErrors:[]});
+ const go=async(P)=>{D.validatePack(P,D.state.ix.courses.get(P.course.id)||null);D.normalizePack(P);await D.commitPack(P,D.planPack(P))};
+ await go(mk('nw1','1.0',[['n1'],['n2']]));
+ o.firstNoNews=!(D.state.ix.courses.get('nw1').news||[]).length;
+ await go(mk('nw1','1.1',[['n1'],['n2','','تغییر'],['n3']],{whatsNew:'درس سه اضافه شد'}));
+ const c=D.state.ix.courses.get('nw1'),n=(c.news||[])[0];
+ o.news=!!n&&n.nadd===1&&n.nupd===1&&n.note==='درس سه اضافه شد'&&n.add[0].l==='n3'&&n.upd[0].l==='n2';
+ zAX().nws={};D.state.courseId='nw1';D.state.tab='courses';D.state.lessonId='';page='acd';zMS.acd.tab='courses';render();await w(400);
+ const card=document.querySelector('.crs-news');o.card=!!card&&/تازه‌ها/.test(card.textContent)&&/درس سه اضافه شد/.test(card.textContent)&&!!card.querySelector('[data-l=n3]');
+ H.crs_news_ok({dataset:{c:'nw1'}});await w(300);o.dismiss=!document.querySelector('.crs-news')&&!!zAX().nws.nw1[n.id];
+ const cat=D.catalogText?D.catalogText():'';H.crs_catalog?o.cat=true:o.cat=false;
+ const dup=mk('nw2','1.0',[['x1','درس n1']]);const rep=D.validatePack(dup,null);o.dup=(rep.warnings||rep.warn||[]).some(x=>/هم‌عنوان/.test(x));
+ /* صدا */
+ const calls=[];const oldCap=window.Capacitor;let res={ok:true};window.Capacitor={Plugins:{DaniNative:{ttsSpeak:async x=>{calls.push(x);return res}}}};
+ H.c2_say({dataset:{t:'apple'}});await w(100);o.native=calls.length===1&&calls[0].lang==='en-US'&&calls[0].text==='apple';
+ const urls=[],oldAudio=window.Audio;window.Audio=function(u){urls.push(u);this.play=()=>Promise.resolve()};
+ zAX().onl=true;res={ok:false,reason:'lang'};H.c2_say({dataset:{t:'apple'}});await w(150);o.online=urls.length===1&&/translate_tts/.test(urls[0])&&/tl=en/.test(urls[0]);
+ zAX().onl=false;res={ok:false,reason:'init'};const t0=document.body.innerHTML.length;H.c2_say({dataset:{t:'apple'}});await w(150);o.noOnlineNoAudio=urls.length===1;
+ window.Capacitor=oldCap;window.Audio=oldAudio;zAX().onl=false;
+ return o});const bad=Object.entries(r).filter(([k,v])=>v!==true);if(bad.length)throw new Error('FAIL '+bad.map(b=>b[0]).join(',')+' '+JSON.stringify(r))});
+
 console.log('\n'+results.map(r=>r.join(' ')).join('\n')+'\n\n'+(results.length-fails)+' / '+results.length+' موفق');
 await browser.close();srv.close();process.exit(fails?1:0);
