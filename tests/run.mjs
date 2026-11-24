@@ -809,5 +809,23 @@ await test('v170: تازه‌های دوره‌ی به‌روزشده، فهرس
  window.Capacitor=oldCap;window.Audio=oldAudio;zAX().onl=false;
  return o});const bad=Object.entries(r).filter(([k,v])=>v!==true);if(bad.length)throw new Error('FAIL '+bad.map(b=>b[0]).join(',')+' '+JSON.stringify(r))});
 
+await test('v172: «بلد بودم» برای سؤال نوشتنی — درست‌حساب‌شدن، حذف از دفترچه‌ی خطا، برگرداندن',async pg=>{const r=await pg.evaluate(async()=>{const o={},D=daniCourses,w=ms=>new Promise(x=>setTimeout(x,ms));
+ const P={manifest:{format:'dani-course',templateVersion:D.version.template,contentVersion:'1.0'},course:{id:'knw',title:'دانستن',language:'fa',kind:'math',unit:'فصل',chapters:[{id:'c1',title:'ج'}],topics:[{id:'ta',title:'الف'}]},
+  lessons:[{id:'l1',chapterId:'c1',title:'درس',blocks:[{type:'p',text:'x'}],status:'approved',role:'core'}],
+  questions:[{id:'nq1',type:'numeric',difficulty:2,lessonIds:['l1'],topicIds:['ta'],exam:'',src:'jozve',stem:'۳×۴ = ؟',answer:{value:'12'},solution:'۱۲'},{id:'nq2',type:'single',difficulty:2,lessonIds:['l1'],topicIds:['ta'],exam:'',src:'jozve',stem:'تست',choices:[{id:'a',text:'x'},{id:'b',text:'y'}],answer:{choice:'a'},solution:'ح'}],flashcards:[],sources:[],sourceIds:new Set(),assets:new Map(),names:[],fileErrors:[]};
+ D.validatePack(P,null);D.normalizePack(P);await D.commitPack(P,D.planPack(P));
+ await D.startQuiz({courseId:'knw',scope:'all',diffs:[1,2,3],count:5,mode:'exam'});await w(200);
+ const a=D.state.quiz;a.items.nq1={answer:'21',ms:1000};a.items.nq2={answer:'b',ms:1000};await D.submitQuiz();await w(300);
+ const aid=D.state.keyId,A=()=>D.state.ix.attempts.get(aid);
+ o.start=A().score.ok===0&&A().score.total===2&&A().score.wrong===2&&!!D.state.ix.errors.get('e_nq1');
+ D.state.tab='quiz';page='acd';zMS.acd.tab='courses';render();await w(300);
+ const html=document.body.innerHTML;o.btn=/data-a="crs_know"[^>]*data-q="nq1"/.test(html)&&!/data-a="crs_know"[^>]*data-q="nq2"/.test(html);
+ H.crs_know({dataset:{q:'nq1',v:'1'}});await w(500);
+ o.ok=A().items.nq1.ov==='know'&&A().score.ok===1&&A().score.wrong===1&&!D.state.ix.errors.get('e_nq1')&&!!D.state.ix.errors.get('e_nq2');
+ render();await w(300);o.badge=/بلد بودم/.test(document.body.textContent)&&!!document.querySelector('[data-a=crs_know][data-v="0"]');
+ H.crs_know({dataset:{q:'nq1',v:'0'}});await w(500);
+ o.undo=!A().items.nq1.ov&&A().score.ok===0&&!!D.state.ix.errors.get('e_nq1');
+ return o});const bad=Object.entries(r).filter(([k,v])=>v!==true);if(bad.length)throw new Error('FAIL '+bad.map(b=>b[0]).join(',')+' '+JSON.stringify(r))});
+
 console.log('\n'+results.map(r=>r.join(' ')).join('\n')+'\n\n'+(results.length-fails)+' / '+results.length+' موفق');
 await browser.close();srv.close();process.exit(fails?1:0);
