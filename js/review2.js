@@ -13,7 +13,7 @@ const unl=()=>{const A=zAX();if(!A.unl||typeof A.unl!=='object'||Array.isArray(A
 const rgs=cid=>{const A=zAX();return A.rg&&Array.isArray(A.rg[cid])?A.rg[cid]:[]};
 function opened(c){if(!c.lid)return true;if(c.reps>0||c.last)return true;if(unl()[c.lid])return true;const C=CRs();if(!C)return true;if(!C.ix.lessons.get(c.lid))return true;return !!C.ix.progress.get(c.lid)}
 function inGroup(c,cid,gid){if(c.cid!==cid)return false;if(Array.isArray(c.g)&&c.g.indexOf(gid)>=0)return true;const g=rgs(cid).find(x=>x.id===gid);return !!(g&&c.lid&&Array.isArray(g.l)&&g.l.indexOf(c.lid)>=0)}
-function inScope(c){if(SC.k==='all')return true;if(SC.k==='course')return c.cid===SC.id;if(SC.k==='lesson')return c.lid===SC.id;if(SC.k==='group'){const i=SC.id.indexOf('|');return inGroup(c,SC.id.slice(0,i),SC.id.slice(i+1))}return true}
+function inScope(c){if(SC.k==='all')return true;if(SC.k==='lessons')return SC.id.split(',').indexOf(c.lid)>=0;if(SC.k==='course')return c.cid===SC.id;if(SC.k==='lesson')return c.lid===SC.id;if(SC.k==='group'){const i=SC.id.indexOf('|');return inGroup(c,SC.id.slice(0,i),SC.id.slice(i+1))}return true}
 const _d=srsDue;
 srsDue=function(){
  if(SC.k==='all')return _d().filter(opened);
@@ -21,7 +21,7 @@ srsDue=function(){
  const l=zAX().cards.filter(srsOk).filter(c=>inScope(c)&&opened(c)&&!SC.done.has(c.id));
  return l.sort((a,b)=>{const x=rank.has(a.id),y=rank.has(b.id);if(x!==y)return x?-1:1;return x?rank.get(a.id)-rank.get(b.id):a.due.localeCompare(b.due)})};
 const _rate=zMA.acd.rate;
-zMA.acd.rate=function(q){const c=srsDue()[0];const r=_rate.apply(this,arguments);if(c&&SC.k!=='all'&&q!=='again')SC.done.add(c.id);return r};
+zMA.acd.rate=function(q){const c=(window.daniCards2&&window.daniCards2.cur?window.daniCards2.cur():srsDue()[0]);const r=_rate.apply(this,arguments);if(c&&SC.k!=='all'&&q!=='again')SC.done.add(c.id);return r};
 function setScope(k,id){SC.k=k||'all';SC.id=id||'';SC.done=new Set();try{zMS.acd.tab='review'}catch(e){}}
 function goReview(){try{H.acd3_go({dataset:{k:'review'}})}catch(e){try{zMS.acd.tab='review'}catch(x){}}render()}
 /* آماره‌ها */
@@ -56,5 +56,5 @@ zMA.acd.rvsel=function(_,el){const v=el&&el.value||'';SC.id=v;SC.done=new Set();
 H.rv_self=e=>{const l=e.dataset.l;if(!l)return;unl()[l]=1;setScope('lesson',l);zcommit();goReview()};
 /* خروج از صفحه‌ی آکادمی = برگشت به «همه» */
 {const _r=render;render=function(){try{if(typeof page!=='undefined'&&page!=='acd'&&SC.k!=='all')setScope('all')}catch(e){}return _r.apply(this,arguments)}}
-window.daniReview2={opened,setScope,scope:SC,inGroup};
+window.daniReview2={opened,setScope,scope:SC,inGroup,go:goReview,unlock:ids=>{ids.forEach(l=>{unl()[l]=1});zcommit()}};
 })();

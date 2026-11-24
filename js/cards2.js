@@ -23,24 +23,36 @@ const spellText=c=>cloze(c)?null:(latin(c.a)&&c.a.length<=60?c.a:(latin(c.q)&&c.
 const nl=()=>{const A=zAX();return A.nl==null?20:+A.nl};
 const isNew=c=>!(c.reps||c.ivl||c.lap||c.dt);
 function nlc(){const A=zAX(),t=todayISO();if(!A.nlc||A.nlc.d!==t)A.nlc={d:t,n:0};return A.nlc}
-/* ===== زمان‌بندی: «دوباره» همان روز (۱۰ دقیقه)، «سخت» برای کارت تازه ۳۰ دقیقه، سقف ۳۶۵ روز برداشته شد ===== */
-const MIN=60000;
-srsNext=function(c,q){const t=todayISO(),now=Date.now();let ease=+c.ease||2.5,ivl=+c.ivl||0,reps=+c.reps||0,lap=+c.lap||0,dt=0,ag=c.ag||'';
+/* ===== v169: زمان‌بندی با «قدم‌های یادگیری بر حسب تعداد کارت» =====
+   کارت تازه یا فراموش‌شده چند قدم دارد؛ هر قدم «بعد از N کارت دیگر» برمی‌گردد: نه پشت سر خودش، نه آخر صف.
+   c.ls = قدم یادگیری (‎-1 = یادگیری نیست)، c.rn = شماره‌ی شمارنده‌ای که باید به آن برسد، c.dt = زمان جایگزین (ms)، c.pv = فاصله‌ی پس از یادگیری مجدد. */
+const MIN=60000,STEP=[5,15],STEPM=[8,15];
+const learnOf=c=>(c.ls>=0)||(!c.ivl&&!c.reps&&!isNew(c));
+srsNext=function(c,q){const t=todayISO(),now=Date.now(),R=(+zAX().rn||0)+1;
+ let ease=+c.ease||2.5,ivl=+c.ivl||0,reps=+c.reps||0,lap=+c.lap||0,ag=c.ag||'',ls=-1,pv=+c.pv||0,dt=0,rn=0;
+ const nw=isNew(c),ln=learnOf(c),s0=(c.ls>=0)?+c.ls:0;
+ const wait=x=>{ls=x;rn=R+STEP[x];dt=now+STEPM[x]*MIN;ag=t};
  const good=()=>reps===0?1:reps===1?3:Math.max(ivl+1,Math.round(ivl*ease));
- if(q==='again'){reps=0;lap++;ease=Math.max(1.3,ease-.2);ivl=0;dt=now+10*MIN;ag=t}
- else if(q==='hard'&&reps===0){ivl=0;dt=now+30*MIN;ag=t}
+ if(nw||ln){const rl=pv>0;
+  if(q==='again')wait(0);
+  else if(q==='hard')wait(nw?0:s0);
+  else if(q==='good'){if(nw||s0<1)wait(1);else{ivl=rl?Math.max(1,pv):1;reps=Math.max(reps,rl?2:1);pv=0}}
+  else{ivl=rl?Math.max(2,Math.round(pv*1.3)):3;reps=Math.max(reps,rl?2:1);pv=0}}
+ else if(q==='again'){lap++;ease=Math.max(1.3,ease-.2);pv=Math.max(1,Math.round(ivl*.4));ivl=pv;wait(0)}
  else if(q==='hard'){ivl=Math.max(ivl+1,Math.round(ivl*1.2));ease=Math.max(1.3,ease-.15);reps++}
  else if(q==='good'){ivl=good();reps++}
  else{const g=good();ivl=reps===0?3:Math.max(g+1,Math.round(Math.max(ivl,1)*ease*1.3));ease+=.15;reps++}
- ivl=Math.min(3650,ivl);return{ease:+ease.toFixed(2),ivl,reps,lap,due:dt?t:addD(t,ivl),dt,ag,last:t}};
+ ivl=Math.min(3650,ivl);return{ease:+ease.toFixed(2),ivl,reps,lap,due:ls>=0?t:addD(t,ivl),dt,ag,last:t,ls,rn,pv}};
 function lbl(c,q){const o=srsNext(c,q);
- if(o.dt){const m=Math.max(1,Math.round((o.dt-Date.now())/MIN));return(q==='again'?'<':'')+fa(m)+' '+T('دقیقه','min')}
+ if(o.ls>=0)return'~'+fa(STEP[o.ls])+' '+T('کارت بعد','cards');
  const d=o.ivl;if(d<30)return fa(d)+' '+T('روز','d');if(d<365)return fa(+(d/30.4).toFixed(1))+' '+T('ماه','mo');return fa(+(d/365).toFixed(1))+' '+T('سال','y')}
+const isWait=c=>{if(c.ls>=0){if(st.force===c.id)return false;return !((+zAX().rn||0)>=(+c.rn||0)||Date.now()>=(+c.dt||0))}return !!(c.dt&&c.dt>Date.now()&&c.id!==st.force)};
+const mastered=c=>!(c.ls>=0)&&(+c.ivl||0)>=21;
 /* ===== صف: سقف کارت جدید روزانه + کارت‌های «یادگیری» که هنوز وقتشان نرسیده آخر صف می‌آیند ===== */
 const _due=srsDue;
 srsDue=function(){const l=_due(),lim=nl(),now=Date.now();let left=lim?Math.max(0,lim-nlc().n):1e9;
- const f=l.filter(c=>{if(!isNew(c))return true;if(left>0){left--;return true}return false}),rd=[],wt=[];f.forEach(c=>(c.dt&&c.dt>now?wt:rd).push(c));return rd.concat(wt)};
-function cur(){if(st.force){const c=zAX().cards.find(x=>x.id===st.force);if(c&&srsOk(c))return c}return srsDue()[0]}
+ const f=l.filter(c=>{if(!isNew(c))return true;if(left>0){left--;return true}return false}),rd=[],wt=[];f.forEach(c=>(isWait(c)?wt:rd).push(c));const lk=x=>x.ls>=0||!!x.dt;return rd.filter(lk).concat(rd.filter(x=>!lk(x))).concat(wt)};
+function cur(){if(st.force){const c=zAX().cards.find(x=>x.id===st.force);if(c&&srsOk(c))return c}return srsDue().find(c=>!isWait(c))}
 const CRs=()=>{try{return window.daniCourses&&window.daniCourses.state}catch(e){return null}};
 const isLang=c=>{try{const C=CRs(),k=C&&c.cid&&C.ix.courses.get(c.cid);return !!k&&k.kind==='language'}catch(e){return false}};
 const isWord=c=>!cloze(c)&&latin(c.q)&&!!(c.ipa||c.pos||c.def||c.fa||c.split||c.syn||c.mn||(c.ex&&c.ex.length)||isLang(c));
@@ -50,10 +62,10 @@ function reset(){st.res=null;st.typed='';st.fa=false;st.menu=false}
 const _show=zMA.acd.show;
 zMA.acd.show=function(){const c=cur();st.fa=false;st.menu=false;if(c&&zAX().snd){const s=spellText(c);if(s)speak(s)}return _show.apply(this,arguments)};
 zMA.acd.rate=function(q){const A=zAX(),c=cur();if(!c||!['again','hard','good','easy'].includes(q))return;
- const nw=isNew(c),snap={id:c.id,nw,day:todayISO(),f:{ease:c.ease,ivl:c.ivl,reps:c.reps,lap:c.lap,due:c.due,ag:c.ag,last:c.last,dt:c.dt||0}};
- Object.assign(c,srsNext(c,q));const t=todayISO();A.rl[t]=(A.rl[t]||0)+1;Object.keys(A.rl).sort().slice(0,-120).forEach(k=>delete A.rl[k]);
+ const nw=isNew(c),snap={id:c.id,nw,day:todayISO(),rn0:+A.rn||0,f:{ease:c.ease,ivl:c.ivl,reps:c.reps,lap:c.lap,due:c.due,ag:c.ag,last:c.last,dt:c.dt||0,ls:c.ls,rn:c.rn,pv:c.pv}};
+ Object.assign(c,srsNext(c,q));A.rn=(+A.rn||0)+1;const t=todayISO();A.rl[t]=(A.rl[t]||0)+1;Object.keys(A.rl).sort().slice(0,-120).forEach(k=>delete A.rl[k]);
  if(nw)nlc().n++;st.undo.push(snap);if(st.undo.length>20)st.undo.shift();st.force='';reset();AR.show=false;zcommit()};
-const counts=d=>{let n=0,l=0,r=0;d.forEach(c=>{if(isNew(c))n++;else if(c.dt)l++;else r++});return[n,l,r]};
+const counts=d=>{let n=0,l=0,r=0;d.forEach(c=>{if(isNew(c))n++;else if(c.ls>=0||c.dt)l++;else r++});return[n,l,r]};
 function bar(d){const k=counts(d),A=zAX(),c=cur(),fl=c&&c.flag?FLAG[c.flag]:'';
  return'<div class="c2bar"><div class="c2cnt"><span style="color:#60a5fa"><b>'+fa(k[0])+'</b><small>'+T('جدید','New')+'</small></span><span style="color:#ef4444"><b>'+fa(k[1])+'</b><small>'+T('یادگیری','Learning')+'</small></span><span style="color:#34d399"><b>'+fa(k[2])+'</b><small>'+T('مرور','Review')+'</small></span></div>'
   +'<div class="c2ic"><button class="chip sm" data-a="c2_undo" '+(st.undo.length?'':'disabled style="opacity:.35" ')+'aria-label="undo" title="'+T('برگشت','Undo')+'">↩</button><button class="chip sm" data-a="c2_flag" aria-label="flag" title="'+T('پرچم','Flag')+'" style="'+(fl?'color:'+fl:'')+'">⚑</button><button class="chip sm '+(st.menu?'on':'')+'" data-a="c2_menu" aria-label="menu">⋮</button></div></div>'}
@@ -72,8 +84,10 @@ function wordBack(c){const A=zAX(),fa0=c.fa||c.a,ex=c.ex||[],gate=A.ft&&c.def&&!
 acdReview=function(){const A=zAX(),t=todayISO(),d=srsDue(),dn=A.rl[t]||0;
  if(!A.cards.length)return'<div class="c"><h3>'+BH('Review Queue','صف مرور')+'</h3><p>هنوز فلش‌کارتی نداری. هر چیزی که باید «به یاد بماند» را به‌صورت پرسش و پاسخ بنویس تا برنامه در زمان درست یادآوری کند.</p>'+mBtn('acd:tab:cards','ساخت اولین فلش‌کارت','p')+'</div>';
  if(!d.length){const nx=A.cards.filter(srsOk).map(c=>c.due).sort()[0],hid=_due().length-d.length;return'<div class="c"><h3>'+BH('Review Queue','صف مرور')+'</h3><p class="hst ok">امروز چیزی برای مرور نمانده ✓ '+(dn?fa(dn)+' کارت مرور کردی.':'')+'</p>'+(hid>0?'<p class="m">'+fa(hid)+' '+T('کارت جدید به‌خاطر سقف روزانه برای فردا مانده','new cards wait for tomorrow (daily cap)')+'</p>':'')+(nx?'<p class="m">مرور بعدی: '+fmtD(nx)+'</p>':'')+(st.undo.length?'<button class="chip sm" data-a="c2_undo">↩ '+T('برگشت','Undo')+'</button>':'')+ctl()+'</div>'}
+ if(!d.some(x=>!isWait(x))){const mt=Math.max(1,Math.ceil(Math.min(...d.map(x=>(+x.dt||0)-Date.now()))/MIN));
+  return'<div class="c"><h3>'+BH('Review Queue','صف مرور')+'</h3>'+bar(d)+'<p class="hst ok">'+T('کارت‌های در حال یادگیری هنوز آماده نیستند؛ حدود','The learning cards are not ready yet; about')+' '+fa(mt)+' '+T('دقیقه‌ی دیگر','min')+'</p><div class="row"><button class="p" data-a="c2_go">'+T('همین الان ادامه بده','Continue now')+'</button></div>'+(st.undo.length?'<button class="chip sm" data-a="c2_undo">↩ '+T('برگشت','Undo')+'</button>':'')+ctl()+'</div>'}
  const c=cur(),sp=spellText(c),spOn=st.spell&&sp,wd=isWord(c);
- let h='<div class="c acrv"><h3>'+BH('Review Queue','صف مرور')+'</h3>'+bar(d)+'<div class="m">'+T('امروز','Today')+' '+fa(dn)+' '+T('مرور شد','reviewed')+(c.deck?' · <span class="badge">'+E(c.deck)+'</span>':'')+'</div>'+menu(c);
+ let h='<div class="c acrv"><h3>'+BH('Review Queue','صف مرور')+'</h3>'+bar(d)+'<div class="m">'+T('امروز','Today')+' '+fa(dn)+' '+T('مرور شد','reviewed')+' · 🏆 '+fa(A.cards.filter(mastered).length)+' '+T('مسلط','mastered')+(c.deck?' · <span class="badge">'+E(c.deck)+'</span>':'')+'</div>'+menu(c)+(c.lap>=4?'<div class="m" style="color:#f59e0b">⚠️ '+T('این کارت سخت‌گیر است (چند بار فراموش شد): یک مثال یا یادیار برایش بنویس','This card is a leech (forgotten several times): add an example or a memory aid')+' <button class="chip sm" data-a="c2_edit">✎</button></div>':'');
  h+='<div class="c2card">';
  if(wd)h+='<div class="c2w" dir="ltr">'+E(c.q)+'</div><div class="row" style="justify-content:center">'+snd(c.q)+'</div>';
  else h+='<div class="acq">'+E(front(c)).replace(/\n/g,'<br>')+'</div><div class="row" style="justify-content:center">'+snd(latin(c.q)&&!cloze(c)?c.q:'')+'</div>';
@@ -84,9 +98,10 @@ acdReview=function(){const A=zAX(),t=todayISO(),d=srsDue(),dn=A.rl[t]||0;
  else h+='<div class="aca">'+E(back(c)).replace(/\n/g,'<br>')+(c.x?'<div class="m" style="margin-top:8px" dir="auto">'+E(c.x)+'</div>':'')+'</div><div class="row" style="justify-content:center">'+snd(latin(c.a)&&!cloze(c)?c.a:(sp||''))+'</div>';
  h+='</div>';
  const sug=spOn&&st.res?(st.res==='ok'?'good':'again'):'';
- h+='<div class="acbtns">'+[['again','دوباره','#ef4444'],['hard','سخت','#f59e0b'],['good','خوب','#34d399'],['easy','آسان','#60a5fa']].map(x=>'<button class="acb" style="--c:'+x[2]+(sug===x[0]?';outline:3px solid '+x[2]:'')+'" data-m="acd:rate:'+x[0]+'">'+T(x[1],{again:'Again',hard:'Hard',good:'Good',easy:'Easy'}[x[0]])+'<small>'+lbl(c,x[0])+'</small></button>').join('')+'</div><p class="m">اگر پاسخ را بلد نبودی «دوباره» بزن؛ اشتباه کردن یعنی کارت دارد کارش را می‌کند.</p></div>';
+ h+='<div class="acbtns">'+[['again','دوباره','#ef4444'],['hard','سخت','#f59e0b'],['good','خوب','#34d399'],['easy','آسان','#60a5fa']].map(x=>'<button class="acb" style="--c:'+x[2]+(sug===x[0]?';outline:3px solid '+x[2]:'')+'" data-m="acd:rate:'+x[0]+'">'+T(x[1],{again:'Again',hard:'Hard',good:'Good',easy:'Easy'}[x[0]])+'<small>'+lbl(c,x[0])+'</small></button>').join('')+'</div><p class="m">اصلاً یادت نبود «دوباره»؛ نیمه‌بلد بودی «سخت» بزن. کارت چند کارت بعد برمی‌گردد، نه پشت سر هم؛ اشتباه کردن یعنی کارت دارد کارش را می‌کند.</p></div>';
  return h};
 function ctl(){const A=zAX();return'<div class="row" style="flex-wrap:wrap;margin:6px 0"><button class="chip sm '+(st.spell?'on':'')+'" data-a="c2_spell">✍ '+T('حالت املا','Spelling mode')+'</button><button class="chip sm '+(A.snd?'on':'')+'" data-a="c2_snd">🔊 '+T('خواندن خودکار پاسخ','Auto-speak answer')+'</button><button class="chip sm" data-a="c2_nl">🆕 '+T('کارت جدید امروز','New today')+': '+fa(nlc().n)+'/'+(nl()||'∞')+' ✎</button></div>'}
+H.c2_go=()=>{const w=srsDue()[0];if(w){st.force=w.id;reset();AR.show=false;render()}};
 H.c2_say=e=>speak(e.dataset.t,!!e.dataset.s);
 H.c2_spell=()=>{st.spell=!st.spell;st.res=null;AR.show=false;render()};
 H.c2_snd=()=>{const A=zAX();A.snd=!A.snd;zcommit()};
@@ -96,7 +111,7 @@ H.c2_menu=()=>{st.menu=!st.menu;render()};
 H.c2_flag=()=>{const c=cur();if(!c)return;c.flag=((c.flag||0)+1)%FLAG.length;zcommit()};
 H.c2_edit=()=>{const c=cur();if(c)zMA.acd.cedit(c.id)};
 H.c2_del=()=>{const c=cur();if(c){st.force='';zMA.acd.cdel(c.id)}};
-H.c2_undo=()=>{const A=zAX(),s=st.undo.pop();if(!s)return;const c=A.cards.find(x=>x.id===s.id);if(!c)return;Object.assign(c,s.f);if(!c.dt)c.dt=0;
+H.c2_undo=()=>{const A=zAX(),s=st.undo.pop();if(!s)return;const c=A.cards.find(x=>x.id===s.id);if(!c)return;Object.assign(c,s.f);if(!c.dt)c.dt=0;if(s.rn0!=null)A.rn=s.rn0;
  if(A.rl[s.day])A.rl[s.day]=Math.max(0,A.rl[s.day]-1);if(s.nw&&A.nlc&&A.nlc.d===s.day)A.nlc.n=Math.max(0,A.nlc.n-1);
  st.force=c.id;reset();AR.show=false;zcommit()};
 H.c2_nl=()=>{const v=prompt(T('حداکثر کارت جدید در روز (۰ = بدون سقف):','Max new cards per day (0 = unlimited):'),String(nl()));if(v===null)return;const n=Math.max(0,Math.min(500,parseInt(v,10)||0));zAX().nl=n;zcommit()};

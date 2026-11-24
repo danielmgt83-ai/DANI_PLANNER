@@ -405,6 +405,17 @@ function validatePack(P,existing){
   if(C&&!['fa','en','fa-en'].includes(C.language))W('زبان دوره (language) باید fa، en یا fa-en باشد');
   if(C&&C.kind!=null&&!KINDS.has(C.kind))E('course.json: kind باید language | math | gmat | general باشد');
   if(C&&C.unit!=null&&(typeof C.unit!=='string'||!C.unit.trim()||C.unit.length>14))E('course.json: unit (نام دسته‌ها، مثل «فصل» یا «جلسه») باید متن کوتاه باشد');
+  if(C&&C.sessions!=null){if(!Array.isArray(C.sessions))E('course.json: sessions باید فهرست باشد');else{const sid=new Set(),inS=new Set(),known=i=>P.lessons.some(l=>l.id===i)||CR.cache.lessons.some(l=>l.id===i);
+    C.sessions.forEach(x=>{if(!x||!okId(String(x.id))||!x.title||!Array.isArray(x.parts)||!x.parts.length){E('جلسه‌ی نامعتبر (id، title و parts لازم است)');return}
+      if(sid.has(x.id))E('شناسه‌ی جلسه تکراری است: '+x.id);sid.add(x.id);
+      if(x.parts.length>10)W('جلسه‌ی «'+x.id+'» بیش از ۱۰ بخش دارد؛ ساده‌تر کن');
+      if(!x.why)W('جلسه‌ی «'+x.id+'» دلیل ترتیب (why) ندارد');
+      let sum=0;x.parts.forEach(p=>{if(!p||!SES_KINDS.includes(p.kind)){E('بخش نامعتبر در جلسه‌ی «'+x.id+'» (kind باید یکی از '+SES_KINDS.join(' | ')+' باشد)');return}
+        sum+=+p.minutes||0;(Array.isArray(p.lessonIds)?p.lessonIds:[]).forEach(i=>{inS.add(i);if(!known(i))W('جلسه‌ی «'+x.id+'»: درس '+i+' نه در این بسته است نه نصب‌شده')});
+        if((p.kind==='learn'||p.kind==='cards'||p.kind==='practice'||p.kind==='test')&&!(p.lessonIds&&p.lessonIds.length))W('جلسه‌ی «'+x.id+'»: بخش '+p.kind+' بدون lessonIds');
+        if((p.kind==='read'||p.kind==='watch')&&!p.ref)W('جلسه‌ی «'+x.id+'»: بخش '+p.kind+' باید ref داشته باشد (مثلاً «کتاب، صفحه ۴۰–۴۵»)')});
+      if(x.minutes&&sum&&Math.abs(sum-x.minutes)>Math.max(8,x.minutes*.25))W('جلسه‌ی «'+x.id+'»: جمع دقیقه‌ی بخش‌ها ('+sum+') با minutes ('+x.minutes+') فرق زیادی دارد')});
+    const miss=P.lessons.filter(l=>l.role!=='aid'&&!inS.has(l.id)).length;if(C.sessions.length&&miss)W(miss+' درس در هیچ جلسه‌ای نیست')}}
   if(C&&C.paths!=null){if(!Array.isArray(C.paths))E('course.json: paths باید فهرست باشد');else C.paths.forEach(pt=>{if(!pt||!okId(pt.id)||!pt.title||!Array.isArray(pt.items))E('مسیر مطالعه‌ی نامعتبر (id، title و items لازم است)');else pt.items.forEach(i=>{if(!P.lessons.some(l=>l.id===i)&&!CR.cache.lessons.some(l=>l.id===i&&C&&l.courseId===C.id))W('مسیر «'+pt.id+'»: درس ناموجود «'+i+'»')})})}
   {const nosrc=P.questions.filter(q=>q&&q.src==null).length;if(P.questions.length&&nosrc)W(nosrc+' سؤال منبع (src) ندارد؛ بهتر است jozve، konkur، exercise یا example باشد')}
   P.fileErrors.forEach(E);
@@ -560,6 +571,10 @@ function normalizePack(P){const cid=P.course&&P.course.id,d=cid?tomb(cid):{l:[],
   P.lessons=P.lessons.filter(l=>!dl.has(l.id)).map(normLesson);
   P.questions=P.questions.filter(q=>!dq.has(q.id)).map(q=>mv[q.id]&&!dl.has(mv[q.id])?{...q,lessonIds:[mv[q.id]]}:q).map(normQuestion);
   if(P.course&&Array.isArray(P.course.chapters)&&d.ch.length){const dc=new Set(d.ch);P.course.chapters=P.course.chapters.filter(c=>!dc.has(c.id))}}
+/* v169: «جلسه‌ی مطالعه» — course.sessions=[{id,title,minutes,why,parts:[{kind,title,minutes,lessonIds,count,text,ref}]}] */
+const SES_KINDS=['review','learn','read','watch','cards','practice','test','wrap'];
+const normSessions=a=>Array.isArray(a)?a.filter(x=>x&&okId(String(x.id))&&Array.isArray(x.parts)).map((x,i)=>({id:String(x.id),title:String(x.title||x.id).slice(0,120),minutes:Math.max(0,Math.min(300,+x.minutes||0)),why:String(x.why||'').slice(0,300),order:+x.order||i+1,
+  parts:x.parts.filter(p=>p&&SES_KINDS.includes(p.kind)).slice(0,10).map(p=>({kind:p.kind,title:String(p.title||'').slice(0,120),minutes:Math.max(0,Math.min(180,+p.minutes||0)),lessonIds:Array.isArray(p.lessonIds)?p.lessonIds.map(String):[],count:Math.max(0,Math.min(100,+p.count||0)),text:String(p.text||'').slice(0,600),ref:String(p.ref||'').slice(0,200)}))})):[];
 /* v168: هر دوره چند «فایل» دارد (course.files). دوره‌های قدیمی که files ندارند یک فایل مجازی «فایل اولیه» می‌گیرند. */
 const filesOf=c=>{if(!c)return[];if(Array.isArray(c.files)&&c.files.length)return c.files;
   const ids=(arr)=>arr.filter(x=>x.courseId===c.id).map(x=>x.id);
@@ -605,6 +620,7 @@ async function commitPack(P,pl){
     topics:mergeBy(ex?ex.topics||[]:[],Array.isArray(C.topics)?C.topics.filter(t=>t&&t.id).map(t=>({id:String(t.id),title:String(t.title||t.id)})):[]),goals:uniq([...(ex?ex.goals||[]:[]),...(Array.isArray(C.goals)?C.goals.map(String):[])]),prerequisites:uniq([...(ex?ex.prerequisites||[]:[]),...(Array.isArray(C.prerequisites)?C.prerequisites.map(String):[])]),chapters,
     kind:KINDS.has(C.kind)?C.kind:(ex&&ex.kind||'general'),unit:(typeof C.unit==='string'&&C.unit.trim()?C.unit.trim():(ex&&ex.unit||'فصل')),
     paths:[...(ex&&ex.paths||[]).filter(x=>x&&x.u),...mergeBy((ex&&ex.paths||[]).filter(x=>x&&!x.u),Array.isArray(C.paths)?C.paths.filter(x=>x&&x.id&&Array.isArray(x.items)).map(x=>({id:String(x.id),title:String(x.title||x.id),items:x.items.map(String)})):[])],
+    sessions:mergeBy(ex&&ex.sessions||[],normSessions(C.sessions)),
     passages:mergeBy(ex&&ex.passages||[],Array.isArray(C.passages)?C.passages.filter(p=>p&&p.id&&Array.isArray(p.blocks)).map(p=>({id:String(p.id),title:p.title?String(p.title):'',blocks:p.blocks})):[]),
     exams:mergeBy((ex&&ex.exams||[]).map(x=>({...x,id:x.id||normExam(x.name)})),Array.isArray(C.exams)?C.exams.filter(x=>x&&x.name).map(x=>({id:normExam(x.name),name:normExam(x.name),year:x.year!=null?String(x.year):'',minutes:+x.minutes>0?+x.minutes:0,penalty:x.penalty!=null?+x.penalty:null,count:+x.count>0?+x.count:0,note:x.note?String(x.note):''})):[]),
     slots:(Array.isArray(C.slots)?C.slots.filter(x=>x&&x.id&&x.title).map(x=>({id:String(x.id),title:String(x.title),chapterId:x.chapterId?String(x.chapterId):'',order:+x.order||0})):(ex&&ex.slots||[])),
@@ -879,6 +895,19 @@ function vCourses(){
   if(window.daniAcd4)return window.daniAcd4.tree();
   return'<div class="g g2">'+cs.map(c=>{const p=courseProg(c.id);return'<div class="c"><h3 dir="auto">'+E_(c.title)+'</h3><p class="m" dir="auto">'+E_(c.description)+'</p>'+bar(p.p)+'<div class="m">'+faN(c.chapters.length)+' فصل · '+faN(p.n)+' درس · '+faN(questionsOf(c.id).length)+' سؤال · زبان: '+E_(c.language)+'</div><button class="p" data-a="crs_open" data-c="'+E_(c.id)+'" style="margin-top:8px">باز کردن</button></div>'}).join('')+'</div>';
 }
+/* v169: کارت «جلسه‌ی مطالعه» در صفحه‌ی دوره (فقط اگر دوره sessions داشته باشد) */
+function sesData(cid){const A=zAX();if(!A.ses||typeof A.ses!=='object'||Array.isArray(A.ses))A.ses={};if(!A.ses[cid]||typeof A.ses[cid]!=='object')A.ses[cid]={};return A.ses[cid]}
+const partDone=(c,sid,i,p)=>{const d=sesData(c.id)[sid];if(d&&d.p&&d.p[i])return true;return p.kind==='learn'&&p.lessonIds.length>0&&p.lessonIds.every(l=>{const g=CR.ix.progress.get(l);return g&&g.done})};
+const sesDone=(c,x)=>x.parts.length>0&&x.parts.every((p,i)=>partDone(c,x.id,i,p));
+function sessionCard(c){const ss=(c.sessions||[]).slice().sort((a,b)=>(a.order||0)-(b.order||0));if(!ss.length)return'';
+ CR.sesSel=CR.sesSel||{};const nx=ss.find(x=>!sesDone(c,x))||ss[ss.length-1],cur=ss.find(x=>x.id===CR.sesSel[c.id])||nx,k=ss.indexOf(cur)+1,done=sesDone(c,cur),ci=E_(c.id);
+ const IC={review:'🔁',learn:'📖',read:'📚',watch:'🎬',cards:'🃏',practice:'✍️',test:'📝',wrap:'🏁'},KT={review:TT('مرور خطاها','Review mistakes'),learn:TT('یادگیری','Learn'),read:TT('مطالعه','Read'),watch:TT('ویدئو','Watch'),cards:TT('فلش‌کارت','Flashcards'),practice:TT('تمرین','Practice'),test:TT('آزمونک','Quiz'),wrap:TT('جمع‌بندی','Wrap-up')};
+ const tot=cur.minutes||cur.parts.reduce((a,p)=>a+(p.minutes||0),0);
+ let h='<div class="c crs-ses"><div class="row"><b dir="auto" class="sp">'+(done?'✅ ':'▶ ')+TT('جلسه','Session')+' '+faN(k)+' / '+faN(ss.length)+' — '+E_(cur.title)+'</b><span class="m">'+(tot?'~'+faN(tot)+' '+TT('دقیقه','min'):'')+'</span></div>'+(cur.why?'<p class="m" dir="auto">'+E_(cur.why)+'</p>':'');
+ cur.parts.forEach((p,i)=>{const d=partDone(c,cur.id,i,p),at=' data-c="'+ci+'" data-s="'+E_(cur.id)+'" data-i="'+i+'"';
+  h+='<div class="cwr"><span dir="auto"><button class="chip sm'+(d?' on':'')+'" data-a="crs_ses_tick"'+at+' aria-label="'+TT('انجام شد','Done')+'">'+(d?'☑':'☐')+'</button> '+IC[p.kind]+' <b>'+KT[p.kind]+'</b>'+(p.title?' · '+E_(p.title):'')+(p.minutes?' <small class="m">'+faN(p.minutes)+' '+TT('دق','min')+'</small>':'')+(p.ref?'<div class="m">'+E_(p.ref)+'</div>':'')+(p.text?'<div class="m">'+E_(p.text)+'</div>':'')+'</span>'+((p.kind==='wrap'||p.kind==='read'||p.kind==='watch')?'':'<button class="chip sm" data-a="crs_ses_go"'+at+'>'+TT('شروع','Start')+'</button>')+'</div>'});
+ h+='<details style="margin-top:6px"><summary class="m">'+TT('همه‌ی جلسه‌ها','All sessions')+'</summary>'+ss.map((x,j)=>'<div class="cwr"><span dir="auto">'+(sesDone(c,x)?'✅ ':'⬜ ')+faN(j+1)+'. '+E_(x.title)+'</span><button class="chip sm'+(x.id===cur.id?' on':'')+'" data-a="crs_ses_pick" data-c="'+ci+'" data-s="'+E_(x.id)+'">'+TT('باز کن','Open')+'</button></div>').join('')+'</details></div>';
+ return h}
 function vCourse(){
   const c=course(),L=lessonsOf(c.id);
   let h='<div class="c"><div class="row"><button data-a="crs_back">‹ فهرست دوره‌ها</button><h3 class="sp" dir="auto">'+E_(c.title)+'</h3><button class="chip sm" data-a="acd4_rn" data-t="c" data-c="'+E_(c.id)+'" data-i="'+E_(c.id)+'" aria-label="Rename">✎</button></div><p dir="auto">'+E_(c.description)+'</p>';
@@ -886,6 +915,7 @@ function vCourse(){
   if(c.prerequisites&&c.prerequisites.length)h+='<div class="m">پیش‌نیاز: '+c.prerequisites.map(x=>E_(x)).join('، ')+'</div>';
   h+='</div>';
   if(window.daniAcd4){const t=window.daniAcd4.courseTabs(c);h+=t.bar;if(t.body!=null)return h+t.body}
+  h+=sessionCard(c);
   CR.chOpen=CR.chOpen||{};
   const ren=(t,id,cid)=>'<button class="chip sm" data-a="acd4_rn" data-t="'+t+'" data-c="'+E_(cid)+'" data-i="'+E_(id)+'" title="'+TT('تغییر نام','Rename')+'" aria-label="'+TT('تغییر نام','Rename')+'">✎</button>';
   c.chapters.forEach((ch,ci)=>{const ls=L.filter(l=>l.chapterId===ch.id),d=ls.filter(l=>{const p=CR.ix.progress.get(l.id);return p&&p.done}).length,open=CR.chOpen[ch.id]!==undefined?CR.chOpen[ch.id]:c.chapters.length<=3;
@@ -1193,7 +1223,7 @@ async function buildCourseZip(id){
   const files=[],J=(n,o)=>files.push({name:n,z:1,data:enc.encode(JSON.stringify(o))});
   const L=lessonsOf(id),Q=questionsOf(id),S=CR.cache.sources.filter(s=>s.courseId===id);
   J('manifest.json',{format:'dani-course',templateVersion:CRV.template,id,title:c.title,contentVersion:c.contentVersion,exportedAt:nowISO(),generator:'DANI Planner '+CRV.app,files:{course:'course.json',lessons:L.map(l=>'lessons/'+l.id+'.json'),questions:['questions/bank.json'],sources:'sources.json'}});
-  J('course.json',{id,title:c.title,description:c.description,language:c.language,kind:c.kind,unit:c.unit,paths:(c.paths||[]).filter(x=>!x.u),goals:c.goals,prerequisites:c.prerequisites,topics:c.topics||[],chapters:c.chapters,passages:c.passages||[],exams:c.exams||[],slots:c.slots||[]});
+  J('course.json',{id,title:c.title,description:c.description,language:c.language,kind:c.kind,unit:c.unit,paths:(c.paths||[]).filter(x=>!x.u),sessions:c.sessions||[],goals:c.goals,prerequisites:c.prerequisites,topics:c.topics||[],chapters:c.chapters,passages:c.passages||[],exams:c.exams||[],slots:c.slots||[]});
   L.forEach(l=>J('lessons/'+l.id+'.json',strip(l)));J('questions/bank.json',Q.map(strip));J('sources.json',S.map(strip));
   for(const a of await IDB.byCourse('assets',id))files.push({name:a.path,z:/\.svg$/i.test(a.path),data:new Uint8Array(await a.blob.arrayBuffer())});
   return zipWriteZ(files);
@@ -1299,6 +1329,13 @@ hh('qpause',()=>{leaveQuiz();clearInterval(CR.tmr);CR.quiz=null;toast('ذخیر�
 hh('commit',()=>{const pd=CR.pending;pd.pl.allowOver=!!pd.over;pd.pl.rmOrphans=!!pd.rmo;if(pd.fname)pd.pl.fname=pd.fname;return guard(async()=>{await commitPack(pd.P,pd.pl);CR.pv&&CR.pv.forEach(u=>URL.revokeObjectURL(u));CR.pv=null;CR.pending=null;msg('ok','دوره «'+E_(pd.P.course.title)+'» با موفقیت ثبت شد (نسخه‌ی '+E_(pd.pl.newV)+').')})});
 hh('cancel',()=>{CR.pv&&CR.pv.forEach(u=>URL.revokeObjectURL(u));CR.pv=null;CR.pending=null;toast('ورود لغو شد؛ چیزی ذخیره نشد');rerender()});
 const saveCourse=async c2=>{await IDB.tx(['courses'],'readwrite',async t=>{await rq(t.objectStore('courses').put({...c2,updatedAt:nowISO()}))});await crLoad()};
+hh('ses_tick',el=>{const d=sesData(el.dataset.c),x=d[el.dataset.s]=d[el.dataset.s]||{p:{}};x.p=x.p||{};const i=el.dataset.i;if(x.p[i])delete x.p[i];else x.p[i]=1;x.t=Date.now();zcommit();rerender()});
+hh('ses_pick',el=>{CR.sesSel=CR.sesSel||{};CR.sesSel[el.dataset.c]=el.dataset.s;rerender()});
+hh('ses_go',el=>{const c=CR.ix.courses.get(el.dataset.c),x=c&&(c.sessions||[]).find(y=>y.id===el.dataset.s),p=x&&x.parts[+el.dataset.i];if(!p)return;const ids=p.lessonIds.filter(l=>CR.ix.lessons.get(l));
+  if(p.kind==='learn'){const l=ids.find(i=>{const g=CR.ix.progress.get(i);return!(g&&g.done)})||ids[0];if(l)H.crs_open({dataset:{c:c.id,l}});return}
+  if(p.kind==='cards'){if(window.daniReview2&&window.daniReview2.go){window.daniReview2.unlock(ids);window.daniReview2.setScope('lessons',ids.join(','));window.daniReview2.go()}return}
+  if(p.kind==='review'){CR.courseId=c.id;CR.tab='errors';rerender();return}
+  if(p.kind==='practice'||p.kind==='test')return startQuiz({courseId:c.id,scope:ids.length?ids.map(i=>'lesson:'+i):'all',diffs:[1,2,3,4,5],count:p.count||10,mode:p.kind==='test'?'exam':'practice',timed:p.kind==='test',minutes:p.minutes||10})});
 hh('frn',el=>{const c=CR.ix.courses.get(el.dataset.c);if(!c)return;const fs=filesOf(c).map(f=>({...f})),f=fs.find(x=>x.id===el.dataset.f);if(!f)return;const n=prompt('نام فایل',f.name);if(n==null)return;const nm=n.trim().slice(0,40);if(!nm)return;f.name=nm;delete f.legacy;return guard(()=>saveCourse({...c,files:fs}),'نام فایل عوض شد')});
 hh('frd',el=>{const c=CR.ix.courses.get(el.dataset.c);if(!c)return;const fs=filesOf(c).map(f=>({...f})),f=fs.find(x=>x.id===el.dataset.f);if(!f)return;
   const sl=new Set(lessonsOf(c.id).map(l=>l.id)),sq=new Set(questionsOf(c.id).map(q=>q.id)),nl=(f.lessons||[]).filter(i=>sl.has(i)).length,nq=(f.questions||[]).filter(i=>sq.has(i)).length;
