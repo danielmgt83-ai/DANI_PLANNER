@@ -131,8 +131,8 @@ await test('بسته‌های تم v161: بارگذاری بسته و تم (فا
   const b=document.querySelector('.lk3p[data-p=lab]');if(!b)return 'no';return JSON.stringify([document.querySelectorAll('#pkcard').length,!!b.querySelector('[data-skthemefile]'),!!b.querySelector('[data-skexp]'),!!b.querySelector('[data-pkfile]'),!!b.querySelector('.lkhist'),!document.querySelector('#thmx')&&!!document.querySelector('.lk3p[data-p=cu] #studiocard')])});
  ok(r==='[1,true,true,true,true,true]','نتیجه '+r)});
 await test('منو و بخش‌ها / نمایش خانه: همه‌ی کنترل‌ها هست و هرکدام یک‌بار',async pg=>{const r=await pg.evaluate(async()=>{page='set';stt='look';render();await new Promise(r=>setTimeout(r,300));render();await new Promise(r=>setTimeout(r,200));
-  const A={cm_mg:1,cm_mo:1,cm_ws:1,cm_fd:1,cm_fdr:1,lg_t:1,bd_all:1,bd_q:1,bd_pg:4,dk_on:1,dk_c:1};const bad=Object.keys(A).filter(a=>document.querySelectorAll('[data-a="'+a+'"]').length!==A[a]);
-  const q=(c,s)=>!!document.querySelector(c+' '+s);return JSON.stringify({bad,u:[document.querySelectorAll('#menux').length,document.querySelectorAll('#homex').length],m:q('#menux','#modcard'),d:q('#homex','#dqc'),b:q('#sntg','[data-a="bd_q"]')})});
+  const A={cm_mg:1,cm_fd:1,cm_fdr:1,lg_t:1,bd_all:1,bd_q:1,dk_on:1,dk_c:1,hm_lv:3,fx_feel:1,cm_mo:0,cm_ws:0,bd_pg:0,fx_hap:0,fx_an:0};const bad=Object.keys(A).filter(a=>document.querySelectorAll('[data-a="'+a+'"]').length!==A[a]);
+  const q=(c,s)=>!!document.querySelector(c+' '+s);return JSON.stringify({bad,u:[document.querySelectorAll('#menux').length,document.querySelectorAll('#homex').length],m:!document.querySelector('#modcard'),d:!document.querySelector('#dqc'),b:q('#sntg','[data-a="bd_q"]')})});
  const o=JSON.parse(r);ok(!o.bad.length&&o.u.join()==='1,1'&&o.m&&o.d&&o.b,'نتیجه '+r)});
 await test('داده‌ها: محتوای تب افزونه‌ها داخل تب داده‌ها؛ تحلیل گزارش یک کارت',async pg=>{const r=await pg.evaluate(async()=>{db.set.lang='fa';page='set';stt='data';render();await new Promise(r=>setTimeout(r,400));render();await new Promise(r=>setTimeout(r,300));
   const b=document.getElementById('uchx');const A=['uchpaste','ufull','ufshare','uchcopy'];const o={n:document.querySelectorAll('#uchx').length,secs:b?b.querySelectorAll(':scope>details').length:0,btn:A.map(a=>document.querySelectorAll('[data-a="'+a+'"]').length).join(),add:!!document.querySelector('[data-uchadd]'),full:!!document.querySelector('[data-uchfull]'),tab:ST.some(x=>x[0]==='uch')};
@@ -825,6 +825,19 @@ await test('v172: «بلد بودم» برای سؤال نوشتنی — درس�
  render();await w(300);o.badge=/بلد بودم/.test(document.body.textContent)&&!!document.querySelector('[data-a=crs_know][data-v="0"]');
  H.crs_know({dataset:{q:'nq1',v:'0'}});await w(500);
  o.undo=!A().items.nq1.ov&&A().score.ok===0&&!!D.state.ix.errors.get('e_nq1');
+ return o});const bad=Object.entries(r).filter(([k,v])=>v!==true);if(bad.length)throw new Error('FAIL '+bad.map(b=>b[0]).join(',')+' '+JSON.stringify(r))});
+
+await test('v173: پاک‌سازی منو و خانه — بدون «بیشتر»، سه سطح خانه، حس برنامه یکی، ماژول‌ها در کارت منو',async pg=>{const r=await pg.evaluate(async()=>{const o={},w=ms=>new Promise(x=>setTimeout(x,ms));
+ page='set';stt='look';render();await w(400);render();await w(300);
+ o.noMore=!NAV.some(n=>n[0]==='mo')&&typeof PG.mo==='undefined';
+ o.foldOff=db.set.cm&&db.set.cm.fold===0&&db.set.cm.foldv===2;
+ o.modMoved=!document.querySelector('#modcard')&&!document.querySelector('#dqc')&&!document.querySelector('[data-a=cm_mo]')&&!document.querySelector('[data-a=cm_ws]');
+ o.lv3=document.querySelectorAll('#homex [data-a=hm_lv]').length===3&&document.querySelector('#homex [data-a=hm_lv].on').dataset.v==='tidy';
+ H.hm_lv({dataset:{v:'calm'}});await w(300);o.calm=db.set.dq.on===true&&db.set.cm.ws===1&&document.body.classList.contains('dq');
+ H.hm_lv({dataset:{v:'full'}});await w(300);o.full=db.set.dq.on===false&&db.set.cm.ws===0&&!document.body.classList.contains('dq');
+ H.hm_lv({dataset:{v:'tidy'}});await w(300);o.tidy=db.set.dq.on===false&&db.set.cm.ws===1;
+ db.set.fx={hap:1,anim:1};H.fx_feel({});o.feel0=!db.set.fx.hap&&!db.set.fx.anim;H.fx_feel({});o.feel1=!!(db.set.fx.hap&&db.set.fx.anim);db.set.fx={hap:1,anim:0};H.fx_feel({});o.feelMix=!!(db.set.fx.hap&&db.set.fx.anim);
+ const h=daniMenuCard.node().innerHTML;o.mods=/data-mc="mod:tog:/.test(h)&&/خاموش کردن کامل|Turn a section fully off/.test(h);
  return o});const bad=Object.entries(r).filter(([k,v])=>v!==true);if(bad.length)throw new Error('FAIL '+bad.map(b=>b[0]).join(',')+' '+JSON.stringify(r))});
 
 console.log('\n'+results.map(r=>r.join(' ')).join('\n')+'\n\n'+(results.length-fails)+' / '+results.length+' موفق');
