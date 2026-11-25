@@ -885,5 +885,25 @@ await test('v175: ابزارهای آزمون ۲ — مرور فاصله‌دا�
  db.set.acdConf=false;
  return o});const bad=Object.entries(r).filter(([k,v])=>v!==true);if(bad.length)throw new Error('FAIL '+bad.map(b=>b[0]).join(',')+' '+JSON.stringify(r))});
 
+await test('v176: نگهبان مسیر روشن — هدف روز، نقطه‌های درصدی، اعلان، کارت',async pg=>{const r=await pg.evaluate(async()=>{const o={},w=ms=>new Promise(x=>setTimeout(x,ms));
+ const t0=todayISO();
+ db.acts.push({id:'ga1',name:'ریاضی-نگهبان',cat:'study',color:'#4aa3ff',tags:[],prio:'m',goalDay:0,goalWeek:0,subs:[],desc:'',active:true,arch:false,days:[]});
+ const pj=zmg('pj',()=>({v:'w',today:1}));zarr(pj,'items');pj.items.push({id:'gp1',name:'MBA',pd:3,parts:[{a:'ga1'}],hrs:0});
+ db.entries.push({id:'ge1',date:t0,actId:'ga1',subId:'',start:'06:00',end:'07:10',min:70,note:''});
+ delete db.set.gd;const g0=db.set.gd=undefined;
+ const s=daniGuardian.stat(t0);o.stat=s.tg===180&&s.dn===70;
+ db.set.gd={on:true,pts:[{t:'23:58',p:50}],chip:true,away:3};
+ const run=()=>{let r=[];(window.daniExtraPlan||[]).forEach(f=>{try{r=r.concat(f(Date.now())||[])}catch(e){}});return r.filter(x=>/^gd-/.test(x.key))};
+ let L=run();o.notif=L.some(x=>x.key==='gd-'+t0+'-23:58'&&/از همین الان|start right now/.test(x.body));
+ db.entries.push({id:'ge2',date:t0,actId:'ga1',subId:'',start:'08:00',end:'10:00',min:120,note:''});
+ L=run();o.skipWhenOk=!L.some(x=>x.key==='gd-'+t0+'-23:58');
+ o.tomorrow=L.some(x=>x.key==='gd-'+addD(t0,1)+'-23:58');
+ db.set.gd={on:false,pts:[{t:'23:58',p:50}],chip:true,away:3};o.off=run().length===0;
+ delete db.set.gd;H.gd_reset();o.def=db.set.gd.on===true&&db.set.gd.pts.length===5&&db.set.gd.pts[0].t==='12:00'&&db.set.gd.pts[0].p===50;
+ db.entries=db.entries.filter(e=>e.id!=='ge2');
+ page='tools';db.set.tls=db.set.tls||{};db.set.tls.tab='cp';render();await w(300);
+ o.card=!!document.getElementById('gdc')&&/نگهبان|Guardian/.test(document.getElementById('gdc').innerText);
+ return o});const bad=Object.entries(r).filter(([k,v])=>v!==true);if(bad.length)throw new Error('FAIL '+bad.map(b=>b[0]).join(',')+' '+JSON.stringify(r))});
+
 console.log('\n'+results.map(r=>r.join(' ')).join('\n')+'\n\n'+(results.length-fails)+' / '+results.length+' موفق');
 await browser.close();srv.close();process.exit(fails?1:0);
