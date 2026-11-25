@@ -673,6 +673,7 @@ html[data-mx=1] فقط وقتی db.set.mx!==0 و تم ساده است (بدون 
 (v163.3) `#studiocard` را look3 در پنل `cu` نگه می‌دارد؛ هرگز حذفش نکن (قاعده: Theme Studio حذف نشود).
 (v163.2) icmap و icsz مال هر تم‌اند (`db.set.skx[id].ic.{map,sz}` با `restore()` در look3.js)؛ فهرست تعویض آیکون از `daniMenu.keys()`.
 (v163.1) ادغام درس‌ها فقط در vManage (`daniAcd4.mergeCard`)؛ snapshot چندتایی `meta.mg_*`؛ `api.mergeList/undoMerge(key)`.
+(v174) courses.js: `pool(cid,scope,diffs,flt)` با `flt={src:[],ses:Set}`؛ `fltFor(cid,{src,ses:'cid/sid'})` (null = جلسه‌ی درس دیگر)؛ `startMulti` گزینه‌ی src/ses؛ دفترچه‌ی خطا `CR.eq/CR.ef`؛ `plainRun` عبارت‌های لاتین+عملگر را `<bdi dir=ltr>` می‌کند. acd4.js: چیپ منبع/انتخاب جلسه در `xbuilder` (`S.src/S.ses`).
 (v163) courses.js: question.type cloze|place|ds؛ course.passages/exams/slots؛ q.passageId/hints/timeSec/vars (`{{a}}`، `exprEval` امن)؛ `QR(q,it)` سؤال را با seed می‌گشاید و باید قبل از grade/stem/qInput صدا زده شود؛ `groupPass` سؤال‌های هم‌متن را کنار هم می‌گذارد.
 (v162.3) focus.js: تمرکز آکادمی (`daniFocus.mode()`، `data-acf`، `#acfbar`، `db.set.acf`)؛ سنجاق با کلاس `.acf-pin` + `data-pid` (متن مشترک سؤال‌ها در گام بعد). ترتیب: courses ← cards2 ← menureg ← look3 ← focus ← keepopen ← boot.
 (v162.2) menureg.js: `daniMenu` منبع واحد کلیدهای منو/نماد؛ هر آیتم تازه در ICONS/NAV خودکار در همهٔ تم‌ها دیده می‌شود. icon() در themes-engine برای ست‌های تم قاب `icfr` می‌گذارد. look3.js: `icSets` گروه‌بندی‌شده، `daniLook3.{icSets,icKey}`. ترتیب بارگذاری: themes-engine ← menureg ← look3.
