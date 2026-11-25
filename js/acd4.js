@@ -269,7 +269,7 @@ H.acd4_mgundo=e=>{const key=e&&e.dataset&&e.dataset.k;if(!confirm(T('این اد
   if(zAC().mgh)delete zAC().mgh[key];ui.mh=undefined;zcommit();toast(T('ادغام برگشت','Merge undone'))}).catch(x=>toast(String(x.message||x),1))};
 
 /* ===== v154: آزمون‌ساز چنددرسی (مجموعه ← درس ← فصل ← مبحث؛ ترتیب دلخواه؛ ترکیب چند درس) ===== */
-const xb=()=>ui.xb||(ui.xb={sel:[],open:{},diffs:[1,2,3],count:'',order:'pick',mode:'exam',timed:false,min:30,neg:false,src:[],ses:''});
+const xb=()=>ui.xb||(ui.xb={sel:[],open:{},diffs:[1,2,3],count:'',order:'pick',mode:'exam',timed:false,min:30,neg:false,src:[],ses:'',secOn:false,secs:'10,10,10,5,5'});
 function xtoggle(multi){return'<div class="c"><div class="row"><button class="chip '+(!multi?'on':'')+'" data-a="acd4_xmode" data-v="0">'+T('یک درس','One subject')+'</button><button class="chip '+(multi?'on':'')+'" data-a="acd4_xmode" data-v="1">🧩 '+T('آزمون‌ساز (ترکیب چند درس)','Builder (mix subjects)')+'</button></div></div>'}
 const SRCL={jozve:['جزوه','Handout'],konkur:['کنکور','Konkur'],exercise:['تمرین','Exercise'],example:['مثال','Example'],generated:['تولیدی','Generated']};
 const xcnt=(cid,sc)=>{try{const S=xb(),f=API().fltFor(cid,{src:S.src,ses:S.ses});return f===null?0:API().pool(cid,[sc],S.diffs,f).length}catch(e){return 0}};
@@ -309,9 +309,10 @@ function xbuilder(){const C=CRs(),S=xb(),cs=C.cache.courses,L=cols();
   +'<label>'+T('چینش سؤال‌ها','Question order')+'</label><div class="row"><button class="chip '+(S.order==='pick'?'on':'')+'" data-a="acd4_xset" data-k="order" data-v="pick">'+T('به ترتیب بالا','As ordered above')+'</button><button class="chip '+(S.order==='shuffle'?'on':'')+'" data-a="acd4_xset" data-k="order" data-v="shuffle">'+T('کاملاً تصادفی','Fully shuffled')+'</button></div>'
   +'<div class="row"><div><label>'+T('تعداد سؤال (خالی = همه)','Count (blank = all)')+'</label><input type="number" min="1" id="a4x-n" value="'+E(S.count)+'" style="width:100px"></div><div><label>'+T('نوع','Mode')+'</label><select id="a4x-m"><option value="exam" '+(S.mode==='exam'?'selected':'')+'>'+T('آزمون','Exam')+'</option><option value="practice" '+(S.mode==='practice'?'selected':'')+'>'+T('تمرین','Practice')+'</option></select></div></div>'
   +'<div class="row"><label class="crs-ck"><input type="checkbox" id="a4x-t" '+(S.timed?'checked':'')+'> '+T('زمان‌دار','Timed')+'</label><input type="number" min="1" id="a4x-min" value="'+S.min+'" style="width:80px"> '+T('دقیقه','min')+'<label class="crs-ck"><input type="checkbox" id="a4x-neg" '+(S.neg?'checked':'')+'> '+T('نمرهٔ منفی (هر غلط ⅓)','Negative marking')+'</label></div>'
+  +'<div class="row"><label class="crs-ck"><input type="checkbox" id="a4x-sec" '+(S.secOn?'checked':'')+'> '+T('بخش‌دار (تایمر جدا برای هر بخش)','Sections (own timer each)')+'</label><input id="a4x-secs" dir="ltr" value="'+E(S.secs)+'" style="width:130px"> '+T('دقیقه‌ی هر بخش','min per section')+'</div>'
   +'<div class="row" style="margin-top:10px"><button class="p" data-a="acd4_xgo" '+(tot?'':'disabled')+'>'+T('شروع آزمون','Start')+'</button><button data-a="acd4_xgo" data-k="1" '+(tot?'':'disabled')+'>🎯 '+T('شبیه‌ساز کنکور (تصادفی، زمان‌دار، منفی)','Konkur simulator')+'</button></div></div>';
  return h}
-function xsync(){const S=xb(),g=id=>document.getElementById(id);if(g('a4x-n')){S.count=g('a4x-n').value;S.mode=g('a4x-m').value;S.timed=g('a4x-t').checked;S.min=parseInt(g('a4x-min').value,10)||30;S.neg=g('a4x-neg').checked}if(g('a4x-ses'))S.ses=g('a4x-ses').value}
+function xsync(){const S=xb(),g=id=>document.getElementById(id);if(g('a4x-n')){S.count=g('a4x-n').value;S.mode=g('a4x-m').value;S.timed=g('a4x-t').checked;S.min=parseInt(g('a4x-min').value,10)||30;S.neg=g('a4x-neg').checked}if(g('a4x-ses'))S.ses=g('a4x-ses').value;if(g('a4x-sec')){S.secOn=g('a4x-sec').checked;S.secs=g('a4x-secs').value}}
 H.acd4_xmode=e=>{const C=CRs();C.setup=C.setup||{};C.setup.multi=e.dataset.v==='1';rr()};
 H.acd4_xopen=e=>{xsync();const S=xb(),k=e.dataset.k;S.open[k]=!(S.open[k]===undefined?k.startsWith('k:'):S.open[k]);rr()};
 H.acd4_xsel=e=>{xsync();const S=xb(),t=e.dataset.t,i=S.sel.indexOf(t);if(i>=0)S.sel.splice(i,1);else S.sel.push(t);rr()};
@@ -320,7 +321,8 @@ H.acd4_xrm=e=>{xsync();xb().sel.splice(+e.dataset.i,1);rr()};
 H.acd4_xset=e=>{xsync();const S=xb(),k=e.dataset.k,v=e.dataset.v;if(k==='src'){const i=S.src.indexOf(v);if(i>=0)S.src.splice(i,1);else S.src.push(v)}else if(k==='diff'){const d=+v,i=S.diffs.indexOf(d);if(i>=0){if(S.diffs.length>1)S.diffs.splice(i,1)}else S.diffs.push(d)}else S[k]=v;rr()};
 H.acd4_xgo=e=>{xsync();const S=xb(),kon=!!e.dataset.k;if(!S.sel.length){toast(T('اول چیزی انتخاب کن','Pick something first'),1);return}
  const items=S.sel.map(t=>({cid:t.slice(0,t.indexOf('|')),scope:t.slice(t.indexOf('|')+1)})),n=Math.max(0,parseInt(S.count,10)||0);
- API().startMulti({items,src:S.src,ses:S.ses,diffs:S.diffs,count:kon&&!n?0:n,order:kon?'shuffle':S.order,mode:kon?'exam':S.mode,timed:kon||S.timed,minutes:kon?Math.max(10,Math.round((n||60))):S.min,neg:kon||S.neg,konkur:kon}).catch(x=>toast(String(x.message||x),1))};
+ const secs=S.secOn?String(S.secs).split(/[,،\s]+/).map(Number).filter(x=>x>0).slice(0,10):null,sm=secs&&secs.length?secs.reduce((a,b)=>a+b,0):0;
+ API().startMulti({items,secs:sm?secs:null,src:S.src,ses:S.ses,diffs:S.diffs,count:kon&&!n?0:n,order:kon?'shuffle':S.order,mode:kon?'exam':S.mode,timed:kon||S.timed||!!sm,minutes:sm?sm:kon?Math.max(10,Math.round((n||60))):S.min,neg:kon||S.neg,konkur:kon}).catch(x=>toast(String(x.message||x),1))};
 /* v160: مدیریت مبحث: حذف تکی سؤال/مبحث و انتقال سؤال */
 function manage(l){const a=API(),qs=a.questionsOf(l.courseId).filter(q=>(q.lessonIds||[]).includes(l.id));
  return'<details class="c a4mng"><summary><b>⚙ '+T('مدیریت این مبحث','Manage this topic')+'</b> <span class="m">('+F(qs.length)+' '+T('سؤال','questions')+')</span></summary>'

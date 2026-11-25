@@ -46,8 +46,10 @@ function scopeCard(){const s=stats(),A=zAX();if(!A.cards.length)return'';
  if(hid>0)h+='<p class="m" style="margin-top:8px">🔒 '+fa(hid)+' '+T('کارت از مباحثی که هنوز باز نکرده‌ای در مرور نیامده‌اند؛ بعد از خواندن درس فعال می‌شوند.','cards from topics you have not opened are kept out of review until you study them.')+'</p>';
  if(SC.k!=='all'){const n=srsDue().length;h+='<p class="m">'+(n?fa(n)+' '+T('کارت در این محدوده','cards in this scope'):'✓ '+T('این محدوده تمام شد','This scope is finished'))+'</p>'}
  return h+'</div>'}
+function qrevCard(){try{const n=window.daniCourses.api.qDueCount();if(!n)return'';return'<div class="c"><div class="row"><b class="sp" dir="auto">🧩 '+T('مرور سؤال‌های امروز','Question review today')+' <span class="m">('+fa(n)+')</span></b><button class="p" data-a="rv_qrev">'+T('شروع','Start')+'</button></div><div class="m">'+T('سؤال‌هایی که غلط زدی، در زمان درست برمی‌گردند.','Questions you missed come back at the right time.')+'</div></div>'}catch(e){return''}}
+H.rv_qrev=()=>{const C=window.daniCourses.state;C.ev='self';C.edue=true;C.es='';H.acd3_go({dataset:{k:'errors'}})};
 let _rv=acdReview;
-acdReview=function(){return scopeCard()+_rv.apply(this,arguments)};
+acdReview=function(){return qrevCard()+scopeCard()+_rv.apply(this,arguments)};
 H.rv_k=e=>{const k=e.dataset.k;if(k==='all')setScope('all');else{SC.k=k;SC.id='';SC.done=new Set()}render()};
 H.rv_unl=e=>{const l=e.dataset.l;if(!l)return;unl()[l]=1;zcommit();toast(T('مرور این مبحث فعال شد','Topic review enabled'))};
 H.rv_g=e=>{setScope('group',e.dataset.c+'|'+e.dataset.g);render()};
