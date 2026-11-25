@@ -673,6 +673,7 @@ html[data-mx=1] فقط وقتی db.set.mx!==0 و تم ساده است (بدون 
 (v163.3) `#studiocard` را look3 در پنل `cu` نگه می‌دارد؛ هرگز حذفش نکن (قاعده: Theme Studio حذف نشود).
 (v163.2) icmap و icsz مال هر تم‌اند (`db.set.skx[id].ic.{map,sz}` با `restore()` در look3.js)؛ فهرست تعویض آیکون از `daniMenu.keys()`.
 (v163.1) ادغام درس‌ها فقط در vManage (`daniAcd4.mergeCard`)؛ snapshot چندتایی `meta.mg_*`؛ `api.mergeList/undoMerge(key)`.
+(v177) look3.js: `thumb()` = خانه‌ی کوچک `.stm[data-l]`؛ `stTag`؛ فیلتر `ST.dk`+`applyFilter()` (جست‌وجو هم از آن)؛ `H.lk_dk`.
 (v176) guardian.js: کارت نگهبان روی `daniClearPath.card`؛ `db.set.gd={on,pts[{t,p}],chip,away}`؛ `daniExtraPlan` کلید `gd-`؛ route در tomorrow.js؛ چیپ خانه روی `DANI_SECS.wp[0]`.
 (v175) courses.js: `errors.due/ivl` + `qSched/qDue/qDueCount`؛ `errSelf` ۴ دکمه؛ `db.set.acdConf` + `it.conf` → `errors.conf/sugg`؛ `a.secs/a.skip/secState/secOfQ` (آزمون بخش‌دار؛ `startMulti({secs:[دقیقه…]})`)؛ review2.js کارت `qrevCard`؛ acd4 `S.secOn/S.secs`.
 (v174) courses.js: `pool(cid,scope,diffs,flt)` با `flt={src:[],ses:Set}`؛ `fltFor(cid,{src,ses:'cid/sid'})` (null = جلسه‌ی درس دیگر)؛ `startMulti` گزینه‌ی src/ses؛ دفترچه‌ی خطا `CR.eq/CR.ef`؛ `plainRun` عبارت‌های لاتین+عملگر را `<bdi dir=ltr>` می‌کند. acd4.js: چیپ منبع/انتخاب جلسه در `xbuilder` (`S.src/S.ses`).
