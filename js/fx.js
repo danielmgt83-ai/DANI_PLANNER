@@ -6,7 +6,7 @@
 (function(){
 const T=window.daniT;
 const FX=()=>{const s=db.set;if(!s.fx||typeof s.fx!=='object')s.fx={};if(s.fx.hap===undefined)s.fx.hap=1;if(s.fx.anim===undefined)s.fx.anim=1;return s.fx};
-const VER='2026.11.138';
+const VER='2026.11.139';
 /* ---------- لرزش و پاپ ---------- */
 const HAP=/^(qk_go|nx_go|nx_sw|pf_add|tp_ap|bin_rs|ex_save|ab_now|ql_|pm_|tm_|tstart|tfinish|hab|ob_log|ob_go|dnd_set|ls_now|dk_)/;
 const reduce=()=>{try{return matchMedia('(prefers-reduced-motion: reduce)').matches}catch(e){return false}};
@@ -19,6 +19,7 @@ st.textContent='@keyframes fxpop{0%{transform:scale(1)}40%{transform:scale(.92)}
 document.head.appendChild(st);
 /* ---------- چه چیزی تازه است ---------- */
 const WN=[
+ ['🧰','ابزارهای آزمون (۱): در «آزمون‌ساز» می‌توانی سؤال‌ها را بر اساس منبع (جزوه، کنکور، تمرین، مثال) و فقط یک جلسه فیلتر کنی. در «دفترچه‌ی خطا» جست‌وجو (متن سؤال، علت، تله) و فیلتر باز/حل‌شده آمد. فرمول و متن لاتین داخل سؤال‌ها حالا جدا و درست‌چین نمایش داده می‌شود.','Exam tools (1): the exam builder can filter by source (handout, konkur, exercise, example) and by a single session. The error notebook has search (question, cause, trap) and an open/solved filter. Formulas and Latin text inside questions are now isolated and display correctly.'],
  ['🃏','مرور فلش‌کارت هوشمندتر شد: کارتی که «دوباره» یا «سخت» بزنی بعد از چند کارت دیگر برمی‌گردد (نه پشت سر هم)، چند قدم یادگیری دارد و کارت قدیمیِ فراموش‌شده به ۱ روز برنمی‌گردد. کارت چهار بار فراموش‌شده «سخت‌گیر» علامت می‌خورد و تعداد کارت‌های «مسلط» دیده می‌شود. جدید: «جلسه‌ی مطالعه» در صفحه‌ی دوره، با بخش‌های تیک‌دار (مرور خطاها، یادگیری، فلش‌کارت، تمرین، آزمونک، جمع‌بندی).','Smarter flashcard review: a card you answer Again or Hard comes back after a few other cards (not right behind), has learning steps, and a forgotten old card no longer resets to 1 day. Cards forgotten four times are flagged as leeches and mastered cards are counted. New: study Sessions on the course page with tick-able parts (review mistakes, learn, flashcards, practice, quiz, wrap-up).'],
  ['📚','«ورود و مدیریت» دوره‌ها منظم‌تر شد: هر دوره حالا چند «فایل» دارد (فصل ۱، فصل ۲، …) و جمع‌شده زیر همان دوره نمایش داده می‌شود. فایل ادامه‌دار خودکار زیر همان دوره می‌رود؛ هر فایل را می‌شود تغییر نام داد، با نسخه‌ی کامل‌تر جایگزین کرد (با پیش‌نمایش؛ پیشرفت می‌ماند) یا فقط همان فایل را حذف کرد. دوره‌های قبلی چیزی از دست نمی‌دهند.','Course Import & Manage is tidier: each course now has several files (Chapter 1, 2, …) collapsed under it. A continuation file goes under its course automatically; rename a file, replace it with a fuller version (with a preview; progress is kept) or delete just that file. Existing courses lose nothing.'],
  ['☰','«Menu / منو» کامل‌تر شد: «اندازه» حالا خود نوار منو را کوچک/بزرگ می‌کند (نه فقط متن)؛ برای منوی پایین/بالا/شناور «فاصله از لبه‌ی صفحه» داری؛ نمایش آیتم‌ها: فقط آیکون / فارسی + English / فقط فارسی / فقط English؛ سربرگ (نام، شعار، هیچ)، اندازه‌ی آیکون، شفافیت نوار، گوشه‌ی گرد یا تیز و سایه. همه جدا برای هر تم و اختیاری؛ چیزی حذف نشد.','Menu card extended: Size now scales the whole bar (not just text); bottom/top/floating menus get distance from the screen edge; item display: icons only / Persian + English / Persian only / English only; header (name, tagline, none), icon size, bar opacity, round or sharp corners and shadow. All per theme and optional; nothing removed.'],

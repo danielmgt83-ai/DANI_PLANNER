@@ -286,7 +286,7 @@ const assetUrl=p=>CR.urls.get(String(p))||(CR.pv&&CR.pv.get(String(p)))||'';
 const BLK_TYPES=new Set(['p','h','formula','list','table','note','tip','warning','pitfall','def','rule','theorem','quote','example','image','figure','summary','code']);
 const SES_KINDS=['review','learn','read','watch','cards','practice','test','wrap'];
 const CALL={note:['📝','نکته'],tip:['💡','نکته‌ی مهم'],warning:['⚠️','هشدار'],pitfall:['🚧','اشتباه رایج / دام آزمونی'],def:['📘','تعریف'],rule:['📐','قاعده'],theorem:['🧩','قضیه'],quote:['❝','نقل‌قول'],summary:['✅','جمع‌بندی']};
-function plainRun(p){p=String(p).replace(/\uE000/g,'$');return p.split(/([A-Za-z][A-Za-z0-9'’\-]*(?:[ ]+[A-Za-z0-9][A-Za-z0-9'’\-]*)*)/g).map((x,i)=>i%2?'<bdi dir="ltr">'+E_(x)+'</bdi>':E_(x)).join('')}
+function plainRun(p){p=String(p).replace(/\uE000/g,'$');return p.split(/([A-Za-z0-9][A-Za-z0-9'’]*(?:(?:[ ]*[-=+*\/<>^%][ ]*|[ ]+|[(_.,])[A-Za-z0-9'’][A-Za-z0-9'’()._]*)*)/g).map((x,i)=>i%2&&(/[A-Za-z]/.test(x)||/[-=+*\/<>^%(]/.test(x))?'<bdi dir="ltr">'+E_(x)+'</bdi>':E_(x)).join('')}
 function mathInline(tex){try{return'<bdi dir="ltr" class="crs-im" title="'+E_(tex)+'">'+tex2mml(tex,false)+'</bdi>'}catch(e){return'<code class="crs-bad" dir="ltr" title="'+E_(e.message)+'">$'+E_(tex)+'$</code>'}}
 function inl(text){
   /* v160: \$ یعنی علامت دلار ساده؛ و «$5 و $6» فرمول حساب نمی‌شود (داخل $…$ نباید اول/آخرش فاصله باشد و بعد از $ بسته نباید رقم بیاید) */
@@ -996,9 +996,13 @@ function vErrors(){
   const cnt={};l.forEach(e=>{if(e.cause)cnt[e.cause]=(cnt[e.cause]||0)+1});
   const V=[['all','همه‌ی اشتباهات','All mistakes'],['lesson','به‌تفکیک درس','By lesson'],['topic','به‌تفکیک مبحث','By topic'],['self','خودآزمایی','Self-test']];
   let h='<div class="c"><div class="row"><h3 class="sp">'+TT('دفترچه‌ی خطا','Error notebook')+' ('+faN(unresolved())+TT(' باز از ',' open of ')+faN(l.length)+')</h3>'+(unresolved()?'<button class="p" data-a="crs_errprac">'+TT('تمرین مجدد اشتباهات باز','Practise open mistakes')+'</button>':'')+'</div>'+(Object.keys(cnt).length?'<div class="m">علت‌ها: '+Object.entries(cnt).map(([k,v])=>E_(k)+' ×'+faN(v)).join(' · ')+'</div>':'')
-   +'<div class="row" style="margin-top:8px">'+V.map(v=>'<button class="chip '+(CR.ev===v[0]?'on':'')+'" data-a="crs_ev" data-k="'+v[0]+'">'+TT(v[1],v[2])+'</button>').join('')+'</div></div>';
+   +'<div class="row" style="margin-top:8px">'+V.map(v=>'<button class="chip '+(CR.ev===v[0]?'on':'')+'" data-a="crs_ev" data-k="'+v[0]+'">'+TT(v[1],v[2])+'</button>').join('')+'</div>'
+   +(CR.ev==='self'?'':'<div class="row" style="margin-top:8px"><input type="search" data-crs-eq value="'+E_(CR.eq||'')+'" placeholder="'+TT('🔍 جست‌وجو در متن سؤال، علت، تله…','🔍 Search question, cause, trap…')+'" style="flex:1;min-width:150px" dir="auto"><button class="chip" data-a="crs_eqgo">'+TT('جست‌وجو','Search')+'</button>'+[['','همه','All'],['open','باز','Open'],['done','حل‌شده','Solved']].map(f=>'<button class="chip '+((CR.ef||'')===f[0]?'on':'')+'" data-a="crs_ef" data-k="'+f[0]+'">'+TT(f[1],f[2])+'</button>').join('')+'</div>')+'</div>';
   if(CR.ev==='self')return h+errSelf(l);
-  const rows=l.map(e=>({e,q:CR.ix.questions.get(e.qid)}));
+  const eqs=(CR.eq||'').trim().toLowerCase(),efl=CR.ef||'';
+  const efOk=e=>{if(efl==='open'&&e.resolved)return false;if(efl==='done'&&!e.resolved)return false;if(!eqs)return true;const q=CR.ix.questions.get(e.qid);return [e.cause,e.note,e.traps?Object.keys(e.traps).join(' '):'',q?JSON.stringify([q.stem,q.choices,q.answer]):'',q?topicName(q.courseId,(q.topicIds||[])[0]||''):''].join(' ').toLowerCase().includes(eqs)};
+  const rows=l.filter(efOk).map(e=>({e,q:CR.ix.questions.get(e.qid)}));
+  if(!rows.length)return h+'<div class="c"><p class="m">'+TT('چیزی با این جست‌وجو پیدا نشد.','Nothing matches.')+'</p></div>';
   const gone=rows.filter(r=>!r.q);rows.filter(r=>!r.q).forEach(()=>{});
   const ok=rows.filter(r=>r.q);
   if(CR.ev==='all'){ok.forEach(r=>{h+=errCard(r.e,r.q)});gone.forEach(r=>{h+='<div class="c" style="opacity:.6">سؤال حذف‌شده یا هنوز نصب‌نشده: '+E_(r.e.qid)+'</div>'});return h}
@@ -1057,9 +1061,13 @@ function putUser(s,o){const arr=CR.cache[s],i=arr.findIndex(x=>x.id===o.id);if(i
 function delUser(s,id){CR.cache[s]=CR.cache[s].filter(x=>x.id!==id);CR.ix[s].delete(id);return IDB.del(s,id)}
 /* ---------- آزمون / تمرین ---------- */
 /* v147: دامنه می‌تواند رشته (مثل قبل) یا فهرستی از نشانه‌ها باشد؛ اجتماعشان گرفته می‌شود: all | chapter:ID | lesson:ID | topic:ID | exam:نام | studied | weak | wrong | flagged */
-function pool(cid,scope,diffs){
-  if(Array.isArray(scope)){const seen=new Set(),out=[];(scope.length?scope:['all']).forEach(t=>pool1(cid,t,diffs).forEach(q=>{if(!seen.has(q.id)){seen.add(q.id);out.push(q)}}));return out}
-  return pool1(cid,scope,diffs)}
+/* v174: فیلتر منبع/جلسه — flt={src:[jozve|konkur|…],ses:Set(lessonId)} */
+const fltOk=(q,f)=>!f||((!f.src||!f.src.length||f.src.includes(q.src||''))&&(!f.ses||!f.ses.size||(q.lessonIds||[]).some(i=>f.ses.has(i))));
+function pool(cid,scope,diffs,flt){
+  if(Array.isArray(scope)){const seen=new Set(),out=[];(scope.length?scope:['all']).forEach(t=>pool1(cid,t,diffs).forEach(q=>{if(!seen.has(q.id)&&fltOk(q,flt)){seen.add(q.id);out.push(q)}}));return out}
+  return pool1(cid,scope,diffs).filter(q=>fltOk(q,flt))}
+function sesLessons(cid,sid){const c=CR.ix.courses.get(cid),s=c&&(c.sessions||[]).find(x=>x.id===sid);return new Set(s?s.parts.flatMap(p=>p.lessonIds||[]):[])}
+function fltFor(cid,o){const f={src:o.src||[]};if(o.ses){const i=o.ses.indexOf('/');if(o.ses.slice(0,i)!==cid)return null;f.ses=sesLessons(cid,o.ses.slice(i+1));if(!f.ses.size)return null}return f}
 function pool1(cid,scope,diffs){
   let Q=questionsOf(cid);scope=scope||'all';
   if(scope==='studied'){const ids=new Set(lessonsOf(cid).filter(l=>{const p=CR.ix.progress.get(l.id);return p&&p.done}).map(l=>l.id));Q=Q.filter(q=>q.lessonIds.some(i=>ids.has(i)))}
@@ -1089,7 +1097,7 @@ async function startQuiz(o){
 }
 /* v154: آزمون‌ساز چنددرسی — items=[{cid,scope}] به ترتیب انتخاب؛ order: pick (به ترتیب انتخاب) | shuffle */
 async function startMulti(o){
-  const items=o.items||[],seen=new Set();let groups=items.map(it=>pool(it.cid,[it.scope],o.diffs).filter(q=>{if(seen.has(q.id))return false;seen.add(q.id);return true}));
+  const items=o.items||[],seen=new Set();let groups=items.map(it=>{const f=fltFor(it.cid,o);return f===null?[]:pool(it.cid,[it.scope],o.diffs,f)}).map(g=>g.filter(q=>{if(seen.has(q.id))return false;seen.add(q.id);return true}));
   groups=groups.filter(g=>g.length);
   if(!groups.length){msg('err','سؤالی با این انتخاب پیدا نشد.');CR.tab='quiz';rerender();return}
   let ids;
@@ -1340,6 +1348,8 @@ hh('abandon',el=>{if(confirm('این آزمون نیمه‌تمام حذف شو�
 hh('errprac',()=>{const cs=[...new Set(CR.cache.errors.filter(e=>!e.resolved).map(e=>e.courseId))];if(!cs.length){toast('اشتباه بازی نیست');return}return cs.length===1?startQuiz({courseId:cs[0],scope:'wrong',mode:'practice',diffs:[1,2,3],count:0}):startMulti({items:cs.map(c=>({cid:c,scope:'wrong'})),order:'pick',mode:'practice',diffs:[1,2,3],count:0})});
 hh('flagprac',()=>{const f=new Set();CR.cache.attempts.forEach(a=>Object.entries(a.items||{}).forEach(([q,i])=>{if(i.flag)f.add(q)}));const q=CR.ix.questions.get([...f][0]);if(!q)return;return startQuiz({courseId:q.courseId,scope:'flagged',mode:'practice',diffs:[1,2,3],count:0})});
 hh('ev',el=>{CR.ev=el.dataset.k;rerender()});
+hh('ef',el=>{CR.ef=el.dataset.k;rerender()});
+hh('eqgo',()=>{const i=document.querySelector('[data-crs-eq]');CR.eq=i?i.value:'';rerender()});
 hh('esres',el=>{const e=CR.ix.errors.get(CR.es),k=el.dataset.k;if(e&&k!==''){const ok=k==='1';CR.es='';return putUser('errors',{...e,selfN:(e.selfN||0)+1,selfK:(e.selfK||0)+(ok?1:0),correctStreak:ok?(e.correctStreak||0)+1:0}).then(rerender)}CR.es='';rerender()});
 hh('erres',el=>{const e=CR.ix.errors.get(el.dataset.id);return putUser('errors',{...e,resolved:!e.resolved}).then(rerender)});
 hh('key',el=>{CR.keyId=el.dataset.id;CR.tab='quiz';return crAssets(CR.ix.attempts.get(el.dataset.id).courseId).then(()=>{rerender();window.scrollTo(0,0)})});
@@ -1408,6 +1418,7 @@ document.addEventListener('change',e=>{
   if(t.matches('[data-crs-rm]')){RS().mode=t.dataset.crsRm;rerender();return}
   if(t.matches('[data-crs-rp]')){RS().policy=t.dataset.crsRp;rerender();return}
   if(t.matches('[data-crs-safety]')){CR.restore.safety=t.checked;return}
+  if(t.matches('[data-crs-eq]')){CR.eq=t.value;rerender();return}
   if(t.matches('[data-crs-cause]')){const er=CR.ix.errors.get(t.dataset.crsCause);if(er)putUser('errors',{...er,cause:t.value}).catch(x=>toast(storeErr(x),1));return}
   if(t.matches('[data-crs-enote]')){const er=CR.ix.errors.get(t.dataset.crsEnote);if(er)putUser('errors',{...er,note:t.value.slice(0,500)}).catch(x=>toast(storeErr(x),1));return}
   if(t.matches('[data-crq]')&&CR.quiz){const it=curItem(),k=t.dataset.crq;
@@ -1591,7 +1602,7 @@ function mount(){
     return'<div class="c"><h3>'+BH('Academy','آکادمی')+'</h3>'+acdTabs()+'</div>'+crsView()};
   if(!zMS.acd.tab||zMS.acd.tab==='review')zMS.acd.tab='courses'; /* تب پیش‌فرضی که خود پلنر گذاشته (مثلاً learn) تغییر نمی‌کند */
   crLoad().then(()=>{if(inCrs())rerender()});
-  window.daniCourses={catalogText,numAny,trapsOf,vidBtn,QR,exprEval,buildEverything,prepEverything,rehydrateHost,hostSnap,state:CR,validatePack,loadPackZip,zipRead,zipWrite,tex2mml,grade,inl,blocks,IDB,planPack,normalizePack,commitPack,importFile,buildCourseZip,startQuiz,submitQuiz,userExport,planUser,version:CRV,api:{deleteQuestion,moveQuestion,deleteLesson,lessonDelInfo,deleteChapter,savePath,setUnit,normExam,numParse,startMulti,pool,renameItem,reapplyRen,addQuestion,latestResults,questionsOf,lessonsOf,courseProg,mastery,pool,blk,merge:mergeCourses,undoMerge,mergeUndoInfo,mergeList}};
+  window.daniCourses={catalogText,numAny,trapsOf,vidBtn,QR,exprEval,buildEverything,prepEverything,rehydrateHost,hostSnap,state:CR,validatePack,loadPackZip,zipRead,zipWrite,tex2mml,grade,inl,blocks,IDB,planPack,normalizePack,commitPack,importFile,buildCourseZip,startQuiz,submitQuiz,userExport,planUser,version:CRV,api:{fltFor,sesLessons,deleteQuestion,moveQuestion,deleteLesson,lessonDelInfo,deleteChapter,savePath,setUnit,normExam,numParse,startMulti,pool,renameItem,reapplyRen,addQuestion,latestResults,questionsOf,lessonsOf,courseProg,mastery,pool,blk,merge:mergeCourses,undoMerge,mergeUndoInfo,mergeList}};
 }
 mount();
 })();

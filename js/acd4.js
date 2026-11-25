@@ -269,9 +269,10 @@ H.acd4_mgundo=e=>{const key=e&&e.dataset&&e.dataset.k;if(!confirm(T('این اد
   if(zAC().mgh)delete zAC().mgh[key];ui.mh=undefined;zcommit();toast(T('ادغام برگشت','Merge undone'))}).catch(x=>toast(String(x.message||x),1))};
 
 /* ===== v154: آزمون‌ساز چنددرسی (مجموعه ← درس ← فصل ← مبحث؛ ترتیب دلخواه؛ ترکیب چند درس) ===== */
-const xb=()=>ui.xb||(ui.xb={sel:[],open:{},diffs:[1,2,3],count:'',order:'pick',mode:'exam',timed:false,min:30,neg:false});
+const xb=()=>ui.xb||(ui.xb={sel:[],open:{},diffs:[1,2,3],count:'',order:'pick',mode:'exam',timed:false,min:30,neg:false,src:[],ses:''});
 function xtoggle(multi){return'<div class="c"><div class="row"><button class="chip '+(!multi?'on':'')+'" data-a="acd4_xmode" data-v="0">'+T('یک درس','One subject')+'</button><button class="chip '+(multi?'on':'')+'" data-a="acd4_xmode" data-v="1">🧩 '+T('آزمون‌ساز (ترکیب چند درس)','Builder (mix subjects)')+'</button></div></div>'}
-const xcnt=(cid,sc)=>{try{return API().pool(cid,[sc],xb().diffs).length}catch(e){return 0}};
+const SRCL={jozve:['جزوه','Handout'],konkur:['کنکور','Konkur'],exercise:['تمرین','Exercise'],example:['مثال','Example'],generated:['تولیدی','Generated']};
+const xcnt=(cid,sc)=>{try{const S=xb(),f=API().fltFor(cid,{src:S.src,ses:S.ses});return f===null?0:API().pool(cid,[sc],S.diffs,f).length}catch(e){return 0}};
 const xon=t=>xb().sel.indexOf(t)>=0;
 function xlabel(t){const i=t.indexOf('|'),cid=t.slice(0,i),sc=t.slice(i+1),C=CRs(),c=C.ix.courses.get(cid);if(!c)return t;
  if(sc==='all')return c.title+' — '+T('کل درس','whole subject');
@@ -295,26 +296,31 @@ function xbuilder(){const C=CRs(),S=xb(),cs=C.cache.courses,L=cols();
  const free=cs.filter(c=>!used.has(c.id));if(free.length){const op=S.open['k:_free']!==false;h+='<div class="a4col"><div class="row"><button data-a="acd4_xopen" data-k="k:_free" aria-expanded="'+op+'">'+(op?'▾':'◂')+'</button><b class="sp">'+T('بدون مجموعه','No collection')+'</b></div>'+(op?free.map(c=>xnode(c.id,c)).join(''):'')+'</div>'}
  h+='</div>';
  /* انتخاب‌ها به ترتیب */
+ /* v174: فیلتر منبع و جلسه */
+ const sc=[...new Set(S.sel.map(t=>t.slice(0,t.indexOf('|'))))],pc=sc.length?sc:cs.map(c=>c.id),srcs=[...new Set(pc.flatMap(id=>API().questionsOf(id).map(q=>q.src||'')))].filter(k=>SRCL[k]),sess=sc.flatMap(id=>((C.ix.courses.get(id)||{}).sessions||[]).map(s=>({v:id+'/'+s.id,t:s.title})));
+ if(S.ses&&!sess.some(s=>s.v===S.ses))S.ses='';
  const tot=S.sel.reduce((n,t)=>n+xcnt(t.slice(0,t.indexOf('|')),t.slice(t.indexOf('|')+1)),0);
  h+='<div class="c"><h3>'+T('ترتیب آزمون','Order')+' ('+F(S.sel.length)+')</h3>'+(S.sel.length?S.sel.map((t,i)=>'<div class="row"><span class="badge">'+F(i+1)+'</span><span class="sp" dir="auto">'+E(xlabel(t))+'</span><button class="chip sm" data-a="acd4_xmv" data-i="'+i+'" data-d="-1" '+(i?'':'disabled')+' aria-label="up">↑</button><button class="chip sm" data-a="acd4_xmv" data-i="'+i+'" data-d="1" '+(i<S.sel.length-1?'':'disabled')+' aria-label="down">↓</button><button class="chip sm d" data-a="acd4_xrm" data-i="'+i+'" aria-label="remove">✕</button></div>').join(''):'<p class="m">'+T('هنوز چیزی انتخاب نشده.','Nothing picked yet.')+'</p>')+'</div>';
  const df=d=>'<label class="crs-ck"><input type="checkbox" data-a="acd4_xset" data-k="diff" data-v="'+d+'" '+(S.diffs.includes(d)?'checked':'')+'> '+[T('آسان','Easy'),T('متوسط','Medium'),T('دشوار','Hard')][d-1]+'</label>';
  h+='<div class="c"><div class="m"><b>'+F(tot)+'</b> '+T('سؤال با این انتخاب (بدون حذف تکراری‌های بین بخش‌ها)','questions available (before de-duplication)')+'</div>'
+  +(srcs.length>1?'<label>'+T('منبع سؤال (هیچ‌کدام = همه)','Question source (none = all)')+'</label><div class="row">'+srcs.map(k=>'<button class="chip '+(S.src.includes(k)?'on':'')+'" data-a="acd4_xset" data-k="src" data-v="'+k+'">'+T(SRCL[k][0],SRCL[k][1])+'</button>').join('')+'</div>':'')
+  +(sess.length?'<label>'+T('فقط یک جلسه','Only one session')+'</label><select id="a4x-ses"><option value="">'+T('همه','All')+'</option>'+sess.map(s=>'<option value="'+E(s.v)+'" '+(S.ses===s.v?'selected':'')+'>'+E(s.t)+'</option>').join('')+'</select>':'')
   +'<label>'+T('سطح دشواری','Difficulty')+'</label><div class="row">'+[1,2,3].map(df).join('')+'</div>'
   +'<label>'+T('چینش سؤال‌ها','Question order')+'</label><div class="row"><button class="chip '+(S.order==='pick'?'on':'')+'" data-a="acd4_xset" data-k="order" data-v="pick">'+T('به ترتیب بالا','As ordered above')+'</button><button class="chip '+(S.order==='shuffle'?'on':'')+'" data-a="acd4_xset" data-k="order" data-v="shuffle">'+T('کاملاً تصادفی','Fully shuffled')+'</button></div>'
   +'<div class="row"><div><label>'+T('تعداد سؤال (خالی = همه)','Count (blank = all)')+'</label><input type="number" min="1" id="a4x-n" value="'+E(S.count)+'" style="width:100px"></div><div><label>'+T('نوع','Mode')+'</label><select id="a4x-m"><option value="exam" '+(S.mode==='exam'?'selected':'')+'>'+T('آزمون','Exam')+'</option><option value="practice" '+(S.mode==='practice'?'selected':'')+'>'+T('تمرین','Practice')+'</option></select></div></div>'
   +'<div class="row"><label class="crs-ck"><input type="checkbox" id="a4x-t" '+(S.timed?'checked':'')+'> '+T('زمان‌دار','Timed')+'</label><input type="number" min="1" id="a4x-min" value="'+S.min+'" style="width:80px"> '+T('دقیقه','min')+'<label class="crs-ck"><input type="checkbox" id="a4x-neg" '+(S.neg?'checked':'')+'> '+T('نمرهٔ منفی (هر غلط ⅓)','Negative marking')+'</label></div>'
   +'<div class="row" style="margin-top:10px"><button class="p" data-a="acd4_xgo" '+(tot?'':'disabled')+'>'+T('شروع آزمون','Start')+'</button><button data-a="acd4_xgo" data-k="1" '+(tot?'':'disabled')+'>🎯 '+T('شبیه‌ساز کنکور (تصادفی، زمان‌دار، منفی)','Konkur simulator')+'</button></div></div>';
  return h}
-function xsync(){const S=xb(),g=id=>document.getElementById(id);if(g('a4x-n')){S.count=g('a4x-n').value;S.mode=g('a4x-m').value;S.timed=g('a4x-t').checked;S.min=parseInt(g('a4x-min').value,10)||30;S.neg=g('a4x-neg').checked}}
+function xsync(){const S=xb(),g=id=>document.getElementById(id);if(g('a4x-n')){S.count=g('a4x-n').value;S.mode=g('a4x-m').value;S.timed=g('a4x-t').checked;S.min=parseInt(g('a4x-min').value,10)||30;S.neg=g('a4x-neg').checked}if(g('a4x-ses'))S.ses=g('a4x-ses').value}
 H.acd4_xmode=e=>{const C=CRs();C.setup=C.setup||{};C.setup.multi=e.dataset.v==='1';rr()};
 H.acd4_xopen=e=>{xsync();const S=xb(),k=e.dataset.k;S.open[k]=!(S.open[k]===undefined?k.startsWith('k:'):S.open[k]);rr()};
 H.acd4_xsel=e=>{xsync();const S=xb(),t=e.dataset.t,i=S.sel.indexOf(t);if(i>=0)S.sel.splice(i,1);else S.sel.push(t);rr()};
 H.acd4_xmv=e=>{xsync();const S=xb(),i=+e.dataset.i,j=i+(+e.dataset.d);if(j<0||j>=S.sel.length)return;[S.sel[i],S.sel[j]]=[S.sel[j],S.sel[i]];rr()};
 H.acd4_xrm=e=>{xsync();xb().sel.splice(+e.dataset.i,1);rr()};
-H.acd4_xset=e=>{xsync();const S=xb(),k=e.dataset.k,v=e.dataset.v;if(k==='diff'){const d=+v,i=S.diffs.indexOf(d);if(i>=0){if(S.diffs.length>1)S.diffs.splice(i,1)}else S.diffs.push(d)}else S[k]=v;rr()};
+H.acd4_xset=e=>{xsync();const S=xb(),k=e.dataset.k,v=e.dataset.v;if(k==='src'){const i=S.src.indexOf(v);if(i>=0)S.src.splice(i,1);else S.src.push(v)}else if(k==='diff'){const d=+v,i=S.diffs.indexOf(d);if(i>=0){if(S.diffs.length>1)S.diffs.splice(i,1)}else S.diffs.push(d)}else S[k]=v;rr()};
 H.acd4_xgo=e=>{xsync();const S=xb(),kon=!!e.dataset.k;if(!S.sel.length){toast(T('اول چیزی انتخاب کن','Pick something first'),1);return}
  const items=S.sel.map(t=>({cid:t.slice(0,t.indexOf('|')),scope:t.slice(t.indexOf('|')+1)})),n=Math.max(0,parseInt(S.count,10)||0);
- API().startMulti({items,diffs:S.diffs,count:kon&&!n?0:n,order:kon?'shuffle':S.order,mode:kon?'exam':S.mode,timed:kon||S.timed,minutes:kon?Math.max(10,Math.round((n||60))):S.min,neg:kon||S.neg,konkur:kon}).catch(x=>toast(String(x.message||x),1))};
+ API().startMulti({items,src:S.src,ses:S.ses,diffs:S.diffs,count:kon&&!n?0:n,order:kon?'shuffle':S.order,mode:kon?'exam':S.mode,timed:kon||S.timed,minutes:kon?Math.max(10,Math.round((n||60))):S.min,neg:kon||S.neg,konkur:kon}).catch(x=>toast(String(x.message||x),1))};
 /* v160: مدیریت مبحث: حذف تکی سؤال/مبحث و انتقال سؤال */
 function manage(l){const a=API(),qs=a.questionsOf(l.courseId).filter(q=>(q.lessonIds||[]).includes(l.id));
  return'<details class="c a4mng"><summary><b>⚙ '+T('مدیریت این مبحث','Manage this topic')+'</b> <span class="m">('+F(qs.length)+' '+T('سؤال','questions')+')</span></summary>'
