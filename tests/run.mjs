@@ -905,5 +905,17 @@ await test('v176: نگهبان مسیر روشن — هدف روز، نقطه‌
  o.card=!!document.getElementById('gdc')&&/نگهبان|Guardian/.test(document.getElementById('gdc').innerText);
  return o});const bad=Object.entries(r).filter(([k,v])=>v!==true);if(bad.length)throw new Error('FAIL '+bad.map(b=>b[0]).join(',')+' '+JSON.stringify(r))});
 
+await test('v177: انتخاب‌گر تم — پیش‌نمایش خانه‌ی کوچک، برچسب، فیلتر تیره/روشن',async pg=>{const r=await pg.evaluate(async()=>{const o={},w=ms=>new Promise(x=>setTimeout(x,ms));
+ page='set';stt='look';render();await w(800);
+ const n=document.querySelectorAll('#lkthemes .skb').length;o.cards=n>15&&document.querySelectorAll('#lkthemes .skb .stm').length===n&&document.querySelectorAll('#lkthemes .skb .stg').length===n;
+ const vis=()=>[...document.querySelectorAll('#lkthemes .skb')].filter(b=>b.parentElement.style.display!=='none');
+ H.lk_dk({dataset:{v:'d'}});o.dark=vis().length>0&&vis().every(b=>b.dataset.dk==='d');
+ H.lk_dk({dataset:{v:'l'}});o.light=vis().length>0&&vis().every(b=>b.dataset.dk==='l')&&vis().some(b=>b.dataset.sk==='classic');
+ H.lk_dk({dataset:{v:''}});o.all=vis().length===n;
+ const q=document.getElementById('lkq');q.value='classic';q.dispatchEvent(new Event('input',{bubbles:true}));o.search=vis().length===1;q.value='';q.dispatchEvent(new Event('input',{bubbles:true}));
+ H.lk_pv({dataset:{id:'classic'}});await w(200);o.pv=!!document.querySelector('.lkpv .stm.big');
+ H.lk_pk({dataset:{v:'lay:top'}});o.lay=document.querySelector('.lkpv .stm.big').dataset.l==='top';
+ H.lk_x();return o});const bad=Object.entries(r).filter(([k,v])=>v!==true);if(bad.length)throw new Error('FAIL '+bad.map(b=>b[0]).join(',')+' '+JSON.stringify(r))});
+
 console.log('\n'+results.map(r=>r.join(' ')).join('\n')+'\n\n'+(results.length-fails)+' / '+results.length+' موفق');
 await browser.close();srv.close();process.exit(fails?1:0);
