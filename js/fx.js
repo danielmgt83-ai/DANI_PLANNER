@@ -6,7 +6,7 @@
 (function(){
 const T=window.daniT;
 const FX=()=>{const s=db.set;if(!s.fx||typeof s.fx!=='object')s.fx={};if(s.fx.hap===undefined)s.fx.hap=1;if(s.fx.anim===undefined)s.fx.anim=1;return s.fx};
-const VER='2026.11.141';
+const VER='2026.11.142';
 /* ---------- لرزش و پاپ ---------- */
 const HAP=/^(qk_go|nx_go|nx_sw|pf_add|tp_ap|bin_rs|ex_save|ab_now|ql_|pm_|tm_|tstart|tfinish|hab|ob_log|ob_go|dnd_set|ls_now|dk_)/;
 const reduce=()=>{try{return matchMedia('(prefers-reduced-motion: reduce)').matches}catch(e){return false}};
@@ -19,6 +19,7 @@ st.textContent='@keyframes fxpop{0%{transform:scale(1)}40%{transform:scale(.92)}
 document.head.appendChild(st);
 /* ---------- چه چیزی تازه است ---------- */
 const WN=[
+ ['🎨','فروشگاه تم تازه شد: هر تم یک خانه‌ی کوچک نشان می‌دهد (بنر، قاب جمله، کارت‌ها و شکل منوی خودش)، زیرش «تیره/روشن · شکل منو» نوشته شده، و فیلتر «همه / تیره / روشن» اضافه شد. در پیش‌نمایش هم با عوض‌کردن شکل منو، نمونه عوض می‌شود.','Theme store refreshed: each theme shows a mini home (banner, quote frame, cards and its own menu shape), a “dark/light · menu” label, and an All / Dark / Light filter. Changing the menu shape in the preview updates the sample.'],
  ['🛡','«نگهبان مسیر» به Clear Path (ابزارها) اضافه شد: هدف امروز = جمع «روزی چند ساعت» پروژه‌ها؛ در ساعت‌های ۱۲، ۱۴، ۱۶، ۱۸ و ۲۰ اگر درصد پیش‌بینی‌شده (۵۰/۷۰/۸۵/۹۵/۱۰۰٪؛ قابل تغییر) انجام نشده باشد، اعلان می‌گوید چقدر انجام شده، چقدر مانده و از همین الان شروع کنی. جبران نرم با یک لمس، رشته‌ی روزها و چیپ «برگرد به مسیر» روی خانه. همه از تنظیمات نگهبان قابل خاموش‌کردن است.','Path guardian added to Clear Path (Tools): today’s target = sum of the projects’ daily hours; at 12, 14, 16, 18 and 20 a notification tells you how much is done, how much is left and to start now if you are under the planned % (50/70/85/95/100; editable). One-tap soft catch-up, streak, and a “back to path” chip on Home. All can be switched off in guardian settings.'],
  ['🧩','ابزارهای آزمون (۲): سؤال‌هایی که غلط می‌زنی خودکار در زمان درست برمی‌گردند (صفحه‌ی مرور: «مرور سؤال‌های امروز»، با ۴ دکمه‌ی دوباره/سخت/خوب/آسان). در آزمون با دکمه‌ی 🎚 می‌توانی «چقدر مطمئنی؟» را روشن کنی؛ «مطمئن ولی غلط» جدا دیده می‌شود و علت پیشنهاد می‌شود. شبیه‌ساز بخش‌دار (مثلاً ۱۰/۱۰/۱۰/۵/۵ دقیقه) در آزمون‌ساز: تایمر هر بخش و قفل برگشت.','Exam tools (2): missed questions come back automatically at the right time (Review page: “Question review today”, with Again/Hard/Good/Easy). In a test, the 🎚 button turns on “How sure are you?”; “sure but wrong” is flagged and a cause is suggested. Sectioned simulator (e.g. 10/10/10/5/5 min) in the exam builder: per-section timers and no going back.'],
  ['🧰','ابزارهای آزمون (۱): در «آزمون‌ساز» می‌توانی سؤال‌ها را بر اساس منبع (جزوه، کنکور، تمرین، مثال) و فقط یک جلسه فیلتر کنی. در «دفترچه‌ی خطا» جست‌وجو (متن سؤال، علت، تله) و فیلتر باز/حل‌شده آمد. فرمول و متن لاتین داخل سؤال‌ها حالا جدا و درست‌چین نمایش داده می‌شود.','Exam tools (1): the exam builder can filter by source (handout, konkur, exercise, example) and by a single session. The error notebook has search (question, cause, trap) and an open/solved filter. Formulas and Latin text inside questions are now isolated and display correctly.'],
