@@ -859,5 +859,31 @@ await test('v174: ابزارهای آزمون — فیلتر منبع/جلسه،
  C.cache.courses=[{id:'c1',title:'Course1'}];C.setup=C.setup||{};H.acd4_xsel({dataset:{t:'c1|all'}});H.acd4_xset({dataset:{k:'src',v:'konkur'}});const xh=daniAcd4.xbuilder();o.xb=/a4x-ses/.test(xh)&&/data-v="konkur"/.test(xh)&&/chip on/.test(xh);
  return o});const bad=Object.entries(r).filter(([k,v])=>v!==true);if(bad.length)throw new Error('FAIL '+bad.map(b=>b[0]).join(',')+' '+JSON.stringify(r))});
 
+await test('v175: ابزارهای آزمون ۲ — مرور فاصله‌دار سؤال، اطمینان، بخش‌ها',async pg=>{const r=await pg.evaluate(async()=>{const o={},w=ms=>new Promise(x=>setTimeout(x,ms));
+ const C=daniCourses.state,a=daniCourses.api;
+ C.ix.courses.set('c1',{id:'c1',title:'Course1',sessions:[]});C.cache.courses=[{id:'c1',title:'Course1'}];
+ const mk=id=>({id,courseId:'c1',src:'jozve',lessonIds:[],topicIds:[],difficulty:1,type:'single',stem:'سؤال '+id,choices:[{id:'a',text:'x',ok:true},{id:'b',text:'y'}],answer:'a'});
+ C.cache.questions=['q1','q2','q3','q4'].map(mk);C.ix.questions=new Map(C.cache.questions.map(q=>[q.id,q]));
+ const today=todayISO();
+ C.cache.errors=[{id:'e_q1',qid:'q1',courseId:'c1',lastAt:2,at:1,count:1,resolved:false},{id:'e_q2',qid:'q2',courseId:'c1',lastAt:2,at:1,count:1,resolved:false,due:'2999-01-01'},{id:'e_q3',qid:'q3',courseId:'c1',lastAt:2,at:1,count:1,resolved:false,due:'2000-01-01',conf:'sure',sugg:'ندانستن مفهوم'}];
+ C.ix.errors=new Map(C.cache.errors.map(e=>[e.id,e]));
+ o.due=a.qDueCount()===2;
+ page='acd';C.ev='self';C.edue=true;C.es='';C.cache.courses=[{id:'c1',title:'Course1'}];H.acd3_go({dataset:{k:'errors'}});render();await w(300);
+ o.selfBtns=document.querySelectorAll('[data-a="crs_esres"]').length>=4;
+ const id=C.es;H.crs_esres({dataset:{k:'good'}});await w(300);const e=C.ix.errors.get(id)||C.cache.errors.find(x=>x.id===id);o.sched=!!e&&e.due>today&&e.ivl>=3;
+ C.edue=false;C.ev='all';C.es='';render();await w(300);o.sugg=!!document.querySelector('[data-a="crs_sugg"]');
+ db.set.acdConf=false;
+ await a.startMulti({items:[{cid:'c1',scope:'all'}],secs:[10,10],diffs:[1,2,3],count:'',order:'pick',timed:false,minutes:30,neg:false});
+ const q=C.quiz;o.secs=!!q&&!!q.secs&&q.secs.length===2&&q.secs[0].to===2&&q.limitSec===1200&&q.timed===true;
+ page='acd';C.tab='quiz';render();await w(300);
+ o.hdr=/crs-timer/.test(document.body.innerHTML);
+ const navBtns=document.querySelectorAll('[data-a="crs_qgo"]').length,qn=C.quiz.qids.length;o.navSec=navBtns===C.quiz.secs[0].to||('n'+navBtns+'q'+qn+[...document.querySelectorAll('.crs-nav button')].map(b=>b.dataset.n).join(''));
+ H.crs_qnext({dataset:{n:'1'}});H.crs_qnext({dataset:{n:'1'}});o.lock=C.qi===1;
+ window.confirm=()=>true;H.crs_secend();await w(200);o.end=C.qi===2&&q.skip>0;
+ H.crs_qnext({dataset:{n:'-1'}});o.noBack=C.qi===2;
+ db.set.acdConf=true;render();await w(200);o.conf=document.querySelectorAll('[data-a="crs_conf"]').length===3;
+ db.set.acdConf=false;
+ return o});const bad=Object.entries(r).filter(([k,v])=>v!==true);if(bad.length)throw new Error('FAIL '+bad.map(b=>b[0]).join(',')+' '+JSON.stringify(r))});
+
 console.log('\n'+results.map(r=>r.join(' ')).join('\n')+'\n\n'+(results.length-fails)+' / '+results.length+' موفق');
 await browser.close();srv.close();process.exit(fails?1:0);
