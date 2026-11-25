@@ -163,6 +163,7 @@ function route(k,n){if(!window.__daniBooted){const g=()=>setTimeout(()=>route(k,
   k=String(k||'');if(k&&k===window.__lastRk&&Date.now()-window.__lastRt<15000)return;window.__lastRk=k;window.__lastRt=Date.now();try{if(window.daniNotifRoute&&window.daniNotifRoute(k,n))return}catch(e){console.error('nrouter',e)}
   if(/^(rh-pl-|tp-rep-)/.test(k))window.daniPlanOpen(tmrDate());
   else if(/^eod-/.test(k)){try{page='res';rt='eod';render();window.scrollTo(0,0)}catch(e){}}
+  else if(/^gd-/.test(k)){try{window.daniGuardian&&window.daniGuardian.open()}catch(e){}}
   else if(/^chk-/.test(k)){try{window.daniCheckin&&window.daniCheckin.open()}catch(e){}}
   else if(/^rh-sk-/.test(k)){if((db.set.nv||{}).mode==='simple')page='day';else{page='dash';dt='today'}render()}}
 window.daniTapRoute=route;
