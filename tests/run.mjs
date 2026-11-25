@@ -840,5 +840,24 @@ await test('v173: پاک‌سازی منو و خانه — بدون «بیشتر
  const h=daniMenuCard.node().innerHTML;o.mods=/data-mc="mod:tog:/.test(h)&&/خاموش کردن کامل|Turn a section fully off/.test(h);
  return o});const bad=Object.entries(r).filter(([k,v])=>v!==true);if(bad.length)throw new Error('FAIL '+bad.map(b=>b[0]).join(',')+' '+JSON.stringify(r))});
 
+await test('v174: ابزارهای آزمون — فیلتر منبع/جلسه، جست‌وجوی دفترچه، bidi',async pg=>{const r=await pg.evaluate(async()=>{const o={},w=ms=>new Promise(x=>setTimeout(x,ms));
+ const C=daniCourses.state,a=daniCourses.api;
+ C.ix.courses.set('c1',{id:'c1',title:'Course1',sessions:[{id:'s1',title:'جلسه ۱',parts:[{kind:'learn',lessonIds:['L1']}]}]});
+ ['L1','L2'].forEach(id=>C.ix.lessons.set(id,{id,courseId:'c1',title:id}));
+ const mk=(id,src,l)=>({id,courseId:'c1',src,lessonIds:[l],topicIds:[],difficulty:1,type:'mcq',stem:'سؤال '+id+' alpha',choices:[],answer:'a'});
+ C.cache.questions=[mk('q1','jozve','L1'),mk('q2','konkur','L1'),mk('q3','konkur','L2')];C.ix.questions=new Map(C.cache.questions.map(q=>[q.id,q]));
+ const n=f=>a.pool('c1',['all'],[1,2,3],f).length;
+ o.all=n(null)===3;o.src=n({src:['konkur']})===2&&n({src:['jozve']})===1;
+ const f=a.fltFor('c1',{src:[],ses:'c1/s1'});o.ses=n(f)===2;o.other=a.fltFor('c2',{ses:'c1/s1'})===null;
+ o.bidi=/<bdi dir="ltr">f\(x\) = 2x \+ 3<\/bdi>/.test(daniCourses.inl('اگر f(x) = 2x + 3 باشد'))&&!/<bdi[^>]*>13<\/bdi>/.test(daniCourses.inl('عدد 13 است'))&&!/<bdi[^>]*>[^<]*\)<\/bdi>/.test(daniCourses.inl('word (توضیح)'));
+ C.cache.errors=[{id:'e_q1',qid:'q1',courseId:'c1',lastAt:2,at:1,count:1,resolved:false,cause:'بی‌دقتی'},{id:'e_q3',qid:'q3',courseId:'c1',lastAt:1,at:1,count:1,resolved:true}];
+ C.cache.courses=[{id:'c1',title:'Course1'}];page='acd';C.ev='all';C.eq='';C.ef='';H.acd3_go({dataset:{k:'errors'}});render();await w(400);
+ const cnt=()=>document.querySelectorAll('[data-crs-cause]').length;
+ o.e2=cnt()===2;H.crs_ef({dataset:{k:'open'}});await w(200);o.open=cnt()===1;
+ H.crs_ef({dataset:{k:''}});C.eq='q3';render();await w(200);o.srch=cnt()===1&&!!document.querySelector('[data-crs-eq]');
+ C.eq='zzzz';render();await w(200);o.none=cnt()===0;
+ C.cache.courses=[{id:'c1',title:'Course1'}];C.setup=C.setup||{};H.acd4_xsel({dataset:{t:'c1|all'}});H.acd4_xset({dataset:{k:'src',v:'konkur'}});const xh=daniAcd4.xbuilder();o.xb=/a4x-ses/.test(xh)&&/data-v="konkur"/.test(xh)&&/chip on/.test(xh);
+ return o});const bad=Object.entries(r).filter(([k,v])=>v!==true);if(bad.length)throw new Error('FAIL '+bad.map(b=>b[0]).join(',')+' '+JSON.stringify(r))});
+
 console.log('\n'+results.map(r=>r.join(' ')).join('\n')+'\n\n'+(results.length-fails)+' / '+results.length+' موفق');
 await browser.close();srv.close();process.exit(fails?1:0);
