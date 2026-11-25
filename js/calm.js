@@ -38,7 +38,7 @@ function card(){if(document.getElementById('dqc'))return;
    +'<label class="row" style="align-items:center;gap:8px"><input type="checkbox" data-dq="1"'+(cfg().on?' checked':'')+'> '+T('روشن','On')+'</label>';
   g.appendChild(b)}
 document.addEventListener('change',ev=>{const t=ev.target;if(t&&t.dataset&&t.dataset.dq){cfg().on=!!t.checked;showAll=false;save();apply()}});
-{const _r=render;render=function(){const r=_r.apply(this,arguments);try{if(page==='set'&&stt==='look')card();apply()}catch(e){console.error('calm',e)}return r}}
+{const _r=render;render=function(){const r=_r.apply(this,arguments);try{apply()}catch(e){console.error('calm',e)}return r}}
 try{const QA=window.daniQuickAccess,F=window.daniQAFn=window.daniQAFn||{};if(QA&&!QA.byid.has('x-calm')){F.calm=H.dq_tog;const e={id:'x-calm',g:'تنظیمات',fa:'نمای آرام (تمرکز؛ روشن/خاموش)',en:'Calm view (focus; on/off)',ic:'look',kw:'تمرکز آرام حواس پرتی شلوغی calm focus distraction minimal',t:{fn:'x:calm'}};QA.catalog.push(e);QA.byid.set('x-calm',e)}}catch(e){}
 watch();setTimeout(()=>{try{apply()}catch(e){}},300);
 window.daniCalm={apply,toggle:H.dq_tog};

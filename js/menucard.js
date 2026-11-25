@@ -78,8 +78,10 @@ function html(){const m=peek(),hide=Array.isArray(m.hide)?m.hide:[],lb=m.lb||'',
  +sl('op','شفافیت نوار (پایین/بالا)','Bar opacity (bottom/top)',val(m,'op'),'٪')
  +'<div class="row">'+ch('mn_set','cr','',!cr,T('گوشه‌ها: پیش‌فرض تم','Corners: theme'))+ch('mn_set','cr','round',cr==='round',T('گرد','Round'))+ch('mn_set','cr','sharp',cr==='sharp',T('تیز','Sharp'))+'</div>'
  +'<div class="row">'+ch('mn_set','w','1',!!m.w,T('متن ضخیم','Bold text'))+ch('mn_set','sh','1',!!m.sh,T('سایه','Shadow'))+'</div>'
- +'<div class="mns">'+T('آیتم‌های منو (زدن = پنهان/نمایان)','Menu items (tap = hide/show)')+'</div><div class="row">'
+ +'<div class="mns">'+T('آیتم‌های منو — پنهان/نمایان فقط در این تم','Menu items — hide/show in this theme only')+'</div><div class="row">'
  +items().map(k=>PROT.indexOf(k)>=0?'<span class="chip on" style="opacity:.6">'+E(name(k))+' 🔒</span>':ch('mn_set','hide',E(k),hide.indexOf(k)<0,E(name(k)))).join('')+'</div>'
+ +(()=>{let ms=[];try{ms=Array.isArray(MODULES)?MODULES:[]}catch(e){}if(!ms.length)return'';
+   return'<details style="margin-top:6px"><summary class="m">'+T('خاموش کردن کامل یک بخش (برای همه‌ی تم‌ها؛ داده‌هایش حذف نمی‌شود)','Turn a section fully off (all themes; its data is kept)')+'</summary><div class="row">'+ms.map(m=>'<label class="chip" style="margin:3px"><input type="checkbox" data-mc="mod:tog:'+E(m.id)+'" '+(modOn(m.id)?'checked':'')+'> '+E(m.name)+'</label>').join('')+'</div></details>'})()
  +'<p class="m">'+T('این تنظیمات فقط برای تم فعلی‌اند و با عوض‌کردن تم، تنظیم همان تم برمی‌گردد. آیتم تازه‌ی منو خودکار نمایان می‌شود. شکل منو (پایین/بالا/کناری) در پیش‌نمایش هر تم است.','These apply to the current theme only; switching themes brings back that theme\'s own setup. New menu items appear automatically. Menu shape (bottom/top/side) lives in each theme preview.')+'</p>'
  +'<div class="row"><button class="chip" data-a="mn_reset">↺ '+T('برگرداندن به پیش‌فرض تم','Reset to theme default')+'</button></div>'}
 function node(){let c=document.getElementById('menucard');if(!c){c=document.createElement('div');c.id='menucard';c.className='c'}c.innerHTML=html();return c}

@@ -6,7 +6,7 @@
 (function(){
 const T=window.daniT;
 const FX=()=>{const s=db.set;if(!s.fx||typeof s.fx!=='object')s.fx={};if(s.fx.hap===undefined)s.fx.hap=1;if(s.fx.anim===undefined)s.fx.anim=1;return s.fx};
-const VER='2026.11.137';
+const VER='2026.11.138';
 /* ---------- لرزش و پاپ ---------- */
 const HAP=/^(qk_go|nx_go|nx_sw|pf_add|tp_ap|bin_rs|ex_save|ab_now|ql_|pm_|tm_|tstart|tfinish|hab|ob_log|ob_go|dnd_set|ls_now|dk_)/;
 const reduce=()=>{try{return matchMedia('(prefers-reduced-motion: reduce)').matches}catch(e){return false}};
@@ -194,11 +194,12 @@ H.fx_smpx=()=>{if(!confirm(T('نمونه‌داده پاک شود؟ (داده‌
   db.entries=db.entries.filter(e=>!e.smp);db.acts=db.acts.filter(a=>!a.smp);if(db.plans)Object.keys(db.plans).forEach(d=>{db.plans[d]=(db.plans[d]||[]).filter(x=>act(x.actId))});save();closeM();render()};
 window.daniFx={hasSample:()=>db.entries.some(e=>e.smp),few:()=>db.entries.length<10};
 /* ---------- کارت تنظیمات ---------- */
+H.fx_feel=()=>{const f=FX(),on=!(f.hap&&f.anim);f.hap=on?1:0;f.anim=on?1:0;save();render()};
 H.fx_hap=()=>{FX().hap=FX().hap?0:1;save();render()};
 H.fx_an=()=>{FX().anim=FX().anim?0:1;save();render()};
 H.fx_wn=()=>{FX().wnOff=FX().wnOff?0:1;save();render()};
 function card(){const f=FX();
-  return'<div class="c" id="fxcard">'+daniH('✨','حس برنامه','App feel')+'<div class="row"><button class="chip '+(f.hap?'on':'')+'" data-a="fx_hap">📳 '+T('لرزش ریز روی اقدام‌های مهم','Light haptics on key actions')+'</button><button class="chip '+(f.anim?'on':'')+'" data-a="fx_an">✨ '+T('انیمیشن نرم دکمه‌ها','Soft button animation')+'</button></div>'
+  return'<div class="c" id="fxcard">'+daniH('✨','حس برنامه','App feel')+'<div class="row"><button class="chip '+(f.hap&&f.anim?'on':'')+'" data-a="fx_feel">✨ '+T('حس برنامه: انیمیشن نرم دکمه‌ها و لرزش ریز','App feel: soft button animation and light haptics')+'</button></div>'
    +'<div class="row" style="margin-top:6px"><button class="chip" data-a="fx_new">🆕 '+T('چه چیزی تازه است','What\'s new')+'</button><button class="chip '+(f.wnOff?'':'on')+'" data-a="fx_wn">🔔 '+T('نمایش خودکار تازه‌ها بعد از هر نسخه','Auto-show what\'s new after each update')+'</button></div></div>'}
 {const _sp=setPage;setPage=function(){const h=_sp.apply(this,arguments);return(typeof h==='string'&&typeof stt!=='undefined'&&stt==='look')?h+card():h}}
 })();
