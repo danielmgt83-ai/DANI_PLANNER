@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:id="@+id/wx_root" android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:padding="10dp" android:background="@drawable/dani_widget_bg">
+<TextView android:id="@+id/wx_t" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="" android:textColor="#B8C2E6" android:textSize="11sp"  android:maxLines="1" android:ellipsize="end"  />
+<LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginTop="6dp">
+<LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:gravity="center_horizontal">
+<TextView android:id="@+id/wx_ft" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="" android:textColor="#FFFFFF" android:textSize="22sp" android:textStyle="bold" android:maxLines="1" android:ellipsize="end"  />
+<TextView android:id="@+id/wx_fl" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="" android:textColor="#B8C2E6" android:textSize="11sp"  android:maxLines="1" android:ellipsize="end"  />
+</LinearLayout>
+<LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:gravity="center_horizontal">
+<TextView android:id="@+id/wx_wt" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="" android:textColor="#FFFFFF" android:textSize="22sp" android:textStyle="bold" android:maxLines="1" android:ellipsize="end"  />
+<TextView android:id="@+id/wx_wl" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="" android:textColor="#B8C2E6" android:textSize="11sp"  android:maxLines="1" android:ellipsize="end"  />
+</LinearLayout>
+</LinearLayout>
+<TextView android:id="@+id/wx_go" android:layout_width="match_parent" android:layout_height="36dp" android:layout_marginTop="8dp" android:gravity="center" android:textColor="#FFFFFF" android:textSize="13sp" android:background="@drawable/dani_widget_btn" />
+</LinearLayout>

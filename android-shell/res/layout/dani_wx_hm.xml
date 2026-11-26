@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:id="@+id/wx_root" android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:padding="10dp" android:background="@drawable/dani_widget_bg">
+<TextView android:id="@+id/wx_t" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="" android:textColor="#B8C2E6" android:textSize="11sp"  android:maxLines="1" android:ellipsize="end"  />
+<LinearLayout android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:orientation="horizontal" android:layout_marginTop="6dp">
+<LinearLayout android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:orientation="vertical">
+<TextView android:id="@+id/wx_h0" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:layout_margin="1dp" android:background="#22FFFFFF" />
+<TextView android:id="@+id/wx_h1" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:layout_margin="1dp" android:background="#22FFFFFF" />
+<TextView android:id="@+id/wx_h2" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:layout_margin="1dp" android:background="#22FFFFFF" />
+<TextView android:id="@+id/wx_h3" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:layout_margin="1dp" android:background="#22FFFFFF" />
+<TextView android:id="@+id/wx_h4" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:layout_margin="1dp" android:background="#22FFFFFF" />
+<TextView android:id="@+id/wx_h5" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:layout_margin="1dp" android:background="#22FFFFFF" />
+<TextView android:id="@+id/wx_h6" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:layout_margin="1dp" android:background="#22FFFFFF" />
+</LinearLayout>
+<LinearLayout android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:orientation="vertical">
+<TextView android:id="@+id/wx_h7" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:layout_margin="1dp" android:background="#22FFFFFF" />
+<TextView android:id="@+id/wx_h8" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:layout_margin="1dp" android:background="#22FFFFFF" />
+<TextView android:id="@+id/wx_h9" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:layout_margin="1dp" android:background="#22FFFFFF" />
+<TextView android:id="@+id/wx_h10" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:layout_margin="1dp" android:background="#22FFFFFF" />
+<TextView android:id="@+id/wx_h11" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:layout_margin="1dp" android:background="#22FFFFFF" />
+<TextView android:id="@+id/wx_h12" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:layout_margin="1dp" android:background="#22FFFFFF" />
+<TextView android:id="@+id/wx_h13" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:layout_margin="1dp" android:background="#22FFFFFF" />
+</LinearLayout>
+<LinearLayout android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:orientation="vertical">
+<TextView android:id="@+id/wx_h14" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:layout_margin="1dp" android:background="#22FFFFFF" />
+<TextView android:id="@+id/wx_h15" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:layout_margin="1dp" android:background="#22FFFFFF" />
+<TextView android:id="@+id/wx_h16" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:layout_margin="1dp" android:background="#22FFFFFF" />
+<TextView android:id="@+id/wx_h17" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:layout_margin="1dp" android:background="#22FFFFFF" />
+<TextView android:id="@+id/wx_h18" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:layout_margin="1dp" android:background="#22FFFFFF" />
+<TextView android:id="@+id/wx_h19" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:layout_margin="1dp" android:background="#22FFFFFF" />
+<TextView android:id="@+id/wx_h20" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:layout_margin="1dp" android:background="#22FFFFFF" />
+</LinearLayout>
+<LinearLayout android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:orientation="vertical">
+<TextView android:id="@+id/wx_h21" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:layout_margin="1dp" android:background="#22FFFFFF" />
+<TextView android:id="@+id/wx_h22" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:layout_margin="1dp" android:background="#22FFFFFF" />
+<TextView android:id="@+id/wx_h23" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:layout_margin="1dp" android:background="#22FFFFFF" />
+<TextView android:id="@+id/wx_h24" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:layout_margin="1dp" android:background="#22FFFFFF" />
+<TextView android:id="@+id/wx_h25" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:layout_margin="1dp" android:background="#22FFFFFF" />
+<TextView android:id="@+id/wx_h26" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:layout_margin="1dp" android:background="#22FFFFFF" />
+<TextView android:id="@+id/wx_h27" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:layout_margin="1dp" android:background="#22FFFFFF" />
+</LinearLayout>
+<LinearLayout android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:orientation="vertical">
+<TextView android:id="@+id/wx_h28" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:layout_margin="1dp" android:background="#22FFFFFF" />
+<TextView android:id="@+id/wx_h29" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:layout_margin="1dp" android:background="#22FFFFFF" />
+<TextView android:id="@+id/wx_h30" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:layout_margin="1dp" android:background="#22FFFFFF" />
+<TextView android:id="@+id/wx_h31" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:layout_margin="1dp" android:background="#22FFFFFF" />
+<TextView android:id="@+id/wx_h32" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:layout_margin="1dp" android:background="#22FFFFFF" />
+<TextView android:id="@+id/wx_h33" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:layout_margin="1dp" android:background="#22FFFFFF" />
+<TextView android:id="@+id/wx_h34" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:layout_margin="1dp" android:background="#22FFFFFF" />
+</LinearLayout>
+<LinearLayout android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:orientation="vertical">
+<TextView android:id="@+id/wx_h35" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:layout_margin="1dp" android:background="#22FFFFFF" />
+<TextView android:id="@+id/wx_h36" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:layout_margin="1dp" android:background="#22FFFFFF" />
+<TextView android:id="@+id/wx_h37" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:layout_margin="1dp" android:background="#22FFFFFF" />
+<TextView android:id="@+id/wx_h38" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:layout_margin="1dp" android:background="#22FFFFFF" />
+<TextView android:id="@+id/wx_h39" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:layout_margin="1dp" android:background="#22FFFFFF" />
+<TextView android:id="@+id/wx_h40" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:layout_margin="1dp" android:background="#22FFFFFF" />
+<TextView android:id="@+id/wx_h41" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:layout_margin="1dp" android:background="#22FFFFFF" />
+</LinearLayout>
+<LinearLayout android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:orientation="vertical">
+<TextView android:id="@+id/wx_h42" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:layout_margin="1dp" android:background="#22FFFFFF" />
+<TextView android:id="@+id/wx_h43" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:layout_margin="1dp" android:background="#22FFFFFF" />
+<TextView android:id="@+id/wx_h44" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:layout_margin="1dp" android:background="#22FFFFFF" />
+<TextView android:id="@+id/wx_h45" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:layout_margin="1dp" android:background="#22FFFFFF" />
+<TextView android:id="@+id/wx_h46" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:layout_margin="1dp" android:background="#22FFFFFF" />
+<TextView android:id="@+id/wx_h47" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:layout_margin="1dp" android:background="#22FFFFFF" />
+<TextView android:id="@+id/wx_h48" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:layout_margin="1dp" android:background="#22FFFFFF" />
+</LinearLayout>
+<LinearLayout android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:orientation="vertical">
+<TextView android:id="@+id/wx_h49" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:layout_margin="1dp" android:background="#22FFFFFF" />
+<TextView android:id="@+id/wx_h50" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:layout_margin="1dp" android:background="#22FFFFFF" />
+<TextView android:id="@+id/wx_h51" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:layout_margin="1dp" android:background="#22FFFFFF" />
+<TextView android:id="@+id/wx_h52" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:layout_margin="1dp" android:background="#22FFFFFF" />
+<TextView android:id="@+id/wx_h53" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:layout_margin="1dp" android:background="#22FFFFFF" />
+<TextView android:id="@+id/wx_h54" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:layout_margin="1dp" android:background="#22FFFFFF" />
+<TextView android:id="@+id/wx_h55" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:layout_margin="1dp" android:background="#22FFFFFF" />
+</LinearLayout>
+<LinearLayout android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:orientation="vertical">
+<TextView android:id="@+id/wx_h56" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:layout_margin="1dp" android:background="#22FFFFFF" />
+<TextView android:id="@+id/wx_h57" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:layout_margin="1dp" android:background="#22FFFFFF" />
+<TextView android:id="@+id/wx_h58" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:layout_margin="1dp" android:background="#22FFFFFF" />
+<TextView android:id="@+id/wx_h59" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:layout_margin="1dp" android:background="#22FFFFFF" />
+<TextView android:id="@+id/wx_h60" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:layout_margin="1dp" android:background="#22FFFFFF" />
+<TextView android:id="@+id/wx_h61" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:layout_margin="1dp" android:background="#22FFFFFF" />
+<TextView android:id="@+id/wx_h62" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:layout_margin="1dp" android:background="#22FFFFFF" />
+</LinearLayout>
+<LinearLayout android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:orientation="vertical">
+<TextView android:id="@+id/wx_h63" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:layout_margin="1dp" android:background="#22FFFFFF" />
+<TextView android:id="@+id/wx_h64" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:layout_margin="1dp" android:background="#22FFFFFF" />
+<TextView android:id="@+id/wx_h65" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:layout_margin="1dp" android:background="#22FFFFFF" />
+<TextView android:id="@+id/wx_h66" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:layout_margin="1dp" android:background="#22FFFFFF" />
+<TextView android:id="@+id/wx_h67" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:layout_margin="1dp" android:background="#22FFFFFF" />
+<TextView android:id="@+id/wx_h68" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:layout_margin="1dp" android:background="#22FFFFFF" />
+<TextView android:id="@+id/wx_h69" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:layout_margin="1dp" android:background="#22FFFFFF" />
+</LinearLayout>
+</LinearLayout>
+<TextView android:id="@+id/wx_hs" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="" android:textColor="#C9D1FF" android:textSize="11sp"  android:maxLines="1" android:ellipsize="end" android:layout_marginTop="4dp" />
+</LinearLayout>
