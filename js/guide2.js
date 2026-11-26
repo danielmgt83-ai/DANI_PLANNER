@@ -31,6 +31,10 @@ const STEPS=[
    +'<label>'+T('تقویم','Calendar')+'</label><div class="row"><button class="chip '+(db.set.cal==='j'?'on':'')+'" data-a="g2_cal" data-v="j">'+T('شمسی','Jalali')+'</button><button class="chip '+(db.set.cal==='g'?'on':'')+'" data-a="g2_cal" data-v="g">'+T('میلادی','Gregorian')+'</button></div>'
    +'<div class="row" style="margin-top:8px"><div><label>'+T('شروع روز','Day starts')+'</label><input type="time" value="'+esc(db.set.ds||'06:00')+'" data-ch="sf" data-f="ds"></div><div><label>'+T('پایان روز','Day ends')+'</label><input type="time" value="'+esc(db.set.de||'23:00')+'" data-ch="sf" data-f="de"></div></div>'
    +'<p class="m">'+T('شروع و پایان روز یعنی اعلان‌ها و پیشنهادها فقط در همین بازه می‌آیند.','Notifications and suggestions stay inside this window.')+'</p>'},
+ {k:'look',i:'🎨',t:['ظاهر','Look'],ok:()=>true,
+  body:()=>{const cur=(typeof skId==='function')?skId():'classic',L=['classic','mist','dani','forest'].filter(id=>SKINS[id]);
+   return'<p class="m">'+T('با تم «کلاسیک» (روشن و ساده) شروع می‌کنی. می‌خواهی یکی دیگر را امتحان کنی؟ هر وقت خواستی در «ظاهر و تم» عوض می‌شود و می‌توانی عکس خودت را هم بگذاری.','You start with the light, simple “Classic” theme. Want to try another? Change it any time in Look & themes, where you can also add your own photo.')+'</p>'
+   +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px">'+L.map(id=>{const k=SKINS[id],v=k.vars||{};return'<button class="chip '+(cur===id?'on':'')+'" data-a="g2_skin" data-id="'+id+'" style="display:block;padding:6px;text-align:start;height:auto"><span style="display:block;height:54px;border-radius:8px;background:linear-gradient(135deg,'+esc(v.bg||'#fff')+','+esc(v.c||'#ddd')+');border:1px solid #8884"></span><span style="display:block;font-size:12px;margin-top:4px">'+(cur===id?'✓ ':'')+esc(k.name)+' · '+(k.dark?T('تیره','Dark'):T('روشن','Light'))+'</span></button>'}).join('')+'</div>'}},
  {k:'pj',i:'🎓',t:['۱ · پروژه‌ها','1 · Projects'],ok:()=>PJs().length>0,
   body:()=>{const L=PJs();
    return'<p>'+T('هر هدف بزرگ یک پروژه است. مثال: «MBA» = ریاضی + GMAT + زبان، و موعدش روز آزمون. موعد اختیاری است؛ کار و ورزش هم می‌توانند پروژه باشند.','Each big goal is a project. Example: “MBA” = maths + GMAT + English, deadline = exam day. A deadline is optional; a job or sport can be a project too.')+'</p>'
@@ -110,6 +114,7 @@ H.g2_prev=()=>open(Math.max(0,I()-1));
 H.g2_next=()=>{GD().done[STEPS[I()].k]=1;open(Math.min(STEPS.length-1,I()+1))};
 H.g2_skip=H.g2_next;
 H.g2_fin=()=>{const g=GD();g.fin=1;g.done.fin=1;save();close();say(T('آماده‌ای ✓','All set ✓'))};
+H.g2_skin=e=>{const id=e.dataset.id;if(SKINS[id]){db.set.skin=id;try{applySkin()}catch(x){}save();draw()}};
 H.g2_lang=e=>{db.set.lang=e.dataset.v;try{I18_MEMO.clear();i18Apply()}catch(x){}save();draw()};
 H.g2_cal=e=>{db.set.cal=e.dataset.v;save();draw()};
 H.g2_perm=async()=>{for(let i=0;i<14&&!H.nt_perm;i++)await new Promise(r=>setTimeout(r,300));try{if(H.nt_perm)await H.nt_perm();else if('Notification' in window)await Notification.requestPermission();else say(T('اعلان در این حالت پشتیبانی نمی‌شود','Notifications are not supported here'),1)}catch(e){say(String(e&&e.message||e),1)}setTimeout(draw,400)};
