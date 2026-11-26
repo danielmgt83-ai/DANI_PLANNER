@@ -216,3 +216,8 @@ html[data-skin=barcelona][data-hero="1"] #hero::after{content:"";position:absolu
 html[data-skin=barcelona][data-hero="1"] #hero .hz{z-index:1;padding:6px 10px;border-radius:10px;background:#04102673;backdrop-filter:blur(3px);inset-inline-start:12px;bottom:12px}
 html[data-skin=barcelona][data-hero="1"] #hero span{letter-spacing:.04em}
 html[data-skin=barcelona] .c{box-shadow:0 6px 18px -10px #000c,inset 0 1px 0 #ffffff0d}
+
+/* v178 عکس شخصی: پس‌زمینه و سربرگ منو */
+html[data-phbg="1"] body::before{content:"";position:fixed;inset:0;z-index:-1;background:linear-gradient(color-mix(in srgb,var(--bg) var(--phbgp,60%),transparent),color-mix(in srgb,var(--bg) var(--phbgp,60%),transparent)),var(--phbg) center/cover no-repeat;pointer-events:none}
+html[data-phmn="1"] #nav{background-image:linear-gradient(color-mix(in srgb,var(--c) var(--phmnp,55%),transparent),color-mix(in srgb,var(--c) var(--phmnp,55%),transparent)),var(--phmn)!important;background-size:cover!important;background-position:center!important}
+.phr{margin:8px 0;padding:6px 0;border-top:1px solid rgba(128,128,128,.2)}.phr b{display:block;font-size:13px}.phr input[type=range]{width:100%}
