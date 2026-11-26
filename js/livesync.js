@@ -69,8 +69,20 @@ function widgetSync(){
       if(q)nx='⏭ '+fa(q.start)+' · '+String((typeof aN==='function'?aN(q.actId):'')||'').slice(0,22)}
     if(WG().on&&WG().sk!==0){const has=d=>window.daniStreakDay?window.daniStreakDay(d):(E(d)||[]).length>0,t=todayISO();let d=has(t)?t:addD(t,-1),n=0;while(n<800&&has(d)){n++;d=addD(d,-1)}
       if(n>0)sk='🔥 '+fa(String(n))+' '+T('روز پیاپی','day streak')}}catch(e){}
-  const sig=l1+'|'+l2+'|'+l3+'|'+hb+'|'+dn+du+dt+dc+qt+qp+nx+sk;if(sig===wsig)return;wsig=sig;
-  try{D.widgetSet({l1,l2,l3,hb,dn,du,dt,dc,qt,qp,nx,sk})}catch(e){}
+  /* v180: چهار ویجت تازه (آیزنهاور، شمارش معکوس، گرمایی، تمرکز) — یک JSON برای همه */
+  let wx='{}';
+  try{const o={t_ei:'Eisenhower · '+T('آیزنهاور','Matrix'),t_cd:'Countdown · '+T('شمارش معکوس','Deadline'),t_hm:'Heatmap · '+T('۱۰ هفته','10 weeks'),t_fo:'Focus · '+T('آمار تمرکز','Stats')};
+    const tl=(db.set.tls&&Array.isArray(db.set.tls.ei))?db.set.tls.ei:[];o.ei=[1,2,3,4].map(q=>tl.filter(x=>x.q===q&&!x.done).length);
+    o.el=[T('همین حالا','Do now'),T('برنامه‌ریزی','Schedule'),T('واگذار','Delegate'),T('حذف','Drop')];o.fmt=T('# کار','# tasks');
+    o.dn=dn||'—';o.du=du||T('موعدی ثبت نشده','No deadline');o.dt=dt;o.dc=dc;
+    const t=todayISO(),dm={};(db.entries||[]).forEach(e=>{if(e.date)dm[e.date]=(dm[e.date]||0)+(+e.min||0)});
+    let hm='',best=0,wk=0;for(let i=0;i<70;i++){const d=addD(t,-(69-i)),m=dm[d]||0;if(m>best)best=m;if(i>=63)wk+=m;hm+=m<=0?0:m<30?1:m<60?2:m<120?3:4}
+    let stn=0;{const has=d=>(dm[d]||0)>0;let d=has(t)?t:addD(t,-1);while(stn<800&&has(d)){stn++;d=addD(d,-1)}}
+    o.hm=hm;o.hs=(stn?'🔥 '+fa(String(stn))+' '+T('روز','d')+' · ':'')+T('بهترین ','Best ')+fa(mm(best));
+    o.ft=fa(mm(dm[t]||0));o.fl=T('امروز','Today');o.wt=fa(mm(wk));o.wl=T('۷ روز اخیر','Last 7 days');o.go='▶ '+T('شروع تمرکز','Start focus');
+    wx=JSON.stringify(o)}catch(e){}
+  const sig=l1+'|'+l2+'|'+l3+'|'+hb+'|'+dn+du+dt+dc+qt+qp+nx+sk+'|'+wx;if(sig===wsig)return;wsig=sig;
+  try{D.widgetSet({l1,l2,l3,hb,dn,du,dt,dc,qt,qp,nx,sk,wx})}catch(e){}
 }
 /* پنل سریع پین‌شده (v92): روشن/خاموش + فهرست فعالیت‌ها برای پنجره‌ی انتخاب (اخیرها اول) */
 function pinActs(){const P=PIN(),m=P.m||'auto',ok=a=>a.active!==false&&!a.arch&&a.cat!=='sleep';
