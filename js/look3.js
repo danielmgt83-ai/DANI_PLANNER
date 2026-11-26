@@ -71,7 +71,7 @@ function storeHTML(){const sec=ST.sec||'themes',tg='<div class="row" style="marg
 /* ---- پیش‌نمایش ---- */
 const PV={};
 function pvInit(s){const X=SKX(),cur=s.id===skId(),o=cur?Object.assign({},X[s.id],snap(),{m:(X[s.id]||{}).m,ac:(X[s.id]||{}).ac,rad:(X[s.id]||{}).rad}):Object.assign({lay:'',ic:{st:'',x:{}}},X[s.id]);
- PV.id=s.id;PV.m=o.m||'';PV.ac=o.ac||'';PV.rad=o.rad||'';PV.lay=o.lay||'';PV.ic=JSON.parse(JSON.stringify(o.ic||{st:'',x:{}}))}
+ PV.id=s.id;PV.ph=Object.assign({},((SKX()[s.id]||{}).ph)||{});PV.m=o.m||'';PV.ac=o.ac||'';PV.rad=o.rad||'';PV.lay=o.lay||'';PV.ic=JSON.parse(JSON.stringify(o.ic||{st:'',x:{}}))}
 const chip=(on,a,v,l)=>'<button class="chip sm'+(on?' on':'')+'" data-a="'+a+'" data-v="'+E(v)+'">'+l+'</button>';
 function pvBody(){const s=SKINS[PV.id];if(!s)return'';const sets=icSets();
  const modes=canMode(s)?'<div class="row lkr2">'+chip(!PV.m,'lk_pk','m:',T('پیش‌فرض تم','Theme default')+' ('+(effDark(s)?T('تیره','dark'):T('روشن','light'))+')')+chip(PV.m==='light','lk_pk','m:light','☀ '+T('روشن','Light'))+chip(PV.m==='dark','lk_pk','m:dark','🌙 '+T('تیره','Dark'))+'</div>':'<p class="m">'+T('این تم ظاهر و رنگ‌های ثابتِ خودش را دارد؛ فقط رنگ تأکید را می‌شود عوض کرد.','This theme has its own fixed look; only the accent colour can change.')+'</p>';
@@ -80,6 +80,7 @@ function pvBody(){const s=SKINS[PV.id];if(!s)return'';const sets=icSets();
   +'<div class="m">'+T('رنگ تأکید','Accent colour')+'</div><div class="row lkr2">'+chip(!PV.ac,'lk_pk','ac:',T('پیش‌فرض تم','Theme default'))+ACS.map(c=>'<button class="lkac'+(PV.ac===c?' on':'')+'" style="background:'+c+'" data-a="lk_pk" data-v="ac:'+c+'" aria-label="'+c+'"></button>').join('')+'</div>'
   +'<div class="m">'+T('شکل منو','Menu style')+'</div><div class="lkmg">'+MENUS.map(m=>'<button class="lkm'+(PV.lay===m[0]?' on':'')+'" data-a="lk_pk" data-v="lay:'+m[0]+'">'+mini(m[3])+'<small>'+(m[0]===''?T('پیش‌فرض تم','Theme default')+': '+ownMenu(s):T(m[1],m[2]))+'</small></button>').join('')+'</div>'
   +'<div class="m">'+T('گوشه‌ها','Corners')+'</div><div class="row lkr2">'+RADS.map(r=>chip(PV.rad===r[0],'lk_pk','rad:'+r[0],T(r[1],r[2]))).join('')+'</div>'
+  +(window.daniPhoto?'<div class="m">'+T('عکس‌ها','Photos')+'</div>'+daniPhoto.rows(PV.id,PV.ph,'pv'):'')
   +'<div class="m">'+T('نمادها','Icons')+'</div><div class="strow lkicr">'+sets.map(p=>'<div class="stc2 lkic'+(icKey(PV.ic)===p[0]?' on':'')+'" role="button" tabindex="0" data-a="lk_pk" data-v="ic:'+E(p[0])+'">'+ipThumb(p,3)+'<b>'+(p[0]===''?T('پیش‌فرض تم','Theme default'):E(T(p[1],p[2])))+'</b></div>').join('')+'</div>'}
 H.lk_pv=e=>{const s=SKINS[e.dataset.id];if(!s)return;pvInit(s);
  modal('<div class="c lkpv"><h3>'+E(s.name)+'</h3><p class="m" dir="auto">'+E(s.desc||'')+(s.tag?' · '+E(s.tag):'')+'</p><div id="lkpvb">'+pvBody()+'</div>'+(s.hero||s.pack?'<p class="m">🖼 '+T('تصویرها و ویژگی‌های خاصِ خودِ تم همراهش می‌ماند.','Its own images and features stay with it.')+'</p>':'')
@@ -88,11 +89,12 @@ H.lk_pk=e=>{const v=String(e.dataset.v||''),i=v.indexOf(':'),k=v.slice(0,i),x=v.
  if(k==='m')PV.m=x;else if(k==='ac')PV.ac=x;else if(k==='lay')PV.lay=x;else if(k==='rad')PV.rad=x;
  else if(k==='ic'){const p=icSets().find(q=>q[0]===x);if(p)PV.ic={st:p[3].st||'',x:Object.assign({},p[3].x||{})}}
  const b=document.getElementById('lkpvb');if(b){const sc=document.querySelector('.lkicr');const l=sc?sc.scrollLeft:0;b.innerHTML=pvBody();const n=document.querySelector('.lkicr');if(n)n.scrollLeft=l}};
+window.daniLook3.pv=()=>PV;window.daniLook3.pvRefresh=()=>{const b=document.getElementById('lkpvb');if(b)b.innerHTML=pvBody()};
 H.lk_x=()=>closeM();
 H.lk_ap=e=>{const id=e.dataset.id,s=SKINS[id];if(!s||PV.id!==id)return;const X=SKX(),old=skId();
  db.set.prevTheme={skin:old,x:JSON.parse(JSON.stringify(X[id]||null))};
  if(old!==id&&SKINS[old])X[old]=Object.assign({},X[old],snap());
- X[id]=Object.assign({},X[id],{lay:PV.lay,ic:PV.ic,m:PV.m,ac:PV.ac,rad:PV.rad});
+ X[id]=Object.assign({},X[id],{lay:PV.lay,ic:PV.ic,m:PV.m,ac:PV.ac,rad:PV.rad});try{window.daniPhoto&&daniPhoto.commit(id,PV.ph||{})}catch(e){console.error(e)}
  db.set.skin=id;db.set.lay2=PV.lay;db.set.icst=PV.ic.st||'';db.set.icx=Object.assign({},PV.ic.x||{});restore({lay:PV.lay,ic:PV.ic});db.set._sk=id;
  if(save()){closeM();reIcons();render();try{decorateIcons()}catch(x){}toast(T('تم اعمال شد','Theme applied'))}};
 H.lk_undo=()=>{const p=db.set.prevTheme;if(!p||!SKINS[p.skin])return;const X=SKX(),old=skId();
@@ -133,7 +135,7 @@ function build(){
   if(skin){const h3=skin.querySelector('h3');if(h3)h3.textContent=T('تصویر و تیرگی تم فعلی','Current theme image & dim');skin.querySelectorAll('p.m').forEach(p=>{if(/همیشه تیره است|always dark/.test(txt(p)))p.remove()});
    [...skin.children].forEach(c=>{if(c.classList&&c.classList.contains('row')&&c.querySelector('[data-skthemefile]'))c.remove()});const tgr=skin.querySelector('.uch-fl');if(tgr)tgr.remove();const g2=skin.querySelector(':scope>.skg');if(g2)g2.remove()}
   if(moods)moods.style.display='none';
-  pane('cu',[window.daniMenuCard?daniMenuCard.node():null,$('#studiocard'),skin,fs]); /* v163.3: استودیوی تم (ساخت/ویرایش/کپی) در «سفارشی» می‌ماند؛ قبلاً به‌اشتباه حذف شده بود */
+  pane('cu',[window.daniMenuCard?daniMenuCard.node():null,$('#studiocard'),skin,window.daniPhoto?daniPhoto.card():null,fs]); /* v163.3: استودیوی تم (ساخت/ویرایش/کپی) در «سفارشی» می‌ماند؛ قبلاً به‌اشتباه حذف شده بود */
   /* بسته‌های تم (حالت توسعه‌دهنده): بارگذاری + سابقه */
   const pk=thmx&&thmx.querySelector('#pkcard'),thmio=thmx&&thmx.querySelector('#thmio');
   if(pk){const rows=[...pk.querySelectorAll('.row')].filter(r=>r.querySelector('[data-a="pk"][data-k^="use:"]'));rows.forEach(r=>r.remove());
