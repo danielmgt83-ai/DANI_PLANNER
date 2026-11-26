@@ -59,7 +59,7 @@ function android() {
   const cfg = JSON.parse(fs.readFileSync(path.join(here, 'capacitor.config.json'), 'utf8'));
   const javaDir = path.join(app, 'java', ...String(cfg.appId).split('.'));
   fs.mkdirSync(javaDir, { recursive: true });
-  for (const f of ['MainActivity.java', 'DaniNativePlugin.java', 'DaniWidget.java', 'DaniWidgetSmall.java', 'DaniWidgetLarge.java', 'DaniWidgetAction.java', 'DaniPin.java', 'DaniPinAction.java', 'DaniQuickActivity.java']) {
+  for (const f of ['MainActivity.java', 'DaniNativePlugin.java', 'DaniWidget.java', 'DaniWidgetSmall.java', 'DaniWidgetLarge.java', 'DaniWidgetAction.java', 'DaniWidgetX.java', 'DaniWidgetEi.java', 'DaniWidgetCd.java', 'DaniWidgetHm.java', 'DaniWidgetFo.java', 'DaniPin.java', 'DaniPinAction.java', 'DaniQuickActivity.java']) {
     let src = fs.readFileSync(path.join(here, 'native', f), 'utf8');
     src = src.replace(/^package\s+[\w.]+;/m, 'package ' + cfg.appId + ';');
     fs.writeFileSync(path.join(javaDir, f), src);
@@ -90,6 +90,16 @@ function android() {
     const rec = mk('DaniWidgetSmall', 'dani_widget_small_info') + mk('DaniWidgetLarge', 'dani_widget_large_info') +
       '        <receiver android:name=".DaniWidgetAction" android:exported="false" />\n';
     x = x.replace('</application>', rec + '    </application>');
+    fs.writeFileSync(mf, x);
+  }
+  // چهار ویجت تازه (v180): آیزنهاور، شمارش معکوس، گرمایی، تمرکز
+  x = fs.readFileSync(mf, 'utf8');
+  if (!x.includes('.DaniWidgetEi')) {
+    const mkx = (n, xml) => '        <receiver android:name=".' + n + '" android:exported="false">\n' +
+      '            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>\n' +
+      '            <meta-data android:name="android.appwidget.provider" android:resource="@xml/' + xml + '" />\n' +
+      '        </receiver>\n';
+    x = x.replace('</application>', mkx('DaniWidgetEi', 'dani_wx_ei_info') + mkx('DaniWidgetCd', 'dani_wx_cd_info') + mkx('DaniWidgetHm', 'dani_wx_hm_info') + mkx('DaniWidgetFo', 'dani_wx_fo_info') + '    </application>');
     fs.writeFileSync(mf, x);
   }
   // پنل سریع پین‌شده (v92): گیرنده‌ی دکمه‌ها و پنجره‌ی انتخاب فعالیت
