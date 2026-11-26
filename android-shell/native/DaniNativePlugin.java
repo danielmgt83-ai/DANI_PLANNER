@@ -608,6 +608,7 @@ public class DaniNativePlugin extends Plugin {
                     .putInt("qp", call.getInt("qp", -1))
                     .putString("nx", call.getString("nx", ""))
                     .putString("sk", call.getString("sk", ""))
+                    .putString("wx", call.getString("wx", "{}"))
                     .apply();
             DaniWidget.refresh(c);
             call.resolve();

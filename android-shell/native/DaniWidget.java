@@ -125,5 +125,6 @@ public class DaniWidget extends AppWidgetProvider {
             int[] ids = m.getAppWidgetIds(new ComponentName(c, cl[t]));
             for (int id : ids) m.updateAppWidget(id, build(c, t));
         }
+        DaniWidgetX.refresh(c);
     }
 }
