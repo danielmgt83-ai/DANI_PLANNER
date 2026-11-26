@@ -673,6 +673,7 @@ html[data-mx=1] فقط وقتی db.set.mx!==0 و تم ساده است (بدون 
 (v163.3) `#studiocard` را look3 در پنل `cu` نگه می‌دارد؛ هرگز حذفش نکن (قاعده: Theme Studio حذف نشود).
 (v163.2) icmap و icsz مال هر تم‌اند (`db.set.skx[id].ic.{map,sz}` با `restore()` در look3.js)؛ فهرست تعویض آیکون از `daniMenu.keys()`.
 (v163.1) ادغام درس‌ها فقط در vManage (`daniAcd4.mergeCard`)؛ snapshot چندتایی `meta.mg_*`؛ `api.mergeList/undoMerge(key)`.
+(v180) ویجت‌های تازه: android-shell/native/DaniWidgetX + Ei/Cd/Hm/Fo، layout `dani_wx_*`؛ داده در prefs کلید `wx` (JSON) از widgetSync؛ ثبت مانیفست در apply.mjs.
 (v179) baked seed skin=classic؛ guide2 مرحله‌ی `look` + `H.g2_skin` (SKINS const است، window.SKINS ندارد).
 (v178) myphoto.js: `db.set.skx[k].ph`؛ `PHI` از IDB `phbg_/phmn_`؛ `daniPhoto={rows,card,commit,apply,defs}`؛ `applySkin` پیچیده؛ look3 `PV.ph`.
 (v177) look3.js: `thumb()` = خانه‌ی کوچک `.stm[data-l]`؛ `stTag`؛ فیلتر `ST.dk`+`applyFilter()` (جست‌وجو هم از آن)؛ `H.lk_dk`.
