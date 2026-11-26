@@ -945,5 +945,13 @@ await test('v179: تم پیش‌فرض کلاسیک و مرحله‌ی «ظاه�
  H.g2_skin({dataset:{id:'dani'}});await w(300);o.pick=skId()==='dani'&&db.set.skin==='dani'&&!!document.querySelector('#gd2 [data-id="dani"].on');
  H.g2_skin({dataset:{id:'classic'}});await w(200);o.back=skId()==='classic';return o});const bad=Object.entries(r).filter(([k,v])=>v!==true);if(bad.length)throw new Error('FAIL '+bad.map(b=>b[0]).join(',')+' '+JSON.stringify(r))});
 
+await test('v180: داده‌ی چهار ویجت تازه (آیزنهاور/موعد/گرمایی/تمرکز) به افزونه‌ی بومی می‌رسد',async pg=>{const r=await pg.evaluate(async()=>{const o={};let got=null;
+ window.Capacitor={isNativePlatform:()=>true,Plugins:{DaniNative:{widgetSet:a=>{got=a},widgetPop:async()=>({q:[]}),liveStart(){},liveStop(){},pinSet(){}}}};
+ const td=todayISO();db.set.tls={ei:[{id:'a',t:'x',q:1,done:0},{id:'b',t:'y',q:1,done:0},{id:'c',t:'z',q:2,done:1},{id:'d',t:'w',q:4,done:0}],two:[],tab:'ei'};
+ db.entries.push({id:'wxe1',date:td,actId:db.acts[0]&&db.acts[0].id,start:'08:00',min:95});
+ try{window.daniLiveSync.widgetSync()}catch(e){o.err=String(e)}
+ o.called=!!got;const w=got&&got.wx?JSON.parse(got.wx):{};
+ o.ei=JSON.stringify(w.ei)==='[2,0,0,1]';o.hm=typeof w.hm==='string'&&w.hm.length===70&&w.hm[69]==='3';o.ft=!!w.ft&&w.ft!=='0';o.t=!!w.t_ei&&!!w.t_fo;o.dn=!!w.dn;o.hs=!!w.hs;return o});const bad=Object.entries(r).filter(([k,v])=>k!=='err'&&v!==true);if(bad.length)throw new Error('FAIL '+bad.map(b=>b[0]).join(',')+' '+JSON.stringify(r))});
+
 console.log('\n'+results.map(r=>r.join(' ')).join('\n')+'\n\n'+(results.length-fails)+' / '+results.length+' موفق');
 await browser.close();srv.close();process.exit(fails?1:0);
