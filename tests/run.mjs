@@ -917,5 +917,26 @@ await test('v177: انتخاب‌گر تم — پیش‌نمایش خانه‌ی
  H.lk_pk({dataset:{v:'lay:top'}});o.lay=document.querySelector('.lkpv .stm.big').dataset.l==='top';
  H.lk_x();return o});const bad=Object.entries(r).filter(([k,v])=>v!==true);if(bad.length)throw new Error('FAIL '+bad.map(b=>b[0]).join(',')+' '+JSON.stringify(r))});
 
+await test('v178: عکس شخصی هر جا — بنر/پس‌زمینه/منو، انتخاب در پیش‌نمایش تم',async pg=>{const r=await pg.evaluate(async()=>{const o={},w=ms=>new Promise(x=>setTimeout(x,ms));
+ const mkFile=async(c)=>{const cv=document.createElement('canvas');cv.width=40;cv.height=30;const g=cv.getContext('2d');g.fillStyle=c;g.fillRect(0,0,40,30);const b=await new Promise(r=>cv.toBlob(r,'image/png'));return new File([b],'t.png',{type:'image/png'})};
+ const up=async(inp,c)=>{const dt=new DataTransfer();dt.items.add(await mkFile(c));inp.files=dt.files;inp.dispatchEvent(new Event('change',{bubbles:true}));await w(500)};
+ db.set.skin='classic';db.set.skx=db.set.skx||{};applySkin();const h=document.documentElement;
+ H.lk_pv({dataset:{id:'classic'}});await w(200);
+ const chips=[...document.querySelectorAll('.lkpv .phr [data-a="ph_set"][data-v="my"]')];o.pvRows=document.querySelectorAll('.lkpv .phr').length===3&&chips.length===3&&chips.every(c=>c.disabled);
+ await up(document.querySelector('.lkpv [data-phfile="bg"]'),'#d33');
+ o.pvBg=daniLook3.pv().ph.bg==='my'&&!document.querySelector('.lkpv [data-a="ph_set"][data-pl="bg"][data-v="my"]').disabled;
+ H.lk_ap({dataset:{id:'classic'}});await w(400);
+ o.applied=db.set.skx.classic.ph.bg==='my'&&h.dataset.phbg==='1';
+ page='set';stt='look';render();await w(700);o.card=!!document.getElementById('phcard');
+ await up(document.querySelector('#phcard [data-phfile="ban"]'),'#33d');
+ o.ban=h.dataset.hero==='1'&&h.dataset.fit==='cover'&&/data:image/.test(h.style.getPropertyValue('--hero'));
+ page='set';stt='look';render();await w(500);
+ await up(document.querySelector('#phcard [data-phfile="mn"]'),'#3d3');await w(200);
+ H.ph_set({dataset:{pl:'mn',v:'my',k:'classic',ctx:'cur'}});await w(300);o.mn=h.dataset.phmn==='1';
+ H.ph_set({dataset:{pl:'ban',v:'none',k:'classic',ctx:'cur'}});await w(300);o.none=h.dataset.hero==='0';
+ await H.ph_del({dataset:{pl:'bg',k:'classic',ctx:'cur'}});await w(400);o.del=!h.dataset.phbg;
+ H.ph_set({dataset:{pl:'mn',v:'none',k:'classic',ctx:'cur'}});await w(200);o.mnOff=!h.dataset.phmn;
+ return o});const bad=Object.entries(r).filter(([k,v])=>v!==true);if(bad.length)throw new Error('FAIL '+bad.map(b=>b[0]).join(',')+' '+JSON.stringify(r))});
+
 console.log('\n'+results.map(r=>r.join(' ')).join('\n')+'\n\n'+(results.length-fails)+' / '+results.length+' موفق');
 await browser.close();srv.close();process.exit(fails?1:0);
