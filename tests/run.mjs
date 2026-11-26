@@ -938,5 +938,12 @@ await test('v178: عکس شخصی هر جا — بنر/پس‌زمینه/منو�
  H.ph_set({dataset:{pl:'mn',v:'none',k:'classic',ctx:'cur'}});await w(200);o.mnOff=!h.dataset.phmn;
  return o});const bad=Object.entries(r).filter(([k,v])=>v!==true);if(bad.length)throw new Error('FAIL '+bad.map(b=>b[0]).join(',')+' '+JSON.stringify(r))});
 
+await test('v179: تم پیش‌فرض کلاسیک و مرحله‌ی «ظاهر» در راهنمای شروع',async pg=>{const r=await pg.evaluate(async()=>{const o={},w=ms=>new Promise(x=>setTimeout(x,ms));
+ o.def=skId()==='classic';
+ H.g2_goto({dataset:{k:'look'}});await w(300);const g=document.getElementById('gd2');o.step=!!g&&g.querySelectorAll('[data-a="g2_skin"]').length===4;
+ o.on=!!g.querySelector('[data-a="g2_skin"][data-id="classic"].on');
+ H.g2_skin({dataset:{id:'dani'}});await w(300);o.pick=skId()==='dani'&&db.set.skin==='dani'&&!!document.querySelector('#gd2 [data-id="dani"].on');
+ H.g2_skin({dataset:{id:'classic'}});await w(200);o.back=skId()==='classic';return o});const bad=Object.entries(r).filter(([k,v])=>v!==true);if(bad.length)throw new Error('FAIL '+bad.map(b=>b[0]).join(',')+' '+JSON.stringify(r))});
+
 console.log('\n'+results.map(r=>r.join(' ')).join('\n')+'\n\n'+(results.length-fails)+' / '+results.length+' موفق');
 await browser.close();srv.close();process.exit(fails?1:0);
