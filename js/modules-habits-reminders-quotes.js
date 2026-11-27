@@ -71,9 +71,10 @@ PG.hab=()=>{const t=todayISO(),d=zMS.hab.d||t,items=hItems(),act=items.filter(h=
   h+='<div class="hrow"><button class="hck '+(s==='done'?'on':'')+'" data-m="hab:set:'+x.id+':done" '+(fut?'disabled':'')+' aria-label="انجام شد" title="انجام شد">✓</button><button class="hck bad '+(s==='miss'?'on':'')+'" data-m="hab:set:'+x.id+':miss" '+(fut?'disabled':'')+' aria-label="انجام نشد" title="انجام نشد">✗</button>'
   +'<div class="nm"><b style="color:'+esc(x.color||'inherit')+'">'+esc(S_(x.name,60))+'</b><span class="m">پیوستگی: '+fa(st.cur)+' روز · بهترین: '+fa(st.best)+'</span>'
   +'<input data-mc="hab:note:'+x.id+'" value="'+esc(S_(L.n,200))+'" maxlength="200" placeholder="یادداشت این روز" style="width:100%;margin-top:4px" '+(fut?'disabled':'')+'></div></div>'});
- h+='</div>'+(zMS.hab.form?hForm():'<div class="row np">'+mBtn('hab:new','عادت جدید','p')+'</div>');
+ const none=!items.length; /* v183: بدون عادت، کارت «روند و آمار» خالی نمی‌آید و دکمه‌ی «عادت جدید» داخل همین کارت است */
+ h+=(none&&!zMS.hab.form?'<div class="row np" style="margin-top:10px;justify-content:center">'+mBtn('hab:new','عادت جدید','p')+'</div>':'')+'</div>'+(zMS.hab.form?hForm():(none?'':'<div class="row np">'+mBtn('hab:new','عادت جدید','p')+'</div>'));
+ if(none)return h;
  h+='<div class="c"><h3>روند و آمار</h3>';
- if(!items.length)h+='<div class="empty">پس از تعریف عادت، آمار اینجا دیده می‌شود.</div>';
  items.forEach(x=>{const st=hStats(x);h+='<div class="hrow"><div class="nm"><b '+(x.arch?'class="soon"':'')+'>'+esc(S_(x.name,60))+(x.arch?' <span class="badge">بایگانی</span>':'')+'</b>'+hDots(x)+'<div class="m">هفته: '+(st.w.p==null?'—':fa(st.w.p)+'٪ ('+fa(st.w.dn)+' از '+fa(st.w.e)+')')+' · ماه: '+(st.m.p==null?'—':fa(st.m.p)+'٪ ('+fa(st.m.dn)+' از '+fa(st.m.e)+')')+' · پیوستگی: '+fa(st.cur)+'</div></div>'
   +'<div class="row">'+mBtn('hab:edit:'+x.id,'ویرایش','')+mBtn('hab:arch:'+x.id,x.arch?'فعال‌سازی':'بایگانی','')+mBtn('hab:del:'+x.id,'حذف','d')+'</div></div>'});
  return h+'<p class="m">تعریف: پیوستگی فقط روزهای «مورد انتظار» عادت را می‌شمارد؛ روزهای آینده و امروزِ ثبت‌نشده ازدست‌رفته حساب نمی‌شوند.</p></div>'};

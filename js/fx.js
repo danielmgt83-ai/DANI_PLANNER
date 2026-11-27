@@ -6,7 +6,7 @@
 (function(){
 const T=window.daniT;
 const FX=()=>{const s=db.set;if(!s.fx||typeof s.fx!=='object')s.fx={};if(s.fx.hap===undefined)s.fx.hap=1;if(s.fx.anim===undefined)s.fx.anim=1;return s.fx};
-const VER='2026.11.147';
+const VER='2026.11.148';
 /* ---------- لرزش و پاپ ---------- */
 const HAP=/^(qk_go|nx_go|nx_sw|pf_add|tp_ap|bin_rs|ex_save|ab_now|ql_|pm_|tm_|tstart|tfinish|hab|ob_log|ob_go|dnd_set|ls_now|dk_)/;
 const reduce=()=>{try{return matchMedia('(prefers-reduced-motion: reduce)').matches}catch(e){return false}};
@@ -19,6 +19,7 @@ st.textContent='@keyframes fxpop{0%{transform:scale(1)}40%{transform:scale(.92)}
 document.head.appendChild(st);
 /* ---------- چه چیزی تازه است ---------- */
 const WN=[
+ ['✅','صفحه‌ی عادت‌ها وقتی هنوز عادتی نداری جمع‌وجور شد: کارت خالی «روند و آمار» نمی‌آید و «عادت جدید» کنار پیام همان کارت است.','Habits page is tidy when you have no habits yet: no empty Trends card, and “New habit” sits inside the Habits card.'],
  ['🔕','پیام تکراری «چند روز است پشتیبان کامل نگرفته‌ای» که هر بار روی صفحه‌ی خانه می‌نشست حذف شد؛ یادآوری پشتیبان با اعلان ساعت ۲۰ و مرکز پشتیبان می‌ماند.','The repeated “no full backup for days” message over Home is gone; the backup reminder stays as the 20:00 notification and in the Backup centre.'],
  ['🎨','سه مدل آیکون کاملاً تازه (گرد و ضخیم، دست‌کشیده، بلوک هندسی)، چیپ «بیشتر» و دکمه‌ی «استودیوی آیکون» در کارت منو. پیش‌فرض همان «آیکون خودِ تم» است.','Three brand-new icon families (Soft bold, Hand sketch, Blocks), a “More” chip and an Icon Studio button in the Menu card. Default stays the theme’s own icons.'],
  ['🧩','چهار ویجت تازه برای صفحه‌ی گوشی: آیزنهاور، شمارش معکوس، نقشه‌ی گرمایی ۱۰ هفته و آمار تمرکز (نیازمند APK جدید).','Four new home-screen widgets: Eisenhower, Countdown, 10-week Heatmap and Focus stats (needs the new APK).'],
