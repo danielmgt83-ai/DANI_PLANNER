@@ -965,5 +965,9 @@ await test('v181: سه خانواده‌ی آیکون تازه + چیپ «بیش
  o.studio=typeof H.mn_icons==='function'&&!!document.querySelector('[data-a="mn_icons"]');
  db.set.icx={};save();return o});const bad=Object.entries(r).filter(([k,v])=>v!==true);if(bad.length)throw new Error('FAIL '+bad.map(b=>b[0]).join(',')+' '+JSON.stringify(r))});
 
+await test('v182: پیام تکراری پشتیبان بسته‌ی تم ساکت می‌شود ولی toast عادی کار می‌کند',async pg=>{const r=await pg.evaluate(async()=>{const o={},x=document.getElementById('toast');x.style.display='none';x.textContent='';
+ toast('یادآوری: چند روز است پشتیبان کامل نگرفته‌ای (تنظیمات ← داده‌ها ← مرکز پشتیبان)');o.muted=x.style.display==='none'&&x.textContent==='';
+ toast('سلام تست');o.normal=x.style.display==='block'&&x.textContent==='سلام تست';x.style.display='none';return o});const bad=Object.entries(r).filter(([k,v])=>v!==true);if(bad.length)throw new Error('FAIL '+bad.map(b=>b[0]).join(','))});
+
 console.log('\n'+results.map(r=>r.join(' ')).join('\n')+'\n\n'+(results.length-fails)+' / '+results.length+' موفق');
 await browser.close();srv.close();process.exit(fails?1:0);
