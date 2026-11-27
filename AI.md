@@ -692,3 +692,4 @@ html[data-mx=1] فقط وقتی db.set.mx!==0 و تم ساده است (بدون 
 (v154) exam builder: CR.setup.multi → daniAcd4.xbuilder؛ api.startMulti({items:[{cid,scope}],order,count,...}); attempt.courses=[cid…].
 (v153) rename: api.renameItem(kind c|ch|l,cid,id,title) → db.mods.acd.ren؛ reapplyRen بعد از commitPack؛ api.addQuestion؛ builder در lessonExtra؛ migOld (کارت‌های افزونه‌ی acadlessons → مبحث‌های دوره).
 (v152) merge: api.merge(newId,title,srcIds)/undoMerge؛ undo فقط آخرین ادغام.
+(v185) courses.js: course.layout + چیپ جلسه‌ها/مبحث (CR.cv، crs_cv)؛ محتوا یک‌بار؛ پک ۱٫۱۱.
