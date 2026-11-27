@@ -982,5 +982,14 @@ await test('v184: بلوک‌های نمودار و رسم تابع',async pg=>{
  const xss=dc.blocks([{type:'chart',kind:'bar',title:'<img src=x onerror=alert(1)>',labels:['<b>'],series:[{name:'<script>',values:[1]}]}],0);o.xss=!/<img src=x|<script|<b>/.test(xss);return o});
  const bad=Object.entries(r).filter(([k,v])=>v!==true);if(bad.length)throw new Error('FAIL '+bad.map(b=>b[0]).join(',')+' '+JSON.stringify(r))});
 
+await test('v185: چینش دوره',async pg=>{const r=await pg.evaluate(async()=>{const C=daniCourses.state;const ses=[{id:'s1',title:'a',minutes:30,order:1,parts:[{kind:'learn',lessonIds:['L1']}]}];
+ C.cache.courses=[{id:'en',title:'E',description:'',unit:'جلسه',chapters:[{id:'g',title:'G',order:1}],sessions:ses,goals:[],prerequisites:[]}];C.cache.lessons=[{id:'L1',courseId:'en',chapterId:'g',title:'x',order:1,blocks:[],hash:'h'}];C.cache.questions=[];
+ C.ix={courses:new Map(C.cache.courses.map(x=>[x.id,x])),lessons:new Map(C.cache.lessons.map(x=>[x.id,x])),questions:new Map(),sources:new Map(),progress:new Map(),attempts:new Map(),errors:new Map(),bookmarks:new Map(),notes:new Map()};
+ C.loaded=true;C.courseId='en';C.lessonId='';C.tab='courses';page='acd';zMS.acd.tab='courses';try{localStorage.removeItem('crs_cv')}catch(e){}render();await new Promise(r=>setTimeout(r,500));
+ const o={ses:!!document.querySelector('.crs-ses'),cv:!!document.querySelector('.crs-cv')};
+ document.querySelector('[data-a="crs_cview"][data-v="ch"]').click();await new Promise(r=>setTimeout(r,300));o.ses2=!!document.querySelector('.crs-ses');
+ C.cache.courses[0].layout='chapters';render();await new Promise(r=>setTimeout(r,300));o.cv3=!!document.querySelector('.crs-cv');
+ const v=daniCourses.validatePack?1:0;o.v=v;return o});
+ return r.ses&&r.cv&&!r.ses2&&!r.cv3?null:'bad '+JSON.stringify(r)});
 console.log('\n'+results.map(r=>r.join(' ')).join('\n')+'\n\n'+(results.length-fails)+' / '+results.length+' موفق');
 await browser.close();srv.close();process.exit(fails?1:0);
