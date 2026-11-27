@@ -673,6 +673,7 @@ html[data-mx=1] فقط وقتی db.set.mx!==0 و تم ساده است (بدون 
 (v163.3) `#studiocard` را look3 در پنل `cu` نگه می‌دارد؛ هرگز حذفش نکن (قاعده: Theme Studio حذف نشود).
 (v163.2) icmap و icsz مال هر تم‌اند (`db.set.skx[id].ic.{map,sz}` با `restore()` در look3.js)؛ فهرست تعویض آیکون از `daniMenu.keys()`.
 (v163.1) ادغام درس‌ها فقط در vManage (`daniAcd4.mergeCard`)؛ snapshot چندتایی `meta.mg_*`؛ `api.mergeList/undoMerge(key)`.
+(v184) courses.js: بلوک‌های chart/plot (chartHTML/plotHTML، vNice/vFmt/VPAL)؛ پک ۱٫۱۰ راهنمای انتخاب نمودار/تصویر دارد؛ diagram بعداً.
 (v183) PG.hab: بدون عادت → کارت روند نیست و دکمه‌ی جدید داخل کارت اول.
 (v182) safety.js: toast پیچیده؛ متن یادآوری پشتیبان بسته‌ی Itachi ساکت (کد بسته دست‌نخورده است چون در db کاربر ذخیره است).
 (v181) iconfam.js: `ICX_NEW[fam][key]` (soft/sketch/block، ۲۷ کلید)؛ icon() در themes-engine از آن می‌خواند وقتی db.set.icx.fam برابر یکی از آن‌هاست؛ کلید تازه‌ی منو باید به هر سه افزوده شود.
