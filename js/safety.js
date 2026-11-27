@@ -95,3 +95,6 @@ async function health(){const L=[],ok=(b,t,w)=>L.push({b,t,w});
 H.hc_run=async()=>{modal('<p class="m">…</p>');modal(await health())};
 window.daniHealth=health;
 })();
+/* v182: پیام «چند روز است پشتیبان کامل نگرفته‌ای» که کدِ داخل بسته‌ی تم Itachi/Uchiha هر بار روی خانه نشان می‌داد دیگر نمی‌آید؛
+   یادآوری پشتیبان با اعلان ساعت ۲۰ (بالا) و مرکز پشتیبان می‌ماند. فقط همین یک متن ساکت می‌شود، بقیه‌ی toastها دست‌نخورده. */
+(function(){try{const _t=toast;toast=function(t){if(typeof t==='string'&&t.indexOf('یادآوری: چند روز است پشتیبان کامل نگرفته‌ای')===0)return;return _t.apply(this,arguments)}}catch(e){}})();
