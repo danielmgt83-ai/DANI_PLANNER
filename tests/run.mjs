@@ -953,5 +953,17 @@ await test('v180: داده‌ی چهار ویجت تازه (آیزنهاور/م�
  o.called=!!got;const w=got&&got.wx?JSON.parse(got.wx):{};
  o.ei=JSON.stringify(w.ei)==='[2,0,0,1]';o.hm=typeof w.hm==='string'&&w.hm.length===70&&w.hm[69]==='3';o.ft=!!w.ft&&w.ft!=='0';o.t=!!w.t_ei&&!!w.t_fo;o.dn=!!w.dn;o.hs=!!w.hs;return o});const bad=Object.entries(r).filter(([k,v])=>k!=='err'&&v!==true);if(bad.length)throw new Error('FAIL '+bad.map(b=>b[0]).join(',')+' '+JSON.stringify(r))});
 
+await test('v181: سه خانواده‌ی آیکون تازه + چیپ «بیشتر» + دسترسی به استودیو',async pg=>{const r=await pg.evaluate(async()=>{const o={},w=ms=>new Promise(x=>setTimeout(x,ms));
+ const keys=['day','plan2','tools','pj','res','acd','set','home','hab','rem','qt','tmr','mx','cm','dl','dash','acts','stats','look','time','data','notes','goals','cal','plan','today','rep'];
+ o.keys=['soft','sketch','block'].every(f=>keys.every(k=>typeof ICX_NEW[f][k]==='string'&&ICX_NEW[f][k].length>10));
+ for(const f of ['soft','sketch','block']){db.set.icx={fam:f};render();await w(200);const n=[...document.querySelectorAll('#nav a[data-p] svg.ic')];o['nav_'+f]=n.length>=5&&n.every(s=>s.dataset.icfam===f)}
+ db.set.icx={};render();await w(200);o.theme=!document.querySelector('#nav svg.ic[data-icfam]');
+ db.set.icx={fam:'soft'};o.fb=icon('nonexist')===''||typeof icon('nonexist')==='string';
+ page='set';stt='look';render();await w(500);
+ let c=document.querySelectorAll('#studiocard [data-a="icx_set"][data-f="fam"]');o.fam4=c.length>=4&&c.length<=5;o.moreBtn=!!document.querySelector('[data-a="icx_more"]');
+ H.icx_more();await w(300);c=document.querySelectorAll('[data-a="icx_set"][data-f="fam"]');o.all=c.length===7;
+ o.studio=typeof H.mn_icons==='function'&&!!document.querySelector('[data-a="mn_icons"]');
+ db.set.icx={};save();return o});const bad=Object.entries(r).filter(([k,v])=>v!==true);if(bad.length)throw new Error('FAIL '+bad.map(b=>b[0]).join(',')+' '+JSON.stringify(r))});
+
 console.log('\n'+results.map(r=>r.join(' ')).join('\n')+'\n\n'+(results.length-fails)+' / '+results.length+' موفق');
 await browser.close();srv.close();process.exit(fails?1:0);
