@@ -975,5 +975,12 @@ await test('v183: عادت‌ها بدون عادت جمع‌وجور و با ع
  hb.items=[{id:'hx1',name:'تست',freq:'daily',days:[0,1,2,3,4,5,6],start:todayISO(),created:todayISO(),color:'#2563eb'}];page='hab';render();await w(300);
  o.withTrend=/روند و آمار/.test(document.getElementById('pg').textContent);hb.items=JSON.parse(save0);return o});const bad=Object.entries(r).filter(([k,v])=>v!==true);if(bad.length)throw new Error('FAIL '+bad.map(b=>b[0]).join(',')+' '+JSON.stringify(r))});
 
+await test('v184: بلوک‌های نمودار و رسم تابع',async pg=>{const r=await pg.evaluate(()=>{const dc=daniCourses,o={};
+ const B=[{type:'chart',kind:'bar',labels:['بهار','تابستان'],series:[{name:'الف',values:[3,5]},{name:'ب',values:[2,4]}]},{type:'chart',kind:'line',labels:['۱','۲','۳'],series:[{name:'x',values:[1,3,2]}]},{type:'chart',kind:'pie',labels:['الف','ب'],series:[{values:[1,3]}]},{type:'chart',kind:'scatter',series:[{name:'p',points:[[1,2],[2,4],[3,5]]}]},{type:'plot',fn:'x^2-3*x-4',xmin:-3,xmax:6,roots:true},{type:'plot',fn:[{expr:'100-2*x',name:'d'},{expr:'10+3*x',name:'s'}],xmin:0,xmax:50,points:[{x:18,y:64,label:'E'}]}];
+ const h=dc.blocks(B,0);o.svgs=(h.match(/<svg /g)||[]).length===6;o.noBad=!/crs-bad/.test(h);o.xlab=/بهار/.test(h)&&/تابستان/.test(h);o.legend=/crs-leg/.test(h);o.roots=(h.match(/r="3.6"/g)||[]).length===2;
+ const bad=dc.blocks([{type:'plot',fn:'x^^',xmin:0,xmax:1},{type:'plot',fn:'x',xmin:5,xmax:1},{type:'chart',kind:'bar'},{type:'chart',kind:'pie',series:[{values:[0,0]}]}],0);o.bad=(bad.match(/crs-bad/g)||[]).length===4;
+ const xss=dc.blocks([{type:'chart',kind:'bar',title:'<img src=x onerror=alert(1)>',labels:['<b>'],series:[{name:'<script>',values:[1]}]}],0);o.xss=!/<img src=x|<script|<b>/.test(xss);return o});
+ const bad=Object.entries(r).filter(([k,v])=>v!==true);if(bad.length)throw new Error('FAIL '+bad.map(b=>b[0]).join(',')+' '+JSON.stringify(r))});
+
 console.log('\n'+results.map(r=>r.join(' ')).join('\n')+'\n\n'+(results.length-fails)+' / '+results.length+' موفق');
 await browser.close();srv.close();process.exit(fails?1:0);
