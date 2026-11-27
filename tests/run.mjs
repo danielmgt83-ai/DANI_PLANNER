@@ -969,5 +969,11 @@ await test('v182: پیام تکراری پشتیبان بسته‌ی تم ساک
  toast('یادآوری: چند روز است پشتیبان کامل نگرفته‌ای (تنظیمات ← داده‌ها ← مرکز پشتیبان)');o.muted=x.style.display==='none'&&x.textContent==='';
  toast('سلام تست');o.normal=x.style.display==='block'&&x.textContent==='سلام تست';x.style.display='none';return o});const bad=Object.entries(r).filter(([k,v])=>v!==true);if(bad.length)throw new Error('FAIL '+bad.map(b=>b[0]).join(','))});
 
+await test('v183: عادت‌ها بدون عادت جمع‌وجور و با عادت کامل',async pg=>{const r=await pg.evaluate(async()=>{const o={},w=ms=>new Promise(x=>setTimeout(x,ms));
+ const hb=zHB();const save0=JSON.stringify(hb.items||[]);hb.items=[];page='hab';render();await w(300);
+ const pgEl=document.getElementById('pg');o.noTrend=!/روند و آمار/.test(pgEl.textContent);const c=pgEl.querySelectorAll(':scope > .c');o.btnIn=!!pgEl.querySelector('.row.np [data-m="hab:new"]');
+ hb.items=[{id:'hx1',name:'تست',freq:'daily',days:[0,1,2,3,4,5,6],start:todayISO(),created:todayISO(),color:'#2563eb'}];page='hab';render();await w(300);
+ o.withTrend=/روند و آمار/.test(document.getElementById('pg').textContent);hb.items=JSON.parse(save0);return o});const bad=Object.entries(r).filter(([k,v])=>v!==true);if(bad.length)throw new Error('FAIL '+bad.map(b=>b[0]).join(',')+' '+JSON.stringify(r))});
+
 console.log('\n'+results.map(r=>r.join(' ')).join('\n')+'\n\n'+(results.length-fails)+' / '+results.length+' موفق');
 await browser.close();srv.close();process.exit(fails?1:0);
