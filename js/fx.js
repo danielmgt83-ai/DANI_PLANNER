@@ -6,7 +6,7 @@
 (function(){
 const T=window.daniT;
 const FX=()=>{const s=db.set;if(!s.fx||typeof s.fx!=='object')s.fx={};if(s.fx.hap===undefined)s.fx.hap=1;if(s.fx.anim===undefined)s.fx.anim=1;return s.fx};
-const VER='2026.11.145';
+const VER='2026.11.146';
 /* ---------- لرزش و پاپ ---------- */
 const HAP=/^(qk_go|nx_go|nx_sw|pf_add|tp_ap|bin_rs|ex_save|ab_now|ql_|pm_|tm_|tstart|tfinish|hab|ob_log|ob_go|dnd_set|ls_now|dk_)/;
 const reduce=()=>{try{return matchMedia('(prefers-reduced-motion: reduce)').matches}catch(e){return false}};
@@ -19,6 +19,7 @@ st.textContent='@keyframes fxpop{0%{transform:scale(1)}40%{transform:scale(.92)}
 document.head.appendChild(st);
 /* ---------- چه چیزی تازه است ---------- */
 const WN=[
+ ['🎨','سه مدل آیکون کاملاً تازه (گرد و ضخیم، دست‌کشیده، بلوک هندسی)، چیپ «بیشتر» و دکمه‌ی «استودیوی آیکون» در کارت منو. پیش‌فرض همان «آیکون خودِ تم» است.','Three brand-new icon families (Soft bold, Hand sketch, Blocks), a “More” chip and an Icon Studio button in the Menu card. Default stays the theme’s own icons.'],
  ['🧩','چهار ویجت تازه برای صفحه‌ی گوشی: آیزنهاور، شمارش معکوس، نقشه‌ی گرمایی ۱۰ هفته و آمار تمرکز (نیازمند APK جدید).','Four new home-screen widgets: Eisenhower, Countdown, 10-week Heatmap and Focus stats (needs the new APK).'],
  ['🎨','تم پیش‌فرض کاربر تازه «کلاسیک» شد و در راهنمای شروع مرحله‌ی «ظاهر» با چهار تم پیشنهادی آمد.','New users start with the light “Classic” theme, and the start guide has a Look step with four suggested themes.'],
  ['🖼','«عکس شخصی هر جا»: برای هر تم می‌توانی عکس خودت را برای بنر خانه، پس‌زمینه‌ی صفحه و سربرگ منو بگذاری؛ هنگام انتخاب تم در پیش‌نمایش و بعداً در «سفارشی» قابل تغییر است.','Photo anywhere: per theme, use your own picture for the home banner, page background and menu header — choose it in the theme preview or later in Custom.'],

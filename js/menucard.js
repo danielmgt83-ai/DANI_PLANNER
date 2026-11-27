@@ -83,9 +83,11 @@ function html(){const m=peek(),hide=Array.isArray(m.hide)?m.hide:[],lb=m.lb||'',
  +(()=>{let ms=[];try{ms=Array.isArray(MODULES)?MODULES:[]}catch(e){}if(!ms.length)return'';
    return'<details style="margin-top:6px"><summary class="m">'+T('خاموش کردن کامل یک بخش (برای همه‌ی تم‌ها؛ داده‌هایش حذف نمی‌شود)','Turn a section fully off (all themes; its data is kept)')+'</summary><div class="row">'+ms.map(m=>'<label class="chip" style="margin:3px"><input type="checkbox" data-mc="mod:tog:'+E(m.id)+'" '+(modOn(m.id)?'checked':'')+'> '+E(m.name)+'</label>').join('')+'</div></details>'})()
  +'<p class="m">'+T('این تنظیمات فقط برای تم فعلی‌اند و با عوض‌کردن تم، تنظیم همان تم برمی‌گردد. آیتم تازه‌ی منو خودکار نمایان می‌شود. شکل منو (پایین/بالا/کناری) در پیش‌نمایش هر تم است.','These apply to the current theme only; switching themes brings back that theme\'s own setup. New menu items appear automatically. Menu shape (bottom/top/side) lives in each theme preview.')+'</p>'
+ +'<div class="row"><button class="chip" data-a="mn_icons">🎨 '+T('استودیوی آیکون','Icon Studio')+'</button></div>'
  +'<div class="row"><button class="chip" data-a="mn_reset">↺ '+T('برگرداندن به پیش‌فرض تم','Reset to theme default')+'</button></div>'}
 function node(){let c=document.getElementById('menucard');if(!c){c=document.createElement('div');c.id='menucard';c.className='c'}c.innerHTML=html();return c}
 const refresh=()=>{const c=document.getElementById('menucard');if(c)c.innerHTML=html()};
+H.mn_icons=()=>{const e=document.querySelector('#studiocard .icprev')||document.getElementById('studiocard');if(e)e.scrollIntoView({behavior:'smooth',block:'center'})};
 H.mn_set=e=>{const k=e.dataset.k,v=e.dataset.v,m=MN();
  if(k==='lb'){if(v)m.lb=v;else delete m.lb}
  else if(k==='w'){if(m.w)delete m.w;else m.w=1}

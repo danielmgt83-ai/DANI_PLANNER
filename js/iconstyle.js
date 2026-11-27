@@ -3,7 +3,7 @@
 (function(){'use strict';
 if(typeof iconStudio!=='function')return;
 const T=window.daniT,X=()=>db.set.icx||(db.set.icx={});
-const FAM=[['','مطابق تم','Match theme'],['std','خطی یکسان','Uniform line'],['solid','توپُر','Solid'],['emoji','ایموجی رنگی','Colour emoji']];
+const FAM=[['','آیکون خودِ تم','Theme\'s own'],['std','خطی یکسان','Uniform line'],['solid','توپُر','Solid'],['emoji','ایموجی رنگی','Colour emoji'],['soft','گرد و ضخیم','Soft bold'],['sketch','دست‌کشیده','Hand sketch'],['block','بلوک هندسی','Blocks']];
 const FRM=[['','بدون قاب','None'],['circle','دایره','Circle'],['squircle','گرد','Rounded'],['hex','شش‌ضلعی','Hexagon'],['tile','کاشی رنگی','Colour tile'],['gloss','براق','Glossy'],['neon','نئون','Neon'],['clay','خمیری سه‌بعدی','Clay 3D']];
 const COL=[['','مطابق تم','Match theme'],['ac','رنگ اصلی','Accent'],['rb','رنگارنگ','Colourful']];
 const css=document.createElement('style');css.id='icx-css';css.textContent=`
@@ -28,10 +28,11 @@ function apply(){const x=db.set.icx||{},h=document.documentElement;[['icf',x.fra
 const refresh=()=>{try{document.querySelectorAll('#nav a[data-p] .ic,#pg [data-a="tab"][data-k] .ic').forEach(e=>e.remove())}catch(e){}apply();render();try{decorateIcons()}catch(e){}};
 const _is=iconStudio;
 iconStudio=function(){let h=_is.apply(this,arguments);try{const x=X(),row=(t,key,L,cur)=>'<div class="m" style="margin-top:8px">'+t+'</div><div class="row">'+L.map(o=>'<button class="chip '+((cur||'')===o[0]?'on':'')+'" data-a="icx_set" data-f="'+key+'" data-v="'+o[0]+'">'+T(o[1],o[2])+'</button>').join('')+'</div>';
- const blk='<div style="margin-top:6px">'+row(T('طرح آیکون‌ها (برای همه‌ی تم‌ها)','Icon set (all themes)'),'fam',FAM,x.fam)+row(T('قاب پشت آیکون','Frame behind icon'),'frame',FRM,x.frame)+row(T('رنگ آیکون‌ها','Icon colour'),'col',COL,x.col)
+ const blk='<div style="margin-top:6px">'+row(T('طرح آیکون‌ها (برای همه‌ی تم‌ها)','Icon set (all themes)'),'fam',x.more?FAM:FAM.filter((o,i)=>i<4||o[0]===x.fam),x.fam).replace(/<\/div>$/,'<button class="chip" data-a="icx_more">'+(x.more?T('‹ کمتر','‹ Less'):T('بیشتر ›','More ›'))+'</button></div>')+row(T('قاب پشت آیکون','Frame behind icon'),'frame',FRM,x.frame)+row(T('رنگ آیکون‌ها','Icon colour'),'col',COL,x.col)
   +'<div class="row" style="margin-top:8px"><button class="chip '+(x.soft?'on':'')+'" data-a="icx_set" data-f="soft" data-v="'+(x.soft?'0':'1')+'">'+T('پرکردگی نرم','Soft fill')+'</button><button class="chip" data-a="icx_set" data-f="all" data-v="">↺ '+T('همه‌چیز مطابق تم','Reset to theme')+'</button></div>'
   +'<div class="row icprev" style="margin-top:8px">'+['day','plan2','pj','res','acd','set'].map(k=>'<span style="display:inline-flex;align-items:center">'+icon(k)+'</span>').join('')+'</div></div>';
  h=h.replace(/(<div class="row icprev">[\s\S]*?<\/div>)/,'$1'+blk)}catch(e){console.error('iconstyle',e)}return h};
+H.icx_more=()=>{const x=X();x.more=x.more?0:1;save();render()};
 H.icx_set=e=>{const f=e.dataset.f,v=e.dataset.v,x=X();if(f==='all')db.set.icx={};else if(f==='soft')x.soft=v==='1'?1:0;else x[f]=v;save();refresh()};
 apply();
 const _r=render;render=function(){_r.apply(this,arguments);try{apply()}catch(e){}};
