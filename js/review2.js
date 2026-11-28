@@ -21,7 +21,20 @@ srsDue=function(){
  const l=zAX().cards.filter(srsOk).filter(c=>inScope(c)&&opened(c)&&!SC.done.has(c.id));
  return l.sort((a,b)=>{const x=rank.has(a.id),y=rank.has(b.id);if(x!==y)return x?-1:1;return x?rank.get(a.id)-rank.get(b.id):a.due.localeCompare(b.due)})};
 const _rate=zMA.acd.rate;
-zMA.acd.rate=function(q){const c=(window.daniCards2&&window.daniCards2.cur?window.daniCards2.cur():srsDue()[0]);const r=_rate.apply(this,arguments);if(c&&SC.k!=='all'&&q!=='again')SC.done.add(c.id);return r};
+const cc=()=>{try{return window.daniCards2.cur()}catch(e){return srsDue()[0]}};
+zMA.acd.rate=function(q){const c=cc();const r=_rate.apply(this,arguments);if(c&&SC.k!=='all'&&q!=='again')SC.done.add(c.id);
+ /* v187: وقتی مرور یک مبحث تمام شد، تیک «مرور شد» برای آن مبحث می‌خورد و می‌ماند */
+ if(SC.k==='lesson'&&SC.id&&c&&!cc()){const A=zAX();A.rvd=A.rvd||{};A.rvd[SC.id]=todayISO();zcommit()}
+ return r};
+function nextLesson(){const C=CRs();if(!C||SC.k!=='lesson'||!SC.id)return null;const l=C.ix.lessons.get(SC.id);if(!l)return null;
+ const L=[...C.ix.lessons.values()].filter(x=>x.courseId===l.courseId).sort((a,b)=>(a.order||0)-(b.order||0));const i=L.findIndex(x=>x.id===l.id);return i>=0&&L[i+1]?L[i+1]:null}
+function finishCard(){if(SC.k==='all'||cc())return'';const A=zAX(),n=SC.done.size,wait=srsDue().length,nx=nextLesson(),ok=SC.k==='lesson'&&A.rvd&&A.rvd[SC.id];
+ return'<div class="c" id="rvfin"><h3>🎉 '+T('مرور این محدوده تمام شد','This scope is finished')+(ok?' ✓':'')+'</h3><p class="m">'+fa(n)+' '+T('کارت مرور شد','cards reviewed')+(wait?' · '+fa(wait)+' '+T('کارتِ «دوباره» بعداً برمی‌گردد','“Again” cards return later'):'')+'</p><div class="row" style="flex-wrap:wrap;gap:8px">'
+ +(nx?'<button class="p" data-a="rv_next" data-c="'+E(nx.courseId)+'" data-l="'+E(nx.id)+'">'+T('درس بعد ←','Next lesson →')+' <small dir="auto">'+E(nx.title||'')+'</small></button>':'<button class="p" data-a="rv_k" data-k="all">'+T('بازگشت به همه‌ی مرورها','Back to all reviews')+'</button>')
+ +'<button data-a="rv_again">🔁 '+T('مرور دوباره‌ی همین کلمات','Review these again')+'</button></div><p class="m">'+T('مرور دوباره‌ی همان روز فاصله‌ی زمانی کارت‌ها را زیاد نمی‌کند؛ فقط «دوباره» اثر دارد. تیک مرورِ مبحث می‌ماند.','Re-reviewing the same day does not push intervals; only “Again” counts. The topic tick stays.')+'</p></div>'}
+H.rv_again=()=>{SC.done=new Set();render()};
+H.rv_next=e=>{const c=e.dataset.c,l=e.dataset.l;if(!l)return;SC.done=new Set();try{zMS.acd.tab='courses'}catch(x){}try{H.crs_open({dataset:{c,l}})}catch(x){render()}};
+
 function setScope(k,id){SC.k=k||'all';SC.id=id||'';SC.done=new Set();try{zMS.acd.tab='review'}catch(e){}}
 function goReview(){try{H.acd3_go({dataset:{k:'review'}})}catch(e){try{zMS.acd.tab='review'}catch(x){}}render()}
 /* آماره‌ها */
@@ -37,7 +50,7 @@ function scopeCard(){const s=stats(),A=zAX();if(!A.cards.length)return'';
  const cname=cid=>{try{const k=s.C.ix.courses.get(cid);return k?k.title:cid}catch(e){return cid}};
  if(SC.k==='course'){h+='<select data-mc="acd:rvsel" style="width:100%;margin-top:8px"><option value="">'+T('— انتخاب دوره —','— choose a course —')+'</option>'+courses.map(cid=>'<option value="'+E(cid)+'"'+(SC.id===cid?' selected':'')+'>'+E(cname(cid))+' ('+fa(s.all.filter(c=>c.cid===cid&&opened(c)).length)+')</option>').join('')+'</select>'}
  if(SC.k==='lesson'){const opts=[];s.by.forEach((o,lid)=>opts.push([lid,o]));
-  h+='<select data-mc="acd:rvsel" style="width:100%;margin-top:8px"><option value="">'+T('— انتخاب مبحث —','— choose a topic —')+'</option>'+opts.map(([lid,o])=>{const lk=o.op===0&&!unl()[lid];return'<option value="'+E(lid)+'"'+(SC.id===lid?' selected':'')+'>'+(lk?'🔒 ':'')+E(o.deck||lid)+' ('+fa(o.n)+')</option>'}).join('')+'</select>';
+  h+='<select data-mc="acd:rvsel" style="width:100%;margin-top:8px"><option value="">'+T('— انتخاب مبحث —','— choose a topic —')+'</option>'+opts.map(([lid,o])=>{const lk=o.op===0&&!unl()[lid];return'<option value="'+E(lid)+'"'+(SC.id===lid?' selected':'')+'>'+(lk?'🔒 ':(zAX().rvd&&zAX().rvd[lid]?'✓ ':''))+E(o.deck||lid)+' ('+fa(o.n)+')</option>'}).join('')+'</select>';
   if(SC.id){const o=s.by.get(SC.id);if(o&&o.op===0&&!unl()[SC.id])h+='<p class="m">'+T('این مبحث هنوز باز یا مطالعه نشده؛ کارت‌هایش در مرور نمی‌آیند.','This topic has not been opened yet, so its cards stay out of review.')+'</p><button class="p" data-a="rv_unl" data-l="'+E(SC.id)+'">'+T('شروع مرور این مبحث','Start reviewing this topic')+'</button>'}}
  /* بسته‌های پیشنهادی سازنده */
  const gl=[];courses.forEach(cid=>rgs(cid).forEach(g=>{const n=s.all.filter(c=>inGroup(c,cid,g.id)),o=n.filter(opened).length;if(n.length)gl.push({cid,g,n:n.length,o})}));
@@ -49,7 +62,7 @@ function scopeCard(){const s=stats(),A=zAX();if(!A.cards.length)return'';
 function qrevCard(){try{const n=window.daniCourses.api.qDueCount();if(!n)return'';return'<div class="c"><div class="row"><b class="sp" dir="auto">🧩 '+T('مرور سؤال‌های امروز','Question review today')+' <span class="m">('+fa(n)+')</span></b><button class="p" data-a="rv_qrev">'+T('شروع','Start')+'</button></div><div class="m">'+T('سؤال‌هایی که غلط زدی، در زمان درست برمی‌گردند.','Questions you missed come back at the right time.')+'</div></div>'}catch(e){return''}}
 H.rv_qrev=()=>{const C=window.daniCourses.state;C.ev='self';C.edue=true;C.es='';H.acd3_go({dataset:{k:'errors'}})};
 let _rv=acdReview;
-acdReview=function(){return qrevCard()+scopeCard()+_rv.apply(this,arguments)};
+acdReview=function(){const f=finishCard();return qrevCard()+scopeCard()+(f||_rv.apply(this,arguments))};
 H.rv_k=e=>{const k=e.dataset.k;if(k==='all')setScope('all');else{SC.k=k;SC.id='';SC.done=new Set()}render()};
 H.rv_unl=e=>{const l=e.dataset.l;if(!l)return;unl()[l]=1;zcommit();toast(T('مرور این مبحث فعال شد','Topic review enabled'))};
 H.rv_g=e=>{setScope('group',e.dataset.c+'|'+e.dataset.g);render()};

@@ -41,12 +41,15 @@ const learnOf=c=>(c.ls>=0)||(!c.ivl&&!c.reps&&!isNew(c));
 srsNext=function(c,q){const t=todayISO(),now=Date.now(),R=(+zAX().rn||0)+1;
  let ease=+c.ease||2.5,ivl=+c.ivl||0,reps=+c.reps||0,lap=+c.lap||0,ag=c.ag||'',ls=-1,pv=+c.pv||0,dt=0,rn=0;
  const nw=isNew(c),ln=learnOf(c),s0=(c.ls>=0)?+c.ls:0;
+ const quick=zAX().lq!==false;
+ /* v187: مرور دوباره‌ی همان روز، فاصله را بالا نمی‌برد (فقط «دوباره» اثر دارد) */
+ if(!nw&&!ln&&c.last===t&&reps>0&&q!=='again')return{ease:c.ease,ivl:c.ivl,reps:c.reps,lap:c.lap,due:c.due,dt:0,ag:c.ag||'',last:t,ls:-1,rn:0,pv:+c.pv||0};
  const wait=x=>{ls=x;rn=R+STEP[x];dt=now+STEPM[x]*MIN;ag=t};
  const good=()=>reps===0?1:reps===1?3:Math.max(ivl+1,Math.round(ivl*ease));
  if(nw||ln){const rl=pv>0;
   if(q==='again')wait(0);
   else if(q==='hard')wait(nw?0:s0);
-  else if(q==='good'){if(nw||s0<1)wait(1);else{ivl=rl?Math.max(1,pv):1;reps=Math.max(reps,rl?2:1);pv=0}}
+  else if(q==='good'){if(!quick&&(nw||s0<1))wait(1);else{ivl=rl?Math.max(1,pv):1;reps=Math.max(reps,rl?2:1);pv=0}}
   else{ivl=rl?Math.max(2,Math.round(pv*1.3)):3;reps=Math.max(reps,rl?2:1);pv=0}}
  else if(q==='again'){lap++;ease=Math.max(1.3,ease-.2);pv=Math.max(1,Math.round(ivl*.4));ivl=pv;wait(0)}
  else if(q==='hard'){ivl=Math.max(ivl+1,Math.round(ivl*1.2));ease=Math.max(1.3,ease-.15);reps++}
@@ -95,7 +98,7 @@ acdReview=function(){const A=zAX(),t=todayISO(),d=srsDue(),dn=A.rl[t]||0;
  if(!A.cards.length)return'<div class="c"><h3>'+BH('Review Queue','صف مرور')+'</h3><p>هنوز فلش‌کارتی نداری. هر چیزی که باید «به یاد بماند» را به‌صورت پرسش و پاسخ بنویس تا برنامه در زمان درست یادآوری کند.</p>'+mBtn('acd:tab:cards','ساخت اولین فلش‌کارت','p')+'</div>';
  if(!d.length){const nx=A.cards.filter(srsOk).map(c=>c.due).sort()[0],hid=_due().length-d.length;return'<div class="c"><h3>'+BH('Review Queue','صف مرور')+'</h3><p class="hst ok">امروز چیزی برای مرور نمانده ✓ '+(dn?fa(dn)+' کارت مرور کردی.':'')+'</p>'+(hid>0?'<p class="m">'+fa(hid)+' '+T('کارت جدید به‌خاطر سقف روزانه برای فردا مانده','new cards wait for tomorrow (daily cap)')+'</p>':'')+(nx?'<p class="m">مرور بعدی: '+fmtD(nx)+'</p>':'')+(st.undo.length?'<button class="chip sm" data-a="c2_undo">↩ '+T('برگشت','Undo')+'</button>':'')+ctl()+'</div>'}
  if(!d.some(x=>!isWait(x))){const mt=Math.max(1,Math.ceil(Math.min(...d.map(x=>(+x.dt||0)-Date.now()))/MIN));
-  return'<div class="c"><h3>'+BH('Review Queue','صف مرور')+'</h3>'+bar(d)+'<p class="hst ok">'+T('کارت‌های در حال یادگیری هنوز آماده نیستند؛ حدود','The learning cards are not ready yet; about')+' '+fa(mt)+' '+T('دقیقه‌ی دیگر','min')+'</p><div class="row"><button class="p" data-a="c2_go">'+T('همین الان ادامه بده','Continue now')+'</button></div>'+(st.undo.length?'<button class="chip sm" data-a="c2_undo">↩ '+T('برگشت','Undo')+'</button>':'')+ctl()+'</div>'}
+  return'<div class="c"><h3>'+BH('Review Queue','صف مرور')+'</h3>'+bar(d)+'<p class="hst ok">✅ '+T('مرور امروز تمام شد؛ '+fa(d.length)+' کارتِ «دوباره» مانده که بعداً برمی‌گردد (حدود '+fa(mt)+' دقیقه‌ی دیگر).',fa(d.length)+' “Again” card(s) will return later (about '+fa(mt)+' min). Review is done for now.')+'</p><div class="row"><button data-a="c2_go">'+T('همین الان تمامشان کن','Finish them now')+'</button></div>'+(st.undo.length?'<button class="chip sm" data-a="c2_undo">↩ '+T('برگشت','Undo')+'</button>':'')+ctl()+'</div>'}
  const c=cur(),sp=spellText(c),spOn=st.spell&&sp,wd=isWord(c);
  let h='<div class="c acrv"><h3>'+BH('Review Queue','صف مرور')+'</h3>'+bar(d)+'<div class="m">'+T('امروز','Today')+' '+fa(dn)+' '+T('مرور شد','reviewed')+' · 🏆 '+fa(A.cards.filter(mastered).length)+' '+T('مسلط','mastered')+(c.deck?' · <span class="badge">'+E(c.deck)+'</span>':'')+'</div>'+menu(c)+(c.lap>=4?'<div class="m" style="color:#f59e0b">⚠️ '+T('این کارت سخت‌گیر است (چند بار فراموش شد): یک مثال یا یادیار برایش بنویس','This card is a leech (forgotten several times): add an example or a memory aid')+' <button class="chip sm" data-a="c2_edit">✎</button></div>':'');
  h+='<div class="c2card">';
@@ -110,7 +113,7 @@ acdReview=function(){const A=zAX(),t=todayISO(),d=srsDue(),dn=A.rl[t]||0;
  const sug=spOn&&st.res?(st.res==='ok'?'good':'again'):'';
  h+='<div class="acbtns">'+[['again','دوباره','#ef4444'],['hard','سخت','#f59e0b'],['good','خوب','#34d399'],['easy','آسان','#60a5fa']].map(x=>'<button class="acb" style="--c:'+x[2]+(sug===x[0]?';outline:3px solid '+x[2]:'')+'" data-m="acd:rate:'+x[0]+'">'+T(x[1],{again:'Again',hard:'Hard',good:'Good',easy:'Easy'}[x[0]])+'<small>'+lbl(c,x[0])+'</small></button>').join('')+'</div><p class="m">اصلاً یادت نبود «دوباره»؛ نیمه‌بلد بودی «سخت» بزن. کارت چند کارت بعد برمی‌گردد، نه پشت سر هم؛ اشتباه کردن یعنی کارت دارد کارش را می‌کند.</p></div>';
  return h};
-function ctl(){const A=zAX();return'<div class="row" style="flex-wrap:wrap;margin:6px 0"><button class="chip sm '+(st.spell?'on':'')+'" data-a="c2_spell">✍ '+T('حالت املا','Spelling mode')+'</button><button class="chip sm '+(A.snd?'on':'')+'" data-a="c2_snd">🔊 '+T('خواندن خودکار پاسخ','Auto-speak answer')+'</button><button class="chip sm" data-a="c2_nl">🆕 '+T('کارت جدید امروز','New today')+': '+fa(nlc().n)+'/'+(nl()||'∞')+' ✎</button></div>'}
+function ctl(){const A=zAX();return'<div class="row" style="flex-wrap:wrap;margin:6px 0"><button class="chip sm '+(st.spell?'on':'')+'" data-a="c2_spell">✍ '+T('حالت املا','Spelling mode')+'</button><button class="chip sm '+(A.snd?'on':'')+'" data-a="c2_snd">🔊 '+T('خواندن خودکار پاسخ','Auto-speak answer')+'</button><button class="chip sm '+(A.lq!==false?'on':'')+'" data-a="c2_lq">⚡ '+T('تکرار کمتر (کارت «خوب» دیگر برنمی‌گردد)','Fewer repeats (a “Good” card does not come back)')+'</button><button class="chip sm" data-a="c2_nl">🆕 '+T('کارت جدید امروز','New today')+': '+fa(nlc().n)+'/'+(nl()||'∞')+' ✎</button></div>'}
 H.c2_onl=()=>{const A=zAX();A.onl=!A.onl;zcommit();render();toast(A.onl?T('صدای آنلاین روشن شد؛ فقط وقتی صدای گوشی کار نکند، خود لغت به سرور گوگل می‌رود','Online voice on: only when the phone voice fails, the word is sent to Google'):T('صدای آنلاین خاموش شد','Online voice off'))};
 H.c2_snd=()=>{const N=DNp();if(N&&N.ttsSettings){N.ttsSettings().catch(()=>N.ttsInstall&&N.ttsInstall().catch(()=>{}));return}
  toast(T('تنظیمات گوشی ← متن به گفتار ← موتور Google یا Samsung را انتخاب و بسته‌ی صوتی انگلیسی را دانلود کن. اگر باز هم کار نکرد «صدای آنلاین» را روشن کن','Phone settings → Text-to-speech → pick Google/Samsung engine and download English voice data. If it still fails, turn on Online voice'),1)};
@@ -118,6 +121,7 @@ H.c2_go=()=>{const w=srsDue()[0];if(w){st.force=w.id;reset();AR.show=false;rende
 H.c2_say=e=>speak(e.dataset.t,!!e.dataset.s);
 H.c2_spell=()=>{st.spell=!st.spell;st.res=null;AR.show=false;render()};
 H.c2_snd=()=>{const A=zAX();A.snd=!A.snd;zcommit()};
+H.c2_lq=()=>{const A=zAX();A.lq=A.lq===false;zcommit();render()};
 H.c2_ft=()=>{const A=zAX();A.ft=!A.ft;st.fa=false;zcommit()};
 H.c2_fa=()=>{st.fa=true;render()};
 H.c2_menu=()=>{st.menu=!st.menu;render()};

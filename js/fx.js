@@ -6,7 +6,7 @@
 (function(){
 const T=window.daniT;
 const FX=()=>{const s=db.set;if(!s.fx||typeof s.fx!=='object')s.fx={};if(s.fx.hap===undefined)s.fx.hap=1;if(s.fx.anim===undefined)s.fx.anim=1;return s.fx};
-const VER='2026.11.151';
+const VER='2026.11.152';
 /* ---------- لرزش و پاپ ---------- */
 const HAP=/^(qk_go|nx_go|nx_sw|pf_add|tp_ap|bin_rs|ex_save|ab_now|ql_|pm_|tm_|tstart|tfinish|hab|ob_log|ob_go|dnd_set|ls_now|dk_)/;
 const reduce=()=>{try{return matchMedia('(prefers-reduced-motion: reduce)').matches}catch(e){return false}};
@@ -19,6 +19,7 @@ st.textContent='@keyframes fxpop{0%{transform:scale(1)}40%{transform:scale(.92)}
 document.head.appendChild(st);
 /* ---------- چه چیزی تازه است ---------- */
 const WN=[
+ ['🏁','پایان مرور فلش‌کارت درست شد: وقتی مرور یک مبحث تمام شود صفحه‌ی «تمام شد» می‌آید با «درس بعد» و «مرور دوباره»، مبحث تیک می‌خورد و می‌ماند؛ کارتِ «خوب» دیگر برنمی‌گردد (قابل خاموش‌کردن با «تکرار کمتر») و مرور دوباره‌ی همان روز فاصله‌ها را زیاد نمی‌کند.','Flashcard review now ends properly: a “finished” screen with Next lesson and Review again, the topic gets a tick that stays; a “Good” card no longer comes back (toggle “Fewer repeats”), and same-day re-review does not inflate intervals.'],
  ['🔀','درس‌ها حالا فلوچارت و نمودار علت‌ومعلول دارند (شروع/شرط/پایان، فلش‌ها و چرخه)؛ خودکار چیده می‌شود و در هر تم خوانا است.','Lessons now support flowcharts and cause-effect diagrams (start/decision/end, arrows, cycles), auto-laid-out and readable in every theme.'],
  ['📅','صفحه‌ی دوره‌ی جلسه‌محور (مثل انگلیسی) با جلسه‌ها باز می‌شود و فهرست مبحث‌ها پشت چیپ «بر اساس مبحث» است؛ محتوا دوباره ساخته نمی‌شود.','Session-first courses open on their sessions; the topic list sits behind a small “By topic” chip. Content is never duplicated.'],
  ['📊','درس‌ها حالا نمودار (میله‌ای، خطی، دایره‌ای، پراکندگی) و رسم تابع دارند؛ فقط با داده ساخته می‌شوند و در هر تم درست دیده می‌شوند.','Lessons now support charts (bar, line, pie, scatter) and function plots, drawn from data in every theme.'],
