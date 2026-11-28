@@ -694,3 +694,4 @@ html[data-mx=1] فقط وقتی db.set.mx!==0 و تم ساده است (بدون 
 (v152) merge: api.merge(newId,title,srcIds)/undoMerge؛ undo فقط آخرین ادغام.
 (v185) courses.js: course.layout + چیپ جلسه‌ها/مبحث (CR.cv، crs_cv)؛ محتوا یک‌بار؛ پک ۱٫۱۱.
 (v186) courses.js: بلوک diagram (dgCheck/diagramHTML، foreignObject برای متن)؛ پک ۱٫۱۲.
+(v187) cards2.js: A.lq تکرار کمتر + قانون هم‌روز؛ review2.js: finishCard/A.rvd/rv_next/rv_again.
