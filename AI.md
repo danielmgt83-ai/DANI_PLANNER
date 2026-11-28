@@ -693,3 +693,4 @@ html[data-mx=1] فقط وقتی db.set.mx!==0 و تم ساده است (بدون 
 (v153) rename: api.renameItem(kind c|ch|l,cid,id,title) → db.mods.acd.ren؛ reapplyRen بعد از commitPack؛ api.addQuestion؛ builder در lessonExtra؛ migOld (کارت‌های افزونه‌ی acadlessons → مبحث‌های دوره).
 (v152) merge: api.merge(newId,title,srcIds)/undoMerge؛ undo فقط آخرین ادغام.
 (v185) courses.js: course.layout + چیپ جلسه‌ها/مبحث (CR.cv، crs_cv)؛ محتوا یک‌بار؛ پک ۱٫۱۱.
+(v186) courses.js: بلوک diagram (dgCheck/diagramHTML، foreignObject برای متن)؛ پک ۱٫۱۲.
