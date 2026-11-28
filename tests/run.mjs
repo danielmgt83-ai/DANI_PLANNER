@@ -372,7 +372,7 @@ await test('آکادمی v154: آزمون‌ساز چنددرسی (ترتیب ا
  if(!r.ui||r.n!==9||r.first!=='xb-q21'||r.last!=='xa-q23'||r.cs!==2||r.lr!=='6/3')throw new Error(JSON.stringify(r))});
 
 await test('فلش‌کارت v155: املا، جای‌خالی، مثال، سقف کارت جدید',async pg=>{const r=await pg.evaluate(()=>{const o={},A=zAX(),t=todayISO();
- A.cards.length=0;A.nlc=null;A.nl=2;
+ A.cards.length=0;A.nlc=null;A.nl=2;A.lq=false;
  const mk=(id,q,a,x)=>A.cards.push({id,q,a,x,deck:'d',ease:2.5,ivl:0,reps:0,lap:0,due:t,created:t,ag:''});
  mk('k1','سیب','apple','/ˈæp.əl/');mk('k2','He {{went}} home.','');mk('k3','دو','two');mk('k4','سه','three');
  o.cap=srsDue().length;
@@ -387,7 +387,7 @@ await test('فلش‌کارت v155: املا، جای‌خالی، مثال، س
  if(r.cap!==2||!r.ctl||!r.inp||!r.ok||r.n!==1||!r.cl||!r.back||r.cap2!==2||r.n2!==2)throw new Error(JSON.stringify(r))});
 
 await test('مرور انکی‌وار v162: شمارنده، فاصله‌ها، undo، کارت لغت، پک',async pg=>{const r=await pg.evaluate(()=>{const o={},A=zAX(),t=todayISO();
- A.cards.length=0;A.nlc=null;A.nl=20;A.ft=false;
+ A.cards.length=0;A.nlc=null;A.nl=20;A.ft=false;A.lq=false;
  const mk=(id,q,a,more)=>A.cards.push(Object.assign({id,q,a,deck:'d',ease:2.5,ivl:0,reps:0,lap:0,due:t,created:t,ag:''},more||{}));
  mk('w1','abandon','رها کردن',{ipa:'/əˈbændən/',pos:'v.',def:'to leave completely',fa:'رها کردن، ترک کردن',ex:[{en:'He abandoned the plan.',fa:'او طرح را رها کرد.'},{en:'They abandoned the ship.',fa:''}]});
  mk('g1','تعریف؟','پاسخ');
@@ -677,7 +677,7 @@ await test('v167: مرور موضوعی — قفل تا مطالعه، محدو�
  page='acd';const C=daniCourses.state,A=zAX(),t=todayISO();
  C.ix.courses.set('c1',{id:'c1',title:'Course1'});['L1','L2'].forEach(id=>C.ix.lessons.set(id,{id,courseId:'c1',title:id}));C.ix.progress.set('L2',{id:'L2',courseId:'c1',done:true,checks:{},timeMs:5000,lastAt:1});
  const mk=(id,lid)=>({id,fid:'c1:'+id,deck:'Course1 › '+(lid||'x'),cid:lid?'c1':'',lid:lid||'',q:'q'+id,a:'a'+id,ease:2.5,ivl:0,reps:0,lap:0,due:t,created:t,ag:''});
- A.cards=[mk('k1','L1'),mk('k2','L2'),mk('k3','')];A.unl={};A.rg={};A.nl=0;
+ A.cards=[mk('k1','L1'),mk('k2','L2'),mk('k3','')];A.unl={};A.rg={};A.nl=0;A.lq=false;
  const ids=()=>srsDue().map(c=>c.id).sort().join(',');
  o.gate=ids()==='k2,k3';
  H.rv_unl({dataset:{l:'L1'}});o.unl=ids()==='k1,k2,k3';A.unl={};
@@ -994,5 +994,13 @@ await test('v185: چینش دوره',async pg=>{const r=await pg.evaluate(async(
 await test('v186: بلوک diagram',async pg=>{const r=await pg.evaluate(()=>{const dc=daniCourses;const d={type:'diagram',nodes:[{id:'a',text:'شروع',shape:'round'},{id:'b',text:'شرط؟',shape:'diamond'},{id:'c',text:'پایان'}],edges:[{from:'a',to:'b'},{from:'b',to:'c',label:'بله'},{from:'c',to:'a'}]};
  const h=dc.blocks([d]),bad=dc.blocks([{type:'diagram',nodes:[{id:'a',text:'x'}],edges:[{from:'a',to:'z'}]}]);return{n:(h.match(/<foreignObject/g)||[]).length,path:(h.match(/class="dge"/g)||[]).length,bad:/crs-bad/.test(bad)}});
  return r.n===4&&r.path===3&&r.bad?null:'bad '+JSON.stringify(r)});
+await test('v187: پایان مرور فلش‌کارت',async pg=>{const r=await pg.evaluate(async()=>{const A=zAX(),t=todayISO();A.cards=[{id:'k1',q:'a',a:'b',cid:'c1',lid:'L1',deck:'D › m1',due:t,ease:2.5,ivl:0,reps:0,lap:0,ls:-1,rn:0,dt:0,ag:'',last:'',pv:0}];A.unl={L1:1};A.rl={};
+ const n=srsNext(A.cards[0],'good');const same=srsNext(Object.assign({},A.cards[0],{ivl:5,reps:3,last:t,due:t,ls:-1}),'good');
+ return{ivl:n.ivl,ls:n.ls,sameIvl:same.ivl}});
+ if(!(r.ivl===1&&r.ls===-1&&r.sameIvl===5))return 'bad '+JSON.stringify(r);
+ const u=await pg.evaluate(async()=>{const w=ms=>new Promise(r=>setTimeout(r,ms));page='acd';zMS.acd.tab='review';H.rv_k({dataset:{k:'lesson'}});zMA.acd.rvsel(null,{value:'L1'});render();await w(300);
+  const a=!!document.querySelector('#rvfin');zMA.acd.show();zMA.acd.rate('good');await w(300);const b=!!document.querySelector('#rvfin');const tick=!!(zAX().rvd&&zAX().rvd.L1);
+  H.rv_again();await w(300);const c=!!document.querySelector('#rvfin');return{a,b,tick,c}});
+ return !u.a&&u.b&&u.tick&&!u.c?null:'bad2 '+JSON.stringify(u)});
 console.log('\n'+results.map(r=>r.join(' ')).join('\n')+'\n\n'+(results.length-fails)+' / '+results.length+' موفق');
 await browser.close();srv.close();process.exit(fails?1:0);
