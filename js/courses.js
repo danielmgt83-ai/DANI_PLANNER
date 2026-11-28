@@ -283,7 +283,7 @@ async function crAssets(courseId){
 const assetUrl=p=>CR.urls.get(String(p))||(CR.pv&&CR.pv.get(String(p)))||'';
 
 /* ---------- renderer: بلوک‌های نوع‌دار؛ هیچ HTML خامی اجرا نمی‌شود ---------- */
-const BLK_TYPES=new Set(['p','h','formula','list','table','note','tip','warning','pitfall','def','rule','theorem','quote','example','image','figure','summary','code','chart','plot']);
+const BLK_TYPES=new Set(['p','h','formula','list','table','note','tip','warning','pitfall','def','rule','theorem','quote','example','image','figure','summary','code','chart','plot','diagram']);
 /* ---------- v184: بلوک‌های «نمودار» (chart) و «رسم تابع» (plot)؛ فقط داده می‌گیرند، خود برنامه با رنگ تم و ارقام فارسی می‌کشد ---------- */
 const VPAL=['#2563eb','#f59e0b','#10b981','#ef4444','#8b5cf6','#06b6d4'];
 const vNum=v=>typeof v==='number'&&isFinite(v);
@@ -332,6 +332,33 @@ function vTable(b,lab,S){const n=Math.max(lab.length,...S.map(s=>(s.values||[]).
 function plotCheck(b){const F=(Array.isArray(b.fn)?b.fn:[b.fn]).filter(x=>x!=null).map(x=>typeof x==='string'?{expr:x}:x).slice(0,4);
   if(!F.length||F.some(f=>!f||typeof f.expr!=='string'||!f.expr.trim()||f.expr.length>120))return{err:'رسم تابع: fn باید عبارتی با x باشد (مثل "x^2-3*x")'};
   const x0=vNum(b.xmin)?b.xmin:-10,x1=vNum(b.xmax)?b.xmax:10;if(!(x1>x0))return{err:'رسم تابع: xmax باید از xmin بزرگ‌تر باشد'};return{F,x0,x1}}
+/* v185: بلوک diagram — فلوچارت/علت‌ومعلول؛ چیدمان خودکار لایه‌ای، فقط با nodes و edges */
+function dgCheck(b){const N=Array.isArray(b.nodes)?b.nodes:[],Ed=Array.isArray(b.edges)?b.edges:[];if(!N.length)return{err:'diagram بدون nodes'};if(N.length>14)return{err:'diagram بیش از ۱۴ گره'};
+  const ids=new Set();for(const n of N){if(!n||typeof n.id!=='string'||!n.id||typeof n.text!=='string')return{err:'هر گره‌ی diagram باید id و text داشته باشد'};if(ids.has(n.id))return{err:'id تکراری در diagram: '+n.id};ids.add(n.id)}
+  for(const e of Ed){if(!e||!ids.has(e.from)||!ids.has(e.to))return{err:'یال diagram به گره‌ی ناموجود اشاره می‌کند'}}return{N,Ed}}
+function diagramHTML(b){const c=dgCheck(b);if(c.err)return vErr(c.err);const{N,Ed}=c,LR=b.dir==='LR',w=128,h=54,gx=LR?56:18,gy=LR?18:44;
+  const out={};N.forEach(n=>out[n.id]=[]);Ed.forEach(e=>{if(e.from!==e.to)out[e.from].push(e.to)});
+  const rank={},st={};const dfs=id=>{st[id]=1;let r=0;out[id].forEach(t=>{if(st[t]===1)return;if(st[t]!==2)dfs(t);r=Math.max(r,rank[t]+1)});rank[id]=r;st[id]=2};
+  /* رتبه از ریشه: طول بلندترین مسیر تا گره، با رد کردن یال برگشتی */
+  const inn={};N.forEach(n=>inn[n.id]=0);Ed.forEach(e=>{if(e.from!==e.to)inn[e.to]++});N.forEach(n=>{if(!st[n.id])dfs(n.id)});
+  const mx=Math.max.apply(null,N.map(n=>rank[n.id]));const lv={};N.forEach(n=>{const r=mx-rank[n.id];(lv[r]=lv[r]||[]).push(n)});
+  const R=Object.keys(lv).map(Number).sort((a,b)=>a-b),big=Math.max.apply(null,R.map(r=>lv[r].length));
+  const span=big*(LR?h:w)+(big-1)*(LR?gy:gx),pos={};
+  R.forEach((r,ri)=>{const row=lv[r],tot=row.length*(LR?h:w)+(row.length-1)*(LR?gy:gx),off=(span-tot)/2;row.forEach((n,i)=>{const a=off+i*((LR?h:w)+(LR?gy:gx)),d=ri*((LR?w:h)+(LR?gx:gy));pos[n.id]=LR?{x:d,y:a}:{x:a,y:d}})});
+  const W=LR?R.length*w+(R.length-1)*gx:span,H=LR?span:R.length*h+(R.length-1)*gy,uid='dg'+Math.random().toString(36).slice(2,7);
+  const hasBack=Ed.some(e=>e.from!==e.to&&(LR?pos[e.to].x<=pos[e.from].x:pos[e.to].y<=pos[e.from].y)),VW=W+12+(hasBack&&!LR?44:0),VH=H+12+(hasBack&&LR?40:0);
+  let s='<svg class="crs-svg" style="max-width:'+Math.round(VW*1.25)+'px" viewBox="-6 -6 '+VW+' '+VH+'" role="img"'+(b.title?' aria-label="'+E_(b.title)+'"':'')+'><defs><marker id="'+uid+'" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="currentColor"/></marker></defs>';
+  Ed.forEach(e=>{if(e.from===e.to)return;const A=pos[e.from],B=pos[e.to];let x1,y1,x2,y2,d,back=0;
+    if(LR){if(B.x<=A.x){x1=A.x+w/2;y1=A.y+h;x2=B.x+w/2;y2=B.y+h;d='M'+x1+' '+y1+'C'+x1+' '+(y1+34)+' '+x2+' '+(y2+34)+' '+x2+' '+y2;back=1}else{x1=A.x+w;y1=A.y+h/2;x2=B.x;y2=B.y+h/2;const m=(x1+x2)/2;d='M'+x1+' '+y1+'C'+m+' '+y1+' '+m+' '+y2+' '+x2+' '+y2}}
+    else{if(B.y<=A.y){x1=A.x+w;y1=A.y+h/2;x2=B.x+w;y2=B.y+h/2;d='M'+x1+' '+y1+'C'+(x1+40)+' '+y1+' '+(x2+40)+' '+y2+' '+x2+' '+y2;back=1}else{x1=A.x+w/2;y1=A.y+h;x2=B.x+w/2;y2=B.y;const m=(y1+y2)/2;d='M'+x1+' '+y1+'C'+x1+' '+m+' '+x2+' '+m+' '+x2+' '+y2}}
+    s+='<path d="'+d+'" class="dge" marker-end="url(#'+uid+')"/>';
+    if(e.label)s+='<foreignObject x="'+((x1+x2)/2-34+(back&&!LR?34:0))+'" y="'+((y1+y2)/2-9+(back&&LR?26:0))+'" width="68" height="18"><div xmlns="http://www.w3.org/1999/xhtml" class="dgl" dir="auto">'+E_(e.label)+'</div></foreignObject>'});
+  N.forEach(n=>{const P=pos[n.id],col=VPAL[(Math.max(0,Math.min(5,n.c|0)))],sh=n.shape;
+    if(sh==='diamond')s+='<polygon points="'+(P.x+w/2)+','+P.y+' '+(P.x+w)+','+(P.y+h/2)+' '+(P.x+w/2)+','+(P.y+h)+' '+P.x+','+(P.y+h/2)+'" class="dgn" style="stroke:'+col+'"/>';
+    else s+='<rect x="'+P.x+'" y="'+P.y+'" width="'+w+'" height="'+h+'" rx="'+(sh==='round'?h/2:8)+'" class="dgn" style="stroke:'+col+'"/>';
+    const pad=sh==='diamond'?26:sh==='round'?14:6;
+    s+='<foreignObject x="'+(P.x+pad)+'" y="'+P.y+'" width="'+(w-2*pad)+'" height="'+h+'"><div xmlns="http://www.w3.org/1999/xhtml" class="dgt" dir="auto">'+E_(n.text)+'</div></foreignObject>'});
+  s+='</svg>';return vWrap(b,s)}
 function plotHTML(b){const c=plotCheck(b);if(c.err)return vErr(c.err);const{F,x0,x1}=c,N=260,W=360,H=240,L=46,R=12,T=b.title?26:14,Bm=b.xlabel?40:30;
   const lines=F.map(f=>{const a=[];for(let i=0;i<=N;i++){const x=x0+(x1-x0)*i/N;let y=NaN;try{y=exprEval(f.expr,{x})}catch(e){}a.push([x,isFinite(y)&&Math.abs(y)<1e9?y:NaN])}return a});
   let ys=lines.flat().map(p=>p[1]).filter(isFinite);(Array.isArray(b.points)?b.points:[]).forEach(p=>{if(p&&vNum(p.y))ys.push(p.y)});
@@ -393,7 +420,7 @@ function blk(b,d){
       const alt=(Array.isArray(b.alt)?b.alt:[]).map(a=>'<details class="crs-alt"><summary>روش جایگزین'+(a.title?': '+E_(a.title):'')+'</summary><ol class="crs-steps">'+(Array.isArray(a.steps)?a.steps:[]).map((s,i)=>'<li class="crs-step"><span class="crs-sn">'+faN(i+1)+'</span><div>'+(typeof s==='string'?'<p dir="auto">'+inl(s)+'</p>':textOrBlocks(s,d)+(s.formula||s.tex||s.lines?blk({type:'formula',tex:s.formula||s.tex,lines:s.lines},d):''))+'</div></li>').join('')+'</ol></details>').join('');
       return'<div class="crs-ex"><div class="crs-ct">🧮 '+E_(b.title||'مثال حل‌شده')+'</div><div class="crs-prob">'+(b.problem!=null?(typeof b.problem==='string'?'<p dir="auto">'+inl(b.problem)+'</p>':blocks(b.problem,d+1)):'')+'</div><ol class="crs-steps">'+steps+'</ol>'+(b.answer!=null?'<div class="crs-ans"><b>پاسخ:</b> '+(typeof b.answer==='string'?inl(b.answer):blocks(b.answer,d+1))+'</div>':'')+alt+'</div>'}
     case'image':case'figure':return figHTML(b);
-    case'chart':return chartHTML(b);
+    case'chart':return chartHTML(b);case'diagram':return diagramHTML(b);
     case'plot':return plotHTML(b);
     case'code':return'<pre class="crs-code" dir="ltr">'+E_(b.text)+'</pre>';
     default:return'<div class="crs-bad">بلوک ناشناخته (نوع: '+E_(t)+') — نمایش داده نشد</div>';
@@ -509,6 +536,7 @@ function validatePack(P,existing){
     if(b.type==='image'||b.type==='figure'){if(!b.asset)E(where+': بلوک تصویر بدون asset');else{refAssets.add(b.asset);if(!assets.has(b.asset))E(where+': فایل تصویر در بسته نیست: '+b.asset);if(!b.alt)W(where+': تصویر بدون متن جایگزین (alt): '+b.asset)}
       if(b.source&&b.source.sourceId&&!P.sourceIds.has(b.source.sourceId))E(where+': ارجاع منبع نامعتبر: '+b.source.sourceId)}
     if(b.type==='chart'){if(!Array.isArray(b.series))E(where+': بلوک chart بدون series');else if(b.series.length>6)W(where+': chart بیش از ۶ سری؛ بقیه نمایش داده نمی‌شود');else if(/(bar|line)/.test(b.kind||'bar')&&!Array.isArray(b.labels))W(where+': chart بدون labels')}
+    if(b.type==='diagram'){const dc=dgCheck(b);if(dc.err)E(where+': '+dc.err);else if(b.nodes.some(n=>n.text.length>40))W(where+': متن گره‌ی diagram بلند است؛ کوتاه کن (≤۴۰ نویسه)')}
     if(b.type==='plot'){const pc=plotCheck(b);if(pc.err)E(where+': '+pc.err);else pc.F.forEach(f=>{let ok=0;for(let i=0;i<=8;i++){try{exprEval(f.expr,{x:pc.x0+(pc.x1-pc.x0)*i/8});ok++}catch(e){}}if(!ok)E(where+': عبارت «'+f.expr+'» در هیچ نقطه‌ی بازه قابل محاسبه نیست')})}
     if((b.type==='p'||b.type==='h')&&typeof b.text!=='string')W(where+': بلوک متنی بدون text')
   });
@@ -1534,6 +1562,7 @@ const CSS=`.crs-pass{border:1px solid var(--b);border-inline-start:4px solid #0e
 .crs-sn{background:var(--ac);color:#fff;border-radius:50%;min-width:24px;height:24px;display:inline-flex;align-items:center;justify-content:center;font-size:12px;margin-top:4px}
 .crs-ans{background:#16a34a22;border-radius:8px;padding:6px 10px;margin:6px 0}.crs-yours{margin:6px 0}.crs-sol,.crs-why{margin:8px 0;padding:6px 10px;border-inline-start:3px solid var(--b)}
 .crs-tw{overflow-x:auto;max-width:100%}.crs-tw table{min-width:340px}.crs-viz{max-width:460px}.crs-svg{width:100%;height:auto;color:inherit}.crs-svg .vg{stroke:currentColor;stroke-opacity:.12}.crs-svg .va{stroke:currentColor;stroke-opacity:.45}.crs-svg .vt{fill:currentColor;font-size:10px;opacity:.8}.crs-svg .vh{fill:currentColor;font-size:12px;font-weight:700}.crs-leg{display:flex;flex-wrap:wrap;gap:4px 12px;justify-content:center;font-size:12px;margin-top:4px}.crs-leg i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-inline-end:4px}.crs-vd{margin-top:4px;text-align:start}
+.crs-svg .dgn{fill:var(--bg2,rgba(127,127,127,.08));stroke-width:1.6}.crs-svg .dge{fill:none;stroke:currentColor;stroke-opacity:.6;stroke-width:1.4}.crs-svg .dgt,.crs-svg .dgl{height:100%;display:flex;align-items:center;justify-content:center;text-align:center;font-size:11.5px;line-height:1.3;color:inherit;overflow:hidden}.crs-svg .dgl{font-size:10px;background:var(--bg,#fff);border-radius:4px}
 .crs-fig{margin:10px auto;text-align:center;max-width:100%}.crs-fig img{max-width:100%;height:auto;background:#fff;border-radius:8px;border:1px solid var(--b)}
 .crs-fig figcaption{font-size:13px;margin-top:4px}.crs-mini{font-size:12px;min-height:26px;padding:1px 8px;border:1px solid var(--b);border-radius:8px;background:var(--c);color:var(--t);cursor:pointer;text-decoration:none;display:inline-block}
 .crs-zm{max-width:92vw;max-height:78vh;overflow:auto;background:#fff;border-radius:8px}.crs-zm img{max-width:none;display:block}
