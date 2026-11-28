@@ -991,5 +991,8 @@ await test('v185: چینش دوره',async pg=>{const r=await pg.evaluate(async(
  C.cache.courses[0].layout='chapters';render();await new Promise(r=>setTimeout(r,300));o.cv3=!!document.querySelector('.crs-cv');
  const v=daniCourses.validatePack?1:0;o.v=v;return o});
  return r.ses&&r.cv&&!r.ses2&&!r.cv3?null:'bad '+JSON.stringify(r)});
+await test('v186: بلوک diagram',async pg=>{const r=await pg.evaluate(()=>{const dc=daniCourses;const d={type:'diagram',nodes:[{id:'a',text:'شروع',shape:'round'},{id:'b',text:'شرط؟',shape:'diamond'},{id:'c',text:'پایان'}],edges:[{from:'a',to:'b'},{from:'b',to:'c',label:'بله'},{from:'c',to:'a'}]};
+ const h=dc.blocks([d]),bad=dc.blocks([{type:'diagram',nodes:[{id:'a',text:'x'}],edges:[{from:'a',to:'z'}]}]);return{n:(h.match(/<foreignObject/g)||[]).length,path:(h.match(/class="dge"/g)||[]).length,bad:/crs-bad/.test(bad)}});
+ return r.n===4&&r.path===3&&r.bad?null:'bad '+JSON.stringify(r)});
 console.log('\n'+results.map(r=>r.join(' ')).join('\n')+'\n\n'+(results.length-fails)+' / '+results.length+' موفق');
 await browser.close();srv.close();process.exit(fails?1:0);
